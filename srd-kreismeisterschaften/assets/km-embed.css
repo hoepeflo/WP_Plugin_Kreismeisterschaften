@@ -1,0 +1,51 @@
+/* SRD Kreismeisterschaften – eingebettet im Theme (ohne Sidebar-Layout) */
+.srd-km-wrap {
+	--bs-primary: #2f6806;
+	--bs-primary-rgb: 47, 104, 6;
+	/* Etwas helleres Grün für Erfolgs-Buttons, bleibt in derselben Tonfamilie */
+	--bs-success: #3d7f0f;
+	--bs-success-rgb: 61, 127, 15;
+	--bs-link-color: #2f6806;
+}
+
+.srd-km-wrap .card {
+	border-radius: 12px;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.srd-km-wrap .btn-primary {
+	background-color: var(--bs-primary);
+	border-color: var(--bs-primary);
+}
+
+.srd-km-wrap .btn-success {
+	background-color: var(--bs-success);
+	border-color: var(--bs-success);
+}
+
+.srd-km-wrap .btn-outline-success {
+	color: var(--bs-success);
+	border-color: var(--bs-success);
+}
+
+.srd-km-wrap .btn-outline-success:hover {
+	background-color: var(--bs-success);
+	color: #fff;
+}
+
+.srd-km-wrap .col-year {
+	width: 80px !important;
+	min-width: 80px;
+}
+
+.srd-km-wrap .col-equal {
+	min-width: 120px;
+}
+
+.srd-km-html-frame {
+	width: 100%;
+	min-height: 70vh;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	border-radius: 8px;
+	background: #fff;
+}
