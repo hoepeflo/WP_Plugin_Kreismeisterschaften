@@ -72,7 +72,7 @@ class SRD_KM_Disciplines_Admin {
 			</p>
 			<?php if (!SRD_KM_DB::table_available()) : ?>
 				<div class="notice notice-error"><p>
-					<?php esc_html_e('Die Tabelle srd_kreis_v3 ist nicht erreichbar oder hat keinen Primärschlüssel. Bitte Datenbankverbindung unter „SRD Kreismeisterschaften“ prüfen.', 'srd-kreismeisterschaften'); ?>
+					<?php esc_html_e('Die Tabelle srd_kreis_v3 ist in der WordPress-Datenbank nicht erreichbar oder hat keinen Primärschlüssel.', 'srd-kreismeisterschaften'); ?>
 				</p></div>
 				<?php return; ?>
 			<?php endif; ?>

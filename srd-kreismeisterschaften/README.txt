@@ -10,7 +10,7 @@ Installation
 5. Unter „Kreismeisterschaften“ → „Einstellungen“ im WordPress-Backend:
    - Seite wählen, die den Shortcode `[srd_km]` enthält (Klassischer Editor oder Shortcode-Block; der Text `[srd_km]` muss im Seiteninhalt vorkommen).
    - Optional: absoluten Pfad und öffentliche URL zu diesem `results`-Ordner setzen (Standard: `wp-content/uploads/srd-results`).
-   - Datenbank: wenn `srd_kreis_v3` in derselben Datenbank wie WordPress liegt, „WordPress-Datenbank verwenden“ aktiv lassen.
+   - Disziplinen und Jahresübersichten werden aus den SRD-Tabellen (`srd_kreis_v2`, `srd_kreis_v3`) in der WordPress-Datenbank geladen.
    - Pretty-Permalinks: Option aktivieren und URL-Slug anpassen (Standard `kreismeisterschaften`). Der Slug sollte nicht mit einer anderen öffentlichen Route kollidieren.
 
 Benutzer freischalten

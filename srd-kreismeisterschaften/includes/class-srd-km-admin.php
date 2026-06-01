@@ -67,17 +67,10 @@ class SRD_KM_Admin {
 	 */
 	public function sanitize_settings($input): array {
 		$out = srd_km_get_settings();
-		$prev = is_array(get_option('srd_km_settings', array())) ? get_option('srd_km_settings', array()) : array();
 		if (!is_array($input)) {
 			return $out;
 		}
 		$out['page_id'] = isset($input['page_id']) ? absint($input['page_id']) : 0;
-		$out['db_use_wp'] = empty($input['db_use_wp']) ? 0 : 1;
-		$out['db_host'] = isset($input['db_host']) ? sanitize_text_field((string) $input['db_host']) : '';
-		$out['db_user'] = isset($input['db_user']) ? sanitize_text_field((string) $input['db_user']) : '';
-		$pass_in = isset($input['db_pass']) ? (string) $input['db_pass'] : '';
-		$out['db_pass'] = ($pass_in === '' && isset($prev['db_pass'])) ? (string) $prev['db_pass'] : $pass_in;
-		$out['db_name'] = isset($input['db_name']) ? sanitize_text_field((string) $input['db_name']) : '';
 		$out['results_path'] = isset($input['results_path']) ? sanitize_text_field((string) $input['results_path']) : '';
 		$out['results_url'] = isset($input['results_url']) ? esc_url_raw((string) $input['results_url']) : '';
 		$out['home_url_custom'] = isset($input['home_url_custom']) ? esc_url_raw((string) $input['home_url_custom']) : '';
@@ -98,6 +91,7 @@ class SRD_KM_Admin {
 		} else {
 			$out['allowed_user_ids'] = SRD_KM_Capabilities::allowed_user_ids();
 		}
+		unset($out['db_use_wp'], $out['db_host'], $out['db_user'], $out['db_pass'], $out['db_name']);
 		return $out;
 	}
 
@@ -148,33 +142,6 @@ class SRD_KM_Admin {
 									<input type="text" class="regular-text" name="srd_km_settings[rewrite_slug]" id="srd_km_rewrite_slug" value="<?php echo esc_attr((string) ($s['rewrite_slug'] ?? 'kreismeisterschaften')); ?>" /></label>
 							</p>
 							<p class="description"><?php esc_html_e('Der Slug darf nicht mit einer anderen öffentlichen Route kollidieren (z. B. gleichlautende Seite).', 'srd-kreismeisterschaften'); ?></p>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><?php esc_html_e('Datenbank (SRD-Tabellen)', 'srd-kreismeisterschaften'); ?></th>
-						<td>
-							<input type="hidden" name="srd_km_settings[db_use_wp]" value="0" />
-							<label>
-								<input type="checkbox" name="srd_km_settings[db_use_wp]" value="1" <?php checked(!empty($s['db_use_wp'])); ?> />
-								<?php esc_html_e('WordPress-Datenbank verwenden (DB_HOST / DB_NAME aus wp-config.php)', 'srd-kreismeisterschaften'); ?>
-							</label>
-							<p class="description"><?php esc_html_e('Deaktivieren, falls die SRD-Tabellen auf einem anderen Server liegen.', 'srd-kreismeisterschaften'); ?></p>
-							<p>
-								<label><?php esc_html_e('Host', 'srd-kreismeisterschaften'); ?><br />
-									<input type="text" class="regular-text" name="srd_km_settings[db_host]" value="<?php echo esc_attr((string) $s['db_host']); ?>" /></label>
-							</p>
-							<p>
-								<label><?php esc_html_e('Benutzer', 'srd-kreismeisterschaften'); ?><br />
-									<input type="text" class="regular-text" name="srd_km_settings[db_user]" value="<?php echo esc_attr((string) $s['db_user']); ?>" autocomplete="off" /></label>
-							</p>
-							<p>
-								<label><?php esc_html_e('Passwort', 'srd-kreismeisterschaften'); ?><br />
-									<input type="password" class="regular-text" name="srd_km_settings[db_pass]" value="" autocomplete="new-password" placeholder="<?php esc_attr_e('leer lassen = unverändert', 'srd-kreismeisterschaften'); ?>" /></label>
-							</p>
-							<p>
-								<label><?php esc_html_e('Datenbankname', 'srd-kreismeisterschaften'); ?><br />
-									<input type="text" class="regular-text" name="srd_km_settings[db_name]" value="<?php echo esc_attr((string) $s['db_name']); ?>" /></label>
-							</p>
 						</td>
 					</tr>
 					<tr>
