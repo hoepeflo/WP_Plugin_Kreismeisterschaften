@@ -8,6 +8,7 @@ Installation
 3. Den kompletten Inhalt des bisherigen `results`-Verzeichnisses auf den Server legen, z. B. nach `wp-content/uploads/srd-results/`.
 4. Unter „Einstellungen“ → „Permalinks“ eine Struktur wählen, die nicht „Einfach“ ist, und speichern (Voraussetzung für Pretty-URLs).
 5. Unter „Kreismeisterschaften“ → „Einstellungen“ im WordPress-Backend:
+   - Unter „Ausschreibungen“ pro Sportjahr PDFs oder WordPress-Seiten für Ausschreibung, Disziplineinplan, Jahrgangstabelle, Terminplan und Kategorie-Ausschreibungen hinterlegen.
    - Seite wählen, die den Shortcode `[srd_km]` enthält (Klassischer Editor oder Shortcode-Block; der Text `[srd_km]` muss im Seiteninhalt vorkommen).
    - Optional: absoluten Pfad und öffentliche URL zu diesem `results`-Ordner setzen (Standard: `wp-content/uploads/srd-results`).
    - Disziplinen und Sportjahre werden aus den SRD-Tabellen (`srd_kreis_v2`, `srd_kreis_v3`) in der WordPress-Datenbank geladen.
@@ -20,6 +21,15 @@ Unter „Kreismeisterschaften“ → „Einstellungen“ (nur für WordPress-Adm
 - Mehrfachauswahl „Benutzer mit Plugin-Zugriff“: zusätzliche Benutzer (z. B. Redakteure) erhalten Zugriff auf das Plugin-Menü, Disziplinen und Uploads.
 - Administratoren (`manage_options`) haben immer vollen Zugriff.
 
+Ausschreibungen verwalten (Backend)
+-----------------------------------
+Unter „Kreismeisterschaften“ → „Ausschreibungen“:
+
+- Sportjahr wählen
+- Pro Dokument: keins, PDF-Upload oder Verknüpfung mit einer WordPress-Seite
+- Allgemeine Ausschreibung, Disziplineinplan, Jahrgangstabelle, Terminplan
+- Ausschreibung je Kategorie (1–12)
+
 Disziplinen verwalten (Backend)
 --------------------------------
 Unter „Kreismeisterschaften“ → „Disziplinen“ (oder über den Button auf der Einstellungsseite):
@@ -31,8 +41,9 @@ Unter „Kreismeisterschaften“ → „Disziplinen“ (oder über den Button au
 
 Frontend
 --------
+- Ausschreibung & Unterlagen oberhalb der Disziplinentabelle (PDF oder WordPress-Seite, abhängig vom gewählten Sportjahr)
 - Eine Disziplinentabelle mit Sportjahr-Dropdown im Tabellenkopf
-- Kategoriefilter unter der Überschrift (Alle, Gewehr, Bogen, Lichtschießen, …)
+- Kategoriefilter unter den Unterlagen (Alle, Gewehr, Bogen, Lichtschießen, …)
 - Kategorie als Badge neben dem Disziplinnamen
 
 Pretty-Permalinks (Standard-Slug `kreismeisterschaften`)
