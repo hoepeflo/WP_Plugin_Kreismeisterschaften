@@ -44,10 +44,15 @@
 	color: #fff;
 }
 
+.srd-km-wrap .srd-km-card-title .srd-km-page-title {
+	color: #fff;
+}
+
 .srd-km-wrap .srd-km-category-tag {
 	font-size: 0.75rem;
 	font-weight: 500;
 	vertical-align: middle;
+	margin-inline-start: 0.5rem;
 }
 
 .srd-km-wrap .srd-km-discipline-cell {
