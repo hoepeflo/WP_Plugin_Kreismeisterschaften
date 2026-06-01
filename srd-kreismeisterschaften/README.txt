@@ -41,7 +41,7 @@ Basis-URL = `https://example.org/kreismeisterschaften/` (je nach Site-URL)
 
 - Disziplinenliste (aktuelles Sportjahr): `/kreismeisterschaften/` oder `/kreismeisterschaften/2025/`
 - Kategorie filtern: `?km_category=6` (z. B. Bogen), an die Jahr-URL angehängt
-- Legacy Bogen/Blasrohr: `/kreismeisterschaften/2025/bogen/` bzw. `…/blasrohr/` (setzen den Kategoriefilter)
+- Legacy Bogen/Blasrohr: `/kreismeisterschaften/2025/bogen/` bzw. `…/blasrohr/` (nur Sportjahr, Kategoriefilter standardmäßig „Alle“)
 - HTML-Ergebnis (Einzel/Mannschaft): `/kreismeisterschaften/2020/e/DATEI-ID/` bzw. `…/m/DATEI-ID/`
 - Roh-HTML für iframe: `/kreismeisterschaften/2020/e/DATEI-ID/raw/`
 
@@ -50,7 +50,7 @@ Ohne Pretty-Permalinks (WordPress „Einfach“) oder wenn die Option deaktivier
 URL-Parameter (Fallback, an die KM-Seiten-URL angehängt)
 -------------------------------------------------------
 - Disziplinenliste: `?km_year=2025` (optional `&km_category=6` für Kategoriefilter)
-- Legacy Bogen/Blasrohr: `?km_year=2025&km_discipline=bogen` bzw. `blasrohr`
+- Legacy Bogen/Blasrohr: `?km_year=2025&km_discipline=bogen` bzw. `blasrohr` (Kategoriefilter standardmäßig „Alle“)
 - HTML-Einzel/Mannschaft: `?km_year=2020&km_id=…&km_art=e` bzw. `m`
 
 Das alte `km_results.php` entfällt; HTML-Ergebnisse werden per iframe ausgeliefert (Pretty: `…/raw/`; sonst `?km_view=raw&…`).
