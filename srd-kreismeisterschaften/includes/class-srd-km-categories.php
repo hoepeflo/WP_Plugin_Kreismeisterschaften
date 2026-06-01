@@ -51,23 +51,13 @@ class SRD_KM_Categories {
 	}
 
 	/**
-	 * Bootstrap-Badge-Klasse pro Kategorie (dezente Farbabstufung).
+	 * CSS-Klasse pro Kategorie (eigene Farbe über km-embed.css).
 	 */
-	public static function badge_class(int $category_id): string {
-		$map = array(
-			1  => 'text-bg-primary',
-			2  => 'text-bg-secondary',
-			3  => 'text-bg-dark',
-			4  => 'text-bg-info',
-			5  => 'text-bg-success',
-			6  => 'text-bg-success',
-			7  => 'text-bg-warning',
-			8  => 'text-bg-info',
-			9  => 'text-bg-secondary',
-			10 => 'text-bg-primary',
-			11 => 'text-bg-dark',
-			12 => 'text-bg-success',
-		);
-		return $map[ $category_id ] ?? 'text-bg-secondary';
+	public static function color_class(int $category_id): string {
+		if ($category_id >= 1 && $category_id <= 12) {
+			return 'srd-km-cat srd-km-cat--' . $category_id;
+		}
+		return 'srd-km-cat srd-km-cat--0';
 	}
+
 }

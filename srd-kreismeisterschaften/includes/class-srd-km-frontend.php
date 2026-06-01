@@ -385,15 +385,9 @@ class SRD_KM_Frontend {
 		ob_start();
 		?>
 		<div class="srd-km-wrap container-fluid py-2">
-			<div class="row mb-3">
-				<div class="col">
-					<h1 class="h2 fw-bold text-primary"><?php esc_html_e('Kreismeisterschaften', 'srd-kreismeisterschaften'); ?></h1>
-					<p class="lead text-muted mb-0"><?php esc_html_e('Ergebnisse der Kreismeisterschaften', 'srd-kreismeisterschaften'); ?></p>
-				</div>
-			</div>
 			<div class="card shadow-sm">
-				<div class="card-header bg-primary text-white">
-					<h2 class="h5 mb-0"><i class="bi bi-trophy me-2"></i><?php esc_html_e('Disziplinen', 'srd-kreismeisterschaften'); ?></h2>
+				<div class="card-header bg-primary text-white srd-km-card-title">
+					<h2 class="h4 mb-0 srd-km-page-title"><i class="bi bi-trophy me-2"></i><?php esc_html_e('Ergebnisse der Kreismeisterschaften', 'srd-kreismeisterschaften'); ?></h2>
 				</div>
 				<div class="card-body border-bottom srd-km-category-filter">
 					<p class="small text-muted mb-2"><?php esc_html_e('Nach Kategorie filtern', 'srd-kreismeisterschaften'); ?></p>
@@ -419,7 +413,7 @@ class SRD_KM_Frontend {
 							);
 							$cat_active = ($category_filter === $cat_id) ? ' active' : '';
 							?>
-							<a href="<?php echo esc_url($cat_url); ?>" class="btn btn-sm btn-outline-primary<?php echo esc_attr($cat_active); ?>">
+							<a href="<?php echo esc_url($cat_url); ?>" class="btn btn-sm srd-km-cat-filter <?php echo esc_attr(SRD_KM_Categories::color_class($cat_id)); ?><?php echo esc_attr($cat_active); ?>">
 								<?php echo esc_html($cat_label); ?>
 							</a>
 						<?php endforeach; ?>
@@ -594,7 +588,7 @@ class SRD_KM_Frontend {
 		echo '<td class="srd-km-discipline-cell">';
 		echo '<strong>' . esc_html((string) ($dsatz['disziplin'] ?? '')) . '</strong>';
 		if ($category_label !== '') {
-			echo ' <span class="badge ' . esc_attr(SRD_KM_Categories::badge_class($category_id)) . ' srd-km-category-tag">' . esc_html($category_label) . '</span>';
+			echo ' <span class="badge ' . esc_attr(SRD_KM_Categories::color_class($category_id)) . ' srd-km-category-tag">' . esc_html($category_label) . '</span>';
 		}
 		echo '</td>';
 		echo '<td>' . esc_html((string) ($dsatz['altersklasse'] ?? '')) . '</td>';
