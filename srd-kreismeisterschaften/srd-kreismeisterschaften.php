@@ -23,6 +23,8 @@ require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-db.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-rewrite.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-results-upload.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-admin.php';
+require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-disciplines-admin.php';
+require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-disciplines-handler.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-frontend.php';
 
 /**
