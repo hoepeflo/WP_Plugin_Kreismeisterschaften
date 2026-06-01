@@ -24,6 +24,8 @@ class SRD_KM_Frontend {
 		add_shortcode('srd_km', array($this, 'shortcode'));
 		add_action('wp_enqueue_scripts', array($this, 'register_assets'));
 		add_action('template_redirect', array($this, 'maybe_serve_raw_html'), 0);
+		add_action('wp_ajax_srd_km_disciplines', array($this, 'ajax_disciplines_list'));
+		add_action('wp_ajax_nopriv_srd_km_disciplines', array($this, 'ajax_disciplines_list'));
 	}
 
 	public function register_assets(): void {
@@ -51,6 +53,60 @@ class SRD_KM_Frontend {
 			array(),
 			'5.3.2',
 			true
+		);
+		wp_register_script(
+			'srd-km-disciplines',
+			SRD_KM_PLUGIN_URL . 'assets/km-disciplines.js',
+			array(),
+			SRD_KM_VERSION,
+			true
+		);
+	}
+
+	/**
+	 * @param int[] $years
+	 */
+	private function enqueue_disciplines_script(int $year, int $category, array $years): void {
+		wp_enqueue_script('srd-km-disciplines');
+		wp_localize_script(
+			'srd-km-disciplines',
+			'srdKmDisciplines',
+			array(
+				'ajaxUrl'       => admin_url('admin-ajax.php'),
+				'nonce'         => wp_create_nonce('srd_km_disciplines'),
+				'action'        => 'srd_km_disciplines',
+				'year'          => $year,
+				'category'      => $category,
+				'years'         => array_map('intval', $years),
+				'usePrettyUrls' => $this->use_pretty_urls(),
+				'baseUrl'       => $this->km_base_url(),
+				'strings'       => array(
+					'loadError' => __('Die Disziplinenliste konnte nicht geladen werden.', 'srd-kreismeisterschaften'),
+				),
+			)
+		);
+	}
+
+	public function ajax_disciplines_list(): void {
+		check_ajax_referer('srd_km_disciplines', 'nonce');
+
+		$year = isset($_POST['year']) ? absint(wp_unslash($_POST['year'])) : 0;
+		if ($year < 1990 || $year > 2100) {
+			wp_send_json_error(array('message' => 'invalid year'), 400);
+		}
+
+		$r = $this->results_paths();
+		if (!is_dir($r['path'])) {
+			wp_send_json_error(array('message' => 'results missing'), 500);
+		}
+
+		$lists = $this->get_disciplines_lists_html($year, SRD_KM_DB::kreis_rows_v3(), $r);
+		wp_send_json_success(
+			array(
+				'year'  => $year,
+				'cards' => $lists['cards'],
+				'tbody' => $lists['tbody'],
+			)
 		);
 	}
 
@@ -377,10 +433,11 @@ class SRD_KM_Frontend {
 	 * @param int[] $years
 	 */
 	private function render_disciplines_view(int $jahr, int $category_filter, array $years): string {
+		$this->enqueue_disciplines_script($jahr, $category_filter, $years);
+
 		$r = $this->results_paths();
-		$extPreferred = ($jahr >= 2024) ? 'pdf' : 'html';
 		$rows = SRD_KM_DB::kreis_rows_v3();
-		$visible_count = 0;
+		$lists = $this->get_disciplines_lists_html($jahr, $rows, $r);
 
 		ob_start();
 		?>
@@ -391,54 +448,19 @@ class SRD_KM_Frontend {
 				</div>
 				<div class="card-body border-bottom srd-km-category-filter">
 					<p class="small text-muted mb-2"><?php esc_html_e('Nach Kategorie filtern', 'srd-kreismeisterschaften'); ?></p>
-					<div class="d-flex flex-wrap gap-2" role="group" aria-label="<?php esc_attr_e('Kategoriefilter', 'srd-kreismeisterschaften'); ?>">
-						<?php
-						$all_url = $this->km_url(
-							array(
-								'km_year' => (string) $jahr,
-							)
-						);
-						$all_active = ($category_filter === 0) ? ' active' : '';
-						?>
-						<a href="<?php echo esc_url($all_url); ?>" class="btn btn-sm btn-outline-primary<?php echo esc_attr($all_active); ?>">
-							<?php esc_html_e('Alle', 'srd-kreismeisterschaften'); ?>
-						</a>
-						<?php foreach (SRD_KM_Categories::labels() as $cat_id => $cat_label) : ?>
-							<?php
-							$cat_url = $this->km_url(
-								array(
-									'km_year'      => (string) $jahr,
-									'km_category'  => (string) $cat_id,
-								)
-							);
-							$cat_active = ($category_filter === $cat_id) ? ' active' : '';
-							?>
-							<a href="<?php echo esc_url($cat_url); ?>" class="btn btn-sm srd-km-cat-filter <?php echo esc_attr(SRD_KM_Categories::color_class($cat_id)); ?><?php echo esc_attr($cat_active); ?>">
-								<?php echo esc_html($cat_label); ?>
-							</a>
-						<?php endforeach; ?>
-					</div>
+					<?php $this->render_category_filter($jahr, $category_filter); ?>
 				</div>
-				<div class="card-body p-0">
-					<?php $this->render_year_toolbar($jahr, $category_filter, $years); ?>
-					<div class="srd-km-disciplines-cards d-md-none" aria-label="<?php esc_attr_e('Disziplinen', 'srd-kreismeisterschaften'); ?>">
+				<div
+					id="srd-km-disciplines-panel"
+					class="card-body p-0 srd-km-disciplines-panel"
+					data-year="<?php echo esc_attr((string) $jahr); ?>"
+					data-category="<?php echo esc_attr((string) $category_filter); ?>"
+				>
+					<?php $this->render_year_toolbar($jahr, $years); ?>
+					<div id="srd-km-disciplines-cards" class="srd-km-disciplines-cards d-md-none" aria-label="<?php esc_attr_e('Disziplinen', 'srd-kreismeisterschaften'); ?>">
 						<?php
-						foreach ($rows as $dsatz) {
-							$datei = (string) ($dsatz['datei'] ?? '');
-							$row_cat = SRD_KM_Categories::from_datei($datei);
-							if ($category_filter > 0 && $row_cat !== $category_filter) {
-								continue;
-							}
-							$row = $this->prepare_discipline_row($dsatz, $jahr, $extPreferred, $r);
-							if ($row === null) {
-								continue;
-							}
-							++$visible_count;
-							$this->render_discipline_card($row);
-						}
-						if ($visible_count === 0) {
-							$this->render_disciplines_empty_message($category_filter);
-						}
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_disciplines_lists_html escapt alle Ausgaben
+						echo $lists['cards'];
 						?>
 					</div>
 					<div class="table-responsive d-none d-md-block">
@@ -453,51 +475,115 @@ class SRD_KM_Frontend {
 									<th><?php esc_html_e('Mannschaft', 'srd-kreismeisterschaften'); ?></th>
 								</tr>
 							</thead>
-							<tbody>
+							<tbody id="srd-km-disciplines-tbody">
 								<?php
-								$table_count = 0;
-								foreach ($rows as $dsatz) {
-									$datei = (string) ($dsatz['datei'] ?? '');
-									$row_cat = SRD_KM_Categories::from_datei($datei);
-									if ($category_filter > 0 && $row_cat !== $category_filter) {
-										continue;
-									}
-									$row = $this->prepare_discipline_row($dsatz, $jahr, $extPreferred, $r);
-									if ($row === null) {
-										continue;
-									}
-									++$table_count;
-									$this->render_discipline_table_row($row);
-								}
-								if ($table_count === 0) :
-									?>
-									<tr>
-										<td colspan="6" class="text-center text-muted py-4">
-											<?php $this->render_disciplines_empty_message($category_filter, false); ?>
-										</td>
-									</tr>
-								<?php endif; ?>
+								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_disciplines_lists_html escapt alle Ausgaben
+								echo $lists['tbody'];
+								?>
 							</tbody>
 						</table>
 					</div>
 				</div>
 			</div>
 		</div>
-		<script>
-		(function () {
-			var sel = document.getElementById('srd-km-year-select');
-			if (!sel) {
-				return;
-			}
-			sel.addEventListener('change', function () {
-				if (sel.value) {
-					window.location.href = sel.value;
-				}
-			});
-		})();
-		</script>
 		<?php
 		return (string) ob_get_clean();
+	}
+
+	/**
+	 * @param array<int, array<string, mixed>> $rows
+	 * @param array{path: string, url: string} $r
+	 * @return array{cards: string, tbody: string}
+	 */
+	private function get_disciplines_lists_html(int $jahr, array $rows, array $r): array {
+		$extPreferred = ($jahr >= 2024) ? 'pdf' : 'html';
+
+		ob_start();
+		foreach ($rows as $dsatz) {
+			$row = $this->prepare_discipline_row($dsatz, $jahr, $extPreferred, $r);
+			if ($row === null) {
+				continue;
+			}
+			$this->render_discipline_card($row);
+		}
+		$this->render_disciplines_empty_placeholders(true);
+		$cards = (string) ob_get_clean();
+
+		ob_start();
+		foreach ($rows as $dsatz) {
+			$row = $this->prepare_discipline_row($dsatz, $jahr, $extPreferred, $r);
+			if ($row === null) {
+				continue;
+			}
+			$this->render_discipline_table_row($row);
+		}
+		$this->render_disciplines_empty_placeholders(false);
+		$tbody = (string) ob_get_clean();
+
+		return array(
+			'cards' => $cards,
+			'tbody' => $tbody,
+		);
+	}
+
+	private function render_category_filter(int $jahr, int $category_filter): void {
+		$all_active = ($category_filter === 0) ? ' active' : '';
+		$all_url = $this->km_url(array( 'km_year' => (string) $jahr ));
+		?>
+		<div class="d-flex flex-wrap gap-2" role="group" aria-label="<?php esc_attr_e('Kategoriefilter', 'srd-kreismeisterschaften'); ?>">
+			<a
+				href="<?php echo esc_url($all_url); ?>"
+				class="btn btn-sm btn-outline-primary<?php echo esc_attr($all_active); ?>"
+				data-srd-km-category="0"
+				aria-pressed="<?php echo $category_filter === 0 ? 'true' : 'false'; ?>"
+			>
+				<?php esc_html_e('Alle', 'srd-kreismeisterschaften'); ?>
+			</a>
+			<?php foreach (SRD_KM_Categories::labels() as $cat_id => $cat_label) : ?>
+				<?php
+				$cat_active = ($category_filter === $cat_id) ? ' active' : '';
+				$cat_url = $this->km_url(
+					array(
+						'km_year'     => (string) $jahr,
+						'km_category' => (string) $cat_id,
+					)
+				);
+				?>
+				<a
+					href="<?php echo esc_url($cat_url); ?>"
+					class="btn btn-sm srd-km-cat-filter <?php echo esc_attr(SRD_KM_Categories::color_class($cat_id)); ?><?php echo esc_attr($cat_active); ?>"
+					data-srd-km-category="<?php echo esc_attr((string) $cat_id); ?>"
+					aria-pressed="<?php echo $category_filter === $cat_id ? 'true' : 'false'; ?>"
+				>
+					<?php echo esc_html($cat_label); ?>
+				</a>
+			<?php endforeach; ?>
+		</div>
+		<?php
+	}
+
+	private function render_disciplines_empty_placeholders(bool $as_paragraph): void {
+		if ($as_paragraph) {
+			echo '<p class="srd-km-empty-message text-center text-muted py-4 px-3 mb-0 d-none" data-srd-km-empty="category">';
+			esc_html_e('Für diese Kategorie liegen noch keine Ergebnisse vor.', 'srd-kreismeisterschaften');
+			echo '</p>';
+			echo '<p class="srd-km-empty-message text-center text-muted py-4 px-3 mb-0 d-none" data-srd-km-empty="year">';
+			esc_html_e('Für dieses Sportjahr liegen noch keine Ergebnisse vor.', 'srd-kreismeisterschaften');
+			echo '</p>';
+			return;
+		}
+		?>
+		<tr class="srd-km-empty-row d-none" data-srd-km-empty="category">
+			<td colspan="6" class="text-center text-muted py-4">
+				<?php esc_html_e('Für diese Kategorie liegen noch keine Ergebnisse vor.', 'srd-kreismeisterschaften'); ?>
+			</td>
+		</tr>
+		<tr class="srd-km-empty-row d-none" data-srd-km-empty="year">
+			<td colspan="6" class="text-center text-muted py-4">
+				<?php esc_html_e('Für dieses Sportjahr liegen noch keine Ergebnisse vor.', 'srd-kreismeisterschaften'); ?>
+			</td>
+		</tr>
+		<?php
 	}
 
 	/**
@@ -530,7 +616,7 @@ class SRD_KM_Frontend {
 	/**
 	 * @param int[] $years
 	 */
-	private function render_year_toolbar(int $jahr, int $category_filter, array $years): void {
+	private function render_year_toolbar(int $jahr, array $years): void {
 		?>
 		<div class="srd-km-year-toolbar px-3 py-2">
 			<div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
@@ -540,34 +626,21 @@ class SRD_KM_Frontend {
 					<?php foreach ($years as $y) : ?>
 						<?php
 						$y = (int) $y;
-						$year_args = array( 'km_year' => (string) $y );
-						if ($category_filter > 0) {
-							$year_args['km_category'] = (string) $category_filter;
-						}
-						$year_url = $this->km_url($year_args);
+						$year_url = $this->km_url(array( 'km_year' => (string) $y ));
 						?>
-						<option value="<?php echo esc_url($year_url); ?>" <?php selected($y, $jahr); ?>>
+						<option value="<?php echo esc_attr((string) $y); ?>" data-fallback-url="<?php echo esc_url($year_url); ?>" <?php selected($y, $jahr); ?>>
 							<?php echo esc_html((string) $y); ?>
 						</option>
 					<?php endforeach; ?>
 				</select>
+				<noscript>
+					<p class="small mb-0 mt-2">
+						<?php esc_html_e('Ohne JavaScript wird die Seite beim Wechsel des Sportjahrs neu geladen.', 'srd-kreismeisterschaften'); ?>
+					</p>
+				</noscript>
 			</div>
 		</div>
 		<?php
-	}
-
-	private function render_disciplines_empty_message(int $category_filter, bool $as_paragraph = true): void {
-		if ($as_paragraph) {
-			echo '<p class="text-center text-muted py-4 px-3 mb-0">';
-		}
-		if ($category_filter > 0) {
-			esc_html_e('Für diese Kategorie liegen noch keine Ergebnisse vor.', 'srd-kreismeisterschaften');
-		} else {
-			esc_html_e('Für dieses Sportjahr liegen noch keine Ergebnisse vor.', 'srd-kreismeisterschaften');
-		}
-		if ($as_paragraph) {
-			echo '</p>';
-		}
 	}
 
 	/**
@@ -684,7 +757,7 @@ class SRD_KM_Frontend {
 	 * } $row
 	 */
 	private function render_discipline_table_row(array $row): void {
-		echo '<tr>';
+		echo '<tr class="srd-km-discipline-item" data-srd-km-category="' . esc_attr((string) $row['category_id']) . '">';
 		echo '<td class="srd-km-discipline-cell">';
 		echo '<strong>' . esc_html($row['disziplin']) . '</strong>';
 		if ($row['category_label'] !== '') {
@@ -717,7 +790,7 @@ class SRD_KM_Frontend {
 	 */
 	private function render_discipline_card(array $row): void {
 		?>
-		<article class="srd-km-row-card">
+		<article class="srd-km-row-card srd-km-discipline-item" data-srd-km-category="<?php echo esc_attr((string) $row['category_id']); ?>">
 			<h3 class="srd-km-row-card__title h6 mb-2">
 				<strong><?php echo esc_html($row['disziplin']); ?></strong>
 				<?php if ($row['category_label'] !== '') : ?>
