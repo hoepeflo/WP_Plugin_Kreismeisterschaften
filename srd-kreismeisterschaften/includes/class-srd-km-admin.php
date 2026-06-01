@@ -1,6 +1,6 @@
 <?php
 /**
- * Einstellungsseite unter Einstellungen → SRD Kreismeisterschaften.
+ * Backend-Menü und Einstellungsseite für SRD Kreismeisterschaften.
  *
  * @package SRD_Kreismeisterschaften
  */
@@ -23,13 +23,28 @@ class SRD_KM_Admin {
 	private function __construct() {
 		add_action('admin_menu', array($this, 'register_menu'));
 		add_action('admin_init', array($this, 'register_settings'));
+		add_filter('option_page_capability_srd_km_settings_group', array($this, 'settings_page_capability'));
+	}
+
+	public function settings_page_capability(): string {
+		return SRD_KM_Capabilities::CAP_MANAGE;
 	}
 
 	public function register_menu(): void {
-		add_options_page(
+		add_menu_page(
 			__('SRD Kreismeisterschaften', 'srd-kreismeisterschaften'),
-			__('SRD Kreismeisterschaften', 'srd-kreismeisterschaften'),
-			'manage_options',
+			__('Kreismeisterschaften', 'srd-kreismeisterschaften'),
+			SRD_KM_Capabilities::CAP_MANAGE,
+			'srd-kreismeisterschaften',
+			array($this, 'render_page'),
+			'dashicons-awards',
+			58
+		);
+		add_submenu_page(
+			'srd-kreismeisterschaften',
+			__('Einstellungen', 'srd-kreismeisterschaften'),
+			__('Einstellungen', 'srd-kreismeisterschaften'),
+			SRD_KM_Capabilities::CAP_MANAGE,
 			'srd-kreismeisterschaften',
 			array($this, 'render_page')
 		);
@@ -69,22 +84,37 @@ class SRD_KM_Admin {
 		$out['rewrite_enabled'] = empty($input['rewrite_enabled']) ? 0 : 1;
 		$slug = isset($input['rewrite_slug']) ? sanitize_title((string) $input['rewrite_slug']) : 'kreismeisterschaften';
 		$out['rewrite_slug'] = $slug !== '' ? $slug : 'kreismeisterschaften';
+		if (SRD_KM_Capabilities::user_can_configure_plugin()) {
+			$out['allowed_user_ids'] = array();
+			if (isset($input['allowed_user_ids']) && is_array($input['allowed_user_ids'])) {
+				foreach ($input['allowed_user_ids'] as $uid) {
+					$uid = absint($uid);
+					if ($uid > 0) {
+						$out['allowed_user_ids'][] = $uid;
+					}
+				}
+			}
+			$out['allowed_user_ids'] = array_values(array_unique($out['allowed_user_ids']));
+		} else {
+			$out['allowed_user_ids'] = SRD_KM_Capabilities::allowed_user_ids();
+		}
 		return $out;
 	}
 
 	public function render_page(): void {
-		if (!current_user_can('manage_options')) {
-			return;
+		if (!SRD_KM_Capabilities::user_can_manage()) {
+			wp_die(esc_html__('Sie haben keinen Zugriff auf diese Seite.', 'srd-kreismeisterschaften'));
 		}
 		$s = srd_km_get_settings();
 		$pages = get_pages(array('sort_column' => 'post_title'));
+		$can_configure = SRD_KM_Capabilities::user_can_configure_plugin();
 		$this->render_upload_admin_notices();
 		?>
 		<div class="wrap">
 			<h1><?php echo esc_html__('SRD Kreismeisterschaften', 'srd-kreismeisterschaften'); ?></h1>
 			<p><?php echo esc_html__('Legen Sie die Seite mit dem Shortcode [srd_km] fest und den Pfad zu Ihrem results-Ordner (wie im bisherigen SRD-Projekt).', 'srd-kreismeisterschaften'); ?></p>
 			<p>
-				<a href="<?php echo esc_url(admin_url('options-general.php?page=srd-kreismeisterschaften-disciplines')); ?>" class="button button-secondary">
+				<a href="<?php echo esc_url(SRD_KM_Capabilities::admin_page_url('srd-kreismeisterschaften-disciplines')); ?>" class="button button-secondary">
 					<?php esc_html_e('Disziplinen verwalten (Kugel)', 'srd-kreismeisterschaften'); ?>
 				</a>
 			</p>
@@ -173,6 +203,15 @@ class SRD_KM_Admin {
 							<p class="description"><?php esc_html_e('Leer = Startseite der Website (home_url()).', 'srd-kreismeisterschaften'); ?></p>
 						</td>
 					</tr>
+					<?php if ($can_configure) : ?>
+						<tr>
+							<th scope="row"><?php esc_html_e('Benutzer mit Plugin-Zugriff', 'srd-kreismeisterschaften'); ?></th>
+							<td>
+								<?php $this->render_allowed_users_field($s); ?>
+								<p class="description"><?php esc_html_e('WordPress-Administratoren haben immer Zugriff. Hier können zusätzliche Benutzer freigeschaltet werden (z. B. Redakteure).', 'srd-kreismeisterschaften'); ?></p>
+							</td>
+						</tr>
+					<?php endif; ?>
 				</table>
 				<?php submit_button(); ?>
 			</form>
@@ -232,6 +271,42 @@ class SRD_KM_Admin {
 				<?php submit_button(__('Datei hochladen', 'srd-kreismeisterschaften'), 'secondary', 'submit', false); ?>
 			</form>
 		</div>
+		<?php
+	}
+
+	/**
+	 * @param array<string, mixed> $s
+	 */
+	private function render_allowed_users_field(array $s): void {
+		$selected = SRD_KM_Capabilities::allowed_user_ids();
+		$users = get_users(
+			array(
+				'orderby' => 'display_name',
+				'order'   => 'ASC',
+				'fields'  => array('ID', 'display_name', 'user_login'),
+			)
+		);
+		?>
+		<select name="srd_km_settings[allowed_user_ids][]" id="srd_km_allowed_users" multiple="multiple" size="8" style="min-width: 20em; height: auto;">
+			<?php foreach ($users as $user) : ?>
+				<?php
+				$uid = (int) $user->ID;
+				if (user_can($uid, 'manage_options')) {
+					continue;
+				}
+				$label = sprintf(
+					/* translators: 1: display name, 2: login */
+					__('%1$s (%2$s)', 'srd-kreismeisterschaften'),
+					$user->display_name,
+					$user->user_login
+				);
+				?>
+				<option value="<?php echo esc_attr((string) $uid); ?>" <?php selected(in_array($uid, $selected, true)); ?>>
+					<?php echo esc_html($label); ?>
+				</option>
+			<?php endforeach; ?>
+		</select>
+		<p class="description"><?php esc_html_e('Mehrfachauswahl: Strg (Windows) bzw. Cmd (Mac) gedrückt halten.', 'srd-kreismeisterschaften'); ?></p>
 		<?php
 	}
 

@@ -18,15 +18,12 @@ class SRD_KM_Results_Upload {
 	}
 
 	public static function handle_post(): void {
-		if (!current_user_can('manage_options')) {
+		if (!SRD_KM_Capabilities::user_can_manage()) {
 			wp_die(esc_html__('Keine Berechtigung.', 'srd-kreismeisterschaften'));
 		}
 		check_admin_referer('srd_km_upload_results', 'srd_km_upload_nonce');
 
-		$redirect = add_query_arg(
-			array('page' => 'srd-kreismeisterschaften'),
-			admin_url('options-general.php')
-		);
+		$redirect = SRD_KM_Capabilities::admin_page_url('srd-kreismeisterschaften');
 
 		$kind = isset($_POST['srd_km_upload_kind']) ? sanitize_key((string) wp_unslash($_POST['srd_km_upload_kind'])) : '';
 		if (!in_array($kind, array('file', 'zip'), true)) {

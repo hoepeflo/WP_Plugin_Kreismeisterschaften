@@ -30,18 +30,18 @@ class SRD_KM_Disciplines_Admin {
 
 	public function register_menu(): void {
 		add_submenu_page(
-			'options-general.php',
+			'srd-kreismeisterschaften',
 			__('KM Disziplinen', 'srd-kreismeisterschaften'),
-			__('KM Disziplinen', 'srd-kreismeisterschaften'),
-			'manage_options',
+			__('Disziplinen', 'srd-kreismeisterschaften'),
+			SRD_KM_Capabilities::CAP_MANAGE,
 			'srd-kreismeisterschaften-disciplines',
 			array($this, 'render_page')
 		);
 	}
 
 	public function render_page(): void {
-		if (!current_user_can('manage_options')) {
-			return;
+		if (!SRD_KM_Capabilities::user_can_manage()) {
+			wp_die(esc_html__('Sie haben keinen Zugriff auf diese Seite.', 'srd-kreismeisterschaften'));
 		}
 		$action = isset($_GET['action']) ? sanitize_key((string) wp_unslash($_GET['action'])) : '';
 		if ($action === 'edit' || $action === 'add') {
@@ -55,8 +55,8 @@ class SRD_KM_Disciplines_Admin {
 		$this->render_admin_notices();
 		$pk = SRD_KM_DB::kreis_v3_primary_key();
 		$rows = SRD_KM_DB::kreis_rows_v3();
-		$list_url = admin_url('options-general.php?page=srd-kreismeisterschaften-disciplines');
-		$settings_url = admin_url('options-general.php?page=srd-kreismeisterschaften');
+		$list_url = SRD_KM_Capabilities::admin_page_url('srd-kreismeisterschaften-disciplines');
+		$settings_url = SRD_KM_Capabilities::admin_page_url('srd-kreismeisterschaften');
 		?>
 		<div class="wrap">
 			<h1 class="wp-heading-inline"><?php esc_html_e('Disziplinen (Kugel)', 'srd-kreismeisterschaften'); ?></h1>
@@ -135,7 +135,7 @@ class SRD_KM_Disciplines_Admin {
 	private function render_edit_form(string $action): void {
 		$this->render_admin_notices();
 		$pk = SRD_KM_DB::kreis_v3_primary_key();
-		$list_url = admin_url('options-general.php?page=srd-kreismeisterschaften-disciplines');
+		$list_url = SRD_KM_Capabilities::admin_page_url('srd-kreismeisterschaften-disciplines');
 		$id = isset($_GET['id']) ? absint($_GET['id']) : 0;
 		$row = array();
 		$is_new = ($action === 'add');

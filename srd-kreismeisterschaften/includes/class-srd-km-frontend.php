@@ -281,12 +281,12 @@ class SRD_KM_Frontend {
 		$this->enqueue_km_assets();
 		$s = srd_km_get_settings();
 		$admin_tip = '';
-		if (current_user_can('manage_options') && empty($s['page_id'])) {
+		if (SRD_KM_Capabilities::user_can_manage() && empty($s['page_id'])) {
 			$admin_tip = '<div class="alert alert-warning">' .
 				esc_html__('Tipp: Unter Einstellungen → SRD Kreismeisterschaften die KM-Seite festlegen, damit alle Links stabil auf dieselbe URL zeigen.', 'srd-kreismeisterschaften') .
 				'</div>';
 		}
-		if (current_user_can('manage_options') && !empty($s['rewrite_enabled']) && get_option('permalink_structure', '') === '') {
+		if (SRD_KM_Capabilities::user_can_manage() && !empty($s['rewrite_enabled']) && get_option('permalink_structure', '') === '') {
 			$admin_tip .= '<div class="alert alert-info">' .
 				esc_html__('Pretty-URLs sind aktiviert, aber WordPress nutzt noch „Einfache“ Permalinks. Unter Einstellungen → Permalinks eine andere Struktur wählen und speichern.', 'srd-kreismeisterschaften') .
 				'</div>';
