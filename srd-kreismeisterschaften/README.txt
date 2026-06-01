@@ -13,6 +13,14 @@ Installation
    - Datenbank: wenn `srd_kreis_v3` in derselben Datenbank wie WordPress liegt, „WordPress-Datenbank verwenden“ aktiv lassen.
    - Pretty-Permalinks: Option aktivieren und URL-Slug anpassen (Standard `kreismeisterschaften`). Der Slug sollte nicht mit einer anderen öffentlichen Route kollidieren.
 
+Disziplinen verwalten (Backend)
+--------------------------------
+Unter „Einstellungen“ → „KM Disziplinen“ (oder über den Button auf der Plugin-Einstellungsseite):
+
+- Liste aller Einträge aus `srd_kreis_v3` (Kugel-Disziplinen)
+- Anlegen, Bearbeiten und Löschen von Disziplinen (Disziplin, Altersklasse, SpO, Datei-ID, optional Sportjahr)
+- Ergebnisdateien werden weiterhin im `results`-Ordner abgelegt; die Datei-ID verknüpft die Zeile mit `km_JJJJ/e{ID}.pdf` bzw. `m{ID}.pdf`
+
 Pretty-Permalinks (Standard-Slug `kreismeisterschaften`)
 --------------------------------------------------------
 Basis-URL = `https://example.org/kreismeisterschaften/` (je nach Site-URL)
