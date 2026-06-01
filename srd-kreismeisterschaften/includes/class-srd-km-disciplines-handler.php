@@ -17,7 +17,7 @@ class SRD_KM_Disciplines_Handler {
 	}
 
 	private static function list_url(): string {
-		return admin_url('options-general.php?page=srd-kreismeisterschaften-disciplines');
+		return SRD_KM_Capabilities::admin_page_url('srd-kreismeisterschaften-disciplines');
 	}
 
 	private static function redirect_with(string $status, string $code, ?string $edit_id = null): void {
@@ -81,7 +81,7 @@ class SRD_KM_Disciplines_Handler {
 	}
 
 	public static function handle_save(): void {
-		if (!current_user_can('manage_options')) {
+		if (!SRD_KM_Capabilities::user_can_manage()) {
 			wp_die(esc_html__('Keine Berechtigung.', 'srd-kreismeisterschaften'));
 		}
 		check_admin_referer('srd_km_save_discipline', 'srd_km_discipline_nonce');
@@ -126,7 +126,7 @@ class SRD_KM_Disciplines_Handler {
 	}
 
 	public static function handle_delete(): void {
-		if (!current_user_can('manage_options')) {
+		if (!SRD_KM_Capabilities::user_can_manage()) {
 			wp_die(esc_html__('Keine Berechtigung.', 'srd-kreismeisterschaften'));
 		}
 		check_admin_referer('srd_km_delete_discipline', 'srd_km_discipline_delete_nonce');

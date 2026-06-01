@@ -1,6 +1,6 @@
 <?php
 /**
- * Einstellungsseite unter Einstellungen → SRD Kreismeisterschaften.
+ * Backend-Menü und Einstellungsseite für SRD Kreismeisterschaften.
  *
  * @package SRD_Kreismeisterschaften
  */
@@ -23,13 +23,28 @@ class SRD_KM_Admin {
 	private function __construct() {
 		add_action('admin_menu', array($this, 'register_menu'));
 		add_action('admin_init', array($this, 'register_settings'));
+		add_filter('option_page_capability_srd_km_settings_group', array($this, 'settings_page_capability'));
+	}
+
+	public function settings_page_capability(): string {
+		return SRD_KM_Capabilities::CAP_MANAGE;
 	}
 
 	public function register_menu(): void {
-		add_options_page(
+		add_menu_page(
 			__('SRD Kreismeisterschaften', 'srd-kreismeisterschaften'),
-			__('SRD Kreismeisterschaften', 'srd-kreismeisterschaften'),
-			'manage_options',
+			__('Kreismeisterschaften', 'srd-kreismeisterschaften'),
+			SRD_KM_Capabilities::CAP_MANAGE,
+			'srd-kreismeisterschaften',
+			array($this, 'render_page'),
+			'dashicons-awards',
+			58
+		);
+		add_submenu_page(
+			'srd-kreismeisterschaften',
+			__('Einstellungen', 'srd-kreismeisterschaften'),
+			__('Einstellungen', 'srd-kreismeisterschaften'),
+			SRD_KM_Capabilities::CAP_MANAGE,
 			'srd-kreismeisterschaften',
 			array($this, 'render_page')
 		);
@@ -52,39 +67,48 @@ class SRD_KM_Admin {
 	 */
 	public function sanitize_settings($input): array {
 		$out = srd_km_get_settings();
-		$prev = is_array(get_option('srd_km_settings', array())) ? get_option('srd_km_settings', array()) : array();
 		if (!is_array($input)) {
 			return $out;
 		}
 		$out['page_id'] = isset($input['page_id']) ? absint($input['page_id']) : 0;
-		$out['db_use_wp'] = empty($input['db_use_wp']) ? 0 : 1;
-		$out['db_host'] = isset($input['db_host']) ? sanitize_text_field((string) $input['db_host']) : '';
-		$out['db_user'] = isset($input['db_user']) ? sanitize_text_field((string) $input['db_user']) : '';
-		$pass_in = isset($input['db_pass']) ? (string) $input['db_pass'] : '';
-		$out['db_pass'] = ($pass_in === '' && isset($prev['db_pass'])) ? (string) $prev['db_pass'] : $pass_in;
-		$out['db_name'] = isset($input['db_name']) ? sanitize_text_field((string) $input['db_name']) : '';
 		$out['results_path'] = isset($input['results_path']) ? sanitize_text_field((string) $input['results_path']) : '';
 		$out['results_url'] = isset($input['results_url']) ? esc_url_raw((string) $input['results_url']) : '';
 		$out['home_url_custom'] = isset($input['home_url_custom']) ? esc_url_raw((string) $input['home_url_custom']) : '';
 		$out['rewrite_enabled'] = empty($input['rewrite_enabled']) ? 0 : 1;
 		$slug = isset($input['rewrite_slug']) ? sanitize_title((string) $input['rewrite_slug']) : 'kreismeisterschaften';
 		$out['rewrite_slug'] = $slug !== '' ? $slug : 'kreismeisterschaften';
+		if (SRD_KM_Capabilities::user_can_configure_plugin()) {
+			$out['allowed_user_ids'] = array();
+			if (isset($input['allowed_user_ids']) && is_array($input['allowed_user_ids'])) {
+				foreach ($input['allowed_user_ids'] as $uid) {
+					$uid = absint($uid);
+					if ($uid > 0) {
+						$out['allowed_user_ids'][] = $uid;
+					}
+				}
+			}
+			$out['allowed_user_ids'] = array_values(array_unique($out['allowed_user_ids']));
+		} else {
+			$out['allowed_user_ids'] = SRD_KM_Capabilities::allowed_user_ids();
+		}
+		unset($out['db_use_wp'], $out['db_host'], $out['db_user'], $out['db_pass'], $out['db_name']);
 		return $out;
 	}
 
 	public function render_page(): void {
-		if (!current_user_can('manage_options')) {
-			return;
+		if (!SRD_KM_Capabilities::user_can_manage()) {
+			wp_die(esc_html__('Sie haben keinen Zugriff auf diese Seite.', 'srd-kreismeisterschaften'));
 		}
 		$s = srd_km_get_settings();
 		$pages = get_pages(array('sort_column' => 'post_title'));
+		$can_configure = SRD_KM_Capabilities::user_can_configure_plugin();
 		$this->render_upload_admin_notices();
 		?>
 		<div class="wrap">
 			<h1><?php echo esc_html__('SRD Kreismeisterschaften', 'srd-kreismeisterschaften'); ?></h1>
 			<p><?php echo esc_html__('Legen Sie die Seite mit dem Shortcode [srd_km] fest und den Pfad zu Ihrem results-Ordner (wie im bisherigen SRD-Projekt).', 'srd-kreismeisterschaften'); ?></p>
 			<p>
-				<a href="<?php echo esc_url(admin_url('options-general.php?page=srd-kreismeisterschaften-disciplines')); ?>" class="button button-secondary">
+				<a href="<?php echo esc_url(SRD_KM_Capabilities::admin_page_url('srd-kreismeisterschaften-disciplines')); ?>" class="button button-secondary">
 					<?php esc_html_e('Disziplinen verwalten (Kugel)', 'srd-kreismeisterschaften'); ?>
 				</a>
 			</p>
@@ -121,33 +145,6 @@ class SRD_KM_Admin {
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php esc_html_e('Datenbank (SRD-Tabellen)', 'srd-kreismeisterschaften'); ?></th>
-						<td>
-							<input type="hidden" name="srd_km_settings[db_use_wp]" value="0" />
-							<label>
-								<input type="checkbox" name="srd_km_settings[db_use_wp]" value="1" <?php checked(!empty($s['db_use_wp'])); ?> />
-								<?php esc_html_e('WordPress-Datenbank verwenden (DB_HOST / DB_NAME aus wp-config.php)', 'srd-kreismeisterschaften'); ?>
-							</label>
-							<p class="description"><?php esc_html_e('Deaktivieren, falls die SRD-Tabellen auf einem anderen Server liegen.', 'srd-kreismeisterschaften'); ?></p>
-							<p>
-								<label><?php esc_html_e('Host', 'srd-kreismeisterschaften'); ?><br />
-									<input type="text" class="regular-text" name="srd_km_settings[db_host]" value="<?php echo esc_attr((string) $s['db_host']); ?>" /></label>
-							</p>
-							<p>
-								<label><?php esc_html_e('Benutzer', 'srd-kreismeisterschaften'); ?><br />
-									<input type="text" class="regular-text" name="srd_km_settings[db_user]" value="<?php echo esc_attr((string) $s['db_user']); ?>" autocomplete="off" /></label>
-							</p>
-							<p>
-								<label><?php esc_html_e('Passwort', 'srd-kreismeisterschaften'); ?><br />
-									<input type="password" class="regular-text" name="srd_km_settings[db_pass]" value="" autocomplete="new-password" placeholder="<?php esc_attr_e('leer lassen = unverändert', 'srd-kreismeisterschaften'); ?>" /></label>
-							</p>
-							<p>
-								<label><?php esc_html_e('Datenbankname', 'srd-kreismeisterschaften'); ?><br />
-									<input type="text" class="regular-text" name="srd_km_settings[db_name]" value="<?php echo esc_attr((string) $s['db_name']); ?>" /></label>
-							</p>
-						</td>
-					</tr>
-					<tr>
 						<th scope="row"><label for="srd_km_results_path"><?php esc_html_e('Pfad zum Ordner „results“', 'srd-kreismeisterschaften'); ?></label></th>
 						<td>
 							<input type="text" class="large-text code" name="srd_km_settings[results_path]" id="srd_km_results_path"
@@ -173,6 +170,15 @@ class SRD_KM_Admin {
 							<p class="description"><?php esc_html_e('Leer = Startseite der Website (home_url()).', 'srd-kreismeisterschaften'); ?></p>
 						</td>
 					</tr>
+					<?php if ($can_configure) : ?>
+						<tr>
+							<th scope="row"><?php esc_html_e('Benutzer mit Plugin-Zugriff', 'srd-kreismeisterschaften'); ?></th>
+							<td>
+								<?php $this->render_allowed_users_field($s); ?>
+								<p class="description"><?php esc_html_e('WordPress-Administratoren haben immer Zugriff. Hier können zusätzliche Benutzer freigeschaltet werden (z. B. Redakteure).', 'srd-kreismeisterschaften'); ?></p>
+							</td>
+						</tr>
+					<?php endif; ?>
 				</table>
 				<?php submit_button(); ?>
 			</form>
@@ -232,6 +238,42 @@ class SRD_KM_Admin {
 				<?php submit_button(__('Datei hochladen', 'srd-kreismeisterschaften'), 'secondary', 'submit', false); ?>
 			</form>
 		</div>
+		<?php
+	}
+
+	/**
+	 * @param array<string, mixed> $s
+	 */
+	private function render_allowed_users_field(array $s): void {
+		$selected = SRD_KM_Capabilities::allowed_user_ids();
+		$users = get_users(
+			array(
+				'orderby' => 'display_name',
+				'order'   => 'ASC',
+				'fields'  => array('ID', 'display_name', 'user_login'),
+			)
+		);
+		?>
+		<select name="srd_km_settings[allowed_user_ids][]" id="srd_km_allowed_users" multiple="multiple" size="8" style="min-width: 20em; height: auto;">
+			<?php foreach ($users as $user) : ?>
+				<?php
+				$uid = (int) $user->ID;
+				if (user_can($uid, 'manage_options')) {
+					continue;
+				}
+				$label = sprintf(
+					/* translators: 1: display name, 2: login */
+					__('%1$s (%2$s)', 'srd-kreismeisterschaften'),
+					$user->display_name,
+					$user->user_login
+				);
+				?>
+				<option value="<?php echo esc_attr((string) $uid); ?>" <?php selected(in_array($uid, $selected, true)); ?>>
+					<?php echo esc_html($label); ?>
+				</option>
+			<?php endforeach; ?>
+		</select>
+		<p class="description"><?php esc_html_e('Mehrfachauswahl: Strg (Windows) bzw. Cmd (Mac) gedrückt halten.', 'srd-kreismeisterschaften'); ?></p>
 		<?php
 	}
 

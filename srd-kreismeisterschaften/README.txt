@@ -7,15 +7,22 @@ Installation
 2. Im WordPress-Backend Plugin aktivieren.
 3. Den kompletten Inhalt des bisherigen `results`-Verzeichnisses auf den Server legen, z. B. nach `wp-content/uploads/srd-results/`.
 4. Unter „Einstellungen“ → „Permalinks“ eine Struktur wählen, die nicht „Einfach“ ist, und speichern (Voraussetzung für Pretty-URLs).
-5. Unter „Einstellungen“ → „SRD Kreismeisterschaften“:
+5. Unter „Kreismeisterschaften“ → „Einstellungen“ im WordPress-Backend:
    - Seite wählen, die den Shortcode `[srd_km]` enthält (Klassischer Editor oder Shortcode-Block; der Text `[srd_km]` muss im Seiteninhalt vorkommen).
    - Optional: absoluten Pfad und öffentliche URL zu diesem `results`-Ordner setzen (Standard: `wp-content/uploads/srd-results`).
-   - Datenbank: wenn `srd_kreis_v3` in derselben Datenbank wie WordPress liegt, „WordPress-Datenbank verwenden“ aktiv lassen.
+   - Disziplinen und Jahresübersichten werden aus den SRD-Tabellen (`srd_kreis_v2`, `srd_kreis_v3`) in der WordPress-Datenbank geladen.
    - Pretty-Permalinks: Option aktivieren und URL-Slug anpassen (Standard `kreismeisterschaften`). Der Slug sollte nicht mit einer anderen öffentlichen Route kollidieren.
+
+Benutzer freischalten
+---------------------
+Unter „Kreismeisterschaften“ → „Einstellungen“ (nur für WordPress-Administratoren sichtbar):
+
+- Mehrfachauswahl „Benutzer mit Plugin-Zugriff“: zusätzliche Benutzer (z. B. Redakteure) erhalten Zugriff auf das Plugin-Menü, Disziplinen und Uploads.
+- Administratoren (`manage_options`) haben immer vollen Zugriff.
 
 Disziplinen verwalten (Backend)
 --------------------------------
-Unter „Einstellungen“ → „KM Disziplinen“ (oder über den Button auf der Plugin-Einstellungsseite):
+Unter „Kreismeisterschaften“ → „Disziplinen“ (oder über den Button auf der Einstellungsseite):
 
 - Liste aller Einträge aus `srd_kreis_v3` (Kugel-Disziplinen)
 - Anlegen, Bearbeiten und Löschen von Disziplinen (Disziplin, Altersklasse, SpO, Datei-ID, optional Sportjahr)

@@ -15,22 +15,7 @@ class SRD_KM_DB {
 	 * @return mysqli|null
 	 */
 	public static function connection() {
-		$settings = srd_km_get_settings();
-		if (!empty($settings['db_use_wp'])) {
-			$host = DB_HOST;
-			$user = DB_USER;
-			$pass = DB_PASSWORD;
-			$name = DB_NAME;
-		} else {
-			$host = $settings['db_host'] ?: 'localhost';
-			$user = $settings['db_user'] ?? '';
-			$pass = $settings['db_pass'] ?? '';
-			$name = $settings['db_name'] ?? '';
-		}
-		if ($name === '') {
-			return null;
-		}
-		$con = @mysqli_connect($host, $user, $pass, $name);
+		$con = @mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 		if (!$con) {
 			return null;
 		}
