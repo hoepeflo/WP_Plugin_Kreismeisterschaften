@@ -420,32 +420,30 @@ class SRD_KM_Frontend {
 					</div>
 				</div>
 				<div class="card-body p-0">
-					<div class="table-responsive">
+					<?php $this->render_year_toolbar($jahr, $category_filter, $years); ?>
+					<div class="srd-km-disciplines-cards d-md-none" aria-label="<?php esc_attr_e('Disziplinen', 'srd-kreismeisterschaften'); ?>">
+						<?php
+						foreach ($rows as $dsatz) {
+							$datei = (string) ($dsatz['datei'] ?? '');
+							$row_cat = SRD_KM_Categories::from_datei($datei);
+							if ($category_filter > 0 && $row_cat !== $category_filter) {
+								continue;
+							}
+							$row = $this->prepare_discipline_row($dsatz, $jahr, $extPreferred, $r);
+							if ($row === null) {
+								continue;
+							}
+							++$visible_count;
+							$this->render_discipline_card($row);
+						}
+						if ($visible_count === 0) {
+							$this->render_disciplines_empty_message($category_filter);
+						}
+						?>
+					</div>
+					<div class="table-responsive d-none d-md-block">
 						<table class="table table-hover table-striped mb-0 srd-km-disciplines-table">
 							<thead class="table-primary">
-								<tr class="srd-km-year-toolbar">
-									<th colspan="6" class="border-0 py-2">
-										<div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
-											<span class="fw-semibold"><?php esc_html_e('Sportjahr', 'srd-kreismeisterschaften'); ?></span>
-											<label class="visually-hidden" for="srd-km-year-select"><?php esc_html_e('Sportjahr', 'srd-kreismeisterschaften'); ?></label>
-											<select id="srd-km-year-select" class="form-select form-select-sm srd-km-year-select" aria-label="<?php esc_attr_e('Sportjahr', 'srd-kreismeisterschaften'); ?>">
-												<?php foreach ($years as $y) : ?>
-													<?php
-													$y = (int) $y;
-													$year_args = array( 'km_year' => (string) $y );
-													if ($category_filter > 0) {
-														$year_args['km_category'] = (string) $category_filter;
-													}
-													$year_url = $this->km_url($year_args);
-													?>
-													<option value="<?php echo esc_url($year_url); ?>" <?php selected($y, $jahr); ?>>
-														<?php echo esc_html((string) $y); ?>
-													</option>
-												<?php endforeach; ?>
-											</select>
-										</div>
-									</th>
-								</tr>
 								<tr>
 									<th><?php esc_html_e('Disziplin', 'srd-kreismeisterschaften'); ?></th>
 									<th><?php esc_html_e('Klasse', 'srd-kreismeisterschaften'); ?></th>
@@ -457,32 +455,25 @@ class SRD_KM_Frontend {
 							</thead>
 							<tbody>
 								<?php
+								$table_count = 0;
 								foreach ($rows as $dsatz) {
 									$datei = (string) ($dsatz['datei'] ?? '');
 									$row_cat = SRD_KM_Categories::from_datei($datei);
 									if ($category_filter > 0 && $row_cat !== $category_filter) {
 										continue;
 									}
-									ob_start();
-									$this->render_row($dsatz, $jahr, $extPreferred, $r);
-									$row_html = (string) ob_get_clean();
-									if ($row_html !== '') {
-										++$visible_count;
-										// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render_row escapt alle Ausgaben
-										echo $row_html;
+									$row = $this->prepare_discipline_row($dsatz, $jahr, $extPreferred, $r);
+									if ($row === null) {
+										continue;
 									}
+									++$table_count;
+									$this->render_discipline_table_row($row);
 								}
-								if ($visible_count === 0) :
+								if ($table_count === 0) :
 									?>
 									<tr>
 										<td colspan="6" class="text-center text-muted py-4">
-											<?php
-											if ($category_filter > 0) {
-												esc_html_e('Für diese Kategorie liegen noch keine Ergebnisse vor.', 'srd-kreismeisterschaften');
-											} else {
-												esc_html_e('Für dieses Sportjahr liegen noch keine Ergebnisse vor.', 'srd-kreismeisterschaften');
-											}
-											?>
+											<?php $this->render_disciplines_empty_message($category_filter, false); ?>
 										</td>
 									</tr>
 								<?php endif; ?>
@@ -537,13 +528,66 @@ class SRD_KM_Frontend {
 	}
 
 	/**
+	 * @param int[] $years
+	 */
+	private function render_year_toolbar(int $jahr, int $category_filter, array $years): void {
+		?>
+		<div class="srd-km-year-toolbar px-3 py-2">
+			<div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+				<span class="fw-semibold"><?php esc_html_e('Sportjahr', 'srd-kreismeisterschaften'); ?></span>
+				<label class="visually-hidden" for="srd-km-year-select"><?php esc_html_e('Sportjahr', 'srd-kreismeisterschaften'); ?></label>
+				<select id="srd-km-year-select" class="form-select form-select-sm srd-km-year-select" aria-label="<?php esc_attr_e('Sportjahr', 'srd-kreismeisterschaften'); ?>">
+					<?php foreach ($years as $y) : ?>
+						<?php
+						$y = (int) $y;
+						$year_args = array( 'km_year' => (string) $y );
+						if ($category_filter > 0) {
+							$year_args['km_category'] = (string) $category_filter;
+						}
+						$year_url = $this->km_url($year_args);
+						?>
+						<option value="<?php echo esc_url($year_url); ?>" <?php selected($y, $jahr); ?>>
+							<?php echo esc_html((string) $y); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+			</div>
+		</div>
+		<?php
+	}
+
+	private function render_disciplines_empty_message(int $category_filter, bool $as_paragraph = true): void {
+		if ($as_paragraph) {
+			echo '<p class="text-center text-muted py-4 px-3 mb-0">';
+		}
+		if ($category_filter > 0) {
+			esc_html_e('Für diese Kategorie liegen noch keine Ergebnisse vor.', 'srd-kreismeisterschaften');
+		} else {
+			esc_html_e('Für dieses Sportjahr liegen noch keine Ergebnisse vor.', 'srd-kreismeisterschaften');
+		}
+		if ($as_paragraph) {
+			echo '</p>';
+		}
+	}
+
+	/**
 	 * @param array<string, mixed> $dsatz
 	 * @param array{path: string, url: string} $r
+	 * @return array{
+	 *   disziplin: string,
+	 *   altersklasse: string,
+	 *   spo: string,
+	 *   datum: string,
+	 *   category_id: int,
+	 *   category_label: string,
+	 *   einzel: array{available: bool, kind: string, url: string},
+	 *   mannschaft: array{available: bool, kind: string, url: string}
+	 * }|null
 	 */
-	private function render_row(array $dsatz, int $jahr, string $extPreferred, array $r): void {
+	private function prepare_discipline_row(array $dsatz, int $jahr, string $extPreferred, array $r): ?array {
 		$datei = (string) ($dsatz['datei'] ?? '');
 		if (!$this->is_safe_file_id($datei)) {
-			return;
+			return null;
 		}
 		$pfadEpdf = 'km_' . $jahr . '/e' . $datei . '.pdf';
 		$pfadMpdf = 'km_' . $jahr . '/m' . $datei . '.pdf';
@@ -558,7 +602,7 @@ class SRD_KM_Frontend {
 			} elseif ($hasHtml) {
 				$ext = 'html';
 			} else {
-				return;
+				return null;
 			}
 		} else {
 			$hasHtml = $this->resolve_under_results($pfadEhtml) || $this->resolve_under_results($pfadMhtml);
@@ -568,7 +612,7 @@ class SRD_KM_Frontend {
 			} elseif ($hasPdf) {
 				$ext = 'pdf';
 			} else {
-				return;
+				return null;
 			}
 		}
 
@@ -582,55 +626,174 @@ class SRD_KM_Frontend {
 		}
 
 		$category_id = SRD_KM_Categories::from_datei($datei);
-		$category_label = SRD_KM_Categories::label($category_id);
 
+		return array(
+			'disziplin'       => (string) ( $dsatz['disziplin'] ?? '' ),
+			'altersklasse'    => (string) ( $dsatz['altersklasse'] ?? '' ),
+			'spo'             => (string) ( $dsatz['spo'] ?? '' ),
+			'datum'           => $datum,
+			'category_id'     => $category_id,
+			'category_label'  => SRD_KM_Categories::label($category_id),
+			'einzel'          => $this->prepare_result_action($fileE, $ext, $jahr, $datei, 'e', $r, $pfadE),
+			'mannschaft'      => $this->prepare_result_action($fileM, $ext, $jahr, $datei, 'm', $r, $pfadM),
+		);
+	}
+
+	/**
+	 * @param array{path: string, url: string} $r
+	 * @return array{available: bool, kind: string, url: string}
+	 */
+	private function prepare_result_action($file, string $ext, int $jahr, string $datei, string $art, array $r, string $pfad): array {
+		if (!$file) {
+			return array(
+				'available' => false,
+				'kind'      => 'none',
+				'url'       => '',
+			);
+		}
+		if ($ext === 'html') {
+			return array(
+				'available' => true,
+				'kind'      => 'html',
+				'url'       => $this->km_url(
+					array(
+						'km_year' => (string) $jahr,
+						'km_id'   => $datei,
+						'km_art'  => $art,
+					)
+				),
+			);
+		}
+		return array(
+			'available' => true,
+			'kind'      => 'pdf',
+			'url'       => $r['url'] . '/' . $pfad,
+		);
+	}
+
+	/**
+	 * @param array{
+	 *   disziplin: string,
+	 *   altersklasse: string,
+	 *   spo: string,
+	 *   datum: string,
+	 *   category_id: int,
+	 *   category_label: string,
+	 *   einzel: array{available: bool, kind: string, url: string},
+	 *   mannschaft: array{available: bool, kind: string, url: string}
+	 * } $row
+	 */
+	private function render_discipline_table_row(array $row): void {
 		echo '<tr>';
 		echo '<td class="srd-km-discipline-cell">';
-		echo '<strong>' . esc_html((string) ($dsatz['disziplin'] ?? '')) . '</strong>';
-		if ($category_label !== '') {
-			echo ' <span class="badge ' . esc_attr(SRD_KM_Categories::color_class($category_id)) . ' srd-km-category-tag">' . esc_html($category_label) . '</span>';
+		echo '<strong>' . esc_html($row['disziplin']) . '</strong>';
+		if ($row['category_label'] !== '') {
+			echo ' <span class="badge ' . esc_attr(SRD_KM_Categories::color_class($row['category_id'])) . ' srd-km-category-tag">' . esc_html($row['category_label']) . '</span>';
 		}
 		echo '</td>';
-		echo '<td>' . esc_html((string) ($dsatz['altersklasse'] ?? '')) . '</td>';
-		echo '<td>' . esc_html((string) ($dsatz['spo'] ?? '')) . '</td>';
-		echo '<td>' . esc_html($datum) . '</td>';
-
-		if ($fileE) {
-			if ($ext === 'html') {
-				$url = $this->km_url(
-					array(
-						'km_year' => (string) $jahr,
-						'km_id'   => $datei,
-						'km_art'  => 'e',
-					)
-				);
-				echo '<td><a href="' . esc_url($url) . '" class="btn btn-outline-success btn-sm"><i class="bi bi-person me-1"></i>' . esc_html__('Einzel', 'srd-kreismeisterschaften') . '</a></td>';
-			} else {
-				$pdfUrl = $r['url'] . '/' . $pfadE;
-				echo '<td><a href="' . esc_url($pdfUrl) . '" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</a></td>';
-			}
-		} else {
-			echo '<td><span class="text-muted">-</span></td>';
-		}
-
-		if ($fileM) {
-			if ($ext === 'html') {
-				$url = $this->km_url(
-					array(
-						'km_year' => (string) $jahr,
-						'km_id'   => $datei,
-						'km_art'  => 'm',
-					)
-				);
-				echo '<td><a href="' . esc_url($url) . '" class="btn btn-outline-success btn-sm"><i class="bi bi-people me-1"></i>' . esc_html__('Mannschaft', 'srd-kreismeisterschaften') . '</a></td>';
-			} else {
-				$pdfUrl = $r['url'] . '/' . $pfadM;
-				echo '<td><a href="' . esc_url($pdfUrl) . '" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</a></td>';
-			}
-		} else {
-			echo '<td><span class="text-muted">-</span></td>';
-		}
+		echo '<td>' . esc_html($row['altersklasse']) . '</td>';
+		echo '<td>' . esc_html($row['spo']) . '</td>';
+		echo '<td>' . esc_html($row['datum']) . '</td>';
+		echo '<td>';
+		$this->render_result_action($row['einzel'], 'e', true);
+		echo '</td>';
+		echo '<td>';
+		$this->render_result_action($row['mannschaft'], 'm', true);
+		echo '</td>';
 		echo '</tr>';
+	}
+
+	/**
+	 * @param array{
+	 *   disziplin: string,
+	 *   altersklasse: string,
+	 *   spo: string,
+	 *   datum: string,
+	 *   category_id: int,
+	 *   category_label: string,
+	 *   einzel: array{available: bool, kind: string, url: string},
+	 *   mannschaft: array{available: bool, kind: string, url: string}
+	 * } $row
+	 */
+	private function render_discipline_card(array $row): void {
+		?>
+		<article class="srd-km-row-card">
+			<h3 class="srd-km-row-card__title h6 mb-2">
+				<strong><?php echo esc_html($row['disziplin']); ?></strong>
+				<?php if ($row['category_label'] !== '') : ?>
+					<span class="badge <?php echo esc_attr(SRD_KM_Categories::color_class($row['category_id'])); ?> srd-km-category-tag d-inline-block mt-1"><?php echo esc_html($row['category_label']); ?></span>
+				<?php endif; ?>
+			</h3>
+			<p class="srd-km-row-card__meta small text-muted mb-3">
+				<span class="srd-km-row-card__meta-item">
+					<span class="srd-km-row-card__meta-label"><?php esc_html_e('Klasse', 'srd-kreismeisterschaften'); ?>:</span>
+					<?php echo esc_html($row['altersklasse']); ?>
+				</span>
+				<span class="srd-km-row-card__meta-sep" aria-hidden="true">·</span>
+				<span class="srd-km-row-card__meta-item">
+					<span class="srd-km-row-card__meta-label"><?php esc_html_e('SpO', 'srd-kreismeisterschaften'); ?>:</span>
+					<?php echo esc_html($row['spo']); ?>
+				</span>
+				<span class="srd-km-row-card__meta-sep" aria-hidden="true">·</span>
+				<span class="srd-km-row-card__meta-item">
+					<span class="srd-km-row-card__meta-label"><?php esc_html_e('Änderung', 'srd-kreismeisterschaften'); ?>:</span>
+					<?php echo esc_html($row['datum']); ?>
+				</span>
+			</p>
+			<div class="row g-2 srd-km-row-card__actions">
+				<div class="col-6">
+					<?php $this->render_result_action($row['einzel'], 'e', false); ?>
+				</div>
+				<div class="col-6">
+					<?php $this->render_result_action($row['mannschaft'], 'm', false); ?>
+				</div>
+			</div>
+		</article>
+		<?php
+	}
+
+	/**
+	 * @param array{available: bool, kind: string, url: string} $action
+	 */
+	private function render_result_action(array $action, string $art, bool $compact): void {
+		if (!$action['available']) {
+			if ($compact) {
+				echo '<span class="text-muted">-</span>';
+			} else {
+				echo '<span class="srd-km-row-card__action-placeholder text-muted w-100 d-flex align-items-center justify-content-center">-</span>';
+			}
+			return;
+		}
+
+		$label = ($art === 'e')
+			? __('Einzel', 'srd-kreismeisterschaften')
+			: __('Mannschaft', 'srd-kreismeisterschaften');
+		$icon = ($art === 'e') ? 'bi-person' : 'bi-people';
+		$classes = array( 'btn' );
+		if ($action['kind'] === 'html') {
+			$classes[] = 'btn-outline-success';
+		} else {
+			$classes[] = 'btn-outline-primary';
+		}
+		if ($compact) {
+			$classes[] = 'btn-sm';
+		} else {
+			$classes[] = 'w-100';
+			$classes[] = 'srd-km-row-card__btn';
+		}
+		$class_attr = esc_attr(implode(' ', $classes));
+
+		if ($action['kind'] === 'html') {
+			echo '<a href="' . esc_url($action['url']) . '" class="' . $class_attr . '">';
+			echo '<i class="bi ' . esc_attr($icon) . ' me-1" aria-hidden="true"></i>';
+			echo esc_html($label);
+			echo '</a>';
+			return;
+		}
+
+		echo '<a href="' . esc_url($action['url']) . '" target="_blank" rel="noopener" class="' . $class_attr . '">';
+		echo '<i class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></i>PDF';
+		echo '</a>';
 	}
 
 	private function render_html_result(int $jahr, string $id, string $art): string {
