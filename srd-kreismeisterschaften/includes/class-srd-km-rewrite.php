@@ -26,6 +26,7 @@ class SRD_KM_Rewrite {
 		$vars[] = 'srd_km_id';
 		$vars[] = 'srd_km_art';
 		$vars[] = 'srd_km_raw';
+		$vars[] = 'srd_km_category';
 		return $vars;
 	}
 

@@ -59,7 +59,7 @@ class SRD_KM_Disciplines_Admin {
 		$settings_url = SRD_KM_Capabilities::admin_page_url('srd-kreismeisterschaften');
 		?>
 		<div class="wrap">
-			<h1 class="wp-heading-inline"><?php esc_html_e('Disziplinen (Kugel)', 'srd-kreismeisterschaften'); ?></h1>
+			<h1 class="wp-heading-inline"><?php esc_html_e('Disziplinen', 'srd-kreismeisterschaften'); ?></h1>
 			<?php if (SRD_KM_DB::table_available()) : ?>
 				<a href="<?php echo esc_url(add_query_arg('action', 'add', $list_url)); ?>" class="page-title-action"><?php esc_html_e('Neue Disziplin', 'srd-kreismeisterschaften'); ?></a>
 			<?php endif; ?>
@@ -68,7 +68,7 @@ class SRD_KM_Disciplines_Admin {
 				<a href="<?php echo esc_url($settings_url); ?>">&larr; <?php esc_html_e('Zurück zu den Einstellungen', 'srd-kreismeisterschaften'); ?></a>
 			</p>
 			<p class="description">
-				<?php esc_html_e('Einträge aus der SRD-Tabelle srd_kreis_v3. Sie steuern die Kugel-Disziplinenliste im Frontend; Ergebnisdateien liegen weiterhin unter results/km_JJJJ/.', 'srd-kreismeisterschaften'); ?>
+				<?php esc_html_e('Einträge aus der SRD-Tabelle srd_kreis_v3. Die Kategorie ergibt sich aus der führenden Ziffer der Datei-ID (1 = Gewehr, 6 = Bogen, 11 = Lichtschießen, 12 = Blasrohr usw.). Ergebnisdateien liegen unter results/km_JJJJ/.', 'srd-kreismeisterschaften'); ?>
 			</p>
 			<?php if (!SRD_KM_DB::table_available()) : ?>
 				<div class="notice notice-error"><p>
@@ -202,7 +202,7 @@ class SRD_KM_Disciplines_Admin {
 										value="<?php echo esc_attr((string) ($row[ $field ] ?? '')); ?>" <?php echo $field === 'datei' ? 'pattern="[a-zA-Z0-9_-]+" required' : ''; ?> />
 								<?php endif; ?>
 								<?php if ($field === 'datei') : ?>
-									<p class="description"><?php esc_html_e('Nur Buchstaben, Ziffern, Unterstrich und Bindestrich. Ergebnisdateien: km_JJJJ/e{ID}.pdf bzw. m{ID}.pdf', 'srd-kreismeisterschaften'); ?></p>
+									<p class="description"><?php esc_html_e('Nur Buchstaben, Ziffern, Unterstrich und Bindestrich. Die führende Ziffer bestimmt die Kategorie (z. B. 1… = Gewehr, 11… = Lichtschießen). Ergebnisdateien: km_JJJJ/e{ID}.pdf bzw. m{ID}.pdf', 'srd-kreismeisterschaften'); ?></p>
 								<?php endif; ?>
 							</td>
 						</tr>

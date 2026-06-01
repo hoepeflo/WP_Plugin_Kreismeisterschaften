@@ -10,7 +10,7 @@ Installation
 5. Unter „Kreismeisterschaften“ → „Einstellungen“ im WordPress-Backend:
    - Seite wählen, die den Shortcode `[srd_km]` enthält (Klassischer Editor oder Shortcode-Block; der Text `[srd_km]` muss im Seiteninhalt vorkommen).
    - Optional: absoluten Pfad und öffentliche URL zu diesem `results`-Ordner setzen (Standard: `wp-content/uploads/srd-results`).
-   - Disziplinen und Jahresübersichten werden aus den SRD-Tabellen (`srd_kreis_v2`, `srd_kreis_v3`) in der WordPress-Datenbank geladen.
+   - Disziplinen und Sportjahre werden aus den SRD-Tabellen (`srd_kreis_v2`, `srd_kreis_v3`) in der WordPress-Datenbank geladen.
    - Pretty-Permalinks: Option aktivieren und URL-Slug anpassen (Standard `kreismeisterschaften`). Der Slug sollte nicht mit einer anderen öffentlichen Route kollidieren.
 
 Benutzer freischalten
@@ -24,18 +24,24 @@ Disziplinen verwalten (Backend)
 --------------------------------
 Unter „Kreismeisterschaften“ → „Disziplinen“ (oder über den Button auf der Einstellungsseite):
 
-- Liste aller Einträge aus `srd_kreis_v3` (Kugel-Disziplinen)
+- Liste aller Einträge aus `srd_kreis_v3`
 - Anlegen, Bearbeiten und Löschen von Disziplinen (Disziplin, Altersklasse, SpO, Datei-ID, optional Sportjahr)
+- Die Kategorie ergibt sich aus der führenden Ziffer der Datei-ID (1 = Gewehr, 6 = Bogen, 11 = Lichtschießen, 12 = Blasrohr usw.)
 - Ergebnisdateien werden weiterhin im `results`-Ordner abgelegt; die Datei-ID verknüpft die Zeile mit `km_JJJJ/e{ID}.pdf` bzw. `m{ID}.pdf`
+
+Frontend
+--------
+- Eine Disziplinentabelle mit Sportjahr-Dropdown im Tabellenkopf
+- Kategoriefilter unter der Überschrift (Alle, Gewehr, Bogen, Lichtschießen, …)
+- Kategorie als Badge neben dem Disziplinnamen
 
 Pretty-Permalinks (Standard-Slug `kreismeisterschaften`)
 --------------------------------------------------------
 Basis-URL = `https://example.org/kreismeisterschaften/` (je nach Site-URL)
 
-- Jahresübersicht: `/kreismeisterschaften/`
-- Jahr (Kugel): `/kreismeisterschaften/2025/`
-- Bogen: `/kreismeisterschaften/2025/bogen/`
-- Blasrohr: `/kreismeisterschaften/2025/blasrohr/`
+- Disziplinenliste (aktuelles Sportjahr): `/kreismeisterschaften/` oder `/kreismeisterschaften/2025/`
+- Kategorie filtern: `?km_category=6` (z. B. Bogen), an die Jahr-URL angehängt
+- Legacy Bogen/Blasrohr: `/kreismeisterschaften/2025/bogen/` bzw. `…/blasrohr/` (setzen den Kategoriefilter)
 - HTML-Ergebnis (Einzel/Mannschaft): `/kreismeisterschaften/2020/e/DATEI-ID/` bzw. `…/m/DATEI-ID/`
 - Roh-HTML für iframe: `/kreismeisterschaften/2020/e/DATEI-ID/raw/`
 
@@ -43,10 +49,8 @@ Ohne Pretty-Permalinks (WordPress „Einfach“) oder wenn die Option deaktivier
 
 URL-Parameter (Fallback, an die KM-Seiten-URL angehängt)
 -------------------------------------------------------
-- Jahresübersicht: keine Parameter
-- Jahr (Kugel-Disziplinen): `?km_year=2025`
-- Bogen: `?km_year=2025&km_discipline=bogen`
-- Blasrohr: `?km_year=2025&km_discipline=blasrohr`
+- Disziplinenliste: `?km_year=2025` (optional `&km_category=6` für Kategoriefilter)
+- Legacy Bogen/Blasrohr: `?km_year=2025&km_discipline=bogen` bzw. `blasrohr`
 - HTML-Einzel/Mannschaft: `?km_year=2020&km_id=…&km_art=e` bzw. `m`
 
 Das alte `km_results.php` entfällt; HTML-Ergebnisse werden per iframe ausgeliefert (Pretty: `…/raw/`; sonst `?km_view=raw&…`).
