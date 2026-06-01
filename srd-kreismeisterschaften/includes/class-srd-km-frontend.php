@@ -503,23 +503,32 @@ class SRD_KM_Frontend {
 	private function get_disciplines_lists_html(int $jahr, array $rows, array $r): array {
 		$extPreferred = ($jahr >= 2024) ? 'pdf' : 'html';
 
-		ob_start();
+		$prepared = array();
 		foreach ($rows as $dsatz) {
 			$row = $this->prepare_discipline_row($dsatz, $jahr, $extPreferred, $r);
-			if ($row === null) {
-				continue;
+			if ($row !== null) {
+				$prepared[] = $row;
 			}
+		}
+		usort(
+			$prepared,
+			static function (array $a, array $b): int {
+				return SRD_KM_DB::compare_disziplin_strings(
+					(string) ( $a['disziplin'] ?? '' ),
+					(string) ( $b['disziplin'] ?? '' )
+				);
+			}
+		);
+
+		ob_start();
+		foreach ($prepared as $row) {
 			$this->render_discipline_card($row);
 		}
 		$this->render_disciplines_empty_placeholders(true);
 		$cards = (string) ob_get_clean();
 
 		ob_start();
-		foreach ($rows as $dsatz) {
-			$row = $this->prepare_discipline_row($dsatz, $jahr, $extPreferred, $r);
-			if ($row === null) {
-				continue;
-			}
+		foreach ($prepared as $row) {
 			$this->render_discipline_table_row($row);
 		}
 		$this->render_disciplines_empty_placeholders(false);

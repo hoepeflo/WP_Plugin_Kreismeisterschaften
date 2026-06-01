@@ -58,19 +58,66 @@ class SRD_KM_DB {
 	}
 
 	/**
-	 * Führende Zahl der Disziplinnummer (Segment vor dem ersten „.“).
+	 * Disziplinnummer aus einer Tabellenzeile (Spaltenname case-insensitive).
 	 */
-	public static function disziplin_sort_major(string $disziplin): int {
+	public static function row_disziplin(array $row): string {
+		if (isset($row['disziplin'])) {
+			return trim((string) $row['disziplin']);
+		}
+		foreach ($row as $key => $value) {
+			if (is_string($key) && strcasecmp($key, 'disziplin') === 0) {
+				return trim((string) $value);
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * Numerische Segmente der Disziplinnummer (z. B. 1.02.03 → [1, 2, 3]).
+	 * Trennzeichen . , - / und Leerzeichen werden ignoriert.
+	 *
+	 * @return int[]
+	 */
+	public static function disziplin_sort_segments(string $disziplin): array {
 		$disziplin = trim($disziplin);
 		if ($disziplin === '') {
-			return PHP_INT_MAX;
+			return array();
 		}
-		$dot = strpos($disziplin, '.');
-		$prefix = ($dot === false) ? $disziplin : substr($disziplin, 0, $dot);
-		if ($prefix === '' || !ctype_digit($prefix)) {
-			return PHP_INT_MAX;
+		if (!preg_match_all('/\d+/', $disziplin, $matches)) {
+			return array();
 		}
-		return (int) $prefix;
+		return array_map('intval', $matches[0]);
+	}
+
+	/**
+	 * @param int[] $a
+	 * @param int[] $b
+	 */
+	public static function compare_disziplin_segments(array $a, array $b): int {
+		$len = max(count($a), count($b));
+		for ($i = 0; $i < $len; $i++) {
+			$va = $a[ $i ] ?? 0;
+			$vb = $b[ $i ] ?? 0;
+			if ($va !== $vb) {
+				return $va <=> $vb;
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * Vergleich zweier Disziplinnummern (numerisch segmentweise, sonst strnatcmp).
+	 */
+	public static function compare_disziplin_strings(string $a, string $b): int {
+		$seg_a = self::disziplin_sort_segments($a);
+		$seg_b = self::disziplin_sort_segments($b);
+		if ($seg_a !== array() || $seg_b !== array()) {
+			$cmp = self::compare_disziplin_segments($seg_a, $seg_b);
+			if ($cmp !== 0) {
+				return $cmp;
+			}
+		}
+		return strnatcmp($a, $b);
 	}
 
 	/**
@@ -78,12 +125,7 @@ class SRD_KM_DB {
 	 * @param array<string, mixed> $b
 	 */
 	public static function compare_kreis_rows_by_disziplin(array $a, array $b): int {
-		$major = self::disziplin_sort_major((string) ($a['disziplin'] ?? ''))
-			<=> self::disziplin_sort_major((string) ($b['disziplin'] ?? ''));
-		if ($major !== 0) {
-			return $major;
-		}
-		return strnatcmp((string) ($a['disziplin'] ?? ''), (string) ($b['disziplin'] ?? ''));
+		return self::compare_disziplin_strings(self::row_disziplin($a), self::row_disziplin($b));
 	}
 
 	/**
