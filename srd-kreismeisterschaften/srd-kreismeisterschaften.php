@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: SRD Kreismeisterschaften
- * Description: Kreismeisterschaften (KM) aus dem SRD-Ergebnisdienst in WordPress – Jahresübersicht, Disziplinen, PDF/HTML, Bogen und Blasrohr.
- * Version: 1.3.1
+ * Description: Kreismeisterschaften (KM) aus dem SRD-Ergebnisdienst in WordPress – Disziplinenliste mit Kategorien, PDF/HTML-Ergebnisse.
+ * Version: 1.4.0
  * Author: KSV Fallingbostel / SRD
  * License: MIT
  * Text Domain: srd-kreismeisterschaften
@@ -14,13 +14,14 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-define('SRD_KM_VERSION', '1.3.1');
+define('SRD_KM_VERSION', '1.4.0');
 define('SRD_KM_PLUGIN_FILE', __FILE__);
 define('SRD_KM_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SRD_KM_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-capabilities.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-db.php';
+require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-categories.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-rewrite.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-results-upload.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-admin.php';

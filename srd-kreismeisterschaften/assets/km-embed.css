@@ -33,13 +33,30 @@
 	color: #fff;
 }
 
-.srd-km-wrap .col-year {
-	width: 80px !important;
-	min-width: 80px;
+.srd-km-wrap .srd-km-year-select {
+	min-width: 6rem;
+	max-width: 8rem;
 }
 
-.srd-km-wrap .col-equal {
-	min-width: 120px;
+.srd-km-wrap .srd-km-category-filter .btn.active {
+	background-color: var(--bs-primary);
+	border-color: var(--bs-primary);
+	color: #fff;
+}
+
+.srd-km-wrap .srd-km-category-tag {
+	font-size: 0.75rem;
+	font-weight: 500;
+	vertical-align: middle;
+}
+
+.srd-km-wrap .srd-km-discipline-cell {
+	min-width: 12rem;
+}
+
+.srd-km-wrap .srd-km-year-toolbar th {
+	background-color: var(--bs-primary);
+	color: #fff;
 }
 
 .srd-km-html-frame {
