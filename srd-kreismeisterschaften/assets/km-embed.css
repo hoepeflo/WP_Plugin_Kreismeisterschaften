@@ -130,9 +130,62 @@
 	min-width: 12rem;
 }
 
-.srd-km-wrap .srd-km-year-toolbar th {
+.srd-km-wrap .srd-km-year-toolbar {
 	background-color: var(--bs-primary);
 	color: #fff;
+}
+
+.srd-km-wrap .srd-km-year-toolbar .form-select {
+	background-color: #fff;
+}
+
+.srd-km-wrap .srd-km-disciplines-cards {
+	padding: 0.75rem;
+}
+
+.srd-km-wrap .srd-km-row-card {
+	background: #fff;
+	border: 1px solid rgba(0, 0, 0, 0.08);
+	border-radius: 10px;
+	padding: 1rem;
+	margin-bottom: 0.75rem;
+}
+
+.srd-km-wrap .srd-km-row-card:last-child {
+	margin-bottom: 0;
+}
+
+.srd-km-wrap .srd-km-row-card__title {
+	line-height: 1.35;
+}
+
+.srd-km-wrap .srd-km-row-card__meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.35rem 0.5rem;
+	margin-bottom: 0;
+}
+
+.srd-km-wrap .srd-km-row-card__meta-label {
+	font-weight: 600;
+}
+
+.srd-km-wrap .srd-km-row-card__meta-sep {
+	opacity: 0.5;
+}
+
+.srd-km-wrap .srd-km-row-card__btn {
+	min-height: 2.75rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.srd-km-wrap .srd-km-row-card__action-placeholder {
+	min-height: 2.75rem;
+	border: 1px dashed rgba(0, 0, 0, 0.12);
+	border-radius: 0.375rem;
 }
 
 .srd-km-html-frame {
