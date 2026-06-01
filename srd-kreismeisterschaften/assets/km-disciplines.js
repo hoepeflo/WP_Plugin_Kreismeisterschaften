@@ -19,25 +19,39 @@
 		? cardRoot.querySelector('.srd-km-category-filter [role="group"]')
 		: null;
 
+	// wp_localize_script liefert Zahlen als Strings – ohne Normalisierung schlägt category === 0 fehl.
+	function normalizeCategory(value) {
+		var n = parseInt(value, 10);
+		return isNaN(n) || n < 0 ? 0 : n;
+	}
+
+	function normalizeYear(value, fallback) {
+		var n = parseInt(value, 10);
+		if (!n || isNaN(n)) {
+			return fallback || 0;
+		}
+		return n;
+	}
+
 	var state = {
-		year: cfg.year,
-		category: cfg.category,
+		year: normalizeYear(cfg.year, 0),
+		category: normalizeCategory(cfg.category),
 		loading: false,
 	};
 
 	function parseStateFromLocation() {
-		var year = cfg.year;
+		var year = state.year;
 		var category = 0;
 		var params = new URLSearchParams(window.location.search);
 		if (params.has('km_category')) {
-			category = parseInt(params.get('km_category'), 10) || 0;
+			category = normalizeCategory(params.get('km_category'));
 		}
 		if (params.has('km_year')) {
-			year = parseInt(params.get('km_year'), 10) || year;
+			year = normalizeYear(params.get('km_year'), year);
 		}
 		var pathMatch = window.location.pathname.match(/\/([0-9]{4})\/?$/);
 		if (pathMatch) {
-			year = parseInt(pathMatch[1], 10) || year;
+			year = normalizeYear(pathMatch[1], year);
 		}
 		return { year: year, category: category };
 	}
@@ -102,6 +116,7 @@
 	}
 
 	function applyCategoryFilter(category) {
+		category = normalizeCategory(category);
 		state.category = category;
 		panel.setAttribute('data-category', String(category));
 
@@ -169,7 +184,7 @@
 				if (!json || !json.success || !json.data) {
 					throw new Error('invalid response');
 				}
-				state.year = json.data.year;
+				state.year = normalizeYear(json.data.year, state.year);
 				panel.setAttribute('data-year', String(state.year));
 				if (yearSelect) {
 					yearSelect.value = String(state.year);
@@ -189,7 +204,7 @@
 	}
 
 	function onYearChange(year) {
-		year = parseInt(year, 10);
+		year = normalizeYear(year, 0);
 		if (!year || year === state.year || state.loading) {
 			return;
 		}
@@ -197,7 +212,7 @@
 	}
 
 	function onCategoryClick(category) {
-		category = parseInt(category, 10) || 0;
+		category = normalizeCategory(category);
 		if (category === state.category || state.loading) {
 			return;
 		}
