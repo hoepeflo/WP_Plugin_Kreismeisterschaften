@@ -101,11 +101,17 @@ class SRD_KM_Frontend {
 		}
 
 		$lists = $this->get_disciplines_lists_html($year, SRD_KM_DB::kreis_rows_v3(), $r);
+		$category = isset($_POST['category']) ? absint(wp_unslash($_POST['category'])) : 0;
+		if ($category > 0 && !SRD_KM_Categories::is_valid($category)) {
+			$category = 0;
+		}
+
 		wp_send_json_success(
 			array(
-				'year'  => $year,
-				'cards' => $lists['cards'],
-				'tbody' => $lists['tbody'],
+				'year'      => $year,
+				'cards'     => $lists['cards'],
+				'tbody'     => $lists['tbody'],
+				'documents' => SRD_KM_Documents::render_frontend_html($year, $category),
 			)
 		);
 	}
@@ -438,6 +444,12 @@ class SRD_KM_Frontend {
 			<div class="card shadow-sm">
 				<div class="card-header bg-primary text-white srd-km-card-title">
 					<h2 class="h4 mb-0 srd-km-page-title"><i class="bi bi-trophy me-2"></i><?php esc_html_e('Ergebnisse der Kreismeisterschaften', 'srd-kreismeisterschaften'); ?></h2>
+				</div>
+				<div id="srd-km-documents-wrap">
+					<?php
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render_frontend_html escapt Ausgabe
+					echo SRD_KM_Documents::render_frontend_html($jahr, $category_filter);
+					?>
 				</div>
 				<div class="card-body border-bottom srd-km-category-filter">
 					<p class="small text-muted mb-2"><?php esc_html_e('Nach Kategorie filtern', 'srd-kreismeisterschaften'); ?></p>

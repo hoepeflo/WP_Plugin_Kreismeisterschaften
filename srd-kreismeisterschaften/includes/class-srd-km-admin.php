@@ -111,6 +111,9 @@ class SRD_KM_Admin {
 				<a href="<?php echo esc_url(SRD_KM_Capabilities::admin_page_url('srd-kreismeisterschaften-disciplines')); ?>" class="button button-secondary">
 					<?php esc_html_e('Disziplinen verwalten', 'srd-kreismeisterschaften'); ?>
 				</a>
+				<a href="<?php echo esc_url(SRD_KM_Capabilities::admin_page_url('srd-kreismeisterschaften-documents')); ?>" class="button button-secondary">
+					<?php esc_html_e('Ausschreibungen verwalten', 'srd-kreismeisterschaften'); ?>
+				</a>
 			</p>
 			<form method="post" action="options.php">
 				<?php settings_fields('srd_km_settings_group'); ?>

@@ -14,6 +14,7 @@
 	var cardRoot = panel.closest('.card');
 	var cardsEl = document.getElementById('srd-km-disciplines-cards');
 	var tbodyEl = document.getElementById('srd-km-disciplines-tbody');
+	var documentsWrap = document.getElementById('srd-km-documents-wrap');
 	var yearSelect = document.getElementById('srd-km-year-select');
 	var filterGroup = cardRoot
 		? cardRoot.querySelector('.srd-km-category-filter [role="group"]')
@@ -132,6 +133,7 @@
 
 		updateEmptyStates(visible);
 		updateCategoryButtons(category);
+		updateDocumentHighlights(category);
 		updateHistory();
 	}
 
@@ -155,13 +157,28 @@
 		});
 	}
 
-	function replaceLists(cardsHtml, tbodyHtml) {
+	function replaceLists(cardsHtml, tbodyHtml, documentsHtml) {
 		if (cardsEl) {
 			cardsEl.innerHTML = cardsHtml;
 		}
 		if (tbodyEl) {
 			tbodyEl.innerHTML = tbodyHtml;
 		}
+		if (documentsWrap) {
+			documentsWrap.innerHTML = documentsHtml || '';
+		}
+	}
+
+	function updateDocumentHighlights(category) {
+		if (!documentsWrap) {
+			return;
+		}
+		category = normalizeCategory(category);
+		documentsWrap.querySelectorAll('[data-srd-km-doc-category]').forEach(function (link) {
+			var linkCat = parseInt(link.getAttribute('data-srd-km-doc-category') || '0', 10);
+			var highlight = category > 0 && linkCat === category;
+			link.classList.toggle('srd-km-documents__link--highlight', highlight);
+		});
 	}
 
 	function fetchYear(year) {
@@ -170,6 +187,7 @@
 		body.set('action', cfg.action);
 		body.set('nonce', cfg.nonce);
 		body.set('year', String(year));
+		body.set('category', String(state.category));
 
 		return fetch(cfg.ajaxUrl, {
 			method: 'POST',
@@ -189,7 +207,7 @@
 				if (yearSelect) {
 					yearSelect.value = String(state.year);
 				}
-				replaceLists(json.data.cards || '', json.data.tbody || '');
+				replaceLists(json.data.cards || '', json.data.tbody || '', json.data.documents || '');
 				applyCategoryFilter(state.category);
 			})
 			.catch(function () {
