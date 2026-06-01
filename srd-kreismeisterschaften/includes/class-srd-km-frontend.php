@@ -413,7 +413,7 @@ class SRD_KM_Frontend {
 							);
 							$cat_active = ($category_filter === $cat_id) ? ' active' : '';
 							?>
-							<a href="<?php echo esc_url($cat_url); ?>" class="btn btn-sm btn-outline-primary<?php echo esc_attr($cat_active); ?>">
+							<a href="<?php echo esc_url($cat_url); ?>" class="btn btn-sm srd-km-cat-filter <?php echo esc_attr(SRD_KM_Categories::color_class($cat_id)); ?><?php echo esc_attr($cat_active); ?>">
 								<?php echo esc_html($cat_label); ?>
 							</a>
 						<?php endforeach; ?>
@@ -588,7 +588,7 @@ class SRD_KM_Frontend {
 		echo '<td class="srd-km-discipline-cell">';
 		echo '<strong>' . esc_html((string) ($dsatz['disziplin'] ?? '')) . '</strong>';
 		if ($category_label !== '') {
-			echo ' <span class="badge ' . esc_attr(SRD_KM_Categories::badge_class($category_id)) . ' srd-km-category-tag">' . esc_html($category_label) . '</span>';
+			echo ' <span class="badge ' . esc_attr(SRD_KM_Categories::color_class($category_id)) . ' srd-km-category-tag">' . esc_html($category_label) . '</span>';
 		}
 		echo '</td>';
 		echo '<td>' . esc_html((string) ($dsatz['altersklasse'] ?? '')) . '</td>';
