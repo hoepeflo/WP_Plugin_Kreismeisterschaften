@@ -384,16 +384,9 @@ class SRD_KM_Frontend {
 
 		$year = $this->request_year();
 		$year = ($year > 0) ? $year : 0;
-		$disc = $this->request_discipline();
 		$category = $this->request_category();
 		$id = $this->request_id();
 		$art = $this->request_art();
-
-		if ($disc === 'bogen') {
-			$category = 6;
-		} elseif ($disc === 'blasrohr') {
-			$category = 12;
-		}
 
 		if ($year > 0 && $id !== '' && $art !== '' && in_array($art, array('e', 'm'), true) && $this->is_safe_file_id($id)) {
 			$body = $this->render_html_result($year, $id, $art);
