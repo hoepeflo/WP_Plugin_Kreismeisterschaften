@@ -58,7 +58,43 @@ class SRD_KM_DB {
 	}
 
 	/**
-	 * Disziplinzeilen aus srd_kreis_v3 (ORDER BY spo).
+	 * Führende Zahl der Disziplinnummer (Segment vor dem ersten „.“).
+	 */
+	public static function disziplin_sort_major(string $disziplin): int {
+		$disziplin = trim($disziplin);
+		if ($disziplin === '') {
+			return PHP_INT_MAX;
+		}
+		$dot = strpos($disziplin, '.');
+		$prefix = ($dot === false) ? $disziplin : substr($disziplin, 0, $dot);
+		if ($prefix === '' || !ctype_digit($prefix)) {
+			return PHP_INT_MAX;
+		}
+		return (int) $prefix;
+	}
+
+	/**
+	 * @param array<string, mixed> $a
+	 * @param array<string, mixed> $b
+	 */
+	public static function compare_kreis_rows_by_disziplin(array $a, array $b): int {
+		$major = self::disziplin_sort_major((string) ($a['disziplin'] ?? ''))
+			<=> self::disziplin_sort_major((string) ($b['disziplin'] ?? ''));
+		if ($major !== 0) {
+			return $major;
+		}
+		return strnatcmp((string) ($a['disziplin'] ?? ''), (string) ($b['disziplin'] ?? ''));
+	}
+
+	/**
+	 * @param array<int, array<string, mixed>> $rows
+	 */
+	private static function sort_kreis_rows_by_disziplin(array &$rows): void {
+		usort($rows, array(__CLASS__, 'compare_kreis_rows_by_disziplin'));
+	}
+
+	/**
+	 * Disziplinzeilen aus srd_kreis_v3 (numerisch nach Disziplinnummer).
 	 *
 	 * @return array<int, array<string, mixed>>
 	 */
@@ -68,13 +104,14 @@ class SRD_KM_DB {
 			return array();
 		}
 		$rows = array();
-		$res = @mysqli_query($con, 'SELECT * FROM `srd_kreis_v3` ORDER BY spo');
+		$res = @mysqli_query($con, 'SELECT * FROM `srd_kreis_v3`');
 		if ($res) {
 			while ($dsatz = mysqli_fetch_assoc($res)) {
 				$rows[] = $dsatz;
 			}
 		}
 		mysqli_close($con);
+		self::sort_kreis_rows_by_disziplin($rows);
 		return $rows;
 	}
 
