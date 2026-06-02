@@ -98,10 +98,14 @@ class SRD_KM_Documents_Handler {
 		}
 
 		if ($type === 'url') {
+			$url = isset($row['url']) ? (string) $row['url'] : '';
+			if ($url === '' && isset($existing[ $key ]['url'], $existing[ $key ]['type']) && $existing[ $key ]['type'] === 'url') {
+				$url = (string) $existing[ $key ]['url'];
+			}
 			return SRD_KM_Documents::sanitize_entry(
 				array(
 					'type' => 'url',
-					'url'  => isset($row['url']) ? (string) $row['url'] : '',
+					'url'  => $url,
 				)
 			);
 		}

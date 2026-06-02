@@ -10,9 +10,6 @@
 
 	function initRow($row) {
 		toggleDocFields($row);
-		$row.find('.srd-km-doc-type-select').on('change', function () {
-			toggleDocFields($row);
-		});
 	}
 
 	function reindexCategoryRows() {
@@ -79,6 +76,10 @@
 	$(function () {
 		$('.srd-km-documents-admin-table tbody tr').each(function () {
 			initRow($(this));
+		});
+
+		$(document).on('change', '.srd-km-doc-type-select', function () {
+			initRow($(this).closest('tr'));
 		});
 
 		initSortable();
