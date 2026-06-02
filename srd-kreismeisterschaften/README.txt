@@ -8,7 +8,7 @@ Installation
 3. Den kompletten Inhalt des bisherigen `results`-Verzeichnisses auf den Server legen, z. B. nach `wp-content/uploads/srd-results/`.
 4. Unter „Einstellungen“ → „Permalinks“ eine Struktur wählen, die nicht „Einfach“ ist, und speichern (Voraussetzung für Pretty-URLs).
 5. Unter „Kreismeisterschaften“ → „Einstellungen“ im WordPress-Backend:
-   - Unter „Ausschreibungen“ die aktuellen PDFs oder WordPress-Seiten für Ausschreibung, Disziplineinplan, Jahrgangstabelle, Terminplan und Kategorie-Ausschreibungen hinterlegen (ein Satz für alle Sportjahre, kein Jahresarchiv).
+   - Unter „Ausschreibungen“ die aktuellen PDFs oder WordPress-Seiten für Ausschreibung, Disziplinenplan, Jahrgangstabelle, Terminplan und Kategorie-Ausschreibungen hinterlegen (ein Satz für alle Sportjahre, kein Jahresarchiv).
    - Seite wählen, die den Shortcode `[srd_km]` enthält (Klassischer Editor oder Shortcode-Block; der Text `[srd_km]` muss im Seiteninhalt vorkommen).
    - Optional: absoluten Pfad und öffentliche URL zu diesem `results`-Ordner setzen (Standard: `wp-content/uploads/srd-results`).
    - Disziplinen und Sportjahre werden aus den SRD-Tabellen (`srd_kreis_v2`, `srd_kreis_v3`) in der WordPress-Datenbank geladen.
@@ -26,7 +26,7 @@ Ausschreibungen verwalten (Backend)
 Unter „Kreismeisterschaften“ → „Ausschreibungen“:
 
 - Pro Dokument: keins, PDF-Upload oder Verknüpfung mit einer WordPress-Seite (gilt für alle Sportjahre im Frontend)
-- Allgemeine Ausschreibung, Disziplineinplan, Jahrgangstabelle, Terminplan
+- Allgemeine Ausschreibung, Disziplinenplan, Jahrgangstabelle, Terminplan
 - Ausschreibung je Kategorie (1–12)
 
 Disziplinen verwalten (Backend)
