@@ -41,7 +41,7 @@ class SRD_KM_Documents_Admin {
 	}
 
 	public function enqueue_assets(string $hook): void {
-		if ($hook !== 'srd-kreismeisterschaften_page_srd-kreismeisterschaften-documents') {
+		if (strpos($hook, 'srd-kreismeisterschaften-documents') === false) {
 			return;
 		}
 		wp_enqueue_script('jquery-ui-sortable');
@@ -65,7 +65,6 @@ class SRD_KM_Documents_Admin {
 			'wp-admin',
 			'.srd-km-doc-drag-handle{cursor:grab;color:#787c82;padding:0 8px 0 0;user-select:none}'
 			. '.srd-km-doc-sort-placeholder{outline:2px dashed #c3c4c7;background:#f6f7f7;height:48px}'
-			. '.srd-km-doc-field--pdf,.srd-km-doc-field--page,.srd-km-doc-field--url{display:none}'
 			. '.srd-km-doc-categories-checkboxes{display:flex;flex-wrap:wrap;gap:4px 12px;max-width:420px}'
 			. '.srd-km-doc-categories-checkboxes label{display:inline-flex;align-items:center;gap:4px;margin:0;font-size:12px}'
 		);
@@ -86,7 +85,7 @@ class SRD_KM_Documents_Admin {
 		<div class="wrap">
 			<h1><?php esc_html_e('Ausschreibungen & Unterlagen', 'srd-kreismeisterschaften'); ?></h1>
 			<p class="description">
-				<?php esc_html_e('Legen Sie die aktuellen Dokumente fest: als PDF-Upload oder als Verweis auf eine WordPress-Seite. Sie gelten für alle Sportjahre in der Disziplinenliste – es gibt kein Jahresarchiv. Leere Einträge werden im Frontend nicht angezeigt. Eigene Kategorieausschreibungen (z. B. „Kugelbereich“) können mehrere Disziplin-Kategorien zusammenfassen. Die Reihenfolge lässt sich per Drag & Drop ändern.', 'srd-kreismeisterschaften'); ?>
+				<?php esc_html_e('Legen Sie die aktuellen Dokumente fest: als PDF-Upload, WordPress-Seite oder URL (z. B. Kalender). Sie gelten für alle Sportjahre in der Disziplinenliste – es gibt kein Jahresarchiv. Leere Einträge werden im Frontend nicht angezeigt. Eigene Kategorieausschreibungen (z. B. „Kugelbereich“) können mehrere Disziplin-Kategorien zusammenfassen. Die Reihenfolge lässt sich per Drag & Drop ändern.', 'srd-kreismeisterschaften'); ?>
 			</p>
 			<p>
 				<a href="<?php echo esc_url($settings_url); ?>">&larr; <?php esc_html_e('Zurück zu den Einstellungen', 'srd-kreismeisterschaften'); ?></a>
@@ -253,7 +252,7 @@ class SRD_KM_Documents_Admin {
 		$type = isset($entry['type']) ? (string) $entry['type'] : '';
 		$attachment_id = isset($entry['attachment_id']) ? absint($entry['attachment_id']) : 0;
 		$page_id = isset($entry['page_id']) ? absint($entry['page_id']) : 0;
-		$url = isset($entry['url']) ? esc_url((string) $entry['url']) : '';
+		$url = isset($entry['url']) ? (string) $entry['url'] : '';
 		$pdf_name = '';
 		if ($attachment_id > 0) {
 			$pdf_name = basename((string) get_attached_file($attachment_id));
@@ -291,13 +290,14 @@ class SRD_KM_Documents_Admin {
 		</div>
 		<div class="srd-km-doc-field srd-km-doc-field--url"<?php echo $type === 'url' ? '' : ' style="display:none"'; ?>>
 			<input
-				type="url"
+				type="text"
 				class="large-text code"
 				name="<?php echo esc_attr($name_prefix . '[url]'); ?>"
 				value="<?php echo esc_attr($url); ?>"
-				placeholder="https://"
+				placeholder="https://beispiel.de/kalender/ oder /kalender/"
+				autocomplete="url"
 			/>
-			<p class="description"><?php esc_html_e('z. B. Link zum WordPress-Kalender oder einer Kalender-Seite.', 'srd-kreismeisterschaften'); ?></p>
+			<p class="description"><?php esc_html_e('Absolute URL (https://…), relative Adresse (/kalender/) oder Domain ohne https://.', 'srd-kreismeisterschaften'); ?></p>
 		</div>
 		<?php
 	}
