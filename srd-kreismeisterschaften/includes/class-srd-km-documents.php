@@ -1,6 +1,6 @@
 <?php
 /**
- * Ausschreibungs- und Planungsdokumente pro Sportjahr (PDF, WordPress-Seite oder URL).
+ * Ausschreibungs- und Planungsdokumente (aktuell, ohne Jahresarchiv).
  *
  * @package SRD_Kreismeisterschaften
  */
@@ -12,6 +12,9 @@ if (!defined('ABSPATH')) {
 class SRD_KM_Documents {
 
 	public const OPTION_KEY = 'srd_km_documents';
+
+	/** Optionsschlüssel für die aktuell gültigen Unterlagen (kein Jahresarchiv). */
+	public const CURRENT_KEY = '_current';
 
 	/**
 	 * Feste Dokumenttypen (ohne Kategorie).
@@ -58,30 +61,95 @@ class SRD_KM_Documents {
 	}
 
 	/**
+	 * Aktuelle Unterlagen (ein Satz für alle Sportjahre im Frontend).
+	 *
 	 * @return array<string, array<string, mixed>>
 	 */
-	public static function get_year(int $year): array {
-		if ($year < 1990 || $year > 2100) {
-			return array();
-		}
+	public static function get_current(): array {
+		self::maybe_migrate_from_yearly();
 		$all = self::get_all();
-		$key = (string) $year;
-		if (!isset($all[ $key ]) || !is_array($all[ $key ])) {
+		if (!isset($all[ self::CURRENT_KEY ]) || !is_array($all[ self::CURRENT_KEY ])) {
 			return array();
 		}
-		return $all[ $key ];
+		return $all[ self::CURRENT_KEY ];
 	}
 
 	/**
-	 * @param array<string, array<string, mixed>> $year_docs
+	 * @param array<string, array<string, mixed>> $docs
 	 */
-	public static function save_year(int $year, array $year_docs): void {
-		if ($year < 1990 || $year > 2100) {
+	public static function save_current(array $docs): void {
+		$all = self::get_all();
+		$all[ self::CURRENT_KEY ] = $docs;
+		update_option(self::OPTION_KEY, $all, false);
+	}
+
+	/**
+	 * Einmalige Übernahme aus alter jahresweiser Speicherung.
+	 */
+	public static function maybe_migrate_from_yearly(): void {
+		$all = get_option(self::OPTION_KEY, array());
+		if (!is_array($all)) {
 			return;
 		}
-		$all = self::get_all();
-		$all[ (string) $year ] = $year_docs;
-		update_option(self::OPTION_KEY, $all, false);
+		if (isset($all[ self::CURRENT_KEY ]) && is_array($all[ self::CURRENT_KEY ]) && self::docs_have_content($all[ self::CURRENT_KEY ])) {
+			return;
+		}
+		$year_keys = array();
+		foreach ($all as $key => $value) {
+			if (!is_array($value)) {
+				continue;
+			}
+			if (preg_match('/^(19|20)\d{2}$/', (string) $key)) {
+				$year_keys[] = (int) $key;
+			}
+		}
+		if ($year_keys === array()) {
+			return;
+		}
+		rsort($year_keys, SORT_NUMERIC);
+		$preferred = self::default_sport_year();
+		$source = 0;
+		if (in_array($preferred, $year_keys, true) && self::docs_have_content($all[ (string) $preferred ])) {
+			$source = $preferred;
+		} else {
+			foreach ($year_keys as $y) {
+				if (self::docs_have_content($all[ (string) $y ])) {
+					$source = $y;
+					break;
+				}
+			}
+			if ($source === 0) {
+				$source = $year_keys[0];
+			}
+		}
+		if ($source > 0 && isset($all[ (string) $source ]) && is_array($all[ (string) $source ])) {
+			$all[ self::CURRENT_KEY ] = $all[ (string) $source ];
+			update_option(self::OPTION_KEY, $all, false);
+		}
+	}
+
+	/**
+	 * Standard-Sportjahr (Oktober-Regel), z. B. für Migration.
+	 */
+	public static function default_sport_year(): int {
+		$cy = (int) wp_date('Y');
+		$cm = (int) wp_date('n');
+		return ($cm >= 10) ? $cy + 1 : $cy;
+	}
+
+	/**
+	 * @param array<string, mixed> $docs
+	 */
+	private static function docs_have_content(array $docs): bool {
+		foreach ($docs as $key => $entry) {
+			if ($key === 'category_order' || !is_array($entry)) {
+				continue;
+			}
+			if (self::sanitize_entry($entry)['type'] !== '') {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -273,18 +341,18 @@ class SRD_KM_Documents {
 	}
 
 	/**
-	 * Alle konfigurierbaren Kategorie-Schlüssel (Standard + Custom) aus Jahresdaten.
+	 * Alle konfigurierbaren Kategorie-Schlüssel (Standard + Custom).
 	 *
-	 * @param array<string, array<string, mixed>> $year_docs
+	 * @param array<string, array<string, mixed>> $docs
 	 * @return string[]
 	 */
-	public static function category_keys_in_year(array $year_docs): array {
+	public static function category_keys_in_docs(array $docs): array {
 		$keys = array();
 		foreach (self::category_types() as $key => $label) {
 			unset($label);
 			$keys[] = $key;
 		}
-		foreach ($year_docs as $key => $entry) {
+		foreach ($docs as $key => $entry) {
 			if (self::is_custom_category_key((string) $key)) {
 				$keys[] = (string) $key;
 			}
@@ -295,14 +363,14 @@ class SRD_KM_Documents {
 	/**
 	 * Reihenfolge der Kategorieausschreibungen (Fallback: Standard-Kategorien 1–12, dann Custom).
 	 *
-	 * @param array<string, array<string, mixed>> $year_docs
+	 * @param array<string, array<string, mixed>> $docs
 	 * @return string[]
 	 */
-	public static function category_order_for_year(array $year_docs): array {
-		$stored = isset($year_docs['category_order']) && is_array($year_docs['category_order'])
-			? $year_docs['category_order']
+	public static function category_order_for_docs(array $docs): array {
+		$stored = isset($docs['category_order']) && is_array($docs['category_order'])
+			? $docs['category_order']
 			: array();
-		$known = self::category_keys_in_year($year_docs);
+		$known = self::category_keys_in_docs($docs);
 		$known_flip = array_flip($known);
 		$order = array();
 		foreach ($stored as $key) {
@@ -348,11 +416,11 @@ class SRD_KM_Documents {
 	/**
 	 * @return array<int, array{url: string, label: string, kind: string, is_external: bool, category_ids: int[], key: string}>
 	 */
-	public static function resolved_for_year(int $year): array {
-		$year_docs = self::get_year($year);
+	public static function resolved(): array {
+		$docs = self::get_current();
 		$fixed = array();
 		foreach (self::fixed_types() as $key => $label) {
-			$entry = isset($year_docs[ $key ]) && is_array($year_docs[ $key ]) ? $year_docs[ $key ] : array();
+			$entry = isset($docs[ $key ]) && is_array($docs[ $key ]) ? $docs[ $key ] : array();
 			$resolved = self::resolve_entry($entry, $label);
 			if ($resolved !== null) {
 				$fixed[ $key ] = $resolved;
@@ -360,8 +428,8 @@ class SRD_KM_Documents {
 		}
 
 		$categories = array();
-		foreach (self::category_order_for_year($year_docs) as $key) {
-			$entry = isset($year_docs[ $key ]) && is_array($year_docs[ $key ]) ? $year_docs[ $key ] : array();
+		foreach (self::category_order_for_docs($docs) as $key) {
+			$entry = isset($docs[ $key ]) && is_array($docs[ $key ]) ? $docs[ $key ] : array();
 			$doc_label = self::label_for_category_key($key, $entry);
 			if ($doc_label === '') {
 				continue;
@@ -381,8 +449,8 @@ class SRD_KM_Documents {
 		);
 	}
 
-	public static function has_any_for_year(int $year): bool {
-		$r = self::resolved_for_year($year);
+	public static function has_any(): bool {
+		$r = self::resolved();
 		return $r['fixed'] !== array() || $r['categories'] !== array();
 	}
 
@@ -425,10 +493,10 @@ class SRD_KM_Documents {
 	}
 
 	/**
-	 * Frontend-HTML für Dokumentenblock (pro Sportjahr).
+	 * Frontend-HTML für den Dokumentenblock (immer aktuelle Unterlagen).
 	 */
-	public static function render_frontend_html(int $year, int $highlight_category = 0): string {
-		$resolved = self::resolved_for_year($year);
+	public static function render_frontend_html(int $highlight_category = 0): string {
+		$resolved = self::resolved();
 		if ($resolved['fixed'] === array() && $resolved['categories'] === array()) {
 			return '';
 		}
@@ -443,7 +511,6 @@ class SRD_KM_Documents {
 			<h3 id="srd-km-documents-heading" class="h5 mb-3">
 				<i class="bi bi-file-earmark-text me-2" aria-hidden="true"></i>
 				<?php esc_html_e('Ausschreibung & Unterlagen', 'srd-kreismeisterschaften'); ?>
-				<span class="badge bg-secondary ms-1"><?php echo esc_html((string) $year); ?></span>
 			</h3>
 
 			<?php if ($resolved['fixed'] !== array()) : ?>

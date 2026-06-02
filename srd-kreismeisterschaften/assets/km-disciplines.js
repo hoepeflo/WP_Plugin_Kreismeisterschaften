@@ -157,15 +157,12 @@
 		});
 	}
 
-	function replaceLists(cardsHtml, tbodyHtml, documentsHtml) {
+	function replaceLists(cardsHtml, tbodyHtml) {
 		if (cardsEl) {
 			cardsEl.innerHTML = cardsHtml;
 		}
 		if (tbodyEl) {
 			tbodyEl.innerHTML = tbodyHtml;
-		}
-		if (documentsWrap) {
-			documentsWrap.innerHTML = documentsHtml || '';
 		}
 	}
 
@@ -212,7 +209,7 @@
 				if (yearSelect) {
 					yearSelect.value = String(state.year);
 				}
-				replaceLists(json.data.cards || '', json.data.tbody || '', json.data.documents || '');
+				replaceLists(json.data.cards || '', json.data.tbody || '');
 				applyCategoryFilter(state.category);
 			})
 			.catch(function () {
