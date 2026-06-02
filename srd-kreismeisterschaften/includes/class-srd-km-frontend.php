@@ -447,7 +447,7 @@ class SRD_KM_Frontend {
 				<div id="srd-km-documents-wrap">
 					<?php
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render_frontend_html escapt Ausgabe
-					echo SRD_KM_Documents::render_frontend_html($category_filter);
+					echo SRD_KM_Documents::render_frontend_html();
 					?>
 				</div>
 				<div class="card-body border-bottom srd-km-category-filter">

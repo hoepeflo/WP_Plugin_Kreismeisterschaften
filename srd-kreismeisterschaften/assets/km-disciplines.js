@@ -14,7 +14,6 @@
 	var cardRoot = panel.closest('.card');
 	var cardsEl = document.getElementById('srd-km-disciplines-cards');
 	var tbodyEl = document.getElementById('srd-km-disciplines-tbody');
-	var documentsWrap = document.getElementById('srd-km-documents-wrap');
 	var yearSelect = document.getElementById('srd-km-year-select');
 	var filterGroup = cardRoot
 		? cardRoot.querySelector('.srd-km-category-filter [role="group"]')
@@ -133,7 +132,6 @@
 
 		updateEmptyStates(visible);
 		updateCategoryButtons(category);
-		updateDocumentHighlights(category);
 		updateHistory();
 	}
 
@@ -166,32 +164,6 @@
 		}
 	}
 
-	function clearDocumentHighlightCatClasses(link) {
-		for (var c = 1; c <= 12; c++) {
-			link.classList.remove('srd-km-cat--' + c);
-		}
-	}
-
-	function updateDocumentHighlights(category) {
-		if (!documentsWrap) {
-			return;
-		}
-		category = normalizeCategory(category);
-		documentsWrap.querySelectorAll('[data-srd-km-doc-categories]').forEach(function (link) {
-			var raw = link.getAttribute('data-srd-km-doc-categories') || '';
-			var ids = raw.split(',').map(function (part) {
-				return parseInt(part, 10);
-			}).filter(function (n) {
-				return !isNaN(n) && n > 0;
-			});
-			var highlight = category > 0 && ids.indexOf(category) >= 0;
-			clearDocumentHighlightCatClasses(link);
-			link.classList.toggle('srd-km-documents__link--highlight', highlight);
-			if (highlight) {
-				link.classList.add('srd-km-cat--' + category);
-			}
-		});
-	}
 
 	function fetchYear(year) {
 		setLoading(true);
