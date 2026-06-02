@@ -1,0 +1,45 @@
+name: Deploy via FTP
+
+on:
+  push:
+    branches: [ main ]     # ggf. anpassen
+  workflow_dispatch:       # manuell auslösbar
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ftp-deploy-prod
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Falls du vorher baust (z.B. React/Vue/etc.):
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 20
+      # - run: npm ci && npm run build
+
+      - name: Upload via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          protocol: ftp                 # <— Standard FTP
+          port: 21                      # Standard FTP-Port
+          local-dir: ./srd-kreismeisterschaften/                 # Root-Verzeichnis des Repositories
+          server-dir: /          # Zielpfad auf deinem Server anpassen
+          exclude: |                    # Dateien die NICHT hochgeladen werden sollen
+            **/.git*
+            **/.github/**
+            **/node_modules/**
+            **/*.map
+            **/.DS_Store
+            **/README.md
+            **/*.md
+          dangerous-clean-slate: false  # Vorsicht: löscht alles im Zielverzeichnis
+          timeout: 300000               # 5 Minuten Timeout
+          # dry-run: true               # erst testen, dann auskommentieren
