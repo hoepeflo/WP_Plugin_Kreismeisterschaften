@@ -129,7 +129,7 @@ class SRD_KM_Categories {
 		);
 		foreach ($cats as $cat) {
 			$prefix = (string) $cat['prefix'];
-			if ($prefix !== '' && strpos($datei, $prefix) === 0) {
+			if ($prefix !== '' && str_starts_with($datei, $prefix)) {
 				return (int) $cat['id'];
 			}
 		}
