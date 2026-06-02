@@ -443,7 +443,7 @@ class SRD_KM_Frontend {
 		<div class="srd-km-wrap container-fluid py-2">
 			<div class="card shadow-sm">
 				<div class="card-header bg-primary text-white srd-km-card-title">
-					<h2 class="h4 mb-0 srd-km-page-title"><i class="bi bi-trophy me-2"></i><?php esc_html_e('Ergebnisse der Kreismeisterschaften', 'srd-kreismeisterschaften'); ?></h2>
+					<h2 class="h4 mb-0 srd-km-page-title"><i class="bi bi-trophy me-2"></i><?php esc_html_e('Kreismeisterschaften', 'srd-kreismeisterschaften'); ?></h2>
 				</div>
 				<div id="srd-km-documents-wrap">
 					<?php
