@@ -77,11 +77,21 @@
 	font-weight: 600;
 }
 
-.srd-km-wrap .srd-km-documents__link--highlight {
-	background-color: var(--bs-primary);
-	border-color: var(--bs-primary);
+/* Höhere Spezifität als Bootstrap .btn-outline-primary (sonst grüne Schrift auf grünem Grund) */
+.srd-km-wrap .srd-km-documents__link.btn.btn-outline-primary.srd-km-documents__link--highlight,
+.srd-km-wrap .srd-km-documents__link.btn.btn-outline-primary.srd-km-documents__link--highlight:hover,
+.srd-km-wrap .srd-km-documents__link.btn.btn-outline-primary.srd-km-documents__link--highlight:focus,
+.srd-km-wrap .srd-km-documents__link.btn.btn-outline-primary.srd-km-documents__link--highlight:active {
+	background-color: var(--srd-km-cat-color, var(--bs-primary));
+	border-color: var(--srd-km-cat-color, var(--bs-primary));
 	color: #fff;
 	box-shadow: 0 0 0 2px rgba(47, 104, 6, 0.25);
+	box-shadow: 0 0 0 2px color-mix(in srgb, var(--srd-km-cat-color, var(--bs-primary)) 25%, transparent);
+}
+
+.srd-km-wrap .srd-km-documents__link--highlight .srd-km-documents__icon,
+.srd-km-wrap .srd-km-documents__link--highlight .srd-km-documents__link-text {
+	color: #fff;
 }
 
 .srd-km-wrap .srd-km-documents__link--highlight .badge {
