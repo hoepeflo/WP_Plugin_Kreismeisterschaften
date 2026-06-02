@@ -2,8 +2,9 @@
 /**
  * Plugin Name: SRD Kreismeisterschaften
  * Description: Kreismeisterschaften (KM) aus dem SRD-Ergebnisdienst in WordPress – Disziplinenliste mit Kategorien, PDF/HTML-Ergebnisse.
- * Version: 1.6.3
+ * Version: 1.6.4
  * Author: KSV Fallingbostel / SRD
+ * Author URI: https://github.com/hoepeflo
  * License: MIT
  * Text Domain: srd-kreismeisterschaften
  *
@@ -33,6 +34,38 @@ require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-documents.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-documents-admin.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-documents-handler.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-frontend.php';
+
+/**
+ * @return array<string, mixed>
+ */
+/**
+ * Autorenhinweis auf Kreismeisterschaften-Adminseiten (neben der Überschrift).
+ */
+function srd_km_render_plugin_author_credit(): void {
+	$url = 'https://github.com/hoepeflo';
+	echo '<span class="srd-km-plugin-author-credit description" style="margin-left:12px;vertical-align:middle;">';
+	printf(
+		/* translators: %s: linked author name */
+		esc_html__('Plugin: %s', 'srd-kreismeisterschaften'),
+		'<a href="' . esc_url($url) . '" target="_blank" rel="noopener noreferrer">' . esc_html__('Florian Höper', 'srd-kreismeisterschaften') . '</a>'
+	);
+	echo '</span>';
+}
+
+/**
+ * @param array<int, string> $links
+ * @param string             $file
+ * @return array<int, string>
+ */
+function srd_km_plugin_row_meta(array $links, string $file): array {
+	if ($file !== plugin_basename(SRD_KM_PLUGIN_FILE)) {
+		return $links;
+	}
+	$links[] = '<a href="https://github.com/hoepeflo" target="_blank" rel="noopener noreferrer">' . esc_html__('Florian Höper', 'srd-kreismeisterschaften') . '</a>';
+	return $links;
+}
+
+add_filter('plugin_row_meta', 'srd_km_plugin_row_meta', 10, 2);
 
 /**
  * @return array<string, mixed>
