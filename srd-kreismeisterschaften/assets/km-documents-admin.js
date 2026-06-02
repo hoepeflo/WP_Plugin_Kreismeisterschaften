@@ -2,10 +2,11 @@
 	'use strict';
 
 	function toggleDocFields($row) {
-		var type = $row.find('.srd-km-doc-type-select').val();
-		$row.find('.srd-km-doc-field--pdf').toggle(type === 'pdf');
-		$row.find('.srd-km-doc-field--page').toggle(type === 'page');
-		$row.find('.srd-km-doc-field--url').toggle(type === 'url');
+		var type = $row.find('.srd-km-doc-type-select').val() || '';
+		$row.find('.srd-km-doc-field').removeClass('srd-km-doc-field--visible');
+		if (type === 'pdf' || type === 'page' || type === 'url') {
+			$row.find('.srd-km-doc-field--' + type).addClass('srd-km-doc-field--visible');
+		}
 	}
 
 	function initRow($row) {

@@ -65,7 +65,8 @@ class SRD_KM_Documents_Admin {
 			'wp-admin',
 			'.srd-km-doc-drag-handle{cursor:grab;color:#787c82;padding:0 8px 0 0;user-select:none}'
 			. '.srd-km-doc-sort-placeholder{outline:2px dashed #c3c4c7;background:#f6f7f7;height:48px}'
-			. '.srd-km-doc-field--pdf,.srd-km-doc-field--page,.srd-km-doc-field--url{display:none}'
+			. '.srd-km-doc-field{display:none}'
+			. '.srd-km-doc-field.srd-km-doc-field--visible{display:block}'
 			. '.srd-km-doc-categories-checkboxes{display:flex;flex-wrap:wrap;gap:4px 12px;max-width:420px}'
 			. '.srd-km-doc-categories-checkboxes label{display:inline-flex;align-items:center;gap:4px;margin:0;font-size:12px}'
 		);
@@ -261,7 +262,7 @@ class SRD_KM_Documents_Admin {
 		$name_prefix = 'srd_km_documents[' . $key . ']';
 		$file_prefix = 'srd_km_documents_files[' . $key . ']';
 		?>
-		<div class="srd-km-doc-field srd-km-doc-field--pdf"<?php echo $type === 'pdf' ? '' : ' style="display:none"'; ?>>
+		<div class="srd-km-doc-field srd-km-doc-field--pdf<?php echo $type === 'pdf' ? ' srd-km-doc-field--visible' : ''; ?>">
 			<?php if ($pdf_name !== '') : ?>
 				<p class="description">
 					<?php
@@ -279,7 +280,7 @@ class SRD_KM_Documents_Admin {
 			<input type="file" name="<?php echo esc_attr($file_prefix . '[pdf_file]'); ?>" accept=".pdf,application/pdf" />
 			<p class="description"><?php esc_html_e('Neue PDF ersetzt die bestehende Datei.', 'srd-kreismeisterschaften'); ?></p>
 		</div>
-		<div class="srd-km-doc-field srd-km-doc-field--page"<?php echo $type === 'page' ? '' : ' style="display:none"'; ?>>
+		<div class="srd-km-doc-field srd-km-doc-field--page<?php echo $type === 'page' ? ' srd-km-doc-field--visible' : ''; ?>">
 			<select name="<?php echo esc_attr($name_prefix . '[page_id]'); ?>">
 				<option value="0"><?php esc_html_e('— Seite wählen —', 'srd-kreismeisterschaften'); ?></option>
 				<?php foreach ($pages as $p) : ?>
@@ -289,10 +290,12 @@ class SRD_KM_Documents_Admin {
 				<?php endforeach; ?>
 			</select>
 		</div>
-		<div class="srd-km-doc-field srd-km-doc-field--url"<?php echo $type === 'url' ? '' : ' style="display:none"'; ?>>
+		<div class="srd-km-doc-field srd-km-doc-field--url<?php echo $type === 'url' ? ' srd-km-doc-field--visible' : ''; ?>">
 			<input
-				type="url"
+				type="text"
 				class="large-text code"
+				inputmode="url"
+				autocomplete="url"
 				name="<?php echo esc_attr($name_prefix . '[url]'); ?>"
 				value="<?php echo esc_attr($url); ?>"
 				placeholder="https://"
