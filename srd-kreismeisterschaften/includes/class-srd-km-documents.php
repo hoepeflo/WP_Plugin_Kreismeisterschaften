@@ -24,7 +24,7 @@ class SRD_KM_Documents {
 	public static function fixed_types(): array {
 		return array(
 			'general'         => __('Allgemeine Ausschreibung', 'srd-kreismeisterschaften'),
-			'discipline_plan' => __('Disziplineinplan', 'srd-kreismeisterschaften'),
+			'discipline_plan' => __('Disziplinenplan', 'srd-kreismeisterschaften'),
 			'age_table'       => __('Jahrgangstabelle', 'srd-kreismeisterschaften'),
 			'schedule'        => __('Terminplan', 'srd-kreismeisterschaften'),
 		);
