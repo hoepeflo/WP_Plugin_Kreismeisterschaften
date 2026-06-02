@@ -63,7 +63,6 @@ class SRD_KM_Categories_Admin {
 				<?php esc_html_e('Neue Kategorie', 'srd-kreismeisterschaften'); ?>
 			</a>
 			<hr class="wp-header-end" />
-			<?php srd_km_render_plugin_author_credit(); ?>
 			<p>
 				<a href="<?php echo esc_url($settings_url); ?>">&larr; <?php esc_html_e('Zurück zu den Einstellungen', 'srd-kreismeisterschaften'); ?></a>
 			</p>
@@ -153,7 +152,6 @@ class SRD_KM_Categories_Admin {
 		?>
 		<div class="wrap">
 			<h1 class="wp-heading-inline"><?php echo esc_html($title); ?></h1>
-			<?php srd_km_render_plugin_author_credit(); ?>
 			<p><a href="<?php echo esc_url($list_url); ?>">&larr; <?php esc_html_e('Zurück zur Übersicht', 'srd-kreismeisterschaften'); ?></a></p>
 			<form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
 				<?php wp_nonce_field('srd_km_save_category', 'srd_km_category_nonce'); ?>
