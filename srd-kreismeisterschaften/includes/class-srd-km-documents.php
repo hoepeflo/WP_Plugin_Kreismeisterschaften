@@ -569,7 +569,7 @@ class SRD_KM_Documents {
 							$cat_ids = isset($doc['category_ids']) && is_array($doc['category_ids']) ? $doc['category_ids'] : array();
 							$extra = '';
 							if ($highlight_category > 0 && in_array($highlight_category, $cat_ids, true)) {
-								$extra = ' srd-km-documents__link--highlight';
+								$extra = ' srd-km-documents__link--highlight srd-km-cat--' . (int) $highlight_category;
 							}
 							self::render_document_link($doc, $col, $extra, $cat_ids);
 							?>

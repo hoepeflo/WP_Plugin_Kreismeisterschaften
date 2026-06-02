@@ -166,6 +166,12 @@
 		}
 	}
 
+	function clearDocumentHighlightCatClasses(link) {
+		for (var c = 1; c <= 12; c++) {
+			link.classList.remove('srd-km-cat--' + c);
+		}
+	}
+
 	function updateDocumentHighlights(category) {
 		if (!documentsWrap) {
 			return;
@@ -179,7 +185,11 @@
 				return !isNaN(n) && n > 0;
 			});
 			var highlight = category > 0 && ids.indexOf(category) >= 0;
+			clearDocumentHighlightCatClasses(link);
 			link.classList.toggle('srd-km-documents__link--highlight', highlight);
+			if (highlight) {
+				link.classList.add('srd-km-cat--' + category);
+			}
 		});
 	}
 
