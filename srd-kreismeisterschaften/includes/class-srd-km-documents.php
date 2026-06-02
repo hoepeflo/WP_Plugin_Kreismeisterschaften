@@ -100,7 +100,7 @@ class SRD_KM_Documents {
 		}
 		$type = isset($input['type']) ? sanitize_key((string) $input['type']) : '';
 		if ($type === 'url') {
-			$url = isset($input['url']) ? esc_url_raw((string) $input['url']) : '';
+			$url = self::sanitize_document_url(isset($input['url']) ? (string) $input['url'] : '');
 			if ($url === '') {
 				return $empty;
 			}
@@ -186,7 +186,7 @@ class SRD_KM_Documents {
 			);
 		}
 		if ($type === 'url') {
-			$url = isset($entry['url']) ? esc_url_raw((string) $entry['url']) : '';
+			$url = self::sanitize_document_url(isset($entry['url']) ? (string) $entry['url'] : '');
 			if ($url === '') {
 				return null;
 			}
@@ -198,6 +198,36 @@ class SRD_KM_Documents {
 			);
 		}
 		return null;
+	}
+
+	/**
+	 * URL für Dokumentlinks normalisieren (absolut, relativ, ohne Schema).
+	 */
+	public static function sanitize_document_url(string $raw): string {
+		$raw = trim(wp_strip_all_tags($raw));
+		if ($raw === '') {
+			return '';
+		}
+		if (str_starts_with($raw, '/')) {
+			return esc_url_raw(home_url($raw));
+		}
+		if (str_starts_with($raw, '//')) {
+			return esc_url_raw('https:' . $raw);
+		}
+		$url = esc_url_raw($raw);
+		if ($url !== '') {
+			return $url;
+		}
+		if (preg_match('#^[\w.-]+\.[a-z]{2,}(/.*)?$#i', $raw)) {
+			$url = esc_url_raw('https://' . $raw);
+			if ($url !== '') {
+				return $url;
+			}
+		}
+		if (!preg_match('#^[a-z][a-z0-9+.-]*:#i', $raw)) {
+			return esc_url_raw(home_url('/' . ltrim($raw, '/')));
+		}
+		return '';
 	}
 
 	/**
