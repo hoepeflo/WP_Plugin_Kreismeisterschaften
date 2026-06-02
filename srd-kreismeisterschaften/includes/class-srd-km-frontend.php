@@ -510,15 +510,7 @@ class SRD_KM_Frontend {
 				$prepared[] = $row;
 			}
 		}
-		usort(
-			$prepared,
-			static function (array $a, array $b): int {
-				return SRD_KM_DB::compare_disziplin_strings(
-					(string) ( $a['disziplin'] ?? '' ),
-					(string) ( $b['disziplin'] ?? '' )
-				);
-			}
-		);
+		usort($prepared, array(SRD_KM_DB::class, 'compare_kreis_rows_by_disziplin'));
 
 		ob_start();
 		foreach ($prepared as $row) {
