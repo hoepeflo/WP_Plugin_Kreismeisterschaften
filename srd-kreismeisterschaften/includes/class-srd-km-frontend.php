@@ -90,15 +90,18 @@ class SRD_KM_Frontend {
 	public function ajax_disciplines_list(): void {
 		check_ajax_referer('srd_km_disciplines', 'nonce');
 
-		$year = isset($_POST['year']) ? absint(wp_unslash($_POST['year'])) : 0;
-		if ($year < 1990 || $year > 2100) {
-			wp_send_json_error(array('message' => 'invalid year'), 400);
-		}
-
 		$r = $this->results_paths();
 		if (!is_dir($r['path'])) {
 			wp_send_json_error(array('message' => 'results missing'), 500);
 		}
+
+		$available_years = $this->years_from_results_folders();
+		if ($available_years === array()) {
+			wp_send_json_error(array('message' => 'no years'), 404);
+		}
+
+		$year = isset($_POST['year']) ? absint(wp_unslash($_POST['year'])) : 0;
+		$year = $this->normalize_list_year($year, $available_years);
 
 		$lists = $this->get_disciplines_lists_html($year, SRD_KM_DB::kreis_rows_v3(), $r);
 		$category = isset($_POST['category']) ? absint(wp_unslash($_POST['category'])) : 0;
@@ -397,9 +400,7 @@ class SRD_KM_Frontend {
 			$body = $this->render_html_result($year, $id, $art);
 		} else {
 			$years = $this->available_years();
-			if ($year <= 0) {
-				$year = $this->default_year($years);
-			}
+			$year = $this->normalize_list_year($year, $years);
 			$body = $this->render_disciplines_view($year, $category, $years);
 		}
 
@@ -407,30 +408,93 @@ class SRD_KM_Frontend {
 	}
 
 	/**
-	 * @return int[]
+	 * Sportjahre mit vorhandenem Ordner results/km_JJJJ auf dem Server.
+	 *
+	 * @return int[] absteigend sortiert
 	 */
-	private function available_years(): array {
-		$years = SRD_KM_DB::distinct_sportjahre();
-		if ($years === array()) {
-			$years = array(2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016);
+	private function years_from_results_folders(): array {
+		$r = $this->results_paths();
+		$base = $r['path'];
+		$real_base = realpath($base);
+		if ($real_base === false || !is_dir($real_base)) {
+			return array();
 		}
-		return $this->merge_sportjahr_season_preview($years);
+
+		$years = array();
+		$entries = scandir($real_base);
+		if ($entries === false) {
+			return array();
+		}
+
+		$prefix = $real_base . DIRECTORY_SEPARATOR;
+		foreach ($entries as $entry) {
+			if ($entry === '.' || $entry === '..') {
+				continue;
+			}
+			if (!preg_match('/^km_(\d{4})$/', $entry, $matches)) {
+				continue;
+			}
+			$year = (int) $matches[1];
+			if ($year < 1990 || $year > 2100) {
+				continue;
+			}
+			$full = $prefix . $entry;
+			if (!is_dir($full)) {
+				continue;
+			}
+			$real_dir = realpath($full);
+			if ($real_dir === false) {
+				continue;
+			}
+			if (strncmp($real_dir, $prefix, strlen($prefix)) !== 0) {
+				continue;
+			}
+			$years[ $year ] = $year;
+		}
+
+		$list = array_values($years);
+		rsort($list, SORT_NUMERIC);
+		return $list;
 	}
 
 	/**
+	 * @return int[]
+	 */
+	private function available_years(): array {
+		return $this->years_from_results_folders();
+	}
+
+	/**
+	 * Gewähltes Jahr auf eine in der Jahresauswahl verfügbare Option begrenzen.
+	 *
 	 * @param int[] $years
 	 */
-	private function default_year(array $years): int {
-		if ($years !== array()) {
-			return (int) $years[0];
+	private function normalize_list_year(int $year, array $years): int {
+		if ($years === array()) {
+			return 0;
 		}
-		return (int) gmdate('Y');
+		if ($year > 0 && in_array($year, $years, true)) {
+			return $year;
+		}
+		return (int) $years[0];
 	}
 
 	/**
 	 * @param int[] $years
 	 */
 	private function render_disciplines_view(int $jahr, int $category_filter, array $years): string {
+		if ($years === array()) {
+			ob_start();
+			?>
+			<div class="srd-km-wrap container-fluid py-2">
+				<div class="alert alert-warning mb-0">
+					<?php esc_html_e('Im results-Ordner wurden keine Jahresordner (km_JJJJ) gefunden. Bitte legen Sie zuerst Ergebnisdateien hoch.', 'srd-kreismeisterschaften'); ?>
+				</div>
+			</div>
+			<?php
+			return (string) ob_get_clean();
+		}
+
 		$this->enqueue_disciplines_script($jahr, $category_filter, $years);
 
 		$r = $this->results_paths();
@@ -447,7 +511,7 @@ class SRD_KM_Frontend {
 				<div id="srd-km-documents-wrap">
 					<?php
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render_frontend_html escapt Ausgabe
-					echo SRD_KM_Documents::render_frontend_html();
+					echo SRD_KM_Documents::render_frontend_html($category_filter);
 					?>
 				</div>
 				<div class="card-body border-bottom srd-km-category-filter">
@@ -589,33 +653,6 @@ class SRD_KM_Frontend {
 			</td>
 		</tr>
 		<?php
-	}
-
-	/**
-	 * Ab 01.10. des Kalenderjahres das Folge-Sportjahr (Kalenderjahr + 1) in der Liste führen,
-	 * sofern es noch nicht aus der Datenbank/Fallback stammt (Saisonwechsel).
-	 *
-	 * @param int[] $years
-	 * @return int[] Absteigend sortiert, eindeutig
-	 */
-	private function merge_sportjahr_season_preview(array $years): array {
-		$out = array();
-		foreach ($years as $y) {
-			$y = (int) $y;
-			if ($y >= 1990 && $y <= 2100) {
-				$out[ $y ] = $y;
-			}
-		}
-		$dt = current_datetime();
-		if ((int) $dt->format('n') >= 10) {
-			$preview = (int) $dt->format('Y') + 1;
-			if ($preview <= 2100) {
-				$out[ $preview ] = $preview;
-			}
-		}
-		$list = array_values($out);
-		rsort($list, SORT_NUMERIC);
-		return $list;
 	}
 
 	/**
