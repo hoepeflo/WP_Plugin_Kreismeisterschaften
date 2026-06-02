@@ -1,6 +1,6 @@
 <?php
 /**
- * Ausschreibungs- und Planungsdokumente pro Sportjahr (PDF oder WordPress-Seite).
+ * Ausschreibungs- und Planungsdokumente pro Sportjahr (PDF, WordPress-Seite oder URL).
  *
  * @package SRD_Kreismeisterschaften
  */
@@ -86,18 +86,31 @@ class SRD_KM_Documents {
 
 	/**
 	 * @param array<string, mixed> $input
-	 * @return array{type: string, attachment_id: int, page_id: int}
+	 * @return array{type: string, attachment_id: int, page_id: int, url: string}
 	 */
 	public static function sanitize_entry($input): array {
 		$empty = array(
 			'type'            => '',
 			'attachment_id'   => 0,
 			'page_id'         => 0,
+			'url'             => '',
 		);
 		if (!is_array($input)) {
 			return $empty;
 		}
 		$type = isset($input['type']) ? sanitize_key((string) $input['type']) : '';
+		if ($type === 'url') {
+			$url = isset($input['url']) ? esc_url_raw((string) $input['url']) : '';
+			if ($url === '') {
+				return $empty;
+			}
+			return array(
+				'type'            => 'url',
+				'attachment_id'   => 0,
+				'page_id'         => 0,
+				'url'             => $url,
+			);
+		}
 		if (!in_array($type, array('pdf', 'page'), true)) {
 			return $empty;
 		}
@@ -114,6 +127,7 @@ class SRD_KM_Documents {
 				'type'          => 'pdf',
 				'attachment_id' => $aid,
 				'page_id'       => 0,
+				'url'           => '',
 			);
 		}
 		$pid = isset($input['page_id']) ? absint($input['page_id']) : 0;
@@ -124,6 +138,7 @@ class SRD_KM_Documents {
 			'type'            => 'page',
 			'attachment_id'   => 0,
 			'page_id'         => $pid,
+			'url'             => '',
 		);
 	}
 
@@ -170,7 +185,31 @@ class SRD_KM_Documents {
 				'is_external'  => false,
 			);
 		}
+		if ($type === 'url') {
+			$url = isset($entry['url']) ? esc_url_raw((string) $entry['url']) : '';
+			if ($url === '') {
+				return null;
+			}
+			return array(
+				'url'          => $url,
+				'label'        => $label,
+				'kind'         => 'url',
+				'is_external'  => self::is_external_url($url),
+			);
+		}
 		return null;
+	}
+
+	/**
+	 * Externe URL, wenn Host von home_url() abweicht.
+	 */
+	private static function is_external_url(string $url): bool {
+		$home_host = wp_parse_url(home_url(), PHP_URL_HOST);
+		$url_host = wp_parse_url($url, PHP_URL_HOST);
+		if (!is_string($home_host) || $home_host === '' || !is_string($url_host) || $url_host === '') {
+			return true;
+		}
+		return strcasecmp($home_host, $url_host) !== 0;
 	}
 
 	/**
@@ -451,7 +490,12 @@ class SRD_KM_Documents {
 	 * @param int[] $category_ids
 	 */
 	private static function render_document_link(array $doc, string $col_class, string $extra_class = '', array $category_ids = array()): void {
-		$icon = $doc['kind'] === 'pdf' ? 'bi-file-earmark-pdf' : 'bi-box-arrow-up-right';
+		$icon = 'bi-box-arrow-up-right';
+		if ($doc['kind'] === 'pdf') {
+			$icon = 'bi-file-earmark-pdf';
+		} elseif ($doc['kind'] === 'url') {
+			$icon = 'bi-calendar-event';
+		}
 		$target = $doc['is_external'] ? '_blank' : '_self';
 		$rel = $doc['is_external'] ? 'noopener noreferrer' : '';
 		$cat_attr = '';

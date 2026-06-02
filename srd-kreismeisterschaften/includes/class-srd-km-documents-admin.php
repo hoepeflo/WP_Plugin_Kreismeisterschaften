@@ -65,7 +65,7 @@ class SRD_KM_Documents_Admin {
 			'wp-admin',
 			'.srd-km-doc-drag-handle{cursor:grab;color:#787c82;padding:0 8px 0 0;user-select:none}'
 			. '.srd-km-doc-sort-placeholder{outline:2px dashed #c3c4c7;background:#f6f7f7;height:48px}'
-			. '.srd-km-doc-field--pdf,.srd-km-doc-field--page{display:none}'
+			. '.srd-km-doc-field--pdf,.srd-km-doc-field--page,.srd-km-doc-field--url{display:none}'
 			. '.srd-km-doc-categories-checkboxes{display:flex;flex-wrap:wrap;gap:4px 12px;max-width:420px}'
 			. '.srd-km-doc-categories-checkboxes label{display:inline-flex;align-items:center;gap:4px;margin:0;font-size:12px}'
 		);
@@ -269,6 +269,7 @@ class SRD_KM_Documents_Admin {
 			<option value="" <?php selected($type, ''); ?>><?php esc_html_e('— keins —', 'srd-kreismeisterschaften'); ?></option>
 			<option value="pdf" <?php selected($type, 'pdf'); ?>><?php esc_html_e('PDF', 'srd-kreismeisterschaften'); ?></option>
 			<option value="page" <?php selected($type, 'page'); ?>><?php esc_html_e('WordPress-Seite', 'srd-kreismeisterschaften'); ?></option>
+			<option value="url" <?php selected($type, 'url'); ?>><?php esc_html_e('URL', 'srd-kreismeisterschaften'); ?></option>
 		</select>
 		<?php
 	}
@@ -281,6 +282,7 @@ class SRD_KM_Documents_Admin {
 		$type = isset($entry['type']) ? (string) $entry['type'] : '';
 		$attachment_id = isset($entry['attachment_id']) ? absint($entry['attachment_id']) : 0;
 		$page_id = isset($entry['page_id']) ? absint($entry['page_id']) : 0;
+		$url = isset($entry['url']) ? esc_url((string) $entry['url']) : '';
 		$pdf_name = '';
 		if ($attachment_id > 0) {
 			$pdf_name = basename((string) get_attached_file($attachment_id));
@@ -315,6 +317,16 @@ class SRD_KM_Documents_Admin {
 					</option>
 				<?php endforeach; ?>
 			</select>
+		</div>
+		<div class="srd-km-doc-field srd-km-doc-field--url"<?php echo $type === 'url' ? '' : ' style="display:none"'; ?>>
+			<input
+				type="url"
+				class="large-text code"
+				name="<?php echo esc_attr($name_prefix . '[url]'); ?>"
+				value="<?php echo esc_attr($url); ?>"
+				placeholder="https://"
+			/>
+			<p class="description"><?php esc_html_e('z. B. Link zum WordPress-Kalender oder einer Kalender-Seite.', 'srd-kreismeisterschaften'); ?></p>
 		</div>
 		<?php
 	}

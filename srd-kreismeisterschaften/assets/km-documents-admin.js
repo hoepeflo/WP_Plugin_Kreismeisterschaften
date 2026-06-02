@@ -5,6 +5,7 @@
 		var type = $row.find('.srd-km-doc-type-select').val();
 		$row.find('.srd-km-doc-field--pdf').toggle(type === 'pdf');
 		$row.find('.srd-km-doc-field--page').toggle(type === 'page');
+		$row.find('.srd-km-doc-field--url').toggle(type === 'url');
 	}
 
 	function initRow($row) {

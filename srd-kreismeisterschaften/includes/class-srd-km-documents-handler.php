@@ -102,6 +102,15 @@ class SRD_KM_Documents_Handler {
 			);
 		}
 
+		if ($type === 'url') {
+			return SRD_KM_Documents::sanitize_entry(
+				array(
+					'type' => 'url',
+					'url'  => isset($row['url']) ? (string) $row['url'] : '',
+				)
+			);
+		}
+
 		if ($type === 'pdf') {
 			$aid = isset($row['attachment_id']) ? absint($row['attachment_id']) : 0;
 			if ($aid <= 0 && isset($existing[ $key ]['attachment_id'])) {
