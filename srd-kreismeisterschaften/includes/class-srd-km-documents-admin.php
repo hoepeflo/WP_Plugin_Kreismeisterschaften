@@ -84,6 +84,7 @@ class SRD_KM_Documents_Admin {
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e('Ausschreibungen & Unterlagen', 'srd-kreismeisterschaften'); ?></h1>
+			<?php srd_km_render_plugin_author_credit(); ?>
 			<p class="description">
 				<?php esc_html_e('Legen Sie die aktuellen Dokumente fest: als PDF-Upload, WordPress-Seite oder URL (z. B. Kalender). Sie gelten für alle Sportjahre in der Disziplinenliste – es gibt kein Jahresarchiv. Leere Einträge werden im Frontend nicht angezeigt. Eigene Kategorieausschreibungen (z. B. „Kugelbereich“) können mehrere Disziplin-Kategorien zusammenfassen. Die Reihenfolge lässt sich per Drag & Drop ändern.', 'srd-kreismeisterschaften'); ?>
 			</p>

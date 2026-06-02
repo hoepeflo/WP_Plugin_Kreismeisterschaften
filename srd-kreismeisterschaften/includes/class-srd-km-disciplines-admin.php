@@ -60,6 +60,7 @@ class SRD_KM_Disciplines_Admin {
 		?>
 		<div class="wrap">
 			<h1 class="wp-heading-inline"><?php esc_html_e('Disziplinen', 'srd-kreismeisterschaften'); ?></h1>
+			<?php srd_km_render_plugin_author_credit(); ?>
 			<?php if (SRD_KM_DB::table_available()) : ?>
 				<a href="<?php echo esc_url(add_query_arg('action', 'add', $list_url)); ?>" class="page-title-action"><?php esc_html_e('Neue Disziplin', 'srd-kreismeisterschaften'); ?></a>
 			<?php endif; ?>
@@ -217,6 +218,7 @@ class SRD_KM_Disciplines_Admin {
 		?>
 		<div class="wrap">
 			<h1 class="wp-heading-inline"><?php echo esc_html($title); ?></h1>
+			<?php srd_km_render_plugin_author_credit(); ?>
 			<?php if ($action === 'edit' && $id > 0) : ?>
 				<a href="<?php echo esc_url($add_url); ?>" class="page-title-action"><?php esc_html_e('Neue Disziplin', 'srd-kreismeisterschaften'); ?></a>
 			<?php endif; ?>

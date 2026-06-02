@@ -1,6 +1,8 @@
 SRD Kreismeisterschaften (WordPress-Plugin)
 ===========================================
 
+Plugin von Florian Höper (https://github.com/hoepeflo)
+
 Installation
 ------------
 1. Ordner `srd-kreismeisterschaften` nach `wp-content/plugins/` kopieren.
