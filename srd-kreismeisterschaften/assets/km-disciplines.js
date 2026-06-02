@@ -174,9 +174,14 @@
 			return;
 		}
 		category = normalizeCategory(category);
-		documentsWrap.querySelectorAll('[data-srd-km-doc-category]').forEach(function (link) {
-			var linkCat = parseInt(link.getAttribute('data-srd-km-doc-category') || '0', 10);
-			var highlight = category > 0 && linkCat === category;
+		documentsWrap.querySelectorAll('[data-srd-km-doc-categories]').forEach(function (link) {
+			var raw = link.getAttribute('data-srd-km-doc-categories') || '';
+			var ids = raw.split(',').map(function (part) {
+				return parseInt(part, 10);
+			}).filter(function (n) {
+				return !isNaN(n) && n > 0;
+			});
+			var highlight = category > 0 && ids.indexOf(category) >= 0;
 			link.classList.toggle('srd-km-documents__link--highlight', highlight);
 		});
 	}

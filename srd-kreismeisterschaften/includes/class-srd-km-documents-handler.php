@@ -30,54 +30,114 @@ class SRD_KM_Documents_Handler {
 		$raw = isset($_POST['srd_km_documents']) && is_array($_POST['srd_km_documents'])
 			? wp_unslash($_POST['srd_km_documents'])
 			: array();
-		$files = isset($_FILES['srd_km_documents']) && is_array($_FILES['srd_km_documents'])
-			? $_FILES['srd_km_documents']
+		$files = isset($_FILES['srd_km_documents_files']) && is_array($_FILES['srd_km_documents_files'])
+			? $_FILES['srd_km_documents_files']
+			: array();
+		$order_raw = isset($_POST['srd_km_category_order']) && is_array($_POST['srd_km_category_order'])
+			? wp_unslash($_POST['srd_km_category_order'])
 			: array();
 
 		$out = array();
-		foreach (SRD_KM_Documents::all_types() as $key => $label) {
+		foreach (SRD_KM_Documents::fixed_types() as $key => $label) {
 			unset($label);
-			$row = isset($raw[ $key ]) && is_array($raw[ $key ]) ? $raw[ $key ] : array();
-			$type = isset($row['type']) ? sanitize_key((string) $row['type']) : '';
-
-			if ($type === 'page') {
-				$out[ $key ] = SRD_KM_Documents::sanitize_entry(
-					array(
-						'type'    => 'page',
-						'page_id' => isset($row['page_id']) ? absint($row['page_id']) : 0,
-					)
-				);
-				continue;
-			}
-
-			if ($type === 'pdf') {
-				$aid = isset($row['attachment_id']) ? absint($row['attachment_id']) : 0;
-				if ($aid <= 0 && isset($existing[ $key ]['attachment_id'])) {
-					$aid = absint($existing[ $key ]['attachment_id']);
-				}
-				if (self::has_pdf_upload($files, $key)) {
-					$uploaded = self::handle_pdf_upload($files, $key);
-					if (is_wp_error($uploaded)) {
-						self::redirect($year, 'err', 'upload');
-					}
-					if ($uploaded > 0) {
-						$aid = $uploaded;
-					}
-				}
-				$out[ $key ] = SRD_KM_Documents::sanitize_entry(
-					array(
-						'type'            => 'pdf',
-						'attachment_id'   => $aid,
-					)
-				);
-				continue;
-			}
-
-			$out[ $key ] = SRD_KM_Documents::sanitize_entry(array());
+			$out[ $key ] = self::process_entry($key, $raw, $files, $existing);
 		}
+
+		$category_order = array();
+		foreach ($order_raw as $key) {
+			$key = sanitize_key((string) $key);
+			if ($key === '') {
+				continue;
+			}
+			if (SRD_KM_Documents::is_standard_category_key($key) || SRD_KM_Documents::is_custom_category_key($key)) {
+				$category_order[] = $key;
+			}
+		}
+		$category_order = array_values(array_unique($category_order));
+
+		foreach ($category_order as $key) {
+			if (SRD_KM_Documents::is_custom_category_key($key)) {
+				$row = isset($raw[ $key ]) && is_array($raw[ $key ]) ? $raw[ $key ] : array();
+				$meta = SRD_KM_Documents::sanitize_custom_category_meta($row);
+				if ($meta['label'] === '') {
+					continue;
+				}
+				$entry = self::process_entry($key, $raw, $files, $existing);
+				$out[ $key ] = array_merge(
+					$entry,
+					array(
+						'label'      => $meta['label'],
+						'categories' => $meta['categories'],
+					)
+				);
+				continue;
+			}
+			if (SRD_KM_Documents::is_standard_category_key($key)) {
+				$out[ $key ] = self::process_entry($key, $raw, $files, $existing);
+			}
+		}
+
+		$out['category_order'] = $category_order;
 
 		SRD_KM_Documents::save_year($year, $out);
 		self::redirect($year, 'ok', 'saved');
+	}
+
+	/**
+	 * @param array<string, mixed> $raw
+	 * @param array<string, mixed> $files
+	 * @param array<string, array<string, mixed>> $existing
+	 * @return array{type: string, attachment_id: int, page_id: int}
+	 */
+	private static function process_entry(string $key, array $raw, array $files, array $existing): array {
+		$row = isset($raw[ $key ]) && is_array($raw[ $key ]) ? $raw[ $key ] : array();
+		$type = isset($row['type']) ? sanitize_key((string) $row['type']) : '';
+
+		if ($type === 'page') {
+			return SRD_KM_Documents::sanitize_entry(
+				array(
+					'type'    => 'page',
+					'page_id' => isset($row['page_id']) ? absint($row['page_id']) : 0,
+				)
+			);
+		}
+
+		if ($type === 'url') {
+			return SRD_KM_Documents::sanitize_entry(
+				array(
+					'type' => 'url',
+					'url'  => isset($row['url']) ? (string) $row['url'] : '',
+				)
+			);
+		}
+
+		if ($type === 'pdf') {
+			$aid = isset($row['attachment_id']) ? absint($row['attachment_id']) : 0;
+			if ($aid <= 0 && isset($existing[ $key ]['attachment_id'])) {
+				$aid = absint($existing[ $key ]['attachment_id']);
+			}
+			if (self::has_pdf_upload($files, $key)) {
+				$uploaded = self::handle_pdf_upload($files, $key);
+				if (is_wp_error($uploaded)) {
+					self::redirect(
+						isset($_POST['srd_km_doc_year']) ? absint(wp_unslash($_POST['srd_km_doc_year'])) : 0,
+						'err',
+						'upload'
+					);
+				}
+				if ($uploaded > 0) {
+					$aid = $uploaded;
+				}
+			}
+			return SRD_KM_Documents::sanitize_entry(
+				array(
+					'type'          => 'pdf',
+					'attachment_id' => $aid,
+				)
+			);
+		}
+
+		return SRD_KM_Documents::sanitize_entry(array());
 	}
 
 	/**
@@ -118,9 +178,9 @@ class SRD_KM_Documents_Handler {
 	private static function redirect(int $year, string $status, string $code): void {
 		$url = add_query_arg(
 			array(
-				'page'           => 'srd-kreismeisterschaften-documents',
-				'srd_km_doc'     => $status,
-				'srd_km_doc_c'   => $code,
+				'page'            => 'srd-kreismeisterschaften-documents',
+				'srd_km_doc'      => $status,
+				'srd_km_doc_c'    => $code,
 				'srd_km_doc_year' => $year > 0 ? (string) $year : null,
 			),
 			admin_url('admin.php')

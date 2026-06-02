@@ -44,7 +44,7 @@ class SRD_KM_Disciplines_Admin {
 			wp_die(esc_html__('Sie haben keinen Zugriff auf diese Seite.', 'srd-kreismeisterschaften'));
 		}
 		$action = isset($_GET['action']) ? sanitize_key((string) wp_unslash($_GET['action'])) : '';
-		if ($action === 'edit' || $action === 'add') {
+		if ($action === 'edit' || $action === 'add' || $action === 'copy') {
 			$this->render_edit_form($action);
 			return;
 		}
@@ -108,6 +108,13 @@ class SRD_KM_Disciplines_Admin {
 								),
 								$list_url
 							);
+							$copy_url = add_query_arg(
+								array(
+									'action' => 'copy',
+									'id'     => $row_id,
+								),
+								$list_url
+							);
 							?>
 							<tr>
 								<?php if ($pk) : ?>
@@ -122,6 +129,8 @@ class SRD_KM_Disciplines_Admin {
 								<?php endif; ?>
 								<td>
 									<a href="<?php echo esc_url($edit_url); ?>"><?php esc_html_e('Bearbeiten', 'srd-kreismeisterschaften'); ?></a>
+									|
+									<a href="<?php echo esc_url($copy_url); ?>"><?php esc_html_e('Kopieren', 'srd-kreismeisterschaften'); ?></a>
 								</td>
 							</tr>
 						<?php endforeach; ?>
@@ -136,11 +145,13 @@ class SRD_KM_Disciplines_Admin {
 		$this->render_admin_notices();
 		$pk = SRD_KM_DB::kreis_v3_primary_key();
 		$list_url = SRD_KM_Capabilities::admin_page_url('srd-kreismeisterschaften-disciplines');
+		$add_url = add_query_arg('action', 'add', $list_url);
 		$id = isset($_GET['id']) ? absint($_GET['id']) : 0;
 		$row = array();
-		$is_new = ($action === 'add');
+		$is_new = ($action === 'add' || $action === 'copy');
+		$is_copy = ($action === 'copy');
 
-		if (!$is_new) {
+		if ($action === 'edit') {
 			if ($id <= 0 || $pk === null) {
 				wp_safe_redirect($list_url);
 				exit;
@@ -159,6 +170,30 @@ class SRD_KM_Disciplines_Admin {
 				exit;
 			}
 			$row = $fetched;
+		} elseif ($is_copy) {
+			if ($id <= 0 || $pk === null) {
+				wp_safe_redirect($list_url);
+				exit;
+			}
+			$fetched = SRD_KM_DB::kreis_row_by_id($id);
+			if ($fetched === null) {
+				wp_safe_redirect(
+					add_query_arg(
+						array(
+							'srd_km_disc' => 'err',
+							'srd_km_disc_c' => 'not_found',
+						),
+						$list_url
+					)
+				);
+				exit;
+			}
+			$row = $fetched;
+			$disziplin = trim((string) ($row['disziplin'] ?? ''));
+			if ($disziplin !== '') {
+				$row['disziplin'] = $disziplin . ' ' . __('(Kopie)', 'srd-kreismeisterschaften');
+			}
+			$row['datei'] = '';
 		}
 
 		if (!SRD_KM_DB::table_available()) {
@@ -174,13 +209,28 @@ class SRD_KM_Disciplines_Admin {
 			'datei'        => __('Datei-ID (für e/m-Ergebnisse)', 'srd-kreismeisterschaften'),
 			'sportjahr'    => __('Sportjahr', 'srd-kreismeisterschaften'),
 		);
-		$title = $is_new
-			? __('Neue Disziplin', 'srd-kreismeisterschaften')
-			: __('Disziplin bearbeiten', 'srd-kreismeisterschaften');
+		$title = $is_copy
+			? __('Disziplin kopieren', 'srd-kreismeisterschaften')
+			: ($is_new
+				? __('Neue Disziplin', 'srd-kreismeisterschaften')
+				: __('Disziplin bearbeiten', 'srd-kreismeisterschaften'));
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html($title); ?></h1>
-			<p><a href="<?php echo esc_url($list_url); ?>">&larr; <?php esc_html_e('Zurück zur Liste', 'srd-kreismeisterschaften'); ?></a></p>
+			<h1 class="wp-heading-inline"><?php echo esc_html($title); ?></h1>
+			<?php if ($action === 'edit' && $id > 0) : ?>
+				<a href="<?php echo esc_url($add_url); ?>" class="page-title-action"><?php esc_html_e('Neue Disziplin', 'srd-kreismeisterschaften'); ?></a>
+			<?php endif; ?>
+			<hr class="wp-header-end" />
+			<p>
+				<a href="<?php echo esc_url($list_url); ?>">&larr; <?php esc_html_e('Zurück zur Liste', 'srd-kreismeisterschaften'); ?></a>
+				<?php if (!$is_new && $action === 'edit' && $id > 0) : ?>
+					| <a href="<?php echo esc_url($add_url); ?>"><?php esc_html_e('Neue Disziplin', 'srd-kreismeisterschaften'); ?></a>
+					| <a href="<?php echo esc_url(add_query_arg(array('action' => 'copy', 'id' => $id), $list_url)); ?>"><?php esc_html_e('Kopieren', 'srd-kreismeisterschaften'); ?></a>
+				<?php endif; ?>
+			</p>
+			<?php if ($is_copy) : ?>
+				<div class="notice notice-info inline"><p><?php esc_html_e('Die Felder wurden aus der Vorlage übernommen. Bitte eine neue, eindeutige Datei-ID vergeben.', 'srd-kreismeisterschaften'); ?></p></div>
+			<?php endif; ?>
 			<form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
 				<?php wp_nonce_field('srd_km_save_discipline', 'srd_km_discipline_nonce'); ?>
 				<input type="hidden" name="action" value="srd_km_save_discipline" />
