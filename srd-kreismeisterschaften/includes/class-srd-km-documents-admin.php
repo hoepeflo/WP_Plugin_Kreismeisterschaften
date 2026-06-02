@@ -200,7 +200,7 @@ class SRD_KM_Documents_Admin {
 						placeholder="<?php esc_attr_e('z. B. Kugelbereich', 'srd-kreismeisterschaften'); ?>"
 					/>
 					<div class="srd-km-doc-categories-checkboxes" style="margin-top:6px;">
-						<?php foreach (SRD_KM_Categories::labels() as $cat_id => $cat_label) : ?>
+						<?php foreach (SRD_KM_Categories::all_labels() as $cat_id => $cat_label) : ?>
 							<label>
 								<input
 									type="checkbox"

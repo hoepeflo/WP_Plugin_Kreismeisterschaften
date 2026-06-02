@@ -22,6 +22,8 @@ define('SRD_KM_PLUGIN_URL', plugin_dir_url(__FILE__));
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-capabilities.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-db.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-categories.php';
+require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-categories-admin.php';
+require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-categories-handler.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-rewrite.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-results-upload.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-admin.php';
@@ -54,6 +56,8 @@ function srd_km_bootstrap(): void {
 	SRD_KM_Rewrite::init();
 	SRD_KM_Results_Upload::init();
 	SRD_KM_Admin::instance();
+	SRD_KM_Categories_Admin::init();
+	SRD_KM_Categories_Handler::init();
 	SRD_KM_Disciplines_Admin::init();
 	SRD_KM_Disciplines_Handler::init();
 	SRD_KM_Documents_Admin::init();
@@ -66,6 +70,7 @@ add_action('plugins_loaded', 'srd_km_bootstrap');
 add_action(
 	'plugins_loaded',
 	static function (): void {
+		SRD_KM_Categories::maybe_install_defaults();
 		SRD_KM_Documents::maybe_migrate_from_yearly();
 	},
 	20
@@ -78,6 +83,7 @@ register_activation_hook(__FILE__, static function (): void {
 	if (!get_option('srd_km_documents')) {
 		add_option('srd_km_documents', array(), false);
 	}
+	SRD_KM_Categories::maybe_install_defaults();
 	SRD_KM_Documents::maybe_migrate_from_yearly();
 	SRD_KM_Rewrite::flush_rules();
 });

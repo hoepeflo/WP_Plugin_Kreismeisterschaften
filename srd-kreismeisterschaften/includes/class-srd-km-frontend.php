@@ -544,7 +544,7 @@ class SRD_KM_Frontend {
 			>
 				<?php esc_html_e('Alle', 'srd-kreismeisterschaften'); ?>
 			</a>
-			<?php foreach (SRD_KM_Categories::labels() as $cat_id => $cat_label) : ?>
+			<?php foreach (SRD_KM_Categories::labels(true) as $cat_id => $cat_label) : ?>
 				<?php
 				$cat_active = ($category_filter === $cat_id) ? ' active' : '';
 				$cat_url = $this->km_url(

@@ -35,7 +35,7 @@ class SRD_KM_Documents {
 	 */
 	public static function category_types(): array {
 		$out = array();
-		foreach (SRD_KM_Categories::labels() as $id => $label) {
+		foreach (SRD_KM_Categories::all_labels() as $id => $label) {
 			$out[ 'cat_' . $id ] = sprintf(
 				/* translators: %s: Kategoriename */
 				__('Ausschreibung %s', 'srd-kreismeisterschaften'),
@@ -332,7 +332,7 @@ class SRD_KM_Documents {
 	public static function category_ids_for_key(string $key, array $entry = array()): array {
 		if (self::is_standard_category_key($key)) {
 			$id = (int) substr($key, 4);
-			return SRD_KM_Categories::is_valid($id) ? array( $id ) : array();
+			return SRD_KM_Categories::exists($id) ? array( $id ) : array();
 		}
 		if (!self::is_custom_category_key($key)) {
 			return array();
@@ -341,7 +341,7 @@ class SRD_KM_Documents {
 		$out = array();
 		foreach ($raw as $cat_id) {
 			$id = absint($cat_id);
-			if (SRD_KM_Categories::is_valid($id)) {
+			if (SRD_KM_Categories::exists($id)) {
 				$out[ $id ] = $id;
 			}
 		}
@@ -433,7 +433,7 @@ class SRD_KM_Documents {
 		$categories = array();
 		foreach ($raw_cats as $cat_id) {
 			$id = absint($cat_id);
-			if (SRD_KM_Categories::is_valid($id)) {
+			if (SRD_KM_Categories::exists($id)) {
 				$categories[ $id ] = $id;
 			}
 		}

@@ -108,6 +108,9 @@ class SRD_KM_Admin {
 			<h1><?php echo esc_html__('SRD Kreismeisterschaften', 'srd-kreismeisterschaften'); ?></h1>
 			<p><?php echo esc_html__('Legen Sie die Seite mit dem Shortcode [srd_km] fest und den Pfad zu Ihrem results-Ordner (wie im bisherigen SRD-Projekt).', 'srd-kreismeisterschaften'); ?></p>
 			<p>
+				<a href="<?php echo esc_url(SRD_KM_Capabilities::admin_page_url('srd-kreismeisterschaften-categories')); ?>" class="button button-secondary">
+					<?php esc_html_e('Kategorien verwalten', 'srd-kreismeisterschaften'); ?>
+				</a>
 				<a href="<?php echo esc_url(SRD_KM_Capabilities::admin_page_url('srd-kreismeisterschaften-disciplines')); ?>" class="button button-secondary">
 					<?php esc_html_e('Disziplinen verwalten', 'srd-kreismeisterschaften'); ?>
 				</a>
