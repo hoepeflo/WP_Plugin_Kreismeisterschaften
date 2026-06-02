@@ -162,8 +162,11 @@
 	color: #fff;
 }
 
-.srd-km-wrap .srd-km-card-title .srd-km-page-title {
-	color: #fff;
+/* Theme-H2-Regeln überschreiben oft .text-white – hohe Spezifität nötig */
+.srd-km-wrap .card-header.srd-km-card-title,
+.srd-km-wrap .card-header.srd-km-card-title .srd-km-page-title,
+.srd-km-wrap .card-header.srd-km-card-title .srd-km-page-title i {
+	color: #fff !important;
 }
 
 .srd-km-wrap .srd-km-category-tag {
