@@ -58,14 +58,39 @@ class SRD_KM_DB {
 	}
 
 	/**
-	 * Disziplinnummer aus einer Tabellenzeile (Spaltenname case-insensitive).
+	 * Disziplinbezeichnung aus einer Tabellenzeile (Spaltenname case-insensitive).
 	 */
 	public static function row_disziplin(array $row): string {
-		if (isset($row['disziplin'])) {
-			return trim((string) $row['disziplin']);
+		return self::row_column($row, 'disziplin');
+	}
+
+	/**
+	 * SpO-Disziplinnummer aus einer Tabellenzeile (Spaltenname case-insensitive).
+	 */
+	public static function row_spo(array $row): string {
+		return self::row_column($row, 'spo');
+	}
+
+	/**
+	 * Sortierschlüssel: SpO-Nummer, falls leer die Disziplinbezeichnung.
+	 */
+	public static function row_sort_number(array $row): string {
+		$spo = self::row_spo($row);
+		if ($spo !== '') {
+			return $spo;
+		}
+		return self::row_disziplin($row);
+	}
+
+	/**
+	 * @param array<string, mixed> $row
+	 */
+	private static function row_column(array $row, string $column): string {
+		if (isset($row[ $column ])) {
+			return trim((string) $row[ $column ]);
 		}
 		foreach ($row as $key => $value) {
-			if (is_string($key) && strcasecmp($key, 'disziplin') === 0) {
+			if (is_string($key) && strcasecmp($key, $column) === 0) {
 				return trim((string) $value);
 			}
 		}
@@ -73,7 +98,7 @@ class SRD_KM_DB {
 	}
 
 	/**
-	 * Numerische Segmente der Disziplinnummer (z. B. 1.02.03 → [1, 2, 3]).
+	 * Numerische Segmente der SpO-Nummer (z. B. 1.02.03 → [1, 2, 3]).
 	 * Trennzeichen . , - / und Leerzeichen werden ignoriert.
 	 *
 	 * @return int[]
@@ -125,7 +150,15 @@ class SRD_KM_DB {
 	 * @param array<string, mixed> $b
 	 */
 	public static function compare_kreis_rows_by_disziplin(array $a, array $b): int {
-		return self::compare_disziplin_strings(self::row_disziplin($a), self::row_disziplin($b));
+		$cmp = self::compare_disziplin_strings(self::row_sort_number($a), self::row_sort_number($b));
+		if ($cmp !== 0) {
+			return $cmp;
+		}
+		$name = strnatcmp(self::row_disziplin($a), self::row_disziplin($b));
+		if ($name !== 0) {
+			return $name;
+		}
+		return strnatcmp(self::row_column($a, 'altersklasse'), self::row_column($b, 'altersklasse'));
 	}
 
 	/**
@@ -136,7 +169,7 @@ class SRD_KM_DB {
 	}
 
 	/**
-	 * Disziplinzeilen aus srd_kreis_v3 (numerisch nach Disziplinnummer).
+	 * Disziplinzeilen aus srd_kreis_v3 (numerisch nach SpO-Nummer).
 	 *
 	 * @return array<int, array<string, mixed>>
 	 */
