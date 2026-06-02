@@ -35,7 +35,7 @@ class SRD_KM_Documents {
 	 */
 	public static function category_types(): array {
 		$out = array();
-		foreach (SRD_KM_Categories::labels() as $id => $label) {
+		foreach (SRD_KM_Categories::all_labels() as $id => $label) {
 			$out[ 'cat_' . $id ] = sprintf(
 				/* translators: %s: Kategoriename */
 				__('Ausschreibung %s', 'srd-kreismeisterschaften'),
@@ -242,7 +242,10 @@ class SRD_KM_Documents {
 				return null;
 			}
 			$page_title = get_the_title($pid);
-			$display = $page_title !== '' ? $page_title : $label;
+			$display = $label;
+			if ($page_title !== '') {
+				$display = $label . ' – ' . $page_title;
+			}
 			return array(
 				'url'          => $url,
 				'label'        => $display,
@@ -329,7 +332,7 @@ class SRD_KM_Documents {
 	public static function category_ids_for_key(string $key, array $entry = array()): array {
 		if (self::is_standard_category_key($key)) {
 			$id = (int) substr($key, 4);
-			return SRD_KM_Categories::is_valid($id) ? array( $id ) : array();
+			return SRD_KM_Categories::exists($id) ? array( $id ) : array();
 		}
 		if (!self::is_custom_category_key($key)) {
 			return array();
@@ -338,7 +341,7 @@ class SRD_KM_Documents {
 		$out = array();
 		foreach ($raw as $cat_id) {
 			$id = absint($cat_id);
-			if (SRD_KM_Categories::is_valid($id)) {
+			if (SRD_KM_Categories::exists($id)) {
 				$out[ $id ] = $id;
 			}
 		}
@@ -430,7 +433,7 @@ class SRD_KM_Documents {
 		$categories = array();
 		foreach ($raw_cats as $cat_id) {
 			$id = absint($cat_id);
-			if (SRD_KM_Categories::is_valid($id)) {
+			if (SRD_KM_Categories::exists($id)) {
 				$categories[ $id ] = $id;
 			}
 		}
@@ -522,7 +525,7 @@ class SRD_KM_Documents {
 	/**
 	 * Frontend-HTML für den Dokumentenblock (immer aktuelle Unterlagen).
 	 */
-	public static function render_frontend_html(): string {
+	public static function render_frontend_html(int $highlight_category = 0): string {
 		$resolved = self::resolved();
 		if ($resolved['fixed'] === array() && $resolved['categories'] === array()) {
 			return '';
@@ -564,7 +567,11 @@ class SRD_KM_Documents {
 							<?php
 							$col = 'col-12 col-sm-6 col-md-4 col-xl-3';
 							$cat_ids = isset($doc['category_ids']) && is_array($doc['category_ids']) ? $doc['category_ids'] : array();
-							self::render_document_link($doc, $col, $cat_ids);
+							$extra = '';
+							if ($highlight_category > 0 && in_array($highlight_category, $cat_ids, true)) {
+								$extra = ' srd-km-documents__link--highlight srd-km-cat--' . (int) $highlight_category;
+							}
+							self::render_document_link($doc, $col, $extra, $cat_ids);
 							?>
 						<?php endforeach; ?>
 					</div>
@@ -579,7 +586,7 @@ class SRD_KM_Documents {
 	 * @param array{url: string, label: string, kind: string, is_external: bool} $doc
 	 * @param int[] $category_ids
 	 */
-	private static function render_document_link(array $doc, string $col_class, array $category_ids = array()): void {
+	private static function render_document_link(array $doc, string $col_class, string $extra_class = '', array $category_ids = array()): void {
 		$icon = 'bi-box-arrow-up-right';
 		if ($doc['kind'] === 'pdf') {
 			$icon = 'bi-file-earmark-pdf';
@@ -588,6 +595,10 @@ class SRD_KM_Documents {
 		}
 		$target = $doc['is_external'] ? '_blank' : '_self';
 		$rel = $doc['is_external'] ? 'noopener noreferrer' : '';
+		$cat_attr = '';
+		if ($category_ids !== array()) {
+			$cat_attr = ' data-srd-km-doc-categories="' . esc_attr(implode(',', array_map('strval', $category_ids))) . '"';
+		}
 		$cat_badge = '';
 		foreach ($category_ids as $category_id) {
 			$short = SRD_KM_Categories::label($category_id);
@@ -599,9 +610,13 @@ class SRD_KM_Documents {
 		<div class="<?php echo esc_attr($col_class); ?>">
 			<a
 				href="<?php echo esc_url($doc['url']); ?>"
-				class="srd-km-documents__link btn btn-outline-primary w-100 text-start"
+				class="srd-km-documents__link btn btn-outline-primary w-100 text-start<?php echo esc_attr($extra_class); ?>"
 				target="<?php echo esc_attr($target); ?>"
 				<?php echo $rel !== '' ? 'rel="' . esc_attr($rel) . '"' : ''; ?>
+				<?php
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_attr oben
+				echo $cat_attr;
+				?>
 			>
 				<span class="srd-km-documents__link-inner">
 					<i class="bi <?php echo esc_attr($icon); ?> srd-km-documents__icon" aria-hidden="true"></i>

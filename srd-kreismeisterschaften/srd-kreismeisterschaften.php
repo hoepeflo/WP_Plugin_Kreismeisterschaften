@@ -3,8 +3,7 @@
  * Plugin Name: SRD Kreismeisterschaften
  * Description: Kreismeisterschaften (KM) aus dem SRD-Ergebnisdienst in WordPress – Disziplinenliste mit Kategorien, PDF/HTML-Ergebnisse.
  * Version: 1.6.3
- * Author: Florian Höper
- * Author URI: https://github.com/hoepeflo
+ * Author: KSV Fallingbostel / SRD
  * License: MIT
  * Text Domain: srd-kreismeisterschaften
  *
@@ -19,52 +18,12 @@ define('SRD_KM_VERSION', '1.6.3');
 define('SRD_KM_PLUGIN_FILE', __FILE__);
 define('SRD_KM_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SRD_KM_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('SRD_KM_AUTHOR_NAME', 'Florian Höper');
-define('SRD_KM_AUTHOR_URI', 'https://github.com/hoepeflo');
-
-/**
- * Anzeigename des Plugin-Autors.
- */
-function srd_km_plugin_author_name(): string {
-	return SRD_KM_AUTHOR_NAME;
-}
-
-/**
- * URL des Plugin-Autors (z. B. für Credits und Plugin-Übersicht).
- */
-function srd_km_plugin_author_uri(): string {
-	return SRD_KM_AUTHOR_URI;
-}
-
-/**
- * Kurzer Autorenhinweis für Backend-Seiten des Plugins.
- */
-function srd_km_render_plugin_author_credit(): void {
-	$name = srd_km_plugin_author_name();
-	$uri = srd_km_plugin_author_uri();
-	printf(
-		'<p class="description srd-km-plugin-author">%s</p>',
-		wp_kses(
-			sprintf(
-				/* translators: %s: author name linked to profile or website */
-				__('Plugin von <a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>.', 'srd-kreismeisterschaften'),
-				esc_url($uri),
-				esc_html($name)
-			),
-			array(
-				'a' => array(
-					'href'   => array(),
-					'target' => array(),
-					'rel'    => array(),
-				),
-			)
-		)
-	);
-}
 
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-capabilities.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-db.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-categories.php';
+require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-categories-admin.php';
+require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-categories-handler.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-rewrite.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-results-upload.php';
 require_once SRD_KM_PLUGIN_DIR . 'includes/class-srd-km-admin.php';
@@ -97,6 +56,8 @@ function srd_km_bootstrap(): void {
 	SRD_KM_Rewrite::init();
 	SRD_KM_Results_Upload::init();
 	SRD_KM_Admin::instance();
+	SRD_KM_Categories_Admin::init();
+	SRD_KM_Categories_Handler::init();
 	SRD_KM_Disciplines_Admin::init();
 	SRD_KM_Disciplines_Handler::init();
 	SRD_KM_Documents_Admin::init();
@@ -109,6 +70,7 @@ add_action('plugins_loaded', 'srd_km_bootstrap');
 add_action(
 	'plugins_loaded',
 	static function (): void {
+		SRD_KM_Categories::maybe_install_defaults();
 		SRD_KM_Documents::maybe_migrate_from_yearly();
 	},
 	20
@@ -121,6 +83,7 @@ register_activation_hook(__FILE__, static function (): void {
 	if (!get_option('srd_km_documents')) {
 		add_option('srd_km_documents', array(), false);
 	}
+	SRD_KM_Categories::maybe_install_defaults();
 	SRD_KM_Documents::maybe_migrate_from_yearly();
 	SRD_KM_Rewrite::flush_rules();
 });

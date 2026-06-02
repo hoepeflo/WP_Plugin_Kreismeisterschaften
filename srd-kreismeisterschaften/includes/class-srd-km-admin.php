@@ -24,31 +24,6 @@ class SRD_KM_Admin {
 		add_action('admin_menu', array($this, 'register_menu'));
 		add_action('admin_init', array($this, 'register_settings'));
 		add_filter('option_page_capability_srd_km_settings_group', array($this, 'settings_page_capability'));
-		add_filter('plugin_row_meta', array($this, 'plugin_row_meta'), 10, 2);
-	}
-
-	/**
-	 * Zusätzliche Metadaten in der Plugin-Übersicht (plugins.php).
-	 *
-	 * @param string[] $links
-	 * @return string[]
-	 */
-	public function plugin_row_meta(array $links, string $file): array {
-		if ($file !== plugin_basename(SRD_KM_PLUGIN_FILE)) {
-			return $links;
-		}
-		$links[] = sprintf(
-			'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
-			esc_url(srd_km_plugin_author_uri()),
-			esc_html(
-				sprintf(
-					/* translators: %s: author name */
-					__('Plugin von %s', 'srd-kreismeisterschaften'),
-					srd_km_plugin_author_name()
-				)
-			)
-		);
-		return $links;
 	}
 
 	public function settings_page_capability(): string {
@@ -131,9 +106,11 @@ class SRD_KM_Admin {
 		?>
 		<div class="wrap">
 			<h1><?php echo esc_html__('SRD Kreismeisterschaften', 'srd-kreismeisterschaften'); ?></h1>
-			<?php srd_km_render_plugin_author_credit(); ?>
 			<p><?php echo esc_html__('Legen Sie die Seite mit dem Shortcode [srd_km] fest und den Pfad zu Ihrem results-Ordner (wie im bisherigen SRD-Projekt).', 'srd-kreismeisterschaften'); ?></p>
 			<p>
+				<a href="<?php echo esc_url(SRD_KM_Capabilities::admin_page_url('srd-kreismeisterschaften-categories')); ?>" class="button button-secondary">
+					<?php esc_html_e('Kategorien verwalten', 'srd-kreismeisterschaften'); ?>
+				</a>
 				<a href="<?php echo esc_url(SRD_KM_Capabilities::admin_page_url('srd-kreismeisterschaften-disciplines')); ?>" class="button button-secondary">
 					<?php esc_html_e('Disziplinen verwalten', 'srd-kreismeisterschaften'); ?>
 				</a>
