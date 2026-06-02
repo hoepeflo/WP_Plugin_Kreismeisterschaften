@@ -21,12 +21,7 @@ class SRD_KM_Documents_Handler {
 		}
 		check_admin_referer('srd_km_save_documents', 'srd_km_documents_nonce');
 
-		$year = isset($_POST['srd_km_doc_year']) ? absint(wp_unslash($_POST['srd_km_doc_year'])) : 0;
-		if ($year < 1990 || $year > 2100) {
-			self::redirect($year, 'err', 'bad_year');
-		}
-
-		$existing = SRD_KM_Documents::get_year($year);
+		$existing = SRD_KM_Documents::get_current();
 		$raw = isset($_POST['srd_km_documents']) && is_array($_POST['srd_km_documents'])
 			? wp_unslash($_POST['srd_km_documents'])
 			: array();
@@ -79,8 +74,8 @@ class SRD_KM_Documents_Handler {
 
 		$out['category_order'] = $category_order;
 
-		SRD_KM_Documents::save_year($year, $out);
-		self::redirect($year, 'ok', 'saved');
+		SRD_KM_Documents::save_current($out);
+		self::redirect('ok', 'saved');
 	}
 
 	/**
@@ -119,11 +114,7 @@ class SRD_KM_Documents_Handler {
 			if (self::has_pdf_upload($files, $key)) {
 				$uploaded = self::handle_pdf_upload($files, $key);
 				if (is_wp_error($uploaded)) {
-					self::redirect(
-						isset($_POST['srd_km_doc_year']) ? absint(wp_unslash($_POST['srd_km_doc_year'])) : 0,
-						'err',
-						'upload'
-					);
+					self::redirect('err', 'upload');
 				}
 				if ($uploaded > 0) {
 					$aid = $uploaded;
@@ -175,13 +166,12 @@ class SRD_KM_Documents_Handler {
 		return $result;
 	}
 
-	private static function redirect(int $year, string $status, string $code): void {
+	private static function redirect(string $status, string $code): void {
 		$url = add_query_arg(
 			array(
-				'page'            => 'srd-kreismeisterschaften-documents',
-				'srd_km_doc'      => $status,
-				'srd_km_doc_c'    => $code,
-				'srd_km_doc_year' => $year > 0 ? (string) $year : null,
+				'page'         => 'srd-kreismeisterschaften-documents',
+				'srd_km_doc'   => $status,
+				'srd_km_doc_c' => $code,
 			),
 			admin_url('admin.php')
 		);

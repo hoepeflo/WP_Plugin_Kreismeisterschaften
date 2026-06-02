@@ -108,10 +108,9 @@ class SRD_KM_Frontend {
 
 		wp_send_json_success(
 			array(
-				'year'      => $year,
-				'cards'     => $lists['cards'],
-				'tbody'     => $lists['tbody'],
-				'documents' => SRD_KM_Documents::render_frontend_html($year, $category),
+				'year'  => $year,
+				'cards' => $lists['cards'],
+				'tbody' => $lists['tbody'],
 			)
 		);
 	}
@@ -448,7 +447,7 @@ class SRD_KM_Frontend {
 				<div id="srd-km-documents-wrap">
 					<?php
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render_frontend_html escapt Ausgabe
-					echo SRD_KM_Documents::render_frontend_html($jahr, $category_filter);
+					echo SRD_KM_Documents::render_frontend_html($category_filter);
 					?>
 				</div>
 				<div class="card-body border-bottom srd-km-category-filter">

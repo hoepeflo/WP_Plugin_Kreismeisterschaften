@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin: Ausschreibungsdokumente pro Sportjahr.
+ * Admin: aktuelle Ausschreibungsdokumente (ohne Jahresarchiv).
  *
  * @package SRD_Kreismeisterschaften
  */
@@ -76,27 +76,9 @@ class SRD_KM_Documents_Admin {
 			wp_die(esc_html__('Sie haben keinen Zugriff auf diese Seite.', 'srd-kreismeisterschaften'));
 		}
 
-		$cy = (int) wp_date('Y');
-		$cm = (int) wp_date('n');
-		$default_year = ($cm >= 10) ? $cy + 1 : $cy;
-		$year = isset($_GET['srd_km_doc_year']) ? absint(wp_unslash($_GET['srd_km_doc_year'])) : $default_year;
-		if ($year < 1990 || $year > 2100) {
-			$year = $default_year;
-		}
-
-		$years = SRD_KM_DB::distinct_sportjahre();
-		if ($years === array()) {
-			$years = array( $default_year, $cy, $cy - 1 );
-		}
-		if (!in_array($year, $years, true)) {
-			array_unshift($years, $year);
-		}
-		$years = array_values(array_unique(array_map('intval', $years)));
-		rsort($years, SORT_NUMERIC);
-
 		$pages = get_pages(array('sort_column' => 'post_title'));
-		$year_docs = SRD_KM_Documents::get_year($year);
-		$category_order = SRD_KM_Documents::category_order_for_year($year_docs);
+		$docs = SRD_KM_Documents::get_current();
+		$category_order = SRD_KM_Documents::category_order_for_docs($docs);
 		$settings_url = SRD_KM_Capabilities::admin_page_url('srd-kreismeisterschaften');
 
 		$this->render_notices();
@@ -104,26 +86,15 @@ class SRD_KM_Documents_Admin {
 		<div class="wrap">
 			<h1><?php esc_html_e('Ausschreibungen & Unterlagen', 'srd-kreismeisterschaften'); ?></h1>
 			<p class="description">
-				<?php esc_html_e('Legen Sie pro Sportjahr die erforderlichen Dokumente fest: als PDF-Upload oder als Verweis auf eine WordPress-Seite. Leere Einträge werden im Frontend nicht angezeigt. Eigene Kategorieausschreibungen (z. B. „Kugelbereich“) können mehrere Disziplin-Kategorien zusammenfassen. Die Reihenfolge lässt sich per Drag & Drop ändern.', 'srd-kreismeisterschaften'); ?>
+				<?php esc_html_e('Legen Sie die aktuellen Dokumente fest: als PDF-Upload oder als Verweis auf eine WordPress-Seite. Sie gelten für alle Sportjahre in der Disziplinenliste – es gibt kein Jahresarchiv. Leere Einträge werden im Frontend nicht angezeigt. Eigene Kategorieausschreibungen (z. B. „Kugelbereich“) können mehrere Disziplin-Kategorien zusammenfassen. Die Reihenfolge lässt sich per Drag & Drop ändern.', 'srd-kreismeisterschaften'); ?>
 			</p>
 			<p>
 				<a href="<?php echo esc_url($settings_url); ?>">&larr; <?php esc_html_e('Zurück zu den Einstellungen', 'srd-kreismeisterschaften'); ?></a>
 			</p>
 
-			<form method="get" action="<?php echo esc_url(admin_url('admin.php')); ?>" class="srd-km-doc-year-picker" style="margin-bottom: 1.5em;">
-				<input type="hidden" name="page" value="srd-kreismeisterschaften-documents" />
-				<label for="srd_km_doc_year_select"><strong><?php esc_html_e('Sportjahr', 'srd-kreismeisterschaften'); ?></strong></label>
-				<select name="srd_km_doc_year" id="srd_km_doc_year_select" onchange="this.form.submit()">
-					<?php for ($y = $cy + 3; $y >= 1990; $y--) : ?>
-						<option value="<?php echo esc_attr((string) $y); ?>" <?php selected($year, $y); ?>><?php echo esc_html((string) $y); ?></option>
-					<?php endfor; ?>
-				</select>
-			</form>
-
 			<form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" enctype="multipart/form-data">
 				<?php wp_nonce_field('srd_km_save_documents', 'srd_km_documents_nonce'); ?>
 				<input type="hidden" name="action" value="srd_km_save_documents" />
-				<input type="hidden" name="srd_km_doc_year" value="<?php echo esc_attr((string) $year); ?>" />
 
 				<h2><?php esc_html_e('Allgemeine Unterlagen', 'srd-kreismeisterschaften'); ?></h2>
 				<table class="widefat striped srd-km-documents-admin-table" style="max-width: 960px;">
@@ -136,7 +107,7 @@ class SRD_KM_Documents_Admin {
 					</thead>
 					<tbody>
 						<?php foreach (SRD_KM_Documents::fixed_types() as $key => $label) : ?>
-							<?php $this->render_document_row($key, $label, $year_docs, $pages); ?>
+							<?php $this->render_document_row($key, $label, $docs, $pages); ?>
 						<?php endforeach; ?>
 					</tbody>
 				</table>
@@ -160,11 +131,11 @@ class SRD_KM_Documents_Admin {
 							<?php
 							if (SRD_KM_Documents::is_standard_category_key($key)) {
 								$label = SRD_KM_Documents::label_for_category_key($key);
-								$this->render_category_document_row($key, $label, $year_docs, $pages, false);
+								$this->render_category_document_row($key, $label, $docs, $pages, false);
 							} elseif (SRD_KM_Documents::is_custom_category_key($key)) {
-								$entry = isset($year_docs[ $key ]) && is_array($year_docs[ $key ]) ? $year_docs[ $key ] : array();
+								$entry = isset($docs[ $key ]) && is_array($docs[ $key ]) ? $docs[ $key ] : array();
 								$label = SRD_KM_Documents::label_for_category_key($key, $entry);
-								$this->render_category_document_row($key, $label, $year_docs, $pages, true);
+								$this->render_category_document_row($key, $label, $docs, $pages, true);
 							}
 							?>
 						<?php endforeach; ?>
@@ -191,11 +162,11 @@ class SRD_KM_Documents_Admin {
 	}
 
 	/**
-	 * @param array<string, array<string, mixed>> $year_docs
+	 * @param array<string, array<string, mixed>> $docs
 	 * @param WP_Post[] $pages
 	 */
-	private function render_document_row(string $key, string $label, array $year_docs, array $pages): void {
-		$entry = isset($year_docs[ $key ]) && is_array($year_docs[ $key ]) ? $year_docs[ $key ] : array();
+	private function render_document_row(string $key, string $label, array $docs, array $pages): void {
+		$entry = isset($docs[ $key ]) && is_array($docs[ $key ]) ? $docs[ $key ] : array();
 		?>
 		<tr>
 			<td><strong><?php echo esc_html($label); ?></strong></td>
@@ -206,11 +177,11 @@ class SRD_KM_Documents_Admin {
 	}
 
 	/**
-	 * @param array<string, array<string, mixed>> $year_docs
+	 * @param array<string, array<string, mixed>> $docs
 	 * @param WP_Post[] $pages
 	 */
-	private function render_category_document_row(string $key, string $label, array $year_docs, array $pages, bool $is_custom): void {
-		$entry = isset($year_docs[ $key ]) && is_array($year_docs[ $key ]) ? $year_docs[ $key ] : array();
+	private function render_category_document_row(string $key, string $label, array $docs, array $pages, bool $is_custom): void {
+		$entry = isset($docs[ $key ]) && is_array($docs[ $key ]) ? $docs[ $key ] : array();
 		$meta = SRD_KM_Documents::sanitize_custom_category_meta($entry);
 		$selected_cats = $meta['categories'];
 		$custom_label = $is_custom ? $meta['label'] : '';
@@ -348,8 +319,7 @@ class SRD_KM_Documents_Admin {
 			return;
 		}
 		$map = array(
-			'bad_year' => __('Ungültiges Sportjahr.', 'srd-kreismeisterschaften'),
-			'upload'   => __('Mindestens eine PDF konnte nicht hochgeladen werden.', 'srd-kreismeisterschaften'),
+			'upload' => __('Mindestens eine PDF konnte nicht hochgeladen werden.', 'srd-kreismeisterschaften'),
 		);
 		$text = $map[ $code ] ?? __('Speichern fehlgeschlagen.', 'srd-kreismeisterschaften');
 		printf('<div class="notice notice-error is-dismissible"><p>%s</p></div>', esc_html($text));
