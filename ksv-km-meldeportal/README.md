@@ -44,12 +44,13 @@ composer check            # alles zusammen
 bash tools/build-zip.sh   # installierbares ZIP nach build/
 ```
 
-## Backend (Stand Meilenstein 2)
+## Backend (Stand Meilenstein 5)
 
 | Seite | Inhalt |
 |---|---|
 | System | Schema-Version, Tabellen, Cron, Migration erneut ausführen |
 | Sportjahre | anlegen (mit Klassensatz nach Konzept 4.1), Meldebeginn/-schluss/Erinnerung, aktivieren, ins Folgejahr kopieren, löschen |
+| Vereine | Name, VN-Nummer, mehrere Adressen, aktiv; Zugangslink senden (einzeln / alle), Linkstatus, Mailstatus |
 | Stammdaten | je Sportjahr: Klassen, Disziplinen, Regelmatrix je Disziplin, Startgeldtarife |
 | Import / Export | Regeltabelle als JSON (Format siehe `docs/REGELTABELLE-FORMAT.md`) |
 | Einstellungen | Route, offene Punkte aus Konzept 13 (Nicht-Meldung, FITASC, CSV-Format …), Mail-Absender |
@@ -57,4 +58,4 @@ bash tools/build-zip.sh   # installierbares ZIP nach build/
 Konvertierungsskript und Bogen-Vorlage: `tools/README.md`. Ergebnis für 2026: `docs/regeltabelle-2026.json`, `docs/pruefbericht-2026.md`, `docs/regeltabelle-2026-uebersicht.md`.
 
 Installation, Caching-Ausschluss und Server-Cronjob: `docs/INSTALLATION.md`.
-Datenmodell: `docs/DATENMODELL.md`. Regel-Engine: `docs/REGEL-ENGINE.md`. Austauschformat der Regeltabelle: `docs/REGELTABELLE-FORMAT.md`.
+Datenmodell: `docs/DATENMODELL.md`. Regel-Engine: `docs/REGEL-ENGINE.md`. Zugang der Vereine: `docs/ZUGANG.md`. Austauschformat der Regeltabelle: `docs/REGELTABELLE-FORMAT.md`.

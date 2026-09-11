@@ -18,6 +18,7 @@ final class Menu {
 	/** @var array<int, array{0: string, 1: class-string<AdminPage>, 2: string}> Titel, Klasse, Capability */
 	private const PAGES = [
 		['Sportjahre', SportjahrePage::class, Capabilities::MANAGE],
+		['Vereine', VereinePage::class, Capabilities::MANAGE],
 		['Stammdaten', StammdatenPage::class, Capabilities::MANAGE],
 		['Import / Export', ImportExportPage::class, Capabilities::MANAGE],
 		['Einstellungen', SettingsPage::class, Capabilities::MANAGE],
