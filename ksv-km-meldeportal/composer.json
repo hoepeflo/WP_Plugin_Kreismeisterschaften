@@ -1,0 +1,35 @@
+{
+    "name": "ksv-fallingbostel/km-meldeportal",
+    "description": "WordPress-Plugin: Meldeportal der Vereine zur Kreisverbandsmeisterschaft des KSV Fallingbostel",
+    "type": "wordpress-plugin",
+    "license": "MIT",
+    "authors": [
+        { "name": "Florian Höper", "homepage": "https://github.com/hoepeflo" }
+    ],
+    "require": {
+        "php": ">=8.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5",
+        "phpstan/phpstan": "^1.12",
+        "php-stubs/wordpress-stubs": "^6.6"
+    },
+    "autoload": {
+        "psr-4": { "KSV\\KMM\\": "src/" }
+    },
+    "autoload-dev": {
+        "psr-4": { "KSV\\KMM\\Tests\\": "tests/" }
+    },
+    "scripts": {
+        "lint": "find . -path ./vendor -prune -o -name '*.php' -print0 | xargs -0 -n1 -P4 php -l > /dev/null && echo 'Lint OK'",
+        "test": "phpunit",
+        "stan": "phpstan analyse --memory-limit=512M",
+        "check": [ "@lint", "@stan", "@test" ],
+        "build": "bash tools/build-zip.sh"
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "platform": { "php": "8.3.0" }
+    }
+}
