@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace KSV\KMM;
 
 use KSV\KMM\Admin\Menu;
+use KSV\KMM\Application\Revalidierung;
 use KSV\KMM\Auth\Capabilities;
 use KSV\KMM\Http\Router;
 use KSV\KMM\Infrastructure\Database\Migrator;
@@ -41,6 +42,7 @@ final class Plugin {
 		Capabilities::register();
 		Router::register();
 		Cron::register();
+		Revalidierung::register();
 
 		if (is_admin()) {
 			Migrator::maybe_migrate();

@@ -57,4 +57,4 @@ bash tools/build-zip.sh   # installierbares ZIP nach build/
 Konvertierungsskript und Bogen-Vorlage: `tools/README.md`. Ergebnis für 2026: `docs/regeltabelle-2026.json`, `docs/pruefbericht-2026.md`, `docs/regeltabelle-2026-uebersicht.md`.
 
 Installation, Caching-Ausschluss und Server-Cronjob: `docs/INSTALLATION.md`.
-Datenmodell: `docs/DATENMODELL.md`. Austauschformat der Regeltabelle: `docs/REGELTABELLE-FORMAT.md`.
+Datenmodell: `docs/DATENMODELL.md`. Regel-Engine: `docs/REGEL-ENGINE.md`. Austauschformat der Regeltabelle: `docs/REGELTABELLE-FORMAT.md`.
