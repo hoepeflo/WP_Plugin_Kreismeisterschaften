@@ -42,6 +42,7 @@ final class Settings {
 			'csv_zeichensatz'                => 'windows-1252',
 			'csv_ganze_ringe_format'         => 'ganz',
 			'csv_verband_modus'              => 'vn_nummer',
+			'csv_verband_fest'               => '',
 			// Absender für Mails (leer = WordPress-Standard).
 			'mail_absender_name'             => '',
 			'mail_absender_adresse'          => '',

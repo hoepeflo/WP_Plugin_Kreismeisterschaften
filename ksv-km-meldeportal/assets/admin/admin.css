@@ -2,3 +2,16 @@
 .kmm-admin .kmm-system-table { max-width: 900px; margin-top: 12px; }
 .kmm-admin .kmm-ok { color: #1a7f37; }
 .kmm-admin .kmm-fail { color: #b32d2e; font-weight: 600; }
+.kmm-admin .kmm-inline-form { display: inline-block; margin: 0 4px 4px 0; vertical-align: middle; }
+.kmm-admin .kmm-actions .button { margin-bottom: 2px; }
+.kmm-admin .kmm-num { width: 5em; }
+.kmm-admin .kmm-short { width: 8em; }
+.kmm-admin .kmm-danger { color: #b32d2e; }
+.kmm-admin .kmm-muted td { color: #777; }
+.kmm-admin table.kmm-klassen input[type=text] { width: 100%; }
+.kmm-admin table.kmm-klassen td, .kmm-admin table.kmm-regeln td { vertical-align: middle; }
+.kmm-admin table.kmm-klassen tr.kmm-new td { background: #f6fbf6; }
+.kmm-admin table.kmm-regeln tr.kmm-rule-none td { color: #888; }
+.kmm-admin table.kmm-regeln tr.kmm-group-row th { background: #eef2f5; }
+.kmm-admin table.kmm-regeln select { max-width: 14em; }
+.kmm-admin .nav-tab-wrapper { margin-bottom: 12px; }

@@ -38,6 +38,8 @@ final class Migrator {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
+		self::run_steps($from_version, Schema::VERSION, 'before');
+
 		$messages = [];
 		foreach (Schema::definitions($wpdb->prefix, $wpdb->get_charset_collate()) as $table => $sql) {
 			$result = dbDelta($sql);
@@ -46,7 +48,7 @@ final class Migrator {
 			}
 		}
 
-		self::run_steps($from_version, Schema::VERSION);
+		self::run_steps($from_version, Schema::VERSION, 'after');
 
 		update_option(Schema::OPTION_VERSION, Schema::VERSION, true);
 
@@ -56,11 +58,11 @@ final class Migrator {
 	/**
 	 * Versionsgebundene Schritte, die dbDelta nicht abdeckt (Umbenennungen,
 	 * Datenkonvertierungen). Jeder Schritt läuft genau einmal beim Übergang auf
-	 * die jeweilige Version.
+	 * die jeweilige Version: before_N() vor dbDelta, step_N() danach.
 	 */
-	private static function run_steps(int $from, int $to): void {
+	private static function run_steps(int $from, int $to, string $phase): void {
 		for ($v = $from + 1; $v <= $to; $v++) {
-			$method = 'step_' . $v;
+			$method = ($phase === 'before' ? 'before_' : 'step_') . $v;
 			if (method_exists(self::class, $method)) {
 				self::$method();
 			}
@@ -69,6 +71,20 @@ final class Migrator {
 
 	/** Version 1: Erstanlage, keine Zusatzschritte. */
 	private static function step_1(): void {
+	}
+
+	/**
+	 * Version 2: Klassenschlüssel ist Gruppe + Nummer + Geschlecht (MixTeam-Teamklassen
+	 * tragen dieselbe Nummer wie Junioren I bzw. Herren I). Alten Unique-Index entfernen,
+	 * dbDelta legt den neuen an.
+	 */
+	private static function before_2(): void {
+		global $wpdb;
+		$table = Schema::table('klasse', $wpdb->prefix);
+		$index = $wpdb->get_var($wpdb->prepare("SHOW INDEX FROM {$table} WHERE Key_name = %s", 'gruppe_nummer')); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		if ($index !== null) {
+			$wpdb->query("ALTER TABLE {$table} DROP INDEX gruppe_nummer"); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		}
 	}
 
 	/**

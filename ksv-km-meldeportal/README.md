@@ -44,5 +44,15 @@ composer check            # alles zusammen
 bash tools/build-zip.sh   # installierbares ZIP nach build/
 ```
 
+## Backend (Stand Meilenstein 2)
+
+| Seite | Inhalt |
+|---|---|
+| System | Schema-Version, Tabellen, Cron, Migration erneut ausführen |
+| Sportjahre | anlegen (mit Klassensatz nach Konzept 4.1), Meldebeginn/-schluss/Erinnerung, aktivieren, ins Folgejahr kopieren, löschen |
+| Stammdaten | je Sportjahr: Klassen, Disziplinen, Regelmatrix je Disziplin, Startgeldtarife |
+| Import / Export | Regeltabelle als JSON (Format siehe `docs/REGELTABELLE-FORMAT.md`) |
+| Einstellungen | Route, offene Punkte aus Konzept 13 (Nicht-Meldung, FITASC, CSV-Format …), Mail-Absender |
+
 Installation, Caching-Ausschluss und Server-Cronjob: `docs/INSTALLATION.md`.
-Datenmodell: `docs/DATENMODELL.md`.
+Datenmodell: `docs/DATENMODELL.md`. Austauschformat der Regeltabelle: `docs/REGELTABELLE-FORMAT.md`.

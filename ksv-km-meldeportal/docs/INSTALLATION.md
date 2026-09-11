@@ -95,9 +95,17 @@ composer test    # PHPUnit (reines PHP, kein WordPress nötig)
 composer stan    # PHPStan mit WordPress-Stubs
 ```
 
-Die Regel-Engine (ab Meilenstein 4) ist vollständig ohne WordPress testbar. Für
-Tests gegen eine echte Datenbank genügt eine lokale MariaDB/MySQL; die
-CREATE-TABLE-Anweisungen lassen sich mit
+Die Regel-Engine (ab Meilenstein 4) ist vollständig ohne WordPress testbar.
+
+Integrationstests (Repositories, Sportjahr kopieren, Import/Export) laufen gegen eine
+echte WordPress-Installation mit **Test-Datenbank** (die Tests leeren alle kmm_-Tabellen!):
+
+```bash
+KMM_WP_ROOT=/pfad/zu/test-wordpress composer test
+```
+
+Ohne `KMM_WP_ROOT` werden sie übersprungen. Für einen reinen SQL-Check genügt eine
+lokale MariaDB/MySQL; die CREATE-TABLE-Anweisungen lassen sich mit
 
 ```bash
 php -r 'require "src/Autoloader.php"; KSV\KMM\Autoloader::register("src/");

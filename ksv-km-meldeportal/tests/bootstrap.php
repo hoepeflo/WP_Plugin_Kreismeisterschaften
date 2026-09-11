@@ -14,4 +14,5 @@ if (is_readable($autoload)) {
 	KSV\KMM\Autoloader::register(__DIR__ . '/../src/');
 }
 
+require_once __DIR__ . '/tests-autoload.php';
 require_once __DIR__ . '/wp-stubs.php';

@@ -15,9 +15,28 @@ final class Menu {
 
 	public const SLUG = 'kmm';
 
+	/** @var array<int, array{0: string, 1: class-string<AdminPage>, 2: string}> Titel, Klasse, Capability */
+	private const PAGES = [
+		['Sportjahre', SportjahrePage::class, Capabilities::MANAGE],
+		['Stammdaten', StammdatenPage::class, Capabilities::MANAGE],
+		['Import / Export', ImportExportPage::class, Capabilities::MANAGE],
+		['Einstellungen', SettingsPage::class, Capabilities::MANAGE],
+	];
+
 	public static function register(): void {
 		add_action('admin_menu', [self::class, 'add_pages']);
 		add_action('admin_enqueue_scripts', [self::class, 'enqueue_assets']);
+		add_action('admin_init', [self::class, 'handle_posts']);
+	}
+
+	/** POST-Aktionen der Seiten vor der Ausgabe verarbeiten (Redirect danach). */
+	public static function handle_posts(): void {
+		if (!isset($_POST['kmm_page'])) {
+			return;
+		}
+		foreach (self::PAGES as [, $class]) {
+			$class::handle_post();
+		}
 	}
 
 	public static function add_pages(): void {
@@ -30,14 +49,10 @@ final class Menu {
 			'dashicons-clipboard',
 			58
 		);
-		add_submenu_page(
-			self::SLUG,
-			__('System', 'ksv-km-meldeportal'),
-			__('System', 'ksv-km-meldeportal'),
-			Capabilities::MANAGE,
-			self::SLUG,
-			[SystemPage::class, 'render']
-		);
+		add_submenu_page(self::SLUG, __('System', 'ksv-km-meldeportal'), __('System', 'ksv-km-meldeportal'), Capabilities::MANAGE, self::SLUG, [SystemPage::class, 'render']);
+		foreach (self::PAGES as [$title, $class, $cap]) {
+			add_submenu_page(self::SLUG, __($title, 'ksv-km-meldeportal'), __($title, 'ksv-km-meldeportal'), $cap, $class::SLUG, [$class, 'render']); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
+		}
 	}
 
 	public static function enqueue_assets(string $hook): void {

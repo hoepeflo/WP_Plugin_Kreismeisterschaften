@@ -24,7 +24,7 @@ final class Schema {
 	 * Schema-Version. Bei jeder Änderung an definitions() erhöhen; der Migrator
 	 * führt dbDelta() erneut aus, sobald die gespeicherte Version abweicht.
 	 */
-	public const VERSION = 1;
+	public const VERSION = 2;
 
 	public const OPTION_VERSION = 'kmm_schema_version';
 
@@ -126,7 +126,7 @@ final class Schema {
   hinweis varchar(255) NOT NULL DEFAULT '',
   sortierung smallint(5) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY  (id),
-  UNIQUE KEY gruppe_nummer (gruppe_id,nummer),
+  UNIQUE KEY gruppe_nummer_geschlecht (gruppe_id,nummer,geschlecht),
   KEY sportjahr_id (sportjahr_id),
   KEY sportjahr_stufe (sportjahr_id,stufe)
 ) {$charset_collate};";

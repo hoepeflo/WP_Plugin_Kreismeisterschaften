@@ -37,7 +37,7 @@ Gruppe mit eigenem Klassensatz (Freihand, Auflage, FITASC, Lichtschießen, Blasr
 
 | Spalte | Bedeutung |
 |---|---|
-| **gruppe_id, nummer** | Klassennummer, nur innerhalb der Gruppe eindeutig (22 = Schüler II beim Lichtschießen, Schüler B beim Bogen) |
+| **gruppe_id, nummer, geschlecht** | Klassennummer, nur innerhalb der Gruppe eindeutig (22 = Schüler II beim Lichtschießen, Schüler B beim Bogen). MixTeam-Teamklassen tragen dieselbe Nummer wie Junioren I (40) bzw. Herren I (10), aber Geschlecht `x`; deshalb gehört das Geschlecht zum Schlüssel. |
 | bezeichnung | „Herren II", „Schüler w", „Team Junioren" |
 | geschlecht | `m`, `w` oder `x` (beide; gemischte Team- und Para-Klassen) |
 | alter_von, alter_bis | Alter im Sportjahr, NULL = offen; Para-Klassen ohne Alter |
