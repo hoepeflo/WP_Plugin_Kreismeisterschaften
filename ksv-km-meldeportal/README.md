@@ -54,5 +54,7 @@ bash tools/build-zip.sh   # installierbares ZIP nach build/
 | Import / Export | Regeltabelle als JSON (Format siehe `docs/REGELTABELLE-FORMAT.md`) |
 | Einstellungen | Route, offene Punkte aus Konzept 13 (Nicht-Meldung, FITASC, CSV-Format …), Mail-Absender |
 
+Konvertierungsskript und Bogen-Vorlage: `tools/README.md`. Ergebnis für 2026: `docs/regeltabelle-2026.json`, `docs/pruefbericht-2026.md`, `docs/regeltabelle-2026-uebersicht.md`.
+
 Installation, Caching-Ausschluss und Server-Cronjob: `docs/INSTALLATION.md`.
 Datenmodell: `docs/DATENMODELL.md`. Austauschformat der Regeltabelle: `docs/REGELTABELLE-FORMAT.md`.

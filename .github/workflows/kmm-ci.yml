@@ -1,0 +1,50 @@
+name: KM-Meldeportal CI
+
+on:
+  push:
+    paths:
+      - 'ksv-km-meldeportal/**'
+      - '.github/workflows/kmm-ci.yml'
+  pull_request:
+    paths:
+      - 'ksv-km-meldeportal/**'
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Lint, PHPStan, PHPUnit
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ksv-km-meldeportal
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP 8.3 einrichten
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, mysqli
+          coverage: none
+          tools: composer:v2
+
+      - name: Composer-Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ hashFiles('ksv-km-meldeportal/composer.lock') }}
+
+      - name: Abhängigkeiten installieren
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Lint
+        run: composer lint
+
+      - name: PHPStan
+        run: composer stan
+
+      - name: PHPUnit (Unit-Tests; Integrationstests ohne KMM_WP_ROOT übersprungen)
+        run: composer test
+
+      - name: ZIP bauen (Probelauf)
+        run: bash tools/build-zip.sh

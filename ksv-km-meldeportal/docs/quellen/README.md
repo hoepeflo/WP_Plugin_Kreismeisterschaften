@@ -11,4 +11,5 @@ Sie gehören nicht in das ausgelieferte Plugin.
 | `06A1_Disziplinenplan_Bogen_2026_Stand_12_03_2026.pdf` | Bogen-Disziplinplan |
 | `david21_muster.png` | Aufbau des DAVID21-Imports |
 
-Stand Meilenstein 1: Die Dateien liegen noch nicht im Repository.
+`bogen-2026-vorlage.csv` ist die leere Vorlage für die Bogen-Regeln (siehe `tools/README.md`);
+die ausgefüllte Datei als `bogen-2026.csv` daneben ablegen.

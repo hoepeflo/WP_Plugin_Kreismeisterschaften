@@ -1,0 +1,7120 @@
+{
+  "format": "kmm-regeltabelle",
+  "version": 1,
+  "sportjahr": 2026,
+  "stand": "NSSV 01A1 Stand: 04.12.2025, konvertiert am 2026-09-11",
+  "disziplinen": [
+    {
+      "kennzahl": "1.10",
+      "bezeichnung": "Luftgewehr",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "zehntel",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 10,
+      "regeln": [
+        {
+          "klasse": "20m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "21w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "20m"
+        },
+        {
+          "klasse": "30m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "31w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "30m"
+        },
+        {
+          "klasse": "42m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40m"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "41w"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "11w"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "15w"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "16m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "15w"
+        },
+        {
+          "klasse": "para:90x",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "para:92m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "para:93w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "para:92m"
+        },
+        {
+          "klasse": "para:94x",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "para:96x",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.11",
+      "bezeichnung": "Luftgewehr Auflage",
+      "gruppe": "auflage",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Senioren 0 keine DM",
+      "sortierung": 20,
+      "regeln": [
+        {
+          "klasse": "50m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "51w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "50m"
+        },
+        {
+          "klasse": "70m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "71w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "72m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "73w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "74m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "75w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "76m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "77w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "78m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "79w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "80m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "81w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.12",
+      "bezeichnung": "10m Luftgewehr MixTeam",
+      "gruppe": "freihand",
+      "typ": "mixteam",
+      "angeboten": true,
+      "mannschaft_groesse": 2,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": "team",
+      "hinweis": "",
+      "sortierung": 30,
+      "regeln": [
+        {
+          "klasse": "30m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40x"
+        },
+        {
+          "klasse": "40x",
+          "einzel": "keine",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "31w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40x"
+        },
+        {
+          "klasse": "42m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40x"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40x"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40x"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40x"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "10x",
+          "einzel": "keine",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.18",
+      "bezeichnung": "LG liegend",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 0,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 40,
+      "regeln": [
+        {
+          "klasse": "para:90x",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "para:92m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "para:93w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "para:92m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.19",
+      "bezeichnung": "Luftgewehr Auflage sitzend",
+      "gruppe": "auflage",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "keine DM",
+      "sortierung": 50,
+      "regeln": [
+        {
+          "klasse": "50m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "70m",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "51w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "71w",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "70m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "71w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "72m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "73w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "74m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "75w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "76m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "77w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "78m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "79w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "80m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "78m",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "81w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "79w",
+          "mannschaft_ziel": "74m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.20",
+      "bezeichnung": "10m Luftgewehr 3-Stellung",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 60,
+      "regeln": [
+        {
+          "klasse": "20m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "21w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "20m"
+        },
+        {
+          "klasse": "30m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "31w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "30m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.22",
+      "bezeichnung": "Selbstladegewehr KK",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Liste B / keine DM",
+      "sortierung": 70,
+      "regeln": [
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.23",
+      "bezeichnung": "Selbstladegewehr GK",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Liste B / keine DM",
+      "sortierung": 80,
+      "regeln": [
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.30",
+      "bezeichnung": "Zimmerstutzen",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 90,
+      "regeln": [
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "40m"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "11w",
+          "mannschaft_ziel": "41w"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "11w",
+          "mannschaft_ziel": "11w"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "11w",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "15w",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "15w",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "para:90x",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "para:92m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "para:93w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "para:92m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.31",
+      "bezeichnung": "Zimmerstutzen Auflage",
+      "gruppe": "auflage",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "keine DM",
+      "sortierung": 100,
+      "regeln": [
+        {
+          "klasse": "50m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "70m",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "51w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "70m",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "70m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "71w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "70m",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "72m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "70m",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "73w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "70m",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "74m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "75w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "74m",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "76m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "74m",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "77w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "74m",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "78m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "79w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "78m",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "80m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "78m",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "81w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "78m",
+          "mannschaft_ziel": "74m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.35",
+      "bezeichnung": "KK - 100m",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 110,
+      "regeln": [
+        {
+          "klasse": "42m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m",
+          "hinweis": "Meldung zum DSB anders"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m",
+          "hinweis": "Meldung zum DSB anders"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "15w",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "15w",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "para:90x",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "para:92m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "para:93w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "para:92m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.36",
+      "bezeichnung": "KK Gewehr Auflage 100m",
+      "gruppe": "auflage",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Visierung: Diopter oder Zielfernrohr  *), Senioren 0 keine DM",
+      "sortierung": 120,
+      "regeln": [
+        {
+          "klasse": "50m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "51w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "70m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "71w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "72m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "73w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "74m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "75w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "76m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "77w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "78m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "79w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "80m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "81w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "79w",
+          "mannschaft_ziel": "74m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.39",
+      "bezeichnung": "KK Gewehr Auflage 100m sitzend",
+      "gruppe": "auflage",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "sitzend, Visierung: nur Diopter, keine DM",
+      "sortierung": 130,
+      "regeln": [
+        {
+          "klasse": "50m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "70m",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "51w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "70m",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "70m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "71w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "72m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "73w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "74m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "75w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "76m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "77w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "78m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "79w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "80m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "78m",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "81w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "79w",
+          "mannschaft_ziel": "74m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.40",
+      "bezeichnung": "KK - 3x20 ( 3 Pos )",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 140,
+      "regeln": [
+        {
+          "klasse": "30m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "31w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "30m"
+        },
+        {
+          "klasse": "42m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40m"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "41w"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "11w"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "15w",
+          "mannschaft_ziel": "15w"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "15w",
+          "mannschaft_ziel": "15w"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.41",
+      "bezeichnung": "KK-Gewehr Auflage 50m",
+      "gruppe": "auflage",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Visierung: Diopter oder Zielfernrohr  *), Senioren 0 keine DM",
+      "sortierung": 150,
+      "regeln": [
+        {
+          "klasse": "50m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "51w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "50m"
+        },
+        {
+          "klasse": "70m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "71w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "72m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "73w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "74m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "75w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "76m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "77w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "78m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "79w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "80m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "81w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "79w",
+          "mannschaft_ziel": "74m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.42",
+      "bezeichnung": "KK - Gewehr 30 Schuss",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Visierung: Diopter oder Zielfernrohr  *)",
+      "sortierung": 160,
+      "regeln": [
+        {
+          "klasse": "30m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "40m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "31w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "40m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "40m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "40m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "40m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.43",
+      "bezeichnung": "KK Gewehr 50 m Zielf.  aufgelegt",
+      "gruppe": "auflage",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "keine DM",
+      "sortierung": 170,
+      "regeln": [
+        {
+          "klasse": "50m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "70m",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "51w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "70m",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "70m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "71w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "72m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "70m",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "73w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "71w",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "74m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "75w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "76m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "74m",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "77w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "75w",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "78m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "79w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "80m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "78m",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "81w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "79w",
+          "mannschaft_ziel": "74m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.44",
+      "bezeichnung": "KK Gewehr 100 m Zielf.  aufgelegt",
+      "gruppe": "auflage",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "keine DM",
+      "sortierung": 180,
+      "regeln": [
+        {
+          "klasse": "50m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "70m",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "51w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "70m",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "70m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "71w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "72m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "70m",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "73w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "71w",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "74m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "75w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "76m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "74m",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "77w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "75w",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "78m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "79w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "80m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "78m",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "81w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "79w",
+          "mannschaft_ziel": "74m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.49",
+      "bezeichnung": "KK-Gewehr Auflage 50m sitzend",
+      "gruppe": "auflage",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "sitzend, Visierung: nur Diopter, keine DM",
+      "sortierung": 190,
+      "regeln": [
+        {
+          "klasse": "50m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "70m",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "51w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "70m",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "70m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "71w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "72m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "73w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "74m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "75w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "76m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "77w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "78m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "79w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "80m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "78m",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "81w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "79w",
+          "mannschaft_ziel": "74m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.56",
+      "bezeichnung": "KK-Unterhebelrepetierer",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "kniend / stehen",
+      "sortierung": 200,
+      "regeln": [
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "12m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.57",
+      "bezeichnung": "GK-Unterhebelrepetierer",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Liste B / keine DM",
+      "sortierung": 210,
+      "regeln": [
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "12m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.58 G",
+      "bezeichnung": "Ordonnanzgew. g. Visierung",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 220,
+      "regeln": [
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "12m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.58 O",
+      "bezeichnung": "Ordonnanzgew. of. Visierung",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 230,
+      "regeln": [
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "12m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.60",
+      "bezeichnung": "KK - 3x40",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Damen dürfen Sportgewehr verwenden",
+      "sortierung": 240,
+      "regeln": [
+        {
+          "klasse": "42m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40m",
+          "hinweis": "Meldung zum DSB anders"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40m",
+          "hinweis": "Meldung zum DSB anders"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "12m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "para:92m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "para:93w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "para:92m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.80",
+      "bezeichnung": "KK - Liegendkampf",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 250,
+      "regeln": [
+        {
+          "klasse": "30m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "31w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "30m"
+        },
+        {
+          "klasse": "42m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40m"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "41w"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "11w"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "15w",
+          "mannschaft_ziel": "15w"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "16m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "15w",
+          "mannschaft_ziel": "15w"
+        },
+        {
+          "klasse": "para:90x",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "para:92m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "para:93w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "para:92m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "1.56S",
+      "bezeichnung": "KK-Unterhebelrepetierer",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "stehend / keine DM",
+      "sortierung": 260,
+      "regeln": [
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "12m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "2.03 F",
+      "bezeichnung": "Single Acton Revolver",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Liste B / keine DM",
+      "sortierung": 270,
+      "regeln": [
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "2.10",
+      "bezeichnung": "10m Luftpistole",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 280,
+      "regeln": [
+        {
+          "klasse": "20m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "21w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "20m"
+        },
+        {
+          "klasse": "30m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "31w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "30m"
+        },
+        {
+          "klasse": "42m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40m"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "41w"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "11w"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "15w"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "15w"
+        },
+        {
+          "klasse": "para:92m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "para:93w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "para:92m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "2.11",
+      "bezeichnung": "10 m Luftpistole Auflage",
+      "gruppe": "auflage",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Senioren 0 keine DM",
+      "sortierung": 290,
+      "regeln": [
+        {
+          "klasse": "50m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "51w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "50m",
+          "mannschaft_ziel": "50m"
+        },
+        {
+          "klasse": "70m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "71w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "72m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "73w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "74m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "75w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "76m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "77w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "78m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "79w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "77w",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "80m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "81w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "77w",
+          "mannschaft_ziel": "74m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "2.12",
+      "bezeichnung": "10m LP MixTeam",
+      "gruppe": "freihand",
+      "typ": "mixteam",
+      "angeboten": true,
+      "mannschaft_groesse": 2,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": "team",
+      "hinweis": "",
+      "sortierung": 300,
+      "regeln": [
+        {
+          "klasse": "30m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40x"
+        },
+        {
+          "klasse": "40x",
+          "einzel": "keine",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "31w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40x"
+        },
+        {
+          "klasse": "42m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40x"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40x"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40x"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40x"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "10x",
+          "einzel": "keine",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        }
+      ]
+    },
+    {
+      "kennzahl": "2.17",
+      "bezeichnung": "10m LP Mehrkampf",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 0,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 310,
+      "regeln": [
+        {
+          "klasse": "20m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "21w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "20m"
+        },
+        {
+          "klasse": "30m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "31w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "30m"
+        },
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "2.18",
+      "bezeichnung": "10m LP Standard",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 0,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "wird nur auf einscheibigen Anlagen geschossen",
+      "sortierung": 320,
+      "regeln": [
+        {
+          "klasse": "20m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "21w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "20m"
+        },
+        {
+          "klasse": "30m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "31w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "30m"
+        },
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "para:92m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "para:93w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "para:92m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "2.20",
+      "bezeichnung": "50m Pistole",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 330,
+      "regeln": [
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "40m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "40m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "40m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "12m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "para:92m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "para:93w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "para:92m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "2.21",
+      "bezeichnung": "50 m Freie Pistole Auflage",
+      "gruppe": "auflage",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Senioren 0 keine DM",
+      "sortierung": 340,
+      "regeln": [
+        {
+          "klasse": "70m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "71w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "70m",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "72m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "73w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "72m",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "74m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "75w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "74m",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "76m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "77w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "76m",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "78m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "79w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "78m",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "80m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "78m",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "81w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "78m",
+          "mannschaft_ziel": "74m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "2.30",
+      "bezeichnung": "25m Schnellfeuerpistole",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 350,
+      "regeln": [
+        {
+          "klasse": "42m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40m"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "40m",
+          "mannschaft_ziel": "40m"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "40m",
+          "mannschaft_ziel": "40m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "2.40",
+      "bezeichnung": "25m Pistole",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 360,
+      "regeln": [
+        {
+          "klasse": "30m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "31w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "30m"
+        },
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "40m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "11w"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "11w"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "11w",
+          "mannschaft_ziel": "11w"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "11w"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "15w",
+          "mannschaft_ziel": "11w"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "15w",
+          "mannschaft_ziel": "11w"
+        },
+        {
+          "klasse": "para:92m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "para:93w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "para:92m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "2.42",
+      "bezeichnung": "25 m Sportpistole Auflage",
+      "gruppe": "auflage",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Senioren 0 keine DM",
+      "sortierung": 370,
+      "regeln": [
+        {
+          "klasse": "50m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "51w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "50m",
+          "mannschaft_ziel": "50m"
+        },
+        {
+          "klasse": "70m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "71w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "72m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "73w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "71w",
+          "mannschaft_ziel": "70m"
+        },
+        {
+          "klasse": "74m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "75w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "74m",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "76m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "77w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "76m",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "78m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "79w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "78m",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "80m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "74m"
+        },
+        {
+          "klasse": "81w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "80m",
+          "mannschaft_ziel": "74m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "2.45",
+      "bezeichnung": "25m Zentralfeuerpistole",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 380,
+      "regeln": [
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "12m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "2.48",
+      "bezeichnung": "Ordonnanzpistole",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Liste B / keine DM",
+      "sortierung": 390,
+      "regeln": [
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "2.53",
+      "bezeichnung": "25m Pistole 9x19",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 400,
+      "regeln": [
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "12m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "2.55",
+      "bezeichnung": "25m Revolver .357 Magn.",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 410,
+      "regeln": [
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "12m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "2.58",
+      "bezeichnung": "25mRevolver .44 Magn.",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 420,
+      "regeln": [
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "12m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "2.59",
+      "bezeichnung": "25m Pistole .45 ACP",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 430,
+      "regeln": [
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "12m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "2.60",
+      "bezeichnung": "25m Standardpistole",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 440,
+      "regeln": [
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "12m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "3.10",
+      "bezeichnung": "Flinte Trap",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 450,
+      "regeln": [
+        {
+          "klasse": "20m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "21w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "20m"
+        },
+        {
+          "klasse": "30m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40m"
+        },
+        {
+          "klasse": "31w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "41w",
+          "mannschaft_ziel": "11w"
+        },
+        {
+          "klasse": "42m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40m"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "41w",
+          "mannschaft_ziel": "11w"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "11w"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "11w"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "14m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "3.12",
+      "bezeichnung": "Flinte Trap MIX m/w",
+      "gruppe": "freihand",
+      "typ": "mixteam",
+      "angeboten": true,
+      "mannschaft_groesse": 2,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": "team",
+      "hinweis": "",
+      "sortierung": 460,
+      "regeln": [
+        {
+          "klasse": "30m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40x"
+        },
+        {
+          "klasse": "40x",
+          "einzel": "keine",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "31w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40x"
+        },
+        {
+          "klasse": "42m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40x"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40x"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40x"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40x"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "10x",
+          "einzel": "keine",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        }
+      ]
+    },
+    {
+      "kennzahl": "3.15",
+      "bezeichnung": "Flinte Doppeltrap",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 470,
+      "regeln": [
+        {
+          "klasse": "30m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "31w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "12m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "14m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "3.20",
+      "bezeichnung": "Flinte Skeet",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 480,
+      "regeln": [
+        {
+          "klasse": "20m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "21w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "20m"
+        },
+        {
+          "klasse": "30m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40m"
+        },
+        {
+          "klasse": "31w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "41w",
+          "mannschaft_ziel": "11w"
+        },
+        {
+          "klasse": "42m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "40m"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "41w",
+          "mannschaft_ziel": "11w"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "11w"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "11w",
+          "mannschaft_ziel": "11w"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "14m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "14m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "3.22",
+      "bezeichnung": "Flinte Skeet MIX m/w",
+      "gruppe": "freihand",
+      "typ": "mixteam",
+      "angeboten": true,
+      "mannschaft_groesse": 2,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": "team",
+      "hinweis": "",
+      "sortierung": 490,
+      "regeln": [
+        {
+          "klasse": "30m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "10x",
+          "einzel": "keine",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "31w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "42m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "keine",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10x"
+        }
+      ]
+    },
+    {
+      "kennzahl": "3.30",
+      "bezeichnung": "Compakt Sporting",
+      "gruppe": "fitasc",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Passeintrag 3.10",
+      "sortierung": 500,
+      "regeln": [
+        {
+          "klasse": "68x",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "60m"
+        },
+        {
+          "klasse": "60m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "61w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "60m"
+        },
+        {
+          "klasse": "62x",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "60m"
+        },
+        {
+          "klasse": "64x",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "60m"
+        },
+        {
+          "klasse": "66x",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "60m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "3.35",
+      "bezeichnung": "Parcours",
+      "gruppe": "fitasc",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Passeintrag 3.10",
+      "sortierung": 510,
+      "regeln": [
+        {
+          "klasse": "68x",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "60m"
+        },
+        {
+          "klasse": "60m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "61w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "60m"
+        },
+        {
+          "klasse": "62x",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "60m"
+        },
+        {
+          "klasse": "64x",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "60m"
+        },
+        {
+          "klasse": "66x",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "60m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "3.40",
+      "bezeichnung": "Universal Trap",
+      "gruppe": "fitasc",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Passeintrag 3.10",
+      "sortierung": 520,
+      "regeln": [
+        {
+          "klasse": "68x",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "60m"
+        },
+        {
+          "klasse": "60m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "61w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "60m"
+        },
+        {
+          "klasse": "62x",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "60m"
+        },
+        {
+          "klasse": "64x",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "60m"
+        },
+        {
+          "klasse": "66x",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "60m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "7.10",
+      "bezeichnung": "Perkussionsgewehr",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Eine gültige Erlaubnis nach §27\nSprengstoffgesetz ist vorzulegen",
+      "sortierung": 530,
+      "regeln": [
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "11w",
+          "mannschaft_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "11w",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "13w",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "13w",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "13w",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "7.11",
+      "bezeichnung": "Perkussionsgewehr Auflage",
+      "gruppe": "auflage",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "keine DM",
+      "sortierung": 540,
+      "regeln": [
+        {
+          "klasse": "50m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "51w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "50m",
+          "mannschaft_ziel": "50m"
+        },
+        {
+          "klasse": "70m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "50m",
+          "mannschaft_ziel": "50m"
+        },
+        {
+          "klasse": "71w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "50m",
+          "mannschaft_ziel": "50m"
+        },
+        {
+          "klasse": "72m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "50m",
+          "mannschaft_ziel": "50m"
+        },
+        {
+          "klasse": "73w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "50m",
+          "mannschaft_ziel": "50m"
+        },
+        {
+          "klasse": "74m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "50m",
+          "mannschaft_ziel": "50m"
+        },
+        {
+          "klasse": "75w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "50m",
+          "mannschaft_ziel": "50m"
+        },
+        {
+          "klasse": "76m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "50m",
+          "mannschaft_ziel": "50m"
+        },
+        {
+          "klasse": "77w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "50m",
+          "mannschaft_ziel": "50m"
+        },
+        {
+          "klasse": "78m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "50m",
+          "mannschaft_ziel": "50m"
+        },
+        {
+          "klasse": "79w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "50m",
+          "mannschaft_ziel": "50m"
+        },
+        {
+          "klasse": "80m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "50m",
+          "mannschaft_ziel": "50m"
+        },
+        {
+          "klasse": "81w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "50m",
+          "mannschaft_ziel": "50m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "7.15",
+      "bezeichnung": "Perkussionsfreigewehr",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Eine gültige Erlaubnis nach §27\nSprengstoffgesetz ist vorzulegen",
+      "sortierung": 550,
+      "regeln": [
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "13w",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "13w",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "13w",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "7.20",
+      "bezeichnung": "Perkussionsdienstgewehr",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Eine gültige Erlaubnis nach §27\nSprengstoffgesetz ist vorzulegen",
+      "sortierung": 560,
+      "regeln": [
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "7.21",
+      "bezeichnung": "Perkussionsdienstgewehr 50m",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 0,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Eine gültige Erlaubnis nach §27\nSprengstoffgesetz ist vorzulegen",
+      "sortierung": 570,
+      "regeln": [
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "7.30",
+      "bezeichnung": "Steinschloßgewehr",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Eine gültige Erlaubnis nach §27\nSprengstoffgesetz ist vorzulegen",
+      "sortierung": 580,
+      "regeln": [
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "7.31",
+      "bezeichnung": "Steinschloßgewehr liegend",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 0,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Eine gültige Erlaubnis nach §27\nSprengstoffgesetz ist vorzulegen",
+      "sortierung": 590,
+      "regeln": [
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "7.35",
+      "bezeichnung": "Muskete",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 0,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Eine gültige Erlaubnis nach §27\nSprengstoffgesetz ist vorzulegen",
+      "sortierung": 600,
+      "regeln": [
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "7.40",
+      "bezeichnung": "Perkussionsrevolver",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Eine gültige Erlaubnis nach §27\nSprengstoffgesetz ist vorzulegen",
+      "sortierung": 610,
+      "regeln": [
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "18m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "7.50",
+      "bezeichnung": "Perkussionspistole",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Eine gültige Erlaubnis nach §27\nSprengstoffgesetz ist vorzulegen",
+      "sortierung": 620,
+      "regeln": [
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "11w",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "11w",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "11w",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "11w",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "7.60",
+      "bezeichnung": "Steinschloßpistole",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Eine gültige Erlaubnis nach §27\nSprengstoffgesetz ist vorzulegen",
+      "sortierung": 630,
+      "regeln": [
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "16m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "7.71",
+      "bezeichnung": "Perkussionsflinte",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Eine gültige Erlaubnis nach §27\nSprengstoffgesetz ist vorzulegen",
+      "sortierung": 640,
+      "regeln": [
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "7.72",
+      "bezeichnung": "Steinschloßflinte",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "Eine gültige Erlaubnis nach §27\nSprengstoffgesetz ist vorzulegen",
+      "sortierung": 650,
+      "regeln": [
+        {
+          "klasse": "42m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m",
+          "mindestalter": 18,
+          "hinweis": "ab 18 Jahre"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "11.10",
+      "bezeichnung": "Lichtgewehr",
+      "gruppe": "lichtschiessen",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": 2.5,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 660,
+      "regeln": [
+        {
+          "klasse": "24m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "25w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "24m"
+        },
+        {
+          "klasse": "22m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "23w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "22m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "11.11",
+      "bezeichnung": "Lichtgewehr Auflage",
+      "gruppe": "lichtschiessen",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": 2.5,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "keine DM",
+      "sortierung": 670,
+      "regeln": [
+        {
+          "klasse": "26m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "24m"
+        },
+        {
+          "klasse": "27w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "24m"
+        },
+        {
+          "klasse": "24m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "25w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "24m"
+        },
+        {
+          "klasse": "22m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "23w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "22m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "11.20",
+      "bezeichnung": "Lichtgewehr 3x10",
+      "gruppe": "lichtschiessen",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": 2.5,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 680,
+      "regeln": [
+        {
+          "klasse": "24m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "25w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "24m"
+        },
+        {
+          "klasse": "22m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "23w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "22m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "11.50",
+      "bezeichnung": "Lichtpistole",
+      "gruppe": "lichtschiessen",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": 2.5,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 690,
+      "regeln": [
+        {
+          "klasse": "24m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "25w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "24m"
+        },
+        {
+          "klasse": "22m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "23w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "22m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "11.51",
+      "bezeichnung": "Lichtpistole Auflage",
+      "gruppe": "lichtschiessen",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": 2.5,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "keine DM",
+      "sortierung": 700,
+      "regeln": [
+        {
+          "klasse": "26m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "24m"
+        },
+        {
+          "klasse": "27w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "24m"
+        },
+        {
+          "klasse": "24m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "25w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "24m"
+        },
+        {
+          "klasse": "22m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "23w",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "22m"
+        }
+      ]
+    },
+    {
+      "kennzahl": "12.10",
+      "bezeichnung": "Blasrohrsport",
+      "gruppe": "blasrohr",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 0,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "",
+      "sortierung": 710,
+      "regeln": [
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "24m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "25w",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "22m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "23w",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "20m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "21w",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "30m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "31w",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "42m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "43w",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "40m",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "eigen",
+          "mannschaft": "keine"
+        }
+      ]
+    }
+  ]
+}

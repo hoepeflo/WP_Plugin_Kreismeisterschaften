@@ -43,3 +43,59 @@ jobs:
           dangerous-clean-slate: false  # Vorsicht: löscht alles im Zielverzeichnis
           timeout: 300000               # 5 Minuten Timeout
           # dry-run: true               # erst testen, dann auskommentieren
+
+  deploy-meldeportal:
+    name: KM-Meldeportal per FTP
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ftp-deploy-meldeportal
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: PHP 8.3 einrichten
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer:v2
+
+      # Laufzeit-Abhängigkeiten (vendor/ ohne Dev-Pakete) werden mit ausgeliefert,
+      # auf dem Shared Hosting läuft kein Composer.
+      - name: Composer (ohne Dev-Pakete)
+        working-directory: ksv-km-meldeportal
+        run: composer install --no-dev --no-interaction --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Upload via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          protocol: ftp
+          port: 21
+          local-dir: ./ksv-km-meldeportal/
+          # Zielordner des Meldeportals relativ zum FTP-Root, als Repository-Variable
+          # KMM_FTP_SERVER_DIR setzen (z. B. /../ksv-km-meldeportal/ oder
+          # /wp-content/plugins/ksv-km-meldeportal/), Standard: /ksv-km-meldeportal/
+          server-dir: ${{ vars.KMM_FTP_SERVER_DIR || '/ksv-km-meldeportal/' }}
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/node_modules/**
+            **/*.map
+            **/.DS_Store
+            **/*.md
+            docs/**
+            tools/**
+            tests/**
+            build/**
+            phpunit.xml.dist
+            phpstan.neon.dist
+            composer.json
+            composer.lock
+            .gitignore
+          dangerous-clean-slate: false
+          timeout: 300000
