@@ -36,6 +36,13 @@ if grep -q '"require"' "$STAGE/composer.json" && grep -qE '"[a-z0-9_.-]+/[a-z0-9
 	# Laufzeit-Abhängigkeiten vorhanden: vendor/ ohne Dev-Pakete erzeugen.
 	(cd "$STAGE" && COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --no-interaction --no-progress --optimize-autoloader --classmap-authoritative)
 	rm -f "$STAGE/composer.lock"
+	# Verkleinern: .git-Reste (bei --prefer-source) und nicht benötigte mPDF-Schriften entfernen.
+	# Das Plugin nutzt nur DejaVu (mPDF-Standard mit vollem Unicode inkl. Umlauten).
+	find "$STAGE/vendor" -name .git -type d -prune -exec rm -rf {} + 2>/dev/null || true
+	if [ -d "$STAGE/vendor/mpdf/mpdf/ttfonts" ]; then
+		find "$STAGE/vendor/mpdf/mpdf/ttfonts" -type f ! -name 'DejaVu*' -delete
+	fi
+	rm -rf "$STAGE/vendor/mpdf/mpdf/tests" "$STAGE/vendor/setasign/fpdi/tests" 2>/dev/null || true
 else
 	# Keine Laufzeit-Abhängigkeiten: der eingebaute PSR-4-Autoloader reicht.
 	rm -f "$STAGE/composer.json" "$STAGE/composer.lock"

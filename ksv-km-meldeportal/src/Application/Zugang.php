@@ -4,7 +4,8 @@
  *
  * Token: 32 Byte Zufall, nur der SHA-256-Hash wird gespeichert, Vergleich mit hash_equals.
  * Beim Aufruf des Links wird eine Sitzung erzeugt, deren Token in einem HttpOnly-,
- * Secure- (bei HTTPS) und SameSite=Lax-Cookie liegt, und auf eine URL ohne Token umgeleitet.
+ * Secure- (bei HTTPS) und SameSite=Lax-Cookie (Pfad /, damit es auch die REST-Endpunkte
+ * unter /wp-json/ erreicht) liegt, und auf eine URL ohne Token umgeleitet.
  * Links gelten bis zum Abschluss des Sportjahres; „Neu senden“ widerruft alte Links samt
  * Sitzungen. Schreibzugriff ist eine Frage der Meldephase, nicht des Zugangs.
  *
@@ -227,7 +228,7 @@ final class Zugang {
 		}
 		setcookie(self::COOKIE, $wert, [
 			'expires'  => $ablauf,
-			'path'     => '/' . Settings::route_slug() . '/',
+			'path'     => '/', // auch für /wp-json/kmm/v1/ (REST) nötig
 			'domain'   => '',
 			'secure'   => is_ssl(),
 			'httponly' => true,

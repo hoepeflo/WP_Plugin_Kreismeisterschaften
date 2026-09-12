@@ -5,3 +5,5 @@
 /phpstan.neon
 /phpunit.xml
 *.zip
+/composer.local.json
+/composer.local.lock

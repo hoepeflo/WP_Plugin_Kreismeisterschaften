@@ -389,6 +389,24 @@ _kniend / stehen_
 | 18m Herren V | → 16m | → 10m |  |
 | 19w Damen V | → 16m | → 10m |  |
 
+## 1.56S KK-Unterhebelrepetierer  (freihand, normal)
+_stehend / keine DM_
+
+| Klasse | Einzel | Mannschaft | Zusatz |
+|---|---|---|---|
+| 40m Junioren I m | → 10m | → 10m |  |
+| 41w Junioren I w | → 10m | → 10m |  |
+| 10m Herren I | E | M |  |
+| 11w Damen I | → 10m | → 10m |  |
+| 12m Herren II | E | → 10m |  |
+| 13w Damen II | → 12m | → 10m |  |
+| 14m Herren III | E | → 10m |  |
+| 15w Damen III | → 14m | → 10m |  |
+| 16m Herren IV | → 14m | → 10m |  |
+| 17w Damen IV | → 14m | → 10m |  |
+| 18m Herren V | → 14m | → 10m |  |
+| 19w Damen V | → 14m | → 10m |  |
+
 ## 1.57 GK-Unterhebelrepetierer  (freihand, normal)
 _Liste B / keine DM_
 
@@ -486,24 +504,6 @@ _Damen dürfen Sportgewehr verwenden_
 | para:90x SH2/AB2 m/w mit HM | E | – |  |
 | para:92m SH1/AB1 m ohne HM | E | – |  |
 | para:93w SH1/AB1 w ohne HM | → para:92m | – |  |
-
-## 1.56S KK-Unterhebelrepetierer  (freihand, normal)
-_stehend / keine DM_
-
-| Klasse | Einzel | Mannschaft | Zusatz |
-|---|---|---|---|
-| 40m Junioren I m | → 10m | → 10m |  |
-| 41w Junioren I w | → 10m | → 10m |  |
-| 10m Herren I | E | M |  |
-| 11w Damen I | → 10m | → 10m |  |
-| 12m Herren II | E | → 10m |  |
-| 13w Damen II | → 12m | → 10m |  |
-| 14m Herren III | E | → 10m |  |
-| 15w Damen III | → 14m | → 10m |  |
-| 16m Herren IV | → 14m | → 10m |  |
-| 17w Damen IV | → 14m | → 10m |  |
-| 18m Herren V | → 14m | → 10m |  |
-| 19w Damen V | → 14m | → 10m |  |
 
 ## 2.03 F Single Acton Revolver  (freihand, normal)
 _Liste B / keine DM_

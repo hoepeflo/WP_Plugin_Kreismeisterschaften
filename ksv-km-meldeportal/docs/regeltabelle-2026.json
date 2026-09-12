@@ -2,7 +2,7 @@
   "format": "kmm-regeltabelle",
   "version": 1,
   "sportjahr": 2026,
-  "stand": "NSSV 01A1 Stand: 04.12.2025, konvertiert am 2026-09-11",
+  "stand": "NSSV 01A1 Stand: 04.12.2025, konvertiert am 2026-09-12",
   "disziplinen": [
     {
       "kennzahl": "1.10",
@@ -2022,6 +2022,102 @@
       ]
     },
     {
+      "kennzahl": "1.56S",
+      "bezeichnung": "KK-Unterhebelrepetierer",
+      "gruppe": "freihand",
+      "typ": "normal",
+      "angeboten": true,
+      "mannschaft_groesse": 3,
+      "ergebnis_format": "ganz",
+      "tarif_override": null,
+      "mannschaft_startgeld": 0.0,
+      "mixteam_kennzahl_modus": null,
+      "hinweis": "stehend / keine DM",
+      "sortierung": 210,
+      "regeln": [
+        {
+          "klasse": "40m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "41w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "10m",
+          "einzel": "eigen",
+          "mannschaft": "eigen"
+        },
+        {
+          "klasse": "11w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "10m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "12m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "13w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "12m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "14m",
+          "einzel": "eigen",
+          "mannschaft": "verweis",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "15w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "16m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "17w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "18m",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        },
+        {
+          "klasse": "19w",
+          "einzel": "verweis",
+          "mannschaft": "verweis",
+          "einzel_ziel": "14m",
+          "mannschaft_ziel": "10m"
+        }
+      ]
+    },
+    {
       "kennzahl": "1.57",
       "bezeichnung": "GK-Unterhebelrepetierer",
       "gruppe": "freihand",
@@ -2033,7 +2129,7 @@
       "mannschaft_startgeld": 0.0,
       "mixteam_kennzahl_modus": null,
       "hinweis": "Liste B / keine DM",
-      "sortierung": 210,
+      "sortierung": 220,
       "regeln": [
         {
           "klasse": "40m",
@@ -2129,7 +2225,7 @@
       "mannschaft_startgeld": 0.0,
       "mixteam_kennzahl_modus": null,
       "hinweis": "",
-      "sortierung": 220,
+      "sortierung": 230,
       "regeln": [
         {
           "klasse": "40m",
@@ -2224,7 +2320,7 @@
       "mannschaft_startgeld": 0.0,
       "mixteam_kennzahl_modus": null,
       "hinweis": "",
-      "sortierung": 230,
+      "sortierung": 240,
       "regeln": [
         {
           "klasse": "40m",
@@ -2319,7 +2415,7 @@
       "mannschaft_startgeld": 0.0,
       "mixteam_kennzahl_modus": null,
       "hinweis": "Damen dürfen Sportgewehr verwenden",
-      "sortierung": 240,
+      "sortierung": 250,
       "regeln": [
         {
           "klasse": "42m",
@@ -2436,7 +2532,7 @@
       "mannschaft_startgeld": 0.0,
       "mixteam_kennzahl_modus": null,
       "hinweis": "",
-      "sortierung": 250,
+      "sortierung": 260,
       "regeln": [
         {
           "klasse": "30m",
@@ -2543,102 +2639,6 @@
           "einzel": "verweis",
           "mannschaft": "keine",
           "einzel_ziel": "para:92m"
-        }
-      ]
-    },
-    {
-      "kennzahl": "1.56S",
-      "bezeichnung": "KK-Unterhebelrepetierer",
-      "gruppe": "freihand",
-      "typ": "normal",
-      "angeboten": true,
-      "mannschaft_groesse": 3,
-      "ergebnis_format": "ganz",
-      "tarif_override": null,
-      "mannschaft_startgeld": 0.0,
-      "mixteam_kennzahl_modus": null,
-      "hinweis": "stehend / keine DM",
-      "sortierung": 260,
-      "regeln": [
-        {
-          "klasse": "40m",
-          "einzel": "verweis",
-          "mannschaft": "verweis",
-          "einzel_ziel": "10m",
-          "mannschaft_ziel": "10m"
-        },
-        {
-          "klasse": "41w",
-          "einzel": "verweis",
-          "mannschaft": "verweis",
-          "einzel_ziel": "10m",
-          "mannschaft_ziel": "10m"
-        },
-        {
-          "klasse": "10m",
-          "einzel": "eigen",
-          "mannschaft": "eigen"
-        },
-        {
-          "klasse": "11w",
-          "einzel": "verweis",
-          "mannschaft": "verweis",
-          "einzel_ziel": "10m",
-          "mannschaft_ziel": "10m"
-        },
-        {
-          "klasse": "12m",
-          "einzel": "eigen",
-          "mannschaft": "verweis",
-          "mannschaft_ziel": "10m"
-        },
-        {
-          "klasse": "13w",
-          "einzel": "verweis",
-          "mannschaft": "verweis",
-          "einzel_ziel": "12m",
-          "mannschaft_ziel": "10m"
-        },
-        {
-          "klasse": "14m",
-          "einzel": "eigen",
-          "mannschaft": "verweis",
-          "mannschaft_ziel": "10m"
-        },
-        {
-          "klasse": "15w",
-          "einzel": "verweis",
-          "mannschaft": "verweis",
-          "einzel_ziel": "14m",
-          "mannschaft_ziel": "10m"
-        },
-        {
-          "klasse": "16m",
-          "einzel": "verweis",
-          "mannschaft": "verweis",
-          "einzel_ziel": "14m",
-          "mannschaft_ziel": "10m"
-        },
-        {
-          "klasse": "17w",
-          "einzel": "verweis",
-          "mannschaft": "verweis",
-          "einzel_ziel": "14m",
-          "mannschaft_ziel": "10m"
-        },
-        {
-          "klasse": "18m",
-          "einzel": "verweis",
-          "mannschaft": "verweis",
-          "einzel_ziel": "14m",
-          "mannschaft_ziel": "10m"
-        },
-        {
-          "klasse": "19w",
-          "einzel": "verweis",
-          "mannschaft": "verweis",
-          "einzel_ziel": "14m",
-          "mannschaft_ziel": "10m"
         }
       ]
     },

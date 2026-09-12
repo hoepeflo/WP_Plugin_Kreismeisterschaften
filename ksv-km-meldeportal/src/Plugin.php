@@ -12,6 +12,7 @@ namespace KSV\KMM;
 use KSV\KMM\Admin\Menu;
 use KSV\KMM\Application\Revalidierung;
 use KSV\KMM\Auth\Capabilities;
+use KSV\KMM\Http\RestApi;
 use KSV\KMM\Http\Router;
 use KSV\KMM\Infrastructure\Database\Migrator;
 
@@ -41,6 +42,7 @@ final class Plugin {
 
 		Capabilities::register();
 		Router::register();
+		RestApi::register();
 		Cron::register();
 		Revalidierung::register();
 

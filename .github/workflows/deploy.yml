@@ -68,6 +68,11 @@ jobs:
         working-directory: ksv-km-meldeportal
         run: composer install --no-dev --no-interaction --no-progress --prefer-dist --optimize-autoloader
 
+      # Nur die DejaVu-Schriften werden gebraucht; die übrigen 80 MB mPDF-Schriften entfallen.
+      - name: mPDF-Schriften verkleinern
+        working-directory: ksv-km-meldeportal
+        run: find vendor/mpdf/mpdf/ttfonts -type f ! -name 'DejaVu*' -delete
+
       - name: Upload via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:

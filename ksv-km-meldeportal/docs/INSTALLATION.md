@@ -5,6 +5,8 @@
 - WordPress ab 6.4, PHP 8.1 oder neuer (Ziel: 8.3)
 - Permalinks nicht auf „Einfach" (die Route `/km-meldung/` braucht Rewrite-Regeln)
 - Mailversand über WP Mail SMTP (das Plugin nutzt ausschließlich `wp_mail()`)
+- PHP-Erweiterungen mbstring und gd (für mPDF); das Plugin wird mit `vendor/` ausgeliefert (Build-Skript oder Deploy-Job erledigen `composer install --no-dev`)
+- Schreibrecht auf `wp-content/uploads/kmm-tmp/` (temporäre Dateien von mPDF, wird automatisch angelegt)
 
 ## Installation
 

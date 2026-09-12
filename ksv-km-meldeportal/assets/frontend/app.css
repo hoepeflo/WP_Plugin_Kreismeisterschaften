@@ -47,3 +47,58 @@ h2 { font-size: 1.2rem; margin: 24px 0 12px; }
 .kmm-alert-ok { background: #e3f4e8; color: #14532d; }
 .kmm-alert-warn { background: var(--kmm-warn-bg); color: var(--kmm-warn); }
 .kmm-alert-error { background: var(--kmm-error-bg); color: var(--kmm-error); }
+/* --- App --- */
+.kmm-app-kopf { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.kmm-app-kopf h1 { margin: 0; }
+.kmm-muted { color: var(--kmm-muted); font-size: 14px; }
+.kmm-badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; background: #e5e7eb; }
+.kmm-badge-offen { background: #e5e7eb; } .kmm-badge-entwurf { background: var(--kmm-warn-bg); color: var(--kmm-warn); } .kmm-badge-eingereicht, .kmm-badge-ok { background: #e3f4e8; color: #14532d; }
+.kmm-badge-hm { background: #e0ecff; color: #1e3a8a; } .kmm-badge-warn { background: var(--kmm-warn-bg); color: var(--kmm-warn); }
+.kmm-hinweis { padding: 8px 12px; background: var(--kmm-surface); border: 1px solid var(--kmm-border); border-radius: var(--kmm-radius); margin-bottom: 12px; font-size: 14px; }
+.kmm-hinweis-klein { font-size: 13px; color: var(--kmm-muted); }
+.kmm-tabs { display: flex; gap: 6px; overflow-x: auto; margin: 0 -16px 16px; padding: 0 16px 4px; }
+.kmm-tabs button { flex: 1 0 auto; min-height: 44px; padding: 8px 12px; border: 1px solid var(--kmm-border); background: var(--kmm-surface); border-radius: var(--kmm-radius); font: inherit; cursor: pointer; white-space: nowrap; }
+.kmm-tabs button.is-active { background: var(--kmm-primary); color: var(--kmm-primary-contrast); border-color: var(--kmm-primary); }
+.kmm-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.kmm-toolbar h2, .kmm-toolbar h3 { margin: 12px 0; }
+.kmm-liste { display: grid; gap: 10px; }
+.kmm-karte { background: var(--kmm-surface); border: 1px solid var(--kmm-border); border-radius: var(--kmm-radius); padding: 12px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.kmm-karte-haupt { display: grid; gap: 4px; flex: 1 1 260px; }
+.kmm-karte-aktionen { display: flex; gap: 6px; align-items: flex-start; flex-wrap: wrap; }
+.kmm-karte.is-gemeldet { border-color: #86c39a; background: #f3faf5; }
+.kmm-karte.is-unvollstaendig { border-color: #e2b93b; }
+.kmm-button-small { padding: 6px 12px; min-height: 36px; line-height: 22px; font-size: 14px; }
+.kmm-button-secondary { background: var(--kmm-surface); color: var(--kmm-primary); border: 1px solid var(--kmm-primary); }
+.kmm-button-danger { background: var(--kmm-surface); color: var(--kmm-error); border: 1px solid var(--kmm-error); }
+.kmm-button[disabled] { opacity: .5; cursor: not-allowed; }
+.kmm-warn { color: var(--kmm-warn); font-size: 14px; }
+.kmm-fehler { color: var(--kmm-error); font-size: 14px; }
+.kmm-tabelle-wrap { overflow-x: auto; margin: 0 -16px; padding: 0 16px; }
+.kmm-tabelle { width: 100%; border-collapse: collapse; background: var(--kmm-surface); font-size: 14px; }
+.kmm-tabelle th, .kmm-tabelle td { padding: 8px; border-bottom: 1px solid var(--kmm-border); text-align: left; vertical-align: top; }
+.kmm-tabelle th.r, .kmm-tabelle td.r { text-align: right; }
+.kmm-tabelle tr.kmm-gruppe th { background: #eef2f5; }
+.kmm-tabelle tr.is-konflikt td { background: var(--kmm-error-bg); }
+.kmm-tabelle .kmm-aktionen { white-space: nowrap; }
+.kmm-ergebnis { width: 5.5em; padding: 6px; font: inherit; border: 1px solid var(--kmm-border); border-radius: 6px; }
+.kmm-ergebnis.is-leer { border-color: #e2b93b; background: var(--kmm-warn-bg); }
+.kmm-summe { max-width: 420px; }
+.kmm-block { margin-bottom: 20px; }
+.kmm-inline { margin-bottom: 12px; }
+.kmm-dialog { border: 0; border-radius: var(--kmm-radius); padding: 20px; width: min(560px, 92vw); max-height: 90vh; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
+.kmm-dialog::backdrop { background: rgba(0,0,0,.45); }
+.kmm-dialog h3 { margin-top: 0; }
+.kmm-dialog-buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.kmm-kandidaten { display: grid; gap: 6px; max-height: 50vh; overflow: auto; }
+.kmm-check { display: flex; gap: 8px; align-items: flex-start; padding: 6px; border: 1px solid var(--kmm-border); border-radius: 6px; }
+.kmm-check input { margin-top: 3px; }
+.kmm-toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: #1f2933; color: #fff; padding: 10px 16px; border-radius: var(--kmm-radius); max-width: 90vw; z-index: 1000; }
+.kmm-toast.error { background: var(--kmm-error); } .kmm-toast.warn { background: var(--kmm-warn); }
+.kmm-app-fuss { margin-top: 24px; }
+.kmm-datenschutz { font-size: 13px; color: var(--kmm-muted); margin-top: 16px; }
+.kmm-alert ul { margin: 6px 0 0; padding-left: 20px; }
+@media (min-width: 700px) { .kmm-tabs { margin: 0 0 16px; padding: 0; } .kmm-tabelle-wrap { margin: 0; padding: 0; } }
+.kmm-gruppe-details { margin: 8px 0; border: 1px solid var(--kmm-border); border-radius: var(--kmm-radius); background: var(--kmm-surface); }
+.kmm-gruppe-details summary { padding: 10px 12px; cursor: pointer; font-weight: 600; }
+.kmm-gruppe-details .kmm-liste { padding: 0 8px 8px; }
+.kmm-liste-kompakt .kmm-karte { padding: 8px 10px; }

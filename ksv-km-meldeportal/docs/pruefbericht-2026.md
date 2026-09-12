@@ -1,6 +1,6 @@
 # Prüfbericht Disziplinplan 2026
 
-Quelle: `docs/quellen/01A1_Disziplinenplan_2026-Aktuell_17.02.xlsx`, konvertiert am 2026-09-11.
+Quelle: `docs/quellen/01A1_Disziplinenplan_2026-Aktuell_17.02.xlsx`, konvertiert am 2026-09-12.
 
 ## Übersicht
 

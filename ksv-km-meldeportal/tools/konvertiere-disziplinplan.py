@@ -695,7 +695,8 @@ class Konverter:
         teile = re.split(r"[.\s]+", kennzahl)
         out: list = []
         for t in teile:
-            out.append((0, int(t)) if t.isdigit() else (1, t))
+            m = re.match(r"^(\d+)(.*)$", t)
+            out.append((int(m.group(1)), m.group(2)) if m else (9999, t))
         return tuple(out)
 
     def validiere(self) -> None:

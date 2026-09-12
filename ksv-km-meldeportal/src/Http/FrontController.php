@@ -13,6 +13,9 @@ declare(strict_types=1);
 namespace KSV\KMM\Http;
 
 use KSV\KMM\Application\LinkAnfordern;
+use KSV\KMM\Application\MeldungService;
+use KSV\KMM\Application\PdfMeldung;
+use KSV\KMM\Application\SchuetzeService;
 use KSV\KMM\Application\Zugang;
 use KSV\KMM\Infrastructure\Repository\SportjahrRepository;
 
@@ -30,6 +33,9 @@ final class FrontController {
 				return;
 			case 'link-anfordern':
 				$this->link_anfordern();
+				return;
+			case 'pdf':
+				$this->pdf();
 				return;
 			case 'abmelden':
 				Zugang::abmelden();
@@ -82,10 +88,38 @@ final class FrontController {
 			return;
 		}
 		$sportjahr = (new SportjahrRepository())->find((int) $verein['sportjahr_id']);
-		View::render('frontend/start', [
-			'title'     => __('Meldung', 'ksv-km-meldeportal'),
-			'verein'    => $verein,
-			'sportjahr' => $sportjahr,
+		$service = new MeldungService($verein, (int) $verein['sportjahr_id']);
+		View::render('frontend/app', [
+			'title'      => sprintf(__('Meldung %s', 'ksv-km-meldeportal'), (string) $verein['name']),
+			'verein'     => $verein,
+			'sportjahr'  => $sportjahr,
+			'state'      => $service->zusammenfassung(),
+			'schuetzen'  => (new SchuetzeService($verein, (int) $verein['sportjahr_id']))->liste(),
+			'csrf'       => RestApi::csrf_token((int) $verein['sitzung_id']),
+			'api'        => esc_url_raw(rest_url(RestApi::NAMESPACE . '/')),
+			'pdf_url'    => Router::url('pdf'),
+			'abmelden'   => Router::url('abmelden'),
 		]);
+	}
+
+	private function pdf(): void {
+		$verein = Zugang::aktueller_verein();
+		if ($verein === null) {
+			wp_safe_redirect(Router::url('link-anfordern'));
+			return;
+		}
+		$service = new MeldungService($verein, (int) $verein['sportjahr_id']);
+		try {
+			$pdf = (new PdfMeldung())->erzeugen($service->zusammenfassung());
+		} catch (\Throwable $e) {
+			status_header(500);
+			View::render('frontend/fehler', ['title' => __('PDF nicht verfügbar', 'ksv-km-meldeportal'), 'text' => $e->getMessage()]);
+			return;
+		}
+		nocache_headers();
+		header('Content-Type: application/pdf');
+		header('Content-Disposition: attachment; filename="KM-Meldung-' . sanitize_file_name((string) $verein['vn_nummer']) . '.pdf"');
+		header('Content-Length: ' . strlen($pdf));
+		echo $pdf; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }

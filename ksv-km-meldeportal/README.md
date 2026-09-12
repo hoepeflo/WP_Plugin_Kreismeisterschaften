@@ -14,7 +14,7 @@ Verbindliche Grundlage ist das Konzept unter `docs/KM-Meldeportal_Konzept.md`.
 | `templates/` | Serverseitige Templates (Vereinsoberfläche, Mails) | ja |
 | `assets/` | CSS/JS ohne Build-Schritt | ja |
 | `languages/` | Text-Domain `ksv-km-meldeportal` | ja |
-| `vendor/` | Composer-Laufzeitabhängigkeiten (erst ab PDF-Bibliothek nötig) | ja, vom Build erzeugt |
+| `vendor/` | Composer-Laufzeitabhängigkeiten (mPDF für die PDF-Ausgaben) | ja, vom Build erzeugt |
 | `docs/` | Konzept, Datenmodell, Installation, Quellen | nein |
 | `tools/` | Konvertierungsskript, Build-Skript | nein |
 | `tests/` | PHPUnit-Tests | nein |
@@ -44,7 +44,11 @@ composer check            # alles zusammen
 bash tools/build-zip.sh   # installierbares ZIP nach build/
 ```
 
-## Backend (Stand Meilenstein 5)
+## Vereinsoberfläche (Stand Meilenstein 6)
+
+Route `/km-meldung/` nach Anmeldung per Zugangslink: vier Schritte Schützen, Meldung, Mannschaften, Prüfen & Einreichen; PDF der eigenen Meldung unter `/km-meldung/pdf/`. Serverseitig gerendertes Gerüst (`templates/frontend/app.php`) plus Vanilla-JS (`assets/frontend/app.js`) über die REST-Endpunkte `kmm/v1` (`src/Http/RestApi.php`). Beschreibung in `docs/VEREINSOBERFLAECHE.md`.
+
+## Backend (Stand Meilenstein 6)
 
 | Seite | Inhalt |
 |---|---|
