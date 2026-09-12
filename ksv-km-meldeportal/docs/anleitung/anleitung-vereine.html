@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>KM-Meldeportal – Anleitung für die Vereine</title>
+<style>
+	@page { size: A4; margin: 18mm 16mm 16mm; }
+	:root {
+		--gruen: #1c5d3a;
+		--gruen-weich: #eaf3ee;
+		--text: #16201c;
+		--muted: #5d6b64;
+		--rand: #dce2df;
+		--warn-bg: #fdf3dc;
+		--warn: #8a5a00;
+	}
+	* { box-sizing: border-box; }
+	body {
+		font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+		font-size: 10.5pt; line-height: 1.5; color: var(--text); margin: 0;
+	}
+	h1 { font-size: 22pt; line-height: 1.15; margin: 0 0 6pt; letter-spacing: -.02em; }
+	h2 {
+		font-size: 14pt; margin: 0 0 8pt; padding-bottom: 4pt; letter-spacing: -.01em;
+		page-break-after: avoid;
+		border-bottom: 2px solid var(--gruen-weich); color: var(--gruen);
+	}
+	h3 { font-size: 11.5pt; margin: 12pt 0 4pt; }
+	p { margin: 0 0 7pt; }
+	ul, ol { margin: 0 0 8pt; padding-left: 17pt; }
+	li { margin-bottom: 3pt; }
+	a { color: var(--gruen); }
+	figure { margin: 8pt 0 12pt; page-break-inside: avoid; }
+	figure img {
+		width: auto; max-width: 100%; max-height: 195mm; margin: 0 auto;
+		border: 1px solid var(--rand); border-radius: 6px; display: block;
+	}
+	figure img.schmal { max-width: 62%; }
+	figure img.hoch { max-width: 46%; max-height: 170mm; }
+	figcaption { font-size: 8.5pt; color: var(--muted); margin-top: 4pt; text-align: center; }
+	section { margin-top: 16pt; }
+	section.erste { margin-top: 0; page-break-after: always; }
+	h2 { page-break-after: avoid; }
+	h3 { page-break-after: avoid; }
+	figure + p, figure + ol, figure + div { page-break-before: avoid; }
+	.titel {
+		background: var(--gruen); color: #fff; border-radius: 10px;
+		padding: 20pt 22pt; margin-bottom: 14pt;
+	}
+	.titel p { margin: 0; opacity: .9; font-size: 11pt; }
+	.titel .zeile { font-size: 9pt; opacity: .75; margin-top: 10pt; }
+	.kasten {
+		background: var(--gruen-weich); border-left: 3px solid var(--gruen);
+		border-radius: 0 6px 6px 0; padding: 8pt 12pt; margin: 9pt 0;
+	}
+	.kasten.warn { background: var(--warn-bg); border-left-color: var(--warn); }
+	.kasten p:last-child { margin-bottom: 0; }
+	.schritte { counter-reset: schritt; list-style: none; padding-left: 0; }
+	.schritte > li {
+		counter-increment: schritt; position: relative; padding-left: 24pt; margin-bottom: 7pt;
+	}
+	.schritte > li::before {
+		content: counter(schritt); position: absolute; left: 0; top: 1pt;
+		width: 16pt; height: 16pt; border-radius: 50%; background: var(--gruen); color: #fff;
+		font-size: 9pt; font-weight: 700; text-align: center; line-height: 16pt;
+	}
+	table { width: 100%; border-collapse: collapse; margin: 8pt 0 10pt; font-size: 10pt; }
+	th, td { border: 1px solid var(--rand); padding: 5pt 7pt; text-align: left; vertical-align: top; }
+	th { background: var(--gruen-weich); color: var(--gruen); font-size: 9pt; text-transform: uppercase; letter-spacing: .03em; }
+	.inhalt li { margin-bottom: 4pt; }
+	.fuss { margin-top: 14pt; padding-top: 8pt; border-top: 1px solid var(--rand); font-size: 8.5pt; color: var(--muted); }
+	strong { font-weight: 650; }
+</style>
+</head>
+<body>
+
+<section class="erste">
+	<div class="titel">
+		<h1>Starter melden im KM-Meldeportal</h1>
+		<p>Anleitung für die Vereine des Kreisschützenverbandes Fallingbostel</p>
+		<div class="zeile">Kreisverbandsmeisterschaft · Stand dieser Anleitung: September 2026</div>
+	</div>
+
+	<p>Im Meldeportal melden die Vereine ihre Starter zur Kreisverbandsmeisterschaft: Schützen erfassen, Disziplinen wählen, Mannschaften bilden, Meldung einreichen und später den Startplatz buchen. Das Portal prüft dabei automatisch das Startrecht, die Klasse und das Startgeld.</p>
+
+	<h3>Was Sie brauchen</h3>
+	<ul>
+		<li>Den <strong>Zugangslink</strong>, den Ihr Verein per E-Mail vom KSV erhalten hat. Ein Passwort gibt es nicht.</li>
+		<li>Die Daten Ihrer Starter: Name, Vorname, Geburtsdatum, Geschlecht und die neunstellige Mitgliedsnummer.</li>
+		<li>Die Ergebnisse Ihrer Vereinsmeisterschaft als Meldeergebnis.</li>
+	</ul>
+
+	<div class="kasten">
+		<p><strong>Der Link ist Ihr Zugang.</strong> Bitte geben Sie ihn nur innerhalb des Vereins weiter, zum Beispiel an Ihren Sportleiter. Wer den Link hat, kann die Meldung Ihres Vereins sehen und ändern. Der Link gilt bis zum Abschluss des Sportjahres.</p>
+	</div>
+
+	<h3>Inhalt</h3>
+	<ol class="inhalt">
+		<li>Zugang erhalten und anmelden</li>
+		<li>Schützen erfassen</li>
+		<li>Starter zu Disziplinen melden</li>
+		<li>Meldeergebnisse eintragen</li>
+		<li>Mannschaften bilden</li>
+		<li>Meldung prüfen und einreichen</li>
+		<li>Startplätze buchen</li>
+		<li>Nach dem Meldeschluss</li>
+		<li>Häufige Fragen</li>
+	</ol>
+</section>
+
+<section>
+	<h2>1. Zugang erhalten und anmelden</h2>
+	<p>Der KSV verschickt vor Beginn der Meldephase an jeden Verein eine E-Mail mit einem persönlichen Zugangslink. Ein Klick auf diesen Link öffnet direkt die Meldeseite Ihres Vereins. Sie bleiben angemeldet, bis Sie sich abmelden.</p>
+
+	<h3>Link verloren?</h3>
+	<p>Rufen Sie die Seite <strong>Zugangslink anfordern</strong> auf und geben Sie eine E-Mail-Adresse ein, die beim KSV für Ihren Verein hinterlegt ist. Sie erhalten dann einen neuen Link. Aus Sicherheitsgründen bekommen Sie immer dieselbe Rückmeldung, auch wenn die Adresse nicht hinterlegt ist.</p>
+
+	<figure>
+		<img class="schmal" src="01-link-anfordern.png" alt="Formular zum Anfordern eines neuen Zugangslinks">
+		<figcaption>Neuen Zugangslink anfordern</figcaption>
+	</figure>
+
+	<div class="kasten warn">
+		<p>Prüfen Sie auch den Spam-Ordner. Kommt keine Mail an, ist vermutlich keine Adresse Ihres Vereins beim KSV hinterlegt. Melden Sie sich dann bitte beim KSV.</p>
+	</div>
+</section>
+
+<section>
+	<h2>2. Schützen erfassen</h2>
+	<p>Unter <strong>1 Schützen</strong> pflegen Sie die Personen Ihres Vereins. Diese Liste bleibt über die Jahre erhalten, Sie müssen sie also nur einmal aufbauen und in den Folgejahren ergänzen.</p>
+
+	<figure>
+		<img src="02-schuetzen.png" alt="Schützenliste mit vier Personen">
+		<figcaption>Die Schützenliste des Vereins</figcaption>
+	</figure>
+
+	<ol class="schritte">
+		<li>Auf <strong>Neuer Schütze</strong> tippen.</li>
+		<li>Name, Vorname, Geburtsdatum, Geschlecht und Mitgliedsnummer eingeben.</li>
+		<li>Mit <strong>Speichern</strong> übernehmen.</li>
+	</ol>
+
+	<figure>
+		<img class="hoch" src="03-schuetze-neu.png" alt="Eingabemaske für einen neuen Schützen">
+		<figcaption>Neuen Schützen anlegen</figcaption>
+	</figure>
+
+	<h3>Mitgliedsnummer</h3>
+	<p>Die Mitgliedsnummer hat genau neun Ziffern und beginnt in der Regel mit der Vereinsnummer. Weicht sie ab, weist das Portal Sie darauf hin, speichert aber trotzdem.</p>
+
+	<h3>Höhermeldung</h3>
+	<p>Soll ein Schütze in einer höheren Klasse starten, als es sein Jahrgang vorsieht, tragen Sie das beim Schützen unter <strong>Bearbeiten</strong> ein. Die Höhermeldung gilt für das laufende Sportjahr und wird bei allen Meldungen dieses Schützen berücksichtigt.</p>
+</section>
+
+<section>
+	<h2>3. Starter zu Disziplinen melden</h2>
+	<p>Unter <strong>2 Meldung</strong> wählen Sie oben einen Schützen aus. Das Portal zeigt dann alle Disziplinen, in denen dieser Schütze starten darf, gruppiert nach Gewehr, Pistole, Flinte und so weiter.</p>
+
+	<figure>
+		<img src="04-melden.png" alt="Liste der Disziplinen mit Startrecht und Melden-Schaltflächen">
+		<figcaption>Disziplinen mit Startrecht, hier für eine Starterin der Klasse Damen I</figcaption>
+	</figure>
+
+	<p>Zu jeder Disziplin sehen Sie die Startklasse, in Klammern die vollständige Kennzahl, dazu die Mannschaftsklasse und das Startgeld. Ein Klick auf <strong>Melden</strong> genügt. Bereits gemeldete Disziplinen sind grün mit dem Vermerk <em>gemeldet</em> markiert.</p>
+
+	<div class="kasten">
+		<p><strong>Para-Klassen:</strong> Wo eine Para-Klasse möglich ist, können Sie sie vor dem Melden im Auswahlfeld angeben. Bei Disziplinen, die es nur als Para-Wertung gibt, ist die Auswahl Pflicht.</p>
+	</div>
+</section>
+
+<section>
+	<h2>4. Meldeergebnisse eintragen</h2>
+	<p>In der Tabelle der gemeldeten Starter tragen Sie je Meldung das Ergebnis Ihrer Vereinsmeisterschaft ein. Es wird sofort gespeichert; Sie müssen nichts bestätigen.</p>
+
+	<figure>
+		<img src="05-meldeliste.png" alt="Tabelle der gemeldeten Starter mit Ergebnisfeldern">
+		<figcaption>Gemeldete Starter mit Klasse, Startklasse, Ergebnis und Startgeld</figcaption>
+	</figure>
+
+	<table>
+		<tr><th>Spalte</th><th>Bedeutung</th></tr>
+		<tr><td>Klasse</td><td>Die Klasse laut Jahrgang, mit dem Vermerk HM bei einer Höhermeldung.</td></tr>
+		<tr><td>Startklasse</td><td>Die Klasse, in der tatsächlich gewertet wird, darunter die Kennzahl für den Ergebnisdienst.</td></tr>
+		<tr><td>Ergebnis</td><td>Das Ergebnis der Vereinsmeisterschaft. Je nach Disziplin ganze Ringe oder Zehntel.</td></tr>
+		<tr><td>Mannsch.</td><td>Die Mannschaft, in der dieser Start gewertet wird.</td></tr>
+		<tr><td>Startgeld</td><td>Das Startgeld für diesen Start. Die Summe sehen Sie unter Prüfen und Einreichen.</td></tr>
+	</table>
+
+	<div class="kasten warn">
+		<p>Das Meldeergebnis wird für die Startplanung gebraucht. Fehlt es, weist das Portal Sie darauf hin. Einreichen können Sie trotzdem.</p>
+	</div>
+</section>
+
+<section>
+	<h2>5. Mannschaften bilden</h2>
+	<p>Unter <strong>3 Mannschaften</strong> stellen Sie Mannschaften aus den bereits gemeldeten Startern zusammen. Angeboten werden nur Schützen, die in dieselbe Mannschaftsklasse gehören.</p>
+
+	<figure>
+		<img src="06-mannschaften.png" alt="Mannschaftsübersicht mit einer gebildeten Mannschaft">
+		<figcaption>Eine gebildete Mannschaft mit drei Startern</figcaption>
+	</figure>
+
+	<ol class="schritte">
+		<li>Bei der gewünschten Disziplin auf <strong>Neue Mannschaft</strong> tippen.</li>
+		<li>Die Mitglieder ankreuzen. MixTeams bestehen aus genau einem Mann und einer Frau.</li>
+		<li>Speichern. Unvollständige Mannschaften werden gelb markiert.</li>
+	</ol>
+
+	<div class="kasten">
+		<p>Beim Einreichen müssen alle Mannschaften vollständig sein. Eine Mannschaft, die Sie doch nicht melden wollen, können Sie einfach wieder auflösen.</p>
+	</div>
+</section>
+
+<section>
+	<h2>6. Meldung prüfen und einreichen</h2>
+	<p>Unter <strong>4 Prüfen &amp; Einreichen</strong> hinterlegen Sie zuerst den Ansprechpartner. Das ist in der Regel der Sportleiter, der die Meldung erstellt. Er erhält alle weiteren Mails zur Meldung.</p>
+
+	<figure>
+		<img src="07-einreichen.png" alt="Seite zum Prüfen und Einreichen mit Ansprechpartner und Startgeldvorschau">
+		<figcaption>Ansprechpartner, Startgeldvorschau und Prüfung vor dem Einreichen</figcaption>
+	</figure>
+
+	<p>Darunter sehen Sie die <strong>Startgeldvorschau</strong> und die <strong>Prüfung</strong>. Rote Meldungen verhindern das Einreichen, gelbe sind Hinweise. Ist alles in Ordnung, reichen Sie die Meldung mit einem Klick verbindlich ein.</p>
+
+	<figure>
+		<img src="08-eingereicht.png" alt="Bestätigung nach dem Einreichen der Meldung">
+		<figcaption>Nach dem Einreichen: Bestätigung im Portal und per E-Mail</figcaption>
+	</figure>
+
+	<div class="kasten">
+		<p><strong>Änderungen nach dem Einreichen:</strong> Bis zum Meldeschluss können Sie die Meldung jederzeit wieder öffnen, ändern und erneut einreichen. Den Knopf dafür finden Sie auf derselben Seite.</p>
+	</div>
+</section>
+
+<section>
+	<h2>7. Startplätze buchen</h2>
+	<p>Sobald der KSV den Startplan eines Wettkampftags freigibt, erhalten Sie eine E-Mail, und im Portal erscheint der Reiter <strong>5 Startplätze</strong>. Dort buchen Sie für jeden Starter einen Platz.</p>
+
+	<figure>
+		<img src="09-startplaetze.png" alt="Buchungsraster mit Startern und freien Ständen">
+		<figcaption>Oben die Starter, darunter die Durchgänge mit den freien Ständen</figcaption>
+	</figure>
+
+	<ol class="schritte">
+		<li>Oben den Wettkampftag wählen.</li>
+		<li>Einen Starter antippen. Passende Durchgänge werden hervorgehoben, unpassende ausgegraut.</li>
+		<li>Einen freien Platz antippen. Die Buchung wird sofort gespeichert.</li>
+	</ol>
+
+	<figure>
+		<img src="10-gebucht.png" alt="Buchungsraster mit einem gebuchten Platz">
+		<figcaption>Der gebuchte Platz erscheint grün mit dem Namen des Starters</figcaption>
+	</figure>
+
+	<h3>Umbuchen und freigeben</h3>
+	<p>Einen Starter mit Platz können Sie erneut antippen und auf einen anderen freien Platz setzen. Über <strong>Platz freigeben</strong> geben Sie den Platz wieder frei. Beides ist bis zur Buchungsfrist möglich.</p>
+
+	<div class="kasten">
+		<p><strong>Gleichzeitige Buchungen:</strong> Alle Vereine buchen im selben Raster. Ist ein anderer Verein einen Augenblick schneller, scheitert nur dieser eine Klick, und Sie wählen einen anderen Platz. Ihre übrigen Buchungen bleiben bestehen. Das Raster aktualisiert sich alle paar Sekunden von selbst.</p>
+	</div>
+
+	<div class="kasten warn">
+		<p>Ein Schütze kann nicht in zwei Durchgängen stehen, die sich zeitlich überschneiden, auch nicht in verschiedenen Disziplinen. Das Portal weist Sie darauf hin.</p>
+	</div>
+
+	<p>Nach der Buchungsfrist verteilt der KSV die restlichen Starter auf freie Plätze und veröffentlicht den Startplan.</p>
+</section>
+
+<section>
+	<h2>8. Nach dem Meldeschluss</h2>
+	<p>Mit dem Meldeschluss wird die Meldung schreibgeschützt. Das Portal bleibt weiter zugänglich: Sie sehen Ihre Meldung, den Prüfstatus jedes Starters und später den Startplan.</p>
+
+	<table>
+		<tr><th>Anliegen</th><th>Weg</th></tr>
+		<tr><td>Starter nachmelden</td><td>Beim KSV melden. Der KSV trägt die Nachmeldung ein oder schaltet Ihren Verein befristet wieder frei.</td></tr>
+		<tr><td>Starter abmelden</td><td>Beim KSV melden. Ob Startgeld anfällt, hängt davon ab, ob der Startplan schon veröffentlicht war.</td></tr>
+		<tr><td>Ergebnis korrigieren</td><td>Beim KSV melden.</td></tr>
+	</table>
+
+	<p>Alle Änderungen, die der KSV an Ihrer Meldung vornimmt, sammelt das Portal und schickt sie Ihnen einmal täglich als Übersicht per E-Mail.</p>
+
+	<h3>Status der Starter</h3>
+	<p>Nach dem Meldeschluss prüft der KSV die Startrechte. In der Spalte Status sehen Sie das Ergebnis:</p>
+	<ul>
+		<li><strong>ungeprüft</strong> – die Prüfung steht noch aus.</li>
+		<li><strong>verarbeitet</strong> – der Start ist bestätigt.</li>
+		<li><strong>nicht startberechtigt</strong> – mit Begründung des KSV; dieser Start entfällt.</li>
+	</ul>
+</section>
+
+<section>
+	<h2>9. Häufige Fragen</h2>
+
+	<h3>Muss ich das Portal am Computer benutzen?</h3>
+	<p>Nein. Das Portal ist für Handy, Tablet und Computer gemacht. Am Handy werden die Tabellen als Karten dargestellt.</p>
+
+	<figure>
+		<img class="hoch" src="11-mobil.png" alt="Ansicht der Meldung auf einem Mobiltelefon">
+		<figcaption>Dieselbe Meldung auf dem Handy</figcaption>
+	</figure>
+
+	<h3>Wir haben mehrere Sportleiter. Können alle gleichzeitig arbeiten?</h3>
+	<p>Ja. Der Zugangslink kann innerhalb des Vereins weitergegeben werden. Alle arbeiten an derselben Meldung, Änderungen sind sofort für alle sichtbar.</p>
+
+	<h3>Ein Schütze fehlt in der Auswahl der Mannschaft.</h3>
+	<p>Er muss zuerst in derselben Disziplin gemeldet sein und in dieselbe Mannschaftsklasse gehören. Prüfen Sie Jahrgang und Geschlecht sowie eine eventuelle Höhermeldung.</p>
+
+	<h3>Das Startgeld stimmt nicht.</h3>
+	<p>Maßgeblich ist die Startklasse, nicht der Jahrgang. Ein Junior, der bei den Herren startet, zahlt den Erwachsenentarif. Die endgültige Abrechnung erstellt der KSV nach der Startrechtsprüfung.</p>
+
+	<h3>Wie lange gilt mein Zugangslink?</h3>
+	<p>Bis zum Abschluss des Sportjahres. Fordert jemand einen neuen Link an, bleibt der alte gültig, solange der KSV ihn nicht ausdrücklich ersetzt.</p>
+
+	<h3>Was passiert mit unseren Daten?</h3>
+	<p>Die Daten werden ausschließlich für die Kreisverbandsmeisterschaft verarbeitet: Startrechtsprüfung, Klasseneinteilung, Startplanung, Ergebnisdienst und Abrechnung. Mit der Veröffentlichung des Startplans werden Name, Vorname, Verein, Startklasse, Stand und Uhrzeit auf der Website des KSV veröffentlicht. Nach Abschluss des Sportjahres werden die persönlichen Daten aus den Meldungen entfernt. Den vollständigen Hinweis finden Sie im Portal unten auf der Seite.</p>
+
+	<div class="fuss">
+		<p>Fragen zur Meldung oder zum Zugang beantwortet der Kreisschützenverband Fallingbostel. Diese Anleitung bezieht sich auf das KM-Meldeportal in der Version 0.9.0. Die abgebildeten Namen und Ergebnisse sind Musterdaten.</p>
+	</div>
+</section>
+
+</body>
+</html>
