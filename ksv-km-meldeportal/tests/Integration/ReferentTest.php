@@ -52,6 +52,10 @@ final class ReferentTest extends IntegrationTestCase {
 		$this->em['lp'] = $ms->einzel_anlegen($this->schuetze_a, $rw->disziplin_nach_kennzahl('2.10')->id)['id'];
 		$ms->ansprechpartner_speichern(['name' => 'SL', 'email' => 'sl@example.org']);
 		$ms->einreichen();
+		// Reste früherer Läufe entfernen (Benutzertabelle wird nicht geleert).
+		foreach (get_users(['role' => Capabilities::ROLE_REFERENT]) as $u) {
+			wp_delete_user($u->ID);
+		}
 		$uid = wp_insert_user(['user_login' => 'ref_gewehr', 'user_pass' => 'x', 'role' => Capabilities::ROLE_REFERENT, 'display_name' => 'Ref Gewehr']);
 		$this->assertIsInt($uid);
 		$this->user_id = $uid;

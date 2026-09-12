@@ -24,6 +24,7 @@ final class Menu {
 		['Stammdaten', StammdatenPage::class, Capabilities::MANAGE],
 		['Import / Export', ImportExportPage::class, Capabilities::MANAGE],
 		['Verarbeitung', VerarbeitungPage::class, Capabilities::VIEW],
+		['Wettkampftage', WettkampftagePage::class, Capabilities::VIEW],
 		['Export', ExportPage::class, Capabilities::VIEW],
 		['Belege', BelegePage::class, Capabilities::MANAGE],
 		['Protokoll', ProtokollPage::class, Capabilities::VIEW],
