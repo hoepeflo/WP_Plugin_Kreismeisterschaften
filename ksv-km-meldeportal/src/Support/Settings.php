@@ -47,6 +47,12 @@ final class Settings {
 			// Absender für Mails (leer = WordPress-Standard).
 			'mail_absender_name'             => '',
 			'mail_absender_adresse'          => '',
+			// Phase 2: tägliche Sammelmail (Uhrzeit in der WordPress-Zeitzone, HH:MM).
+			'sammelmail_uhrzeit'             => '18:00',
+			// Phase 2: Erinnerung an Vereine mit Startern ohne Platz, Tage vor der Buchungsfrist.
+			'buchung_erinnerung_tage'        => 3,
+			// Phase 2: Aktualisierungsintervall des Buchungsrasters in Sekunden.
+			'buchung_raster_intervall'       => 10,
 			// Deinstallation: Tabellen und Optionen löschen.
 			'daten_bei_deinstallation_loeschen' => false,
 		];

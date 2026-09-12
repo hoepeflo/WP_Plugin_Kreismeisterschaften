@@ -156,12 +156,25 @@ Mitglieder über `kmm_einzelmeldung.mannschaft_id`.
 | `kmm_export` | jeder Export mit Zeitstempel, Typ (`david_csv`, `pdf_liste`, *`beleg`*), Umfang (disziplin_id/gruppe_id/parameter), Zeilenzahl, Ersteller. Grundlage für „Änderungen seit Export". |
 | `kmm_mail_log` | Typ, Betreff, Empfängeranzahl, Erfolg, Fehler. Keine Adressen (kein PII in Logs). |
 
-## Bewusst noch nicht angelegt (Phase 2)
+## Phase 2 (Schema-Version 3, rein additiv)
 
-Neue Tabellen lassen sich später ohne Umbau ergänzen; angelegt werden sie erst mit ihrer
-Logik: Referenten-Zuständigkeiten (`kmm_referent_zustaendigkeit`), Wettkampftage,
-Einheiten, Durchgänge und Buchungen (`kmm_wettkampftag`, `kmm_einheit`, `kmm_durchgang`,
-`kmm_buchung`), Buchhaltungsbelege (`kmm_beleg`).
+Alle Ergänzungen haben Standardwerte; bestehende Daten werden nicht umgeschrieben.
+Neue Spalten: `einzelmeldung.abmeldegrund`, `einzelmeldung.nachgemeldet`, `sportjahr.abschluss_backup`.
+
+| Tabelle | Inhalt |
+|---|---|
+| `kmm_aenderung` | Änderungen nach Meldeschluss je Verein: typ (`status`, `abmeldung`, `nachmeldung`, `korrektur`, `mannschaft`, `startplan`), Text, Details (JSON), erstellt_am, versendet_am (Sammelmail). Grundlage der täglichen Sammelmail (idempotent über `versendet_am`) und der Liste „Änderungen seit Export“. |
+| `kmm_beleg` | Buchhaltungsbelege je Verein: Summe, Positionen (JSON-Snapshot), Dateiname, Hinweis „ungeprüfte Meldungen“, Ersteller, Zeitpunkt. |
+| `kmm_referent` | WordPress-Benutzer (user_id) mit Einzelrechten darf_status, darf_meldungen, darf_startplan. |
+| `kmm_referent_zustaendigkeit` | Zuständigkeit: typ `gruppe` (Code) oder `disziplin` (Kennzahl); sportjahrübergreifend über den Schlüssel. |
+| `kmm_wettkampftag` | Datum, Bezeichnung, Ort, Buchungsfrist, Status (`entwurf` / `freigegeben` / `veroeffentlicht`), Zeitpunkte, ausgeblendet_am (Abschluss), beitrag_id (Kalenderbeitrag), ergebnis_url (Ergebnis-Plugin), Erinnerung. |
+| `kmm_einheit` | Stand/Scheibe/Rotte je Wettkampftag: Bezeichnung, Kapazität (Positionen), optional `disziplin_ids` (leer = alle). |
+| `kmm_durchgang` | Nummer, Bezeichnung, Beginn, Ende je Wettkampftag. |
+| `kmm_durchgang_zulassung` | zugelassene Kombination Disziplin × Startklasse (NULL = alle Startklassen der Disziplin). |
+| `kmm_buchung` | Platz = Durchgang × Einheit × Position ↔ Einzelmeldung. **UNIQUE (durchgang_id, einheit_id, position)** und **UNIQUE (einzelmeldung_id)**: die Datenbank erzwingt, dass ein Platz nur einmal und eine Meldung nur einmal gebucht ist. gebucht_von_typ `verein` / `admin` / `system`. |
+
+Rolle `kmm_referent` (Capabilities `kmm_view`, `kmm_referent`) wird bei Aktivierung und
+Migration angelegt.
 
 ## Optionen
 

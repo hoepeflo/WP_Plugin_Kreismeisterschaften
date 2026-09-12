@@ -88,6 +88,14 @@ final class Migrator {
 	}
 
 	/**
+	 * Version 3 (Phase 2): nur additive Tabellen und Spalten mit Standardwerten
+	 * (dbDelta); Referenten-Rolle anlegen. Bestehende Daten werden nicht verändert.
+	 */
+	private static function step_3(): void {
+		\KSV\KMM\Auth\Capabilities::add_to_roles();
+	}
+
+	/**
 	 * Status aller Tabellen für die Systemseite.
 	 *
 	 * @return array<string, bool> Tabellenname => existiert.

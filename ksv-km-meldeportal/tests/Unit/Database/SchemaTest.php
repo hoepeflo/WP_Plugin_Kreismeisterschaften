@@ -88,6 +88,11 @@ final class SchemaTest extends TestCase {
 		$sportjahr = self::column_names($defs['sportjahr']);
 		$this->assertContains('abgeschlossen_am', $sportjahr);
 		$this->assertContains('anonymisiert_am', $sportjahr);
+		foreach (['aenderung', 'beleg', 'referent', 'referent_zustaendigkeit', 'wettkampftag', 'einheit', 'durchgang', 'durchgang_zulassung', 'buchung'] as $t) {
+			$this->assertArrayHasKey($t, $defs, $t);
+		}
+		$this->assertStringContainsString('UNIQUE KEY platz (durchgang_id,einheit_id,position)', $defs['buchung']);
+		$this->assertStringContainsString('UNIQUE KEY einzelmeldung_id (einzelmeldung_id)', $defs['buchung']);
 	}
 
 	public function test_versioned_master_data_carry_sportjahr_id(): void {

@@ -24,7 +24,7 @@ final class Schema {
 	 * Schema-Version. Bei jeder Änderung an definitions() erhöhen; der Migrator
 	 * führt dbDelta() erneut aus, sobald die gespeicherte Version abweicht.
 	 */
-	public const VERSION = 2;
+	public const VERSION = 3;
 
 	public const OPTION_VERSION = 'kmm_schema_version';
 
@@ -48,6 +48,16 @@ final class Schema {
 		'protokoll',
 		'export',
 		'mail_log',
+		// Phase 2 (Schema 3)
+		'aenderung',
+		'beleg',
+		'referent',
+		'referent_zustaendigkeit',
+		'wettkampftag',
+		'einheit',
+		'durchgang',
+		'durchgang_zulassung',
+		'buchung',
 	];
 
 	/**
@@ -89,6 +99,7 @@ final class Schema {
   abgeschlossen_am datetime DEFAULT NULL,
   anonymisiert_am datetime DEFAULT NULL,
   regeln_geaendert_am datetime DEFAULT NULL,
+  abschluss_backup varchar(255) NOT NULL DEFAULT '',
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
   PRIMARY KEY  (id),
@@ -314,11 +325,14 @@ final class Schema {
   verarbeitungsgrund varchar(255) NOT NULL DEFAULT '',
   verarbeitet_am datetime DEFAULT NULL,
   abgemeldet_am datetime DEFAULT NULL,
+  abmeldegrund varchar(255) NOT NULL DEFAULT '',
+  nachgemeldet tinyint(1) unsigned NOT NULL DEFAULT 0,
   ergebnis_ref varchar(64) NOT NULL DEFAULT '',
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
   PRIMARY KEY  (id),
   UNIQUE KEY meldung_schuetze_disziplin (meldung_id,schuetze_id,disziplin_id),
+  KEY sportjahr_verarbeitung (sportjahr_id,verarbeitungsstatus),
   KEY sportjahr_disziplin (sportjahr_id,disziplin_id),
   KEY verein_id (verein_id),
   KEY mannschaft_id (mannschaft_id),
@@ -391,6 +405,134 @@ final class Schema {
   gesendet_am datetime NOT NULL,
   PRIMARY KEY  (id),
   KEY sportjahr_verein_typ (sportjahr_id,verein_id,typ)
+) {$charset_collate};";
+
+		// --- Phase 2: Änderungen, Belege, Referenten, Startplan ------------------------
+
+		$defs['aenderung'] = "CREATE TABLE {$t('aenderung')} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  sportjahr_id bigint(20) unsigned NOT NULL,
+  verein_id bigint(20) unsigned NOT NULL,
+  einzelmeldung_id bigint(20) unsigned DEFAULT NULL,
+  typ varchar(32) NOT NULL,
+  text varchar(255) NOT NULL DEFAULT '',
+  details text,
+  erstellt_am datetime NOT NULL,
+  versendet_am datetime DEFAULT NULL,
+  PRIMARY KEY  (id),
+  KEY verein_offen (verein_id,versendet_am),
+  KEY sportjahr_zeit (sportjahr_id,erstellt_am)
+) {$charset_collate};";
+
+		$defs['beleg'] = "CREATE TABLE {$t('beleg')} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  sportjahr_id bigint(20) unsigned NOT NULL,
+  verein_id bigint(20) unsigned NOT NULL,
+  summe decimal(8,2) NOT NULL DEFAULT 0.00,
+  positionen longtext,
+  dateiname varchar(190) NOT NULL DEFAULT '',
+  ungeprueft_hinweis tinyint(1) unsigned NOT NULL DEFAULT 0,
+  erstellt_von bigint(20) unsigned DEFAULT NULL,
+  erstellt_am datetime NOT NULL,
+  PRIMARY KEY  (id),
+  KEY sportjahr_verein (sportjahr_id,verein_id)
+) {$charset_collate};";
+
+		$defs['referent'] = "CREATE TABLE {$t('referent')} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  user_id bigint(20) unsigned NOT NULL,
+  darf_status tinyint(1) unsigned NOT NULL DEFAULT 0,
+  darf_meldungen tinyint(1) unsigned NOT NULL DEFAULT 0,
+  darf_startplan tinyint(1) unsigned NOT NULL DEFAULT 0,
+  notiz varchar(255) NOT NULL DEFAULT '',
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY user_id (user_id)
+) {$charset_collate};";
+
+		$defs['referent_zustaendigkeit'] = "CREATE TABLE {$t('referent_zustaendigkeit')} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  referent_id bigint(20) unsigned NOT NULL,
+  typ varchar(16) NOT NULL,
+  schluessel varchar(32) NOT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY referent_typ_schluessel (referent_id,typ,schluessel)
+) {$charset_collate};";
+
+		$defs['wettkampftag'] = "CREATE TABLE {$t('wettkampftag')} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  sportjahr_id bigint(20) unsigned NOT NULL,
+  datum date NOT NULL,
+  bezeichnung varchar(150) NOT NULL DEFAULT '',
+  ort varchar(150) NOT NULL DEFAULT '',
+  buchungsfrist datetime DEFAULT NULL,
+  status varchar(16) NOT NULL DEFAULT 'entwurf',
+  freigegeben_am datetime DEFAULT NULL,
+  veroeffentlicht_am datetime DEFAULT NULL,
+  ausgeblendet_am datetime DEFAULT NULL,
+  beitrag_id bigint(20) unsigned DEFAULT NULL,
+  ergebnis_url varchar(255) NOT NULL DEFAULT '',
+  erinnerung_am datetime DEFAULT NULL,
+  erinnerung_gesendet_am datetime DEFAULT NULL,
+  hinweis text,
+  sortierung smallint(5) unsigned NOT NULL DEFAULT 0,
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  KEY sportjahr_datum (sportjahr_id,datum)
+) {$charset_collate};";
+
+		$defs['einheit'] = "CREATE TABLE {$t('einheit')} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  wettkampftag_id bigint(20) unsigned NOT NULL,
+  bezeichnung varchar(100) NOT NULL,
+  kapazitaet tinyint(3) unsigned NOT NULL DEFAULT 1,
+  disziplin_ids varchar(255) NOT NULL DEFAULT '',
+  sortierung smallint(5) unsigned NOT NULL DEFAULT 0,
+  PRIMARY KEY  (id),
+  KEY wettkampftag_id (wettkampftag_id)
+) {$charset_collate};";
+
+		$defs['durchgang'] = "CREATE TABLE {$t('durchgang')} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  wettkampftag_id bigint(20) unsigned NOT NULL,
+  nummer smallint(5) unsigned NOT NULL DEFAULT 0,
+  bezeichnung varchar(100) NOT NULL DEFAULT '',
+  beginn datetime NOT NULL,
+  ende datetime NOT NULL,
+  sortierung smallint(5) unsigned NOT NULL DEFAULT 0,
+  PRIMARY KEY  (id),
+  KEY wettkampftag_beginn (wettkampftag_id,beginn)
+) {$charset_collate};";
+
+		$defs['durchgang_zulassung'] = "CREATE TABLE {$t('durchgang_zulassung')} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  durchgang_id bigint(20) unsigned NOT NULL,
+  disziplin_id bigint(20) unsigned NOT NULL,
+  startklasse_id bigint(20) unsigned DEFAULT NULL,
+  PRIMARY KEY  (id),
+  KEY durchgang_id (durchgang_id),
+  KEY disziplin_klasse (disziplin_id,startklasse_id)
+) {$charset_collate};";
+
+		$defs['buchung'] = "CREATE TABLE {$t('buchung')} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  sportjahr_id bigint(20) unsigned NOT NULL,
+  wettkampftag_id bigint(20) unsigned NOT NULL,
+  durchgang_id bigint(20) unsigned NOT NULL,
+  einheit_id bigint(20) unsigned NOT NULL,
+  position tinyint(3) unsigned NOT NULL DEFAULT 1,
+  einzelmeldung_id bigint(20) unsigned NOT NULL,
+  verein_id bigint(20) unsigned NOT NULL,
+  gebucht_von_typ varchar(16) NOT NULL DEFAULT 'verein',
+  gebucht_von_id bigint(20) unsigned DEFAULT NULL,
+  gebucht_am datetime NOT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY platz (durchgang_id,einheit_id,position),
+  UNIQUE KEY einzelmeldung_id (einzelmeldung_id),
+  KEY wettkampftag_id (wettkampftag_id),
+  KEY verein_id (verein_id)
 ) {$charset_collate};";
 
 		return $defs;
