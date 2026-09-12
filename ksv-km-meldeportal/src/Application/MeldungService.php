@@ -10,7 +10,9 @@ declare(strict_types=1);
 
 namespace KSV\KMM\Application;
 
+use KSV\KMM\Auth\Rechte;
 use KSV\KMM\Domain\AenderungTyp;
+use KSV\KMM\Domain\Engine\Disziplin;
 use KSV\KMM\Domain\Engine\Bewertung;
 use KSV\KMM\Domain\Engine\Engine;
 use KSV\KMM\Domain\Engine\MannschaftPruefung;
@@ -181,7 +183,7 @@ final class MeldungService {
 		}
 		$out = [];
 		foreach ($this->engine->regelwerk()->disziplinen() as $d) {
-			if (!$d->angeboten) {
+			if (!$d->angeboten || !$this->zustaendig($d)) {
 				continue;
 			}
 			$b = $this->engine->bewerte($d, $dto);
@@ -222,6 +224,7 @@ final class MeldungService {
 		$m = $this->schreibrecht();
 		$s = $this->eigener_schuetze($schuetze_id);
 		$d = $this->engine->regelwerk()->disziplin($disziplin_id);
+		$this->zustaendig_pruefen($d);
 		if ($d === null || !$d->angeboten) {
 			throw new \RuntimeException('Disziplin wird nicht angeboten.');
 		}
@@ -264,6 +267,7 @@ final class MeldungService {
 		$this->schreibrecht();
 		$em = $this->eigene_einzelmeldung($id);
 		$d = $this->engine->regelwerk()->disziplin((int) $em['disziplin_id']);
+		$this->zustaendig_pruefen($d);
 		$update = [];
 		if (array_key_exists('meldeergebnis', $daten)) {
 			try {
@@ -310,6 +314,7 @@ final class MeldungService {
 	public function einzel_loeschen(int $id): void {
 		$this->schreibrecht();
 		$em = $this->eigene_einzelmeldung($id);
+		$this->zustaendig_pruefen((int) $em['disziplin_id']);
 		if ($em['mannschaft_id'] !== null) {
 			$this->aus_mannschaft_entfernen($em);
 		}
@@ -336,6 +341,7 @@ final class MeldungService {
 	public function abmelden(int $id, string $grund = '', ?bool $startgeld_berechnen = null): array {
 		$this->admin_only();
 		$em = $this->eigene_einzelmeldung($id);
+		$this->zustaendig_pruefen((int) $em['disziplin_id']);
 		if ($em['abgemeldet_am'] !== null) {
 			throw new \RuntimeException('Die Meldung ist bereits abgemeldet.');
 		}
@@ -362,6 +368,7 @@ final class MeldungService {
 	public function abmeldung_aufheben(int $id): array {
 		$this->admin_only();
 		$em = $this->eigene_einzelmeldung($id);
+		$this->zustaendig_pruefen((int) $em['disziplin_id']);
 		if ($em['abgemeldet_am'] === null) {
 			throw new \RuntimeException('Die Meldung ist nicht abgemeldet.');
 		}
@@ -383,7 +390,8 @@ final class MeldungService {
 	 */
 	public function startgeld_schalter(int $id, bool $berechnen): array {
 		$this->admin_only();
-		$this->eigene_einzelmeldung($id);
+		$em = $this->eigene_einzelmeldung($id);
+		$this->zustaendig_pruefen((int) $em['disziplin_id']);
 		$this->einzel->update($id, ['startgeld_berechnen' => $berechnen]);
 		$ansicht = $this->einzel_ansicht((array) $this->einzel->find($id));
 		$this->protokoll('meldung.startgeld_schalter', sprintf('%s, %s in %s: Startgeld %s', $ansicht['nachname'], $ansicht['vorname'], $ansicht['kennzahl'], $berechnen ? 'wird berechnet' : 'entfällt'), 'einzelmeldung', $id);
@@ -393,6 +401,9 @@ final class MeldungService {
 	/** Nachmeldungs-Freischaltung für den Verein (Backend). */
 	public function nachmeldung_freischalten(?string $bis_utc): void {
 		$this->admin_only();
+		if (!Rechte::ist_admin()) {
+			throw new \RuntimeException('Die Nachmeldungs-Freischaltung ist Administratoren vorbehalten.');
+		}
 		$m = $this->meldung_oder_anlegen();
 		$this->meldungen->update((int) $m['id'], ['nachmeldung_bis' => $bis_utc]);
 		$this->protokoll('meldung.nachmeldung', $bis_utc !== null ? sprintf('Nachmeldung freigeschaltet bis %s', Clock::format_local($bis_utc)) : 'Nachmeldungs-Freischaltung beendet', 'meldung', (int) $m['id']);
@@ -405,11 +416,32 @@ final class MeldungService {
 	}
 
 	/**
+	 * Im Admin-Modus dürfen Referenten nur Disziplinen ihres Zuständigkeitsbereichs
+	 * anfassen (Admin: alles; Vereinssitzung: keine Einschränkung).
+	 */
+	private function zustaendig(Disziplin|int|null $d): bool {
+		if (!$this->admin) {
+			return true;
+		}
+		if (is_int($d)) {
+			$d = $this->engine->regelwerk()->disziplin($d);
+		}
+		return $d !== null && Rechte::zustaendig($d);
+	}
+
+	private function zustaendig_pruefen(Disziplin|int|null $d): void {
+		if (!$this->zustaendig($d)) {
+			throw new \RuntimeException('Keine Berechtigung: Die Disziplin liegt außerhalb Ihrer Zuständigkeit.');
+		}
+	}
+
+	/**
 	 * Konflikt nach Regeländerung: Verein bestätigt die neue Bewertung.
 	 */
 	public function konflikt_bestaetigen(int $id): void {
 		$this->schreibrecht();
 		$em = $this->eigene_einzelmeldung($id);
+		$this->zustaendig_pruefen((int) $em['disziplin_id']);
 		if (!$em['startrecht']) {
 			throw new \RuntimeException('Kein Startrecht mehr – bitte die Meldung entfernen.');
 		}
@@ -464,6 +496,7 @@ final class MeldungService {
 	public function mannschaft_speichern(?int $mannschaft_id, int $disziplin_id, array $einzelmeldung_ids): array {
 		$m = $this->schreibrecht();
 		$d = $this->engine->regelwerk()->disziplin($disziplin_id);
+		$this->zustaendig_pruefen($d);
 		if ($d === null || !$d->hat_mannschaften()) {
 			throw new \RuntimeException('In dieser Disziplin gibt es keine Mannschaften.');
 		}
@@ -538,6 +571,7 @@ final class MeldungService {
 	public function mannschaft_loeschen(int $mannschaft_id): void {
 		$this->schreibrecht();
 		$mannschaft = $this->eigene_mannschaft($mannschaft_id);
+		$this->zustaendig_pruefen((int) $mannschaft['disziplin_id']);
 		foreach ($this->einzel->where(['mannschaft_id' => $mannschaft_id]) as $em) {
 			$this->einzel->update((int) $em['id'], ['mannschaft_id' => null]);
 		}
@@ -734,6 +768,7 @@ final class MeldungService {
 			'konflikte'       => $konflikte,
 			'einstellungen'   => ['nicht_meldung_sichtbar' => (bool) Settings::get('nicht_meldung_sichtbar')],
 			'admin'           => $this->admin,
+			'admin_voll'      => $this->admin && Rechte::ist_admin(),
 			'nach_meldeschluss' => $this->nach_meldeschluss(),
 			'nachmeldung_bis' => $m !== null && $m['nachmeldung_bis'] !== null ? Clock::format_local($m['nachmeldung_bis']) : '',
 			'nachmeldung_bis_input' => $m !== null ? Clock::utc_to_local_input($m['nachmeldung_bis']) : '',
@@ -796,6 +831,7 @@ final class MeldungService {
 			'abmeldegrund'       => (string) $em['abmeldegrund'],
 			'startgeld_berechnen' => (bool) $em['startgeld_berechnen'],
 			'nachgemeldet'       => (bool) $em['nachgemeldet'],
+			'zustaendig'         => $this->zustaendig($d),
 			'hinweise'           => $hinweise,
 			'sortierung'         => $d !== null ? ($rw->disziplin($d->id) ? $this->disziplin_sort($d->kennzahl) : 0) : 0,
 		];
@@ -826,6 +862,7 @@ final class MeldungService {
 			'vollstaendig'     => $d !== null && count($mitglieder) === $d->mannschaft_groesse && !$ma['unvollstaendig'],
 			'unvollstaendig_grund' => $ma['unvollstaendig'] ? 'Mitglied nicht startberechtigt oder abgemeldet' : (count($mitglieder) < ($d?->mannschaft_groesse ?? 3) ? 'zu wenige Mitglieder' : ''),
 			'startgeld'        => (float) $ma['startgeld'],
+			'zustaendig'       => $this->zustaendig($d),
 		];
 	}
 

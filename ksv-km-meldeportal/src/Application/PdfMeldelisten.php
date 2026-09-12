@@ -78,6 +78,13 @@ final class PdfMeldelisten {
 		$service = new ExportService();
 		$zeilen = $service->zeilen($sportjahr_id, $umfang === 'disziplin' ? $disziplin_id : null, $umfang === 'gruppe' ? $gruppe_code : null, $nur_eingereicht, false);
 		$rw = RegelwerkLader::laden($sportjahr_id);
+		if (!\KSV\KMM\Auth\Rechte::ist_admin()) {
+			// Referenten: nur Disziplinen des eigenen Zuständigkeitsbereichs (serverseitig).
+			$zeilen = array_values(array_filter($zeilen, static function ($z) use ($rw): bool {
+				$d = $rw->disziplin_nach_kennzahl($z->disziplin_kennzahl);
+				return $d !== null && \KSV\KMM\Auth\Rechte::zustaendig($d);
+			}));
+		}
 		$sportjahr = (new SportjahrRepository())->find($sportjahr_id);
 		$titel = sprintf('Meldeliste KM %d', (int) ($sportjahr['jahr'] ?? 0));
 		$teil = 'alle';

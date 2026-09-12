@@ -87,6 +87,17 @@ final class UebersichtPage extends AdminPage {
 		$links = (new MagicLinkRepository())->aktuelle_je_verein($sid);
 		$mails = (new MailLogRepository())->letzte_je_verein($sid, Mailer::TYP_MAGIC_LINK);
 		$rw = RegelwerkLader::laden($sid);
+		$referent = !Rechte::ist_admin();
+		if ($referent) {
+			// Referenten: nur Meldungen aus dem eigenen Zuständigkeitsbereich zählen und zeigen.
+			$erlaubt = [];
+			foreach (Rechte::zustaendige($rw->disziplinen()) as $d) {
+				$erlaubt[ $d->id ] = true;
+			}
+			$einzel = array_values(array_filter($einzel, static fn(array $e): bool => isset($erlaubt[ (int) $e['disziplin_id'] ])));
+			$mannschaften = array_values(array_filter($mannschaften, static fn(array $m): bool => isset($erlaubt[ (int) $m['disziplin_id'] ])));
+			echo '<p class="description">' . esc_html__('Als Referent sehen Sie nur Meldungen Ihres Zuständigkeitsbereichs; Vereinsstatus und Zugang sind für den Admin.', 'ksv-km-meldeportal') . '</p>';
+		}
 
 		$je_verein = [];
 		foreach ($einzel as $em) {
@@ -258,7 +269,9 @@ final class UebersichtPage extends AdminPage {
 	 */
 	private static function render_detail(array $verein, int $sid): void {
 		$verein['sportjahr_id'] = $sid;
-		$z = (new MeldungService($verein, $sid))->zusammenfassung();
+		$z = (new MeldungService($verein, $sid, true))->zusammenfassung();
+		$z['einzelmeldungen'] = array_values(array_filter($z['einzelmeldungen'], static fn(array $e): bool => $e['zustaendig']));
+		$z['mannschaften'] = array_values(array_filter($z['mannschaften'], static fn(array $m): bool => $m['zustaendig']));
 		echo '<h3>' . esc_html((string) $verein['name']) . ' – ' . esc_html(sprintf(__('%d Einzelmeldungen, %d Mannschaften', 'ksv-km-meldeportal'), count($z['einzelmeldungen']), count($z['mannschaften']))) . '</h3>';
 		echo '<table class="widefat"><thead><tr><th>Kennzahl</th><th>Disziplin</th><th>Name</th><th>Klasse</th><th>Startklasse</th><th>Ergebnis</th><th>Mannsch.</th><th class="r">Startgeld</th><th>Hinweise</th></tr></thead><tbody>';
 		foreach ($z['einzelmeldungen'] as $e) {

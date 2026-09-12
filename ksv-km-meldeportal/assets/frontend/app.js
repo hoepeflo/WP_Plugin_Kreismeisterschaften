@@ -312,16 +312,17 @@
 				}
 				const ergebnisPh = e.ergebnis_format === 'zehntel' ? '389,4' : '375';
 				const abg = !!e.abgemeldet_am;
+				const rwZ = rw && e.zustaendig !== false; // Referent: fremde Disziplin nur lesen
 				html += `<tr class="${e.konflikt || !e.startrecht ? 'is-konflikt' : ''} ${abg ? 'is-abgemeldet' : ''}" data-id="${e.id}">
 					<td><strong>${h(e.nachname)}, ${h(e.vorname)}</strong>${e.para ? `<div class="kmm-muted">${h(e.para)}</div>` : ''}${e.konflikt ? `<div class="kmm-fehler">${h(e.konflikt_text)}</div>` : ''}${(e.hinweise || []).filter((x) => !/^Höhermeldung/.test(x) || true).map((x) => `<div class="kmm-hinweis-klein">${h(x)}</div>`).join('')}</td>
 					<td>${h(e.klasse)}${e.hoehermeldung ? ' <span class="kmm-badge kmm-badge-hm">HM</span>' : ''}</td>
 					<td>${h(e.startklasse)}<div class="kmm-muted">${h(e.kennzahl_voll)}</div></td>
-					<td>${e.typ === 'mixteam' ? '–' : `<input type="text" inputmode="decimal" class="kmm-ergebnis ${e.meldeergebnis === '' ? 'is-leer' : ''}" data-action="ergebnis" data-id="${e.id}" value="${h(e.meldeergebnis)}" placeholder="${ergebnisPh}" ${rw ? '' : 'disabled'} size="6">`}</td>
-					${m.einstellungen.nicht_meldung_sichtbar ? `<td><input type="checkbox" data-action="nicht-meldung" data-id="${e.id}" ${e.nicht_meldung ? 'checked' : ''} ${rw ? '' : 'disabled'}></td>` : ''}
+					<td>${e.typ === 'mixteam' ? '–' : `<input type="text" inputmode="decimal" class="kmm-ergebnis ${e.meldeergebnis === '' ? 'is-leer' : ''}" data-action="ergebnis" data-id="${e.id}" value="${h(e.meldeergebnis)}" placeholder="${ergebnisPh}" ${rwZ ? '' : 'disabled'} size="6">`}</td>
+					${m.einstellungen.nicht_meldung_sichtbar ? `<td><input type="checkbox" data-action="nicht-meldung" data-id="${e.id}" ${e.nicht_meldung ? 'checked' : ''} ${rwZ ? '' : 'disabled'}></td>` : ''}
 					<td>${e.mannschaft_nummer ? 'M' + e.mannschaft_nummer : (e.mannschaft_moeglich ? '<span class="kmm-muted">–</span>' : '')}</td>
 					<td class="r">${e.typ === 'mixteam' ? '–' : geld(e.startgeld)}</td>
-					${zeigeStatus ? `<td>${abg ? `<span class="kmm-badge kmm-badge-warn">abgemeldet</span><div class="kmm-muted">${h(e.abgemeldet_am)}${e.abmeldegrund ? ' – ' + h(e.abmeldegrund) : ''}</div>${admin && rw ? `<label class="kmm-startgeld-schalter"><input type="checkbox" data-action="startgeld" data-id="${e.id}" ${e.startgeld_berechnen ? 'checked' : ''}> Startgeld berechnen</label>` : `<div class="kmm-muted">Startgeld ${e.startgeld_berechnen ? 'wird berechnet' : 'entfällt'}</div>`}` : `<span class="kmm-badge kmm-status-${h(e.verarbeitungsstatus)}">${h(STATUS_LABEL[e.verarbeitungsstatus] || e.verarbeitungsstatus)}</span>${e.verarbeitungsgrund ? `<div class="kmm-fehler">${h(e.verarbeitungsgrund)}</div>` : ''}`}${e.nachgemeldet ? '<div class="kmm-muted">Nachmeldung</div>' : ''}</td>` : ''}
-					<td class="kmm-aktionen">${rw ? `${e.konflikt && e.startrecht ? `<button type="button" class="kmm-button kmm-button-small" data-action="konflikt-ok" data-id="${e.id}">OK</button> ` : ''}${admin ? (abg ? `<button type="button" class="kmm-button kmm-button-small kmm-button-secondary" data-action="abmeldung-aufheben" data-id="${e.id}">Abmeldung aufheben</button> ` : `<button type="button" class="kmm-button kmm-button-small kmm-button-secondary" data-action="abmelden" data-id="${e.id}">Abmelden</button> `) : ''}<button type="button" class="kmm-button kmm-button-small kmm-button-danger" data-action="einzel-loeschen" data-id="${e.id}" title="Meldung entfernen">✕</button>` : ''}</td>
+					${zeigeStatus ? `<td>${abg ? `<span class="kmm-badge kmm-badge-warn">abgemeldet</span><div class="kmm-muted">${h(e.abgemeldet_am)}${e.abmeldegrund ? ' – ' + h(e.abmeldegrund) : ''}</div>${admin && rwZ ? `<label class="kmm-startgeld-schalter"><input type="checkbox" data-action="startgeld" data-id="${e.id}" ${e.startgeld_berechnen ? 'checked' : ''}> Startgeld berechnen</label>` : `<div class="kmm-muted">Startgeld ${e.startgeld_berechnen ? 'wird berechnet' : 'entfällt'}</div>`}` : `<span class="kmm-badge kmm-status-${h(e.verarbeitungsstatus)}">${h(STATUS_LABEL[e.verarbeitungsstatus] || e.verarbeitungsstatus)}</span>${e.verarbeitungsgrund ? `<div class="kmm-fehler">${h(e.verarbeitungsgrund)}</div>` : ''}`}${e.nachgemeldet ? '<div class="kmm-muted">Nachmeldung</div>' : ''}</td>` : ''}
+					<td class="kmm-aktionen">${rwZ ? `${e.konflikt && e.startrecht ? `<button type="button" class="kmm-button kmm-button-small" data-action="konflikt-ok" data-id="${e.id}">OK</button> ` : ''}${admin ? (abg ? `<button type="button" class="kmm-button kmm-button-small kmm-button-secondary" data-action="abmeldung-aufheben" data-id="${e.id}">Abmeldung aufheben</button> ` : `<button type="button" class="kmm-button kmm-button-small kmm-button-secondary" data-action="abmelden" data-id="${e.id}">Abmelden</button> `) : ''}<button type="button" class="kmm-button kmm-button-small kmm-button-danger" data-action="einzel-loeschen" data-id="${e.id}" title="Meldung entfernen">✕</button>` : ''}</td>
 				</tr>`;
 			});
 			html += '</tbody></table></div>';
@@ -417,7 +418,7 @@
 		const disziplinen = new Map();
 		m.einzelmeldungen.forEach((e) => {
 			if (!e.mannschaft_moeglich) { return; }
-			if (!disziplinen.has(e.disziplin_id)) { disziplinen.set(e.disziplin_id, { kennzahl: e.kennzahl, disziplin: e.disziplin, typ: e.typ, frei: 0, gesamt: 0 }); }
+			if (!disziplinen.has(e.disziplin_id)) { disziplinen.set(e.disziplin_id, { kennzahl: e.kennzahl, disziplin: e.disziplin, typ: e.typ, frei: 0, gesamt: 0, zustaendig: e.zustaendig !== false }); }
 			const d = disziplinen.get(e.disziplin_id);
 			d.gesamt++;
 			if (!e.mannschaft_id && e.startrecht && !e.konflikt) { d.frei++; }
@@ -428,7 +429,7 @@
 		}
 		disziplinen.forEach((d, dId) => {
 			const teams = m.mannschaften.filter((t) => t.disziplin_id === dId);
-			html += `<div class="kmm-block"><div class="kmm-toolbar"><h3>${h(d.kennzahl)} ${h(d.disziplin)} <span class="kmm-muted">(${d.gesamt} gemeldet, ${d.frei} ohne Mannschaft)</span></h3>${rw && d.frei > 0 ? `<button type="button" class="kmm-button kmm-button-small" data-action="mannschaft-neu" data-disziplin="${dId}">Neue Mannschaft</button>` : ''}</div>`;
+			html += `<div class="kmm-block"><div class="kmm-toolbar"><h3>${h(d.kennzahl)} ${h(d.disziplin)} <span class="kmm-muted">(${d.gesamt} gemeldet, ${d.frei} ohne Mannschaft)</span></h3>${rw && d.zustaendig && d.frei > 0 ? `<button type="button" class="kmm-button kmm-button-small" data-action="mannschaft-neu" data-disziplin="${dId}">Neue Mannschaft</button>` : ''}</div>`;
 			if (teams.length === 0) {
 				html += '<p class="kmm-muted">Noch keine Mannschaft.</p>';
 			}
@@ -436,7 +437,7 @@
 				<div class="kmm-karte-haupt"><strong>Mannschaft ${t.nummer}</strong> <span class="kmm-muted">${h(t.klasse)}</span>${t.vollstaendig ? '' : `<span class="kmm-badge kmm-badge-warn">unvollständig (${t.mitglieder.length}/${t.groesse})</span>${t.unvollstaendig_grund && t.mitglieder.length >= t.groesse ? `<div class="kmm-fehler">${h(t.unvollstaendig_grund)}</div>` : ''}`}
 					<div>${t.mitglieder.map((x) => h(x.nachname + ', ' + x.vorname) + (x.konflikt ? ' <span class="kmm-fehler">(Konflikt)</span>' : '')).join(' · ')}</div>
 					${t.startgeld > 0 ? `<div class="kmm-muted">Mannschaftsstartgeld ${geld(t.startgeld)}</div>` : ''}</div>
-				<div class="kmm-karte-aktionen">${rw ? `<button type="button" class="kmm-button kmm-button-small kmm-button-secondary" data-action="mannschaft-bearbeiten" data-id="${t.id}" data-disziplin="${dId}">Bearbeiten</button> <button type="button" class="kmm-button kmm-button-small kmm-button-danger" data-action="mannschaft-loeschen" data-id="${t.id}">✕</button>` : ''}</div>
+				<div class="kmm-karte-aktionen">${rw && t.zustaendig !== false ? `<button type="button" class="kmm-button kmm-button-small kmm-button-secondary" data-action="mannschaft-bearbeiten" data-id="${t.id}" data-disziplin="${dId}">Bearbeiten</button> <button type="button" class="kmm-button kmm-button-small kmm-button-danger" data-action="mannschaft-loeschen" data-id="${t.id}">✕</button>` : ''}</div>
 			</div>`).join('');
 			html += '</div>';
 		});
@@ -522,8 +523,9 @@
 			} else {
 				html += '<div class="kmm-alert kmm-alert-warn">Die Meldung ist nicht eingereicht (Status ' + h(m.status) + '). Einreichen kann nur der Verein.</div>';
 			}
-			html += `<h3>Nachmeldung freischalten</h3><p class="kmm-muted">Der Verein kann seine Meldung bis zum angegebenen Zeitpunkt selbst wieder bearbeiten (auch nach Meldeschluss). Leer lassen, um die Freischaltung zu beenden.</p>
-				<form class="kmm-form kmm-inline" id="kmm-nachmeldung" ${rw ? '' : 'hidden'}><label for="kmm-nachmeldung-bis">Freigeschaltet bis</label><input type="datetime-local" id="kmm-nachmeldung-bis" name="bis" value="${h(m.nachmeldung_bis_input || '')}"> <button type="submit" class="kmm-button kmm-button-secondary">Speichern</button></form>`;
+			html += m.admin_voll ? `<h3>Nachmeldung freischalten</h3>` : '';
+			html += m.admin_voll ? `<p class="kmm-muted">Der Verein kann seine Meldung bis zum angegebenen Zeitpunkt selbst wieder bearbeiten (auch nach Meldeschluss). Leer lassen, um die Freischaltung zu beenden.</p>
+				<form class="kmm-form kmm-inline" id="kmm-nachmeldung" ${rw && m.admin_voll ? '' : 'hidden'}><label for="kmm-nachmeldung-bis">Freigeschaltet bis</label><input type="datetime-local" id="kmm-nachmeldung-bis" name="bis" value="${h(m.nachmeldung_bis_input || '')}"> <button type="submit" class="kmm-button kmm-button-secondary">Speichern</button></form>` : '';
 		} else if (m.status === 'eingereicht') {
 			html += `<div class="kmm-alert kmm-alert-ok">Eingereicht am ${h(m.eingereicht_am)} Uhr. Eine Bestätigung wurde per E-Mail versandt.</div>`;
 			if (m.phase.schreibbar) {

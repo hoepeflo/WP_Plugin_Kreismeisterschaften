@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace KSV\KMM\Admin;
 
 use KSV\KMM\Application\ExportService;
+use KSV\KMM\Auth\Rechte;
 use KSV\KMM\Application\Pdf;
 use KSV\KMM\Application\PdfMeldelisten;
 use KSV\KMM\Infrastructure\RegelwerkLader;
@@ -29,11 +30,15 @@ final class ExportPage extends AdminPage {
 		if (!self::is_own_post()) {
 			return;
 		}
-		self::verify();
+		if (!Rechte::darf_lesen()) {
+			wp_die(esc_html__('Keine Berechtigung.', 'ksv-km-meldeportal'), '', ['response' => 403]);
+		}
+		check_admin_referer('kmm_' . self::SLUG);
 		$sid = self::post_int('sportjahr_id');
 		$nur_eingereicht = !self::post_bool('entwuerfe');
 		try {
 			if (self::action() === 'david') {
+				Rechte::nur_admin();
 				$disziplin = self::post_int_or_null('disziplin_id');
 				$r = (new ExportService())->david($sid, $disziplin !== null && $disziplin > 0 ? $disziplin : null, $nur_eingereicht);
 				self::download($r['inhalt'], $r['dateiname'], $r['content_type']);
@@ -61,10 +66,13 @@ final class ExportPage extends AdminPage {
 	}
 
 	public static function render(): void {
-		self::require_manage();
+		if (!Rechte::darf_lesen()) {
+			wp_die(esc_html__('Keine Berechtigung.', 'ksv-km-meldeportal'));
+		}
+		$admin = Rechte::ist_admin();
 		$sportjahr = self::current_sportjahr();
 		echo '<div class="wrap kmm-admin">';
-		Menu::page_header(__('Export: DAVID21 und Meldelisten', 'ksv-km-meldeportal'));
+		Menu::page_header($admin ? __('Export: DAVID21 und Meldelisten', 'ksv-km-meldeportal') : __('PDF-Meldelisten', 'ksv-km-meldeportal'));
 		self::show_notices();
 		if ($sportjahr === null) {
 			self::no_sportjahr_notice();
@@ -77,24 +85,30 @@ final class ExportPage extends AdminPage {
 		$rw = RegelwerkLader::laden($sid);
 		$disziplinen = ['' => __('– alle Disziplinen –', 'ksv-km-meldeportal')];
 		$disziplinen_ohne_bogen = $disziplinen;
-		foreach ($rw->disziplinen() as $d) {
+		$zustaendige = Rechte::zustaendige($rw->disziplinen());
+		$gruppen_codes = [];
+		foreach ($zustaendige as $d) {
 			$label = $d->kennzahl . ' ' . $d->bezeichnung;
 			$disziplinen[ $d->id ] = $label;
+			$gruppen_codes[ $d->gruppe ] = true;
 			if (!$d->ist_bogen()) {
 				$disziplinen_ohne_bogen[ $d->id ] = $label;
 			}
 		}
 		$gruppen = [];
 		foreach ((new GruppeRepository())->by_sportjahr($sid) as $g) {
-			$gruppen[ (string) $g['code'] ] = (string) $g['bezeichnung'];
+			if ($admin || isset($gruppen_codes[ (string) $g['code'] ])) {
+				$gruppen[ (string) $g['code'] ] = (string) $g['bezeichnung'];
+			}
 		}
 		$meldungen = (new MeldungRepository())->by_sportjahr($sid);
 		$eingereicht = count(array_filter($meldungen, static fn(array $m): bool => $m['status'] === MeldungRepository::STATUS_EINGEREICHT));
 		$entwuerfe = count($meldungen) - $eingereicht;
 		$s = Settings::all();
 
-		echo '<p class="description">' . esc_html(sprintf(__('%d Vereine eingereicht, %d im Entwurf. Exportiert werden Meldungen mit Startrecht und ohne offenen Konflikt.', 'ksv-km-meldeportal'), $eingereicht, $entwuerfe)) . '</p>';
+		echo '<p class="description">' . esc_html(sprintf(__('%d Vereine eingereicht, %d im Entwurf. Exportiert werden Meldungen mit Startrecht und ohne offenen Konflikt.', 'ksv-km-meldeportal'), $eingereicht, $entwuerfe)) . ($admin ? '' : ' ' . esc_html__('Als Referent sehen Sie nur Ihren Zuständigkeitsbereich.', 'ksv-km-meldeportal')) . '</p>';
 
+		if ($admin) {
 		echo '<h2>' . esc_html__('DAVID21-Import (CSV)', 'ksv-km-meldeportal') . '</h2>';
 		echo '<p class="description">' . esc_html(sprintf(__('Format laut Einstellungen: Trennzeichen „%s“, Zeichensatz %s, ganze Ringe als %s, Verband = %s, Kopfzeile %s. Ohne Bogen. Jeder Export wird mit Zeitstempel protokolliert.', 'ksv-km-meldeportal'), $s['csv_trennzeichen'] === 'tab' ? 'Tab' : $s['csv_trennzeichen'], $s['csv_zeichensatz'], $s['csv_ganze_ringe_format'] === 'komma_null' ? '375,0' : '375', $s['csv_verband_modus'], ($s['csv_kopfzeile'] ?? true) ? 'ja' : 'nein')) . ' <a href="' . esc_url(Menu::url(SettingsPage::SLUG)) . '">' . esc_html__('Einstellungen', 'ksv-km-meldeportal') . '</a></p>';
 		self::form_open('david');
@@ -105,6 +119,7 @@ final class ExportPage extends AdminPage {
 		echo '</table>';
 		submit_button(__('CSV herunterladen', 'ksv-km-meldeportal'), 'primary', 'submit', false);
 		echo '</form>';
+		}
 
 		echo '<h2>' . esc_html__('PDF-Meldelisten', 'ksv-km-meldeportal') . '</h2>';
 		if (!Pdf::verfuegbar()) {
@@ -114,7 +129,7 @@ final class ExportPage extends AdminPage {
 		echo '<input type="hidden" name="sportjahr_id" value="' . $sid . '">';
 		echo '<table class="form-table">';
 		echo '<tr><th>' . esc_html__('Umfang', 'ksv-km-meldeportal') . '</th><td>';
-		echo '<label><input type="radio" name="umfang" value="alle" checked> ' . esc_html__('alle Disziplinen', 'ksv-km-meldeportal') . '</label><br>';
+		echo '<label><input type="radio" name="umfang" value="alle" checked> ' . esc_html($admin ? __('alle Disziplinen', 'ksv-km-meldeportal') : __('alle Disziplinen meines Bereichs', 'ksv-km-meldeportal')) . '</label><br>';
 		echo '<label><input type="radio" name="umfang" value="gruppe"> ' . esc_html__('Wettbewerbsgruppe', 'ksv-km-meldeportal') . '</label> ' . self::select('gruppe', $gruppen, 'freihand') . '<br>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<label><input type="radio" name="umfang" value="disziplin"> ' . esc_html__('eine Disziplin', 'ksv-km-meldeportal') . '</label> ' . self::select('disziplin_id', $disziplinen, ''); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<p class="description">' . esc_html__('Jede Disziplin beginnt auf einer neuen Seite. Bogen ist enthalten.', 'ksv-km-meldeportal') . '</p></td></tr>';
@@ -124,6 +139,10 @@ final class ExportPage extends AdminPage {
 		submit_button(__('PDF herunterladen', 'ksv-km-meldeportal'), 'primary', 'submit', false);
 		echo '</form>';
 
+		if (!$admin) {
+			echo '</div>';
+			return;
+		}
 		self::render_aenderungen($sid);
 
 		echo '<h2>' . esc_html__('Bisherige Exporte', 'ksv-km-meldeportal') . '</h2>';
