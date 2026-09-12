@@ -303,6 +303,67 @@ final class StartplanService {
 		return $this->durchgaenge->insert($satz);
 	}
 
+	/**
+	 * Durchgang duplizieren: gleiche Dauer, gleiche Bezeichnung und gleiche Zulassungen,
+	 * zeitlich im Anschluss (mit optionaler Pause). Praktisch für Wettkampftage mit vielen
+	 * gleichartigen Durchgängen.
+	 *
+	 * @param int $anzahl         Zahl der Kopien (1–50)
+	 * @param int $pause_minuten  Pause zwischen den Durchgängen
+	 * @return list<int> IDs der neuen Durchgänge
+	 */
+	public function durchgang_duplizieren(int $id, int $anzahl = 1, int $pause_minuten = 0): array {
+		$this->schreibrecht();
+		$dg = $this->durchgaenge->find($id);
+		if ($dg === null) {
+			throw new \RuntimeException('Durchgang nicht gefunden.');
+		}
+		$tag_id = (int) $dg['wettkampftag_id'];
+		$this->tag($tag_id);
+		if (!$this->durchgang_zustaendig($id)) {
+			throw new \RuntimeException('Keine Berechtigung: Der Durchgang enthält Disziplinen außerhalb Ihrer Zuständigkeit.');
+		}
+		$anzahl = max(1, min(50, $anzahl));
+		$pause_minuten = max(0, min(600, $pause_minuten));
+		$beginn = strtotime((string) $dg['beginn'] . ' UTC');
+		$ende = strtotime((string) $dg['ende'] . ' UTC');
+		if ($beginn === false || $ende === false || $ende <= $beginn) {
+			throw new \RuntimeException('Der Durchgang hat keine gültige Zeit.');
+		}
+		$dauer = $ende - $beginn;
+		$zulassungen = $this->zulassungen->by_durchgang($id);
+		$nummer = 0;
+		$letztes_ende = $ende;
+		foreach ($this->durchgaenge->by_wettkampftag($tag_id) as $vorhanden) {
+			$nummer = max($nummer, (int) $vorhanden['nummer']);
+			$vorhanden_ende = strtotime((string) $vorhanden['ende'] . ' UTC');
+			if ($vorhanden_ende !== false) {
+				$letztes_ende = max($letztes_ende, $vorhanden_ende);
+			}
+		}
+		$neu = [];
+		$start = $letztes_ende;
+		for ($i = 1; $i <= $anzahl; $i++) {
+			$start += $pause_minuten * 60;
+			$neu_id = $this->durchgang_speichern(
+				0,
+				$tag_id,
+				++$nummer,
+				(string) $dg['bezeichnung'],
+				gmdate(Clock::DB_FORMAT, $start),
+				gmdate(Clock::DB_FORMAT, $start + $dauer),
+				(int) $dg['sortierung']
+			);
+			foreach ($zulassungen as $z) {
+				$this->zulassung_hinzufuegen($neu_id, (int) $z['disziplin_id'], $z['startklasse_id'] !== null ? (int) $z['startklasse_id'] : null);
+			}
+			$neu[] = $neu_id;
+			$start += $dauer;
+		}
+		Protokoll::admin('durchgang.duplizieren', sprintf('Durchgang %d %s-fach kopiert (%d Zulassungen je Kopie)', (int) $dg['nummer'], $anzahl, count($zulassungen)), $this->sportjahr_id, null, 'wettkampftag', $tag_id);
+		return $neu;
+	}
+
 	public function durchgang_loeschen(int $id): void {
 		$this->schreibrecht();
 		$dg = $this->durchgaenge->find($id);

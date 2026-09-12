@@ -674,7 +674,9 @@
 			const passt = gewaehlt ? gewaehlt.durchgang_ids.includes(d.id) : false;
 			const spalten = r.einheiten.filter((e) => d.einheit_ids.includes(e.id));
 			html += `<div class="kmm-sp-durchgang ${passt ? 'is-passend' : ''} ${gewaehlt && !passt ? 'is-unpassend' : ''}"><div class="kmm-sp-kopf"><strong>Durchgang ${d.nummer}</strong> ${h(d.zeit)} Uhr${d.bezeichnung ? ' · ' + h(d.bezeichnung) : ''}<div class="kmm-muted">${h(d.zulassungen.join('; '))}</div></div>`;
-			html += '<div class="kmm-sp-raster">' + spalten.map((e) => {
+			// Spaltenzahl = Zahl der Plätze im Durchgang; am PC sollen 12 Stände in eine Zeile passen.
+			const plaetze = spalten.reduce((n, e) => n + e.kapazitaet, 0);
+			html += `<div class="kmm-sp-raster" style="--kmm-sp-spalten:${Math.max(1, Math.min(plaetze, 12))}">` + spalten.map((e) => {
 				let zellen = '';
 				for (let pos = 1; pos <= e.kapazitaet; pos++) {
 					const b = (d.belegung[e.id] || {})[pos];

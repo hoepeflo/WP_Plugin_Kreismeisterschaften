@@ -72,6 +72,9 @@ final class WettkampftagePage extends AdminPage {
 				case 'durchgang_speichern':
 					$id = $service->durchgang_speichern(self::post_int('id'), $tag_id, self::post_int('nummer'), self::post_str('bezeichnung', 100), Clock::local_to_utc(self::post_str('beginn')), Clock::local_to_utc(self::post_str('ende')), self::post_int('sortierung'));
 					self::redirect(__('Durchgang gespeichert.', 'ksv-km-meldeportal'), 'success', $args + ['durchgang' => $id]);
+				case 'durchgang_duplizieren':
+					$neu = $service->durchgang_duplizieren(self::post_int('id'), self::post_int('anzahl') ?: 1, self::post_int('pause'));
+					self::redirect(sprintf(_n('%d Durchgang kopiert.', '%d Durchgänge kopiert.', count($neu), 'ksv-km-meldeportal'), count($neu)), 'success', $args);
 				case 'durchgang_loeschen':
 					$service->durchgang_loeschen(self::post_int('id'));
 					self::redirect(__('Durchgang gelöscht.', 'ksv-km-meldeportal'), 'success', $args);
@@ -276,6 +279,12 @@ final class WettkampftagePage extends AdminPage {
 			echo '<td class="kmm-nowrap">';
 			if ($schreiben && $dg['zustaendig']) {
 				echo '<a class="button button-small" href="' . esc_url(self::url(['sportjahr' => $sid, 'tag' => $tag_id, 'durchgang' => (int) $dg['id']])) . '">' . esc_html__('Bearbeiten', 'ksv-km-meldeportal') . '</a> ';
+				self::form_open('durchgang_duplizieren', 'class="kmm-inline-form kmm-duplizieren"');
+				echo '<input type="hidden" name="sportjahr_id" value="' . $sid . '"><input type="hidden" name="tag_id" value="' . $tag_id . '"><input type="hidden" name="id" value="' . (int) $dg['id'] . '">';
+				echo '<input type="number" name="anzahl" value="1" min="1" max="50" class="kmm-num" title="' . esc_attr__('Zahl der Kopien', 'ksv-km-meldeportal') . '" aria-label="' . esc_attr__('Zahl der Kopien', 'ksv-km-meldeportal') . '">';
+				echo '<input type="number" name="pause" value="0" min="0" max="600" step="5" class="kmm-num" title="' . esc_attr__('Pause zwischen den Durchgängen in Minuten', 'ksv-km-meldeportal') . '" aria-label="' . esc_attr__('Pause in Minuten', 'ksv-km-meldeportal') . '">';
+				submit_button(__('Duplizieren', 'ksv-km-meldeportal'), 'secondary small', 'submit', false);
+				echo '</form> ';
 				self::form_open('durchgang_loeschen', 'class="kmm-inline-form" onsubmit="return confirm(\'' . esc_js(__('Durchgang mit Zulassungen löschen?', 'ksv-km-meldeportal')) . '\')"');
 				echo '<input type="hidden" name="sportjahr_id" value="' . $sid . '"><input type="hidden" name="tag_id" value="' . $tag_id . '"><input type="hidden" name="id" value="' . (int) $dg['id'] . '">';
 				submit_button('✕', 'secondary small', 'submit', false);
@@ -287,6 +296,9 @@ final class WettkampftagePage extends AdminPage {
 			echo '<tr><td colspan="8">' . esc_html__('Noch kein Durchgang.', 'ksv-km-meldeportal') . '</td></tr>';
 		}
 		echo '</tbody></table>';
+		if ($schreiben && $u['durchgaenge'] !== []) {
+			echo '<p class="description">' . esc_html__('„Duplizieren“ hängt Kopien mit gleicher Dauer, Bezeichnung und denselben Zulassungen hinten an: erste Zahl = Zahl der Kopien, zweite Zahl = Pause dazwischen in Minuten.', 'ksv-km-meldeportal') . '</p>';
+		}
 
 		self::render_buchungen($sid, $tag_id, $u);
 		if (!$schreiben) {
