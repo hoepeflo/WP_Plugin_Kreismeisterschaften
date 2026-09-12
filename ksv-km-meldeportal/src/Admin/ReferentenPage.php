@@ -59,7 +59,7 @@ final class ReferentenPage extends AdminPage {
 		$edit = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
 		$neu = isset($_GET['neu']);
 
-		echo '<p class="description">' . esc_html__('Referenten sind WordPress-Benutzer mit der Rolle „KM-Referent“ (unter Benutzer anlegen). Hier werden ihnen Wettbewerbsgruppen oder einzelne Disziplinen zugewiesen; sie sehen im Backend nur diesen Bereich. Lesen und PDF-Listen sind immer erlaubt, weitere Rechte werden je Person freigeschaltet. Regeltabelle, Startgelder, Vereine, DAVID-Export, Belege und der Abschluss bleiben dem Admin vorbehalten.', 'ksv-km-meldeportal') . ' <a href="' . esc_url(admin_url('user-new.php')) . '">' . esc_html__('Benutzer anlegen', 'ksv-km-meldeportal') . '</a></p>';
+		echo '<p class="description">' . esc_html__('Referenten sind beliebige WordPress-Benutzer (jede Rolle, z. B. Redakteur des Ergebnis-Plugins); die nötigen Rechte werden beim Eintragen automatisch gesetzt. Hier werden ihnen Wettbewerbsgruppen oder einzelne Disziplinen zugewiesen; sie sehen im Backend nur diesen Bereich. Lesen und PDF-Listen sind immer erlaubt, weitere Rechte werden je Person freigeschaltet. Regeltabelle, Startgelder, Vereine, DAVID-Export, Belege und der Abschluss bleiben dem Admin vorbehalten.', 'ksv-km-meldeportal') . ' <a href="' . esc_url(admin_url('user-new.php')) . '">' . esc_html__('Benutzer anlegen', 'ksv-km-meldeportal') . '</a></p>';
 
 		$liste = $service->liste();
 		echo '<table class="widefat striped"><thead><tr><th>' . esc_html__('Referent', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Zuständig für', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Rechte', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Notiz', 'ksv-km-meldeportal') . '</th><th></th></tr></thead><tbody>';
@@ -69,7 +69,7 @@ final class ReferentenPage extends AdminPage {
 				$z[ $e['typ'] === ReferentZustaendigkeitRepository::TYP_GRUPPE ? 'gruppen' : 'disziplinen' ][] = (string) $e['schluessel'];
 			}
 			$rechte = array_keys(array_filter(['Status setzen' => $r['darf_status'], 'Meldungen bearbeiten' => $r['darf_meldungen'], 'Startplan bearbeiten' => $r['darf_startplan']]));
-			echo '<tr><td><strong>' . esc_html((string) $r['name']) . '</strong>' . ($r['benutzer'] instanceof \WP_User ? '<br><small>' . esc_html($r['benutzer']->user_email) . '</small>' : '') . (!$r['rolle_ok'] ? '<br><span class="kmm-fail">' . esc_html__('Rolle „KM-Referent“ fehlt', 'ksv-km-meldeportal') . '</span>' : '') . '</td>';
+			echo '<tr><td><strong>' . esc_html((string) $r['name']) . '</strong>' . ($r['benutzer'] instanceof \WP_User ? '<br><small>' . esc_html($r['benutzer']->user_email) . '</small>' : '') . (!$r['rolle_ok'] ? '<br><span class="kmm-fail">' . esc_html__('Benutzer fehlt oder hat keinen Zugriff – bitte erneut speichern', 'ksv-km-meldeportal') . '</span>' : '') . '</td>';
 			echo '<td>' . ($z['gruppen'] !== [] ? esc_html__('Gruppen:', 'ksv-km-meldeportal') . ' ' . esc_html(implode(', ', $z['gruppen'])) : '') . ($z['gruppen'] !== [] && $z['disziplinen'] !== [] ? '<br>' : '') . ($z['disziplinen'] !== [] ? esc_html__('Disziplinen:', 'ksv-km-meldeportal') . ' ' . esc_html(implode(', ', $z['disziplinen'])) : '') . '</td>';
 			echo '<td>' . esc_html($rechte !== [] ? implode(', ', $rechte) : __('nur lesen und PDF-Listen', 'ksv-km-meldeportal')) . '</td>';
 			echo '<td>' . esc_html((string) $r['notiz']) . '</td>';
@@ -139,7 +139,7 @@ final class ReferentenPage extends AdminPage {
 				$optionen[ (int) $u->ID ] = $u->display_name . ' (' . $u->user_login . ')';
 			}
 			echo self::select('user_id', $optionen, ''); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo '<p class="description">' . esc_html__('Nur Benutzer mit der Rolle „KM-Referent“, die noch nicht eingetragen sind.', 'ksv-km-meldeportal') . '</p>';
+			echo '<p class="description">' . esc_html__('Alle WordPress-Benutzer, die noch nicht eingetragen sind – die Rolle spielt keine Rolle.', 'ksv-km-meldeportal') . '</p>';
 		}
 		echo '</td></tr>';
 		echo '<tr><th>' . esc_html__('Wettbewerbsgruppen', 'ksv-km-meldeportal') . '</th><td>';

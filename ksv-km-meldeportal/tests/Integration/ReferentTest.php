@@ -70,20 +70,25 @@ final class ReferentTest extends IntegrationTestCase {
 
 	public function test_verwaltung_prueft_rolle_und_zustaendigkeit(): void {
 		$service = new ReferentService();
-		$this->assertCount(1, $service->kandidaten());
+		$this->assertContains($this->user_id, array_map(static fn(\WP_User $u): int => (int) $u->ID, $service->kandidaten()));
 		try {
 			$service->speichern(0, $this->user_id, [], [], []);
 			$this->fail('ohne Zuständigkeit');
 		} catch (\InvalidArgumentException $e) {
 			$this->assertStringContainsString('mindestens', $e->getMessage());
 		}
-		$abo = wp_insert_user(['user_login' => 'abonnent', 'user_pass' => 'x', 'role' => 'subscriber']);
-		try {
-			$service->speichern(0, (int) $abo, [], ['freihand'], []);
-			$this->fail('falsche Rolle');
-		} catch (\InvalidArgumentException $e) {
-			$this->assertStringContainsString('KM-Referent', $e->getMessage());
+		// Beliebige Rolle: ein Abonnent erhält die Rechte direkt am Benutzer und verliert sie beim Entfernen.
+		$alt = get_user_by('login', 'abonnent');
+		if ($alt instanceof \WP_User) {
+			wp_delete_user($alt->ID);
 		}
+		$abo = wp_insert_user(['user_login' => 'abonnent', 'user_pass' => 'x', 'role' => 'subscriber']);
+		$this->assertFalse(user_can((int) $abo, Capabilities::VIEW));
+		$abo_id = $service->speichern(0, (int) $abo, [], ['freihand'], []);
+		$this->assertTrue(user_can((int) $abo, Capabilities::VIEW));
+		$this->assertTrue(Rechte::darf_lesen((int) $abo));
+		$service->loeschen($abo_id);
+		$this->assertFalse(user_can((int) $abo, Capabilities::VIEW));
 		wp_delete_user((int) $abo);
 
 		$id = $service->speichern(0, $this->user_id, ['darf_status' => true], ['freihand'], ['2.10'], 'Gewehr und LP');
@@ -92,7 +97,7 @@ final class ReferentTest extends IntegrationTestCase {
 		$this->assertSame('Ref Gewehr', $liste[0]['name']);
 		$this->assertTrue($liste[0]['rolle_ok']);
 		$this->assertCount(2, $liste[0]['zustaendigkeiten']);
-		$this->assertCount(0, $service->kandidaten(), 'bereits eingetragen');
+		$this->assertNotContains($this->user_id, array_map(static fn(\WP_User $u): int => (int) $u->ID, $service->kandidaten()), 'bereits eingetragen');
 		try {
 			$service->speichern(0, $this->user_id, [], ['auflage'], []);
 			$this->fail('doppelt');
@@ -106,7 +111,7 @@ final class ReferentTest extends IntegrationTestCase {
 		$this->assertCount(1, $service->liste()[0]['zustaendigkeiten']);
 		$service->loeschen($id);
 		$this->assertSame([], $service->liste());
-		$this->assertCount(1, $service->kandidaten());
+		$this->assertContains($this->user_id, array_map(static fn(\WP_User $u): int => (int) $u->ID, $service->kandidaten()));
 	}
 
 	public function test_referent_ohne_schreibrecht_und_fremde_disziplin_serverseitig_abgelehnt(): void {

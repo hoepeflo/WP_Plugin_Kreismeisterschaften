@@ -39,7 +39,7 @@ final class ReferentService {
 			$user = get_userdata((int) $r['user_id']);
 			$r['benutzer'] = $user instanceof \WP_User ? $user : null;
 			$r['name'] = $user instanceof \WP_User ? $user->display_name : sprintf('(Benutzer #%d gelöscht)', (int) $r['user_id']);
-			$r['rolle_ok'] = $user instanceof \WP_User && (in_array(Capabilities::ROLE_REFERENT, $user->roles, true) || user_can($user, Capabilities::MANAGE));
+			$r['rolle_ok'] = $user instanceof \WP_User && (user_can($user, Capabilities::VIEW) || user_can($user, Capabilities::MANAGE));
 			$r['zustaendigkeiten'] = $this->zustaendigkeiten->by_referent((int) $r['id']);
 			$out[] = $r;
 		}
@@ -47,13 +47,15 @@ final class ReferentService {
 	}
 
 	/**
-	 * Benutzer mit der Rolle KM-Referent, die noch keinen Referenten-Eintrag haben.
+	 * WordPress-Benutzer (beliebige Rolle), die noch keinen Referenten-Eintrag haben.
+	 * Die Rechte kmm_view/kmm_referent werden beim Eintragen direkt am Benutzer gesetzt,
+	 * da WordPress im Profil nur eine Rolle zulässt.
 	 *
 	 * @return list<\WP_User>
 	 */
 	public function kandidaten(): array {
 		$vergeben = array_map(static fn(array $r): int => (int) $r['user_id'], $this->referenten->where([]));
-		$users = get_users(['role' => Capabilities::ROLE_REFERENT, 'orderby' => 'display_name', 'fields' => 'all']);
+		$users = get_users(['orderby' => 'display_name', 'fields' => 'all', 'number' => 500]);
 		return array_values(array_filter($users, static fn($u): bool => $u instanceof \WP_User && !in_array((int) $u->ID, $vergeben, true)));
 	}
 
@@ -69,9 +71,6 @@ final class ReferentService {
 		$user = get_userdata($user_id);
 		if (!$user instanceof \WP_User) {
 			throw new \InvalidArgumentException('Benutzer nicht gefunden.');
-		}
-		if (!in_array(Capabilities::ROLE_REFERENT, $user->roles, true) && !user_can($user, Capabilities::MANAGE)) {
-			throw new \InvalidArgumentException(sprintf('%s hat nicht die Rolle „KM-Referent“. Bitte zuerst unter Benutzer die Rolle zuweisen.', $user->display_name));
 		}
 		$vorhanden = $this->referenten->by_user($user_id);
 		if ($vorhanden !== null && (int) $vorhanden['id'] !== $id) {
@@ -109,6 +108,9 @@ final class ReferentService {
 			$eintraege[] = ['typ' => ReferentZustaendigkeitRepository::TYP_DISZIPLIN, 'schluessel' => $d];
 		}
 		$this->zustaendigkeiten->setzen($id, $eintraege);
+		// Zugriffsrechte direkt am Benutzer (unabhängig von seiner WordPress-Rolle).
+		$user->add_cap(Capabilities::VIEW);
+		$user->add_cap(Capabilities::REFERENT);
 		Rechte::cache_leeren();
 		$rechte_text = implode(', ', array_keys(array_filter(['Status' => $satz['darf_status'], 'Meldungen' => $satz['darf_meldungen'], 'Startplan' => $satz['darf_startplan']])));
 		Protokoll::admin($aktion, sprintf('%s: Gruppen [%s], Disziplinen [%s], Rechte [%s]', $user->display_name, implode(', ', $gruppen), implode(', ', $disziplinen), $rechte_text !== '' ? $rechte_text : 'nur lesen'), null, null, 'referent', $id, ['user_id' => $user_id]);
@@ -124,6 +126,10 @@ final class ReferentService {
 		$this->referenten->delete($id);
 		Rechte::cache_leeren();
 		$user = get_userdata((int) $r['user_id']);
+		if ($user instanceof \WP_User && !user_can($user, Capabilities::MANAGE)) {
+			$user->remove_cap(Capabilities::VIEW);
+			$user->remove_cap(Capabilities::REFERENT);
+		}
 		Protokoll::admin('referent.loeschen', $user instanceof \WP_User ? $user->display_name : ('#' . (int) $r['user_id']), null, null, 'referent', $id);
 	}
 }
