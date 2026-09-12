@@ -131,6 +131,23 @@ abstract class Repository {
 	}
 
 	/**
+	 * Mehrere Schreibvorgänge als eine Einheit ausführen (InnoDB). Wirft der Rückruf eine
+	 * Ausnahme, wird zurückgerollt und die Ausnahme weitergereicht.
+	 *
+	 * @param callable(): void $arbeit
+	 */
+	public function transaktion(callable $arbeit): void {
+		$this->db->query('START TRANSACTION');
+		try {
+			$arbeit();
+		} catch (\Throwable $e) {
+			$this->db->query('ROLLBACK');
+			throw $e;
+		}
+		$this->db->query('COMMIT');
+	}
+
+	/**
 	 * Spaltennamen der Tabelle (gecacht pro Request).
 	 *
 	 * @return string[]

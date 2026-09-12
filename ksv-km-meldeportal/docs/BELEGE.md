@@ -31,7 +31,7 @@ der Beleg trägt einen Hinweiskasten (`kmm_beleg.ungeprueft_hinweis`).
   auch wenn sich die Meldung seitdem geändert hat; die Seite zeigt dann „Summe seit Beleg
   geändert“.
 - Nach Abschluss des Sportjahres können Belege nur noch heruntergeladen werden.
-  (Der Abschluss weist auf Vereine ohne Beleg hin – Meilenstein 10.)
+  (Der Abschluss des Sportjahres weist auf Vereine ohne Beleg hin, siehe `docs/ABSCHLUSS.md`.)
 - Protokoll: Admin-Eintrag `beleg.erzeugen` mit Nummer, Summe und Hinweis.
 
 Rendering: `templates/pdf/beleg.php` über mPDF (`Application\Pdf`).

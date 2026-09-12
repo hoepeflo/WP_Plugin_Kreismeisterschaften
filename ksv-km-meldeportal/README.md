@@ -32,6 +32,7 @@ Verbindliche Grundlage ist das Konzept unter `docs/KM-Meldeportal_Konzept.md`.
 | Query-Var / Route | `kmm_route`, Standard `/km-meldung/` |
 | Text-Domain | `ksv-km-meldeportal` |
 | Cookie | `kmm_sitzung` |
+| Shortcode | `kmm_startplan` |
 
 ## Entwicklung
 
@@ -44,11 +45,11 @@ composer check            # alles zusammen
 bash tools/build-zip.sh   # installierbares ZIP nach build/
 ```
 
-## Vereinsoberfläche (Stand Meilenstein 6)
+## Vereinsoberfläche
 
 Route `/km-meldung/` nach Anmeldung per Zugangslink: vier Schritte Schützen, Meldung, Mannschaften, Prüfen & Einreichen; PDF der eigenen Meldung unter `/km-meldung/pdf/`. Serverseitig gerendertes Gerüst (`templates/frontend/app.php`) plus Vanilla-JS (`assets/frontend/app.js`) über die REST-Endpunkte `kmm/v1` (`src/Http/RestApi.php`). Beschreibung in `docs/VEREINSOBERFLAECHE.md`.
 
-## Backend (Stand Phase 2, Meilenstein 2)
+## Backend
 
 | Seite | Inhalt |
 |---|---|
@@ -62,8 +63,30 @@ Route `/km-meldung/` nach Anmeldung per Zugangslink: vier Schritte Schützen, Me
 | Stammdaten | je Sportjahr: Klassen, Disziplinen, Regelmatrix je Disziplin, Startgeldtarife |
 | Import / Export | Regeltabelle als JSON (Format siehe `docs/REGELTABELLE-FORMAT.md`) |
 | Einstellungen | Route, offene Punkte aus Konzept 13 (Nicht-Meldung, FITASC, CSV-Format …), Mail-Absender |
+| Referenten | beliebige WordPress-Benutzer mit Rechten und Zuständigkeit (Gruppe/Disziplin) |
+| Schießstände | Stammdaten mit Standgruppen; am Wettkampftag nur noch ankreuzen |
+| Wettkampftage | Einheiten, Durchgänge, Zulassungen, Freigabe, Restverteilung, Verschieben/Tauschen, Veröffentlichung, PDF-Startplan |
+| Belege | Buchhaltungsbelege je Verein (Startgeldpositionen, PDF) |
+
+## Veröffentlichter Startplan
+
+Shortcode `[kmm_startplan]` für jeden Beitrag und jede Seite, auch für bestehende
+Kalendertermine – unabhängig vom Kalender-Plugin:
+
+```
+[kmm_startplan tag="12"]                    ein Wettkampftag
+[kmm_startplan tag="12" disziplin="1.10"]   nur eine Disziplin
+[kmm_startplan]                             alle veröffentlichten Tage
+```
+
+Er zeigt erst nach der Veröffentlichung Inhalte und nur Name, Vorname, Verein,
+Startklasse, Einheit/Position und Uhrzeit. Beschreibung: `docs/STARTPLAN.md`.
 
 Konvertierungsskript und Bogen-Vorlage: `tools/README.md`. Ergebnis für 2026: `docs/regeltabelle-2026.json`, `docs/pruefbericht-2026.md`, `docs/regeltabelle-2026-uebersicht.md`.
 
 Installation, Caching-Ausschluss und Server-Cronjob: `docs/INSTALLATION.md`.
 Datenmodell: `docs/DATENMODELL.md`. Regel-Engine: `docs/REGEL-ENGINE.md`. Zugang der Vereine: `docs/ZUGANG.md`. Vereinsoberfläche: `docs/VEREINSOBERFLAECHE.md`. Ausgaben: `docs/EXPORT.md`. Testlauf: `docs/CHECKLISTE-TESTLAUF.md`. Austauschformat der Regeltabelle: `docs/REGELTABELLE-FORMAT.md`.
+
+Phase 2: Änderungen nach Meldeschluss `docs/AENDERUNGEN-NACH-MELDESCHLUSS.md`, Sammelmail `docs/SAMMELMAIL.md`, Belege `docs/BELEGE.md`, Referenten `docs/REFERENTEN.md`, Startplan `docs/STARTPLAN.md`, Abschluss und Anonymisierung `docs/ABSCHLUSS.md`, Ergebnisdienst `docs/ERGEBNISSE-INTEGRATION.md`.
+
+Anleitung für die Vereine zum Weitergeben: `docs/KM-Portal-Anleitung-Vereine.pdf`.

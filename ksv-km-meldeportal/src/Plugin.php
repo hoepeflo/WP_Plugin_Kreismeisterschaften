@@ -17,6 +17,7 @@ use KSV\KMM\Application\Revalidierung;
 use KSV\KMM\Auth\Capabilities;
 use KSV\KMM\Http\RestApi;
 use KSV\KMM\Http\Router;
+use KSV\KMM\Http\Shortcode;
 use KSV\KMM\Infrastructure\Database\Migrator;
 
 final class Plugin {
@@ -51,6 +52,7 @@ final class Plugin {
 		Erinnerung::register();
 		Sammelmail::register();
 		StartplanService::register();
+		Shortcode::register();
 
 		if (is_admin()) {
 			Migrator::maybe_migrate();

@@ -683,6 +683,9 @@
 					const label = e.kapazitaet > 1 ? `${h(e.bezeichnung)} · ${pos}` : h(e.bezeichnung);
 					if (b && b.eigen) {
 						zellen += `<button type="button" class="kmm-sp-zelle is-eigen ${gewaehlt && gewaehlt.id === b.einzelmeldung_id ? 'is-auswahl' : ''}" data-em="${b.einzelmeldung_id}" title="eigener Starter – antippen, um ihn zu wählen"><span class="kmm-sp-label">${label}</span><strong>${h(b.name)}</strong><span class="kmm-muted">${h(b.kennzahl)}</span></button>`;
+					} else if (b && b.name) {
+						// Nach der Veröffentlichung sind auch fremde Starter mit Namen sichtbar.
+						zellen += `<div class="kmm-sp-zelle is-belegt"><span class="kmm-sp-label">${label}</span><strong>${h(b.name)}</strong><span class="kmm-muted">${h(b.verein || '')}</span></div>`;
 					} else if (b) {
 						zellen += `<div class="kmm-sp-zelle is-belegt"><span class="kmm-sp-label">${label}</span><span>belegt</span></div>`;
 					} else {

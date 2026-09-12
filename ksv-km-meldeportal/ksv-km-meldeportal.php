@@ -3,7 +3,7 @@
  * Plugin Name: KSV KM-Portal
  * Plugin URI:  https://github.com/hoepeflo/WP_Plugin_Kreismeisterschaften
  * Description: Portal zur Kreisverbandsmeisterschaft des KSV Fallingbostel – Meldung der Vereine, Startrechtsprüfung, Startplan und Startplatzbuchung, DAVID21-Export, Belege und PDF-Listen.
- * Version:     0.9.0
+ * Version:     1.0.0
  * Author:      Florian Höper / KSV Fallingbostel
  * Author URI:  https://github.com/hoepeflo
  * License:     MIT
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-define('KMM_VERSION', '0.9.0');
+define('KMM_VERSION', '1.0.0');
 define('KMM_PLUGIN_FILE', __FILE__);
 define('KMM_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('KMM_PLUGIN_URL', plugin_dir_url(__FILE__));

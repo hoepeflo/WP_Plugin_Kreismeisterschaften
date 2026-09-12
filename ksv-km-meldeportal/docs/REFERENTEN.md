@@ -18,7 +18,9 @@ erlaubt, weitere Rechte schaltet der Admin je Person frei.
      (Nachmeldung, Abmeldung, Korrektur, Mannschaften) – nur Disziplinen des eigenen
      Bereichs; fremde Zeilen sind sichtbar, aber schreibgeschützt. Die
      Nachmeldungs-Freischaltung eines Vereins bleibt Administratoren vorbehalten.
-   - **Startplan bearbeiten** (`darf_startplan`): Meilensteine 7–9.
+   - **Startplan bearbeiten** (`darf_startplan`): Wettkampftage aufbauen, freigeben,
+     Rest verteilen, Starter verschieben und tauschen, veröffentlichen – jeweils nur,
+     wenn alle betroffenen Durchgänge im eigenen Zuständigkeitsbereich liegen.
    Zuständigkeiten gelten sportjahrübergreifend (Schlüssel = Code bzw. Kennzahl).
 3. „Entfernen“ löscht nur den Referenten-Eintrag; der WordPress-Benutzer bleibt.
 

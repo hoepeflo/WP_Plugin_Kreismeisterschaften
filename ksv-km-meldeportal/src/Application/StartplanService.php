@@ -57,7 +57,10 @@ final class StartplanService {
 			throw new \RuntimeException('Kein Recht, den Startplan zu bearbeiten.');
 		}
 		$sportjahr = (new SportjahrRepository())->find($this->sportjahr_id);
-		if ($sportjahr === null || $sportjahr['abgeschlossen_am'] !== null) {
+		if ($sportjahr === null) {
+			throw new \RuntimeException('Sportjahr nicht gefunden.');
+		}
+		if ($sportjahr['abgeschlossen_am'] !== null) {
 			throw new \RuntimeException('Das Sportjahr ist abgeschlossen.');
 		}
 	}
@@ -601,6 +604,52 @@ final class StartplanService {
 		Protokoll::admin('wettkampftag.freigabe_zurueck', sprintf('%s %s zurück in Entwurf', (string) $tag['datum'], (string) $tag['bezeichnung']), $this->sportjahr_id, null, 'wettkampftag', $tag_id);
 	}
 
+	// ----- Veröffentlichung (Konzept 12.6) ------------------------------------------------------
+
+	/**
+	 * Startplan veröffentlichen: Vereine können nicht mehr selbst buchen, der Shortcode
+	 * zeigt den Plan öffentlich. Spätere Änderungen des KSV sind sofort sichtbar.
+	 *
+	 * @return array{gesendet: int, vereine: int, fehler: string[]}
+	 */
+	public function veroeffentlichen(int $tag_id, bool $benachrichtigen = true): array {
+		$this->schreibrecht();
+		$tag = $this->tag($tag_id);
+		if ((string) $tag['status'] === WettkampftagStatus::ENTWURF) {
+			throw new \RuntimeException('Der Wettkampftag ist noch im Entwurf. Erst freigeben, dann veröffentlichen.');
+		}
+		if ((string) $tag['status'] === WettkampftagStatus::VEROEFFENTLICHT) {
+			throw new \RuntimeException('Der Startplan ist bereits veröffentlicht.');
+		}
+		foreach ($this->uebersicht($tag_id)['durchgaenge'] as $dg) {
+			if (!$dg['zustaendig']) {
+				throw new \RuntimeException('Keine Berechtigung: Der Wettkampftag enthält Durchgänge außerhalb Ihrer Zuständigkeit.');
+			}
+		}
+		if ($this->buchungen->count(['wettkampftag_id' => $tag_id]) === 0) {
+			throw new \RuntimeException('Es gibt noch keine Buchung; ein leerer Startplan wird nicht veröffentlicht.');
+		}
+		$this->tage->update($tag_id, ['status' => WettkampftagStatus::VEROEFFENTLICHT, 'veroeffentlicht_am' => Clock::now_utc()]);
+		$tag = $this->tag($tag_id);
+		$r = ['gesendet' => 0, 'vereine' => 0, 'fehler' => []];
+		if ($benachrichtigen) {
+			$r = $this->mail_an_vereine($tag, 'startplan', false);
+		}
+		Protokoll::admin('wettkampftag.veroeffentlichen', sprintf('%s %s veröffentlicht%s', (string) $tag['datum'], (string) $tag['bezeichnung'], $benachrichtigen ? sprintf(', Mail an %d Vereine', $r['gesendet']) : ''), $this->sportjahr_id, null, 'wettkampftag', $tag_id, ['fehler' => $r['fehler']]);
+		return $r;
+	}
+
+	/** Veröffentlichung zurücknehmen: der Plan verschwindet wieder aus der Öffentlichkeit. */
+	public function veroeffentlichung_zuruecknehmen(int $tag_id): void {
+		$this->schreibrecht();
+		$tag = $this->tag($tag_id);
+		if ((string) $tag['status'] !== WettkampftagStatus::VEROEFFENTLICHT) {
+			throw new \RuntimeException('Der Startplan ist nicht veröffentlicht.');
+		}
+		$this->tage->update($tag_id, ['status' => WettkampftagStatus::FREIGEGEBEN, 'veroeffentlicht_am' => null]);
+		Protokoll::admin('wettkampftag.veroeffentlichung_zurueck', sprintf('%s %s: Veröffentlichung zurückgenommen', (string) $tag['datum'], (string) $tag['bezeichnung']), $this->sportjahr_id, null, 'wettkampftag', $tag_id);
+	}
+
 	/**
 	 * Mail an alle Vereine mit passenden Startern (Freigabe) bzw. mit Startern ohne Platz
 	 * (Erinnerung vor der Buchungsfrist).
@@ -638,9 +687,11 @@ final class StartplanService {
 			$datum = \DateTimeImmutable::createFromFormat('!Y-m-d', (string) $tag['datum']);
 			$ok = Mailer::senden(
 				$empfaenger,
-				$template === 'freigabe'
-					? sprintf('Startplätze buchen: %s am %s', (string) $tag['bezeichnung'], $datum !== false ? $datum->format('d.m.Y') : (string) $tag['datum'])
-					: sprintf('Erinnerung: Startplätze für %s bis %s buchen', (string) $tag['bezeichnung'], Clock::format_local((string) $tag['buchungsfrist'], 'd.m.Y H:i')),
+				match ($template) {
+					'freigabe'  => sprintf('Startplätze buchen: %s am %s', (string) $tag['bezeichnung'], $datum !== false ? $datum->format('d.m.Y') : (string) $tag['datum']),
+					'startplan' => sprintf('Startplan veröffentlicht: %s am %s', (string) $tag['bezeichnung'], $datum !== false ? $datum->format('d.m.Y') : (string) $tag['datum']),
+					default     => sprintf('Erinnerung: Startplätze für %s bis %s buchen', (string) $tag['bezeichnung'], Clock::format_local((string) $tag['buchungsfrist'], 'd.m.Y H:i')),
+				},
 				$template,
 				[
 					'verein'     => $b['verein'],
@@ -652,7 +703,11 @@ final class StartplanService {
 					'url'        => $link['url'],
 					'anfordern'  => Router::url('link-anfordern'),
 				],
-				$template === 'freigabe' ? Mailer::TYP_FREIGABE : Mailer::TYP_BUCHUNG_ERINNERUNG,
+				match ($template) {
+					'freigabe'  => Mailer::TYP_FREIGABE,
+					'startplan' => Mailer::TYP_STARTPLAN,
+					default     => Mailer::TYP_BUCHUNG_ERINNERUNG,
+				},
 				$this->sportjahr_id,
 				$vid
 			);

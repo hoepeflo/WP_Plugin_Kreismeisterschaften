@@ -206,14 +206,23 @@ final class BuchungService {
 			$meldungen[] = $zeile;
 			$em_index[ (int) $em['id'] ] = $zeile;
 		}
+		// Namen fremder Starter erst mit der Veröffentlichung (Konzept 12.6); vorher nur „belegt“.
+		$offen_sichtbar = (string) $tag['status'] === WettkampftagStatus::VEROEFFENTLICHT;
+		$vereine = [];
 		$belegung = [];
 		foreach ($this->buchungen->by_wettkampftag($tag_id) as $b) {
 			$eigen = (int) $b['verein_id'] === $this->verein_id();
+			$zeige_name = $eigen || $offen_sichtbar || $this->admin;
+			if (!$eigen && $zeige_name && !isset($vereine[ (int) $b['verein_id'] ])) {
+				$v = (new VereinRepository())->find((int) $b['verein_id']);
+				$vereine[ (int) $b['verein_id'] ] = $v !== null ? (string) $v['name'] : '';
+			}
 			$belegung[ (int) $b['durchgang_id'] ][ (int) $b['einheit_id'] ][ (int) $b['position'] ] = [
 				'buchung_id'       => (int) $b['id'],
 				'eigen'            => $eigen,
 				'einzelmeldung_id' => $eigen ? (int) $b['einzelmeldung_id'] : null,
-				'name'             => $eigen ? ($em_index[ (int) $b['einzelmeldung_id'] ]['name'] ?? $this->name_von((int) $b['einzelmeldung_id'])) : '',
+				'name'             => $zeige_name ? ($em_index[ (int) $b['einzelmeldung_id'] ]['name'] ?? $this->name_von((int) $b['einzelmeldung_id'])) : '',
+				'verein'           => $eigen ? '' : ($vereine[ (int) $b['verein_id'] ] ?? ''),
 				'kennzahl'         => $eigen ? ($em_index[ (int) $b['einzelmeldung_id'] ]['kennzahl'] ?? '') : '',
 			];
 		}
