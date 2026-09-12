@@ -40,3 +40,4 @@
 .kmm-admin .kmm-status-form { margin-top: 4px; white-space: nowrap; }
 .kmm-admin .kmm-sammel-leiste { margin-top: 10px; padding: 8px; background: #fff; border: 1px solid #c3c4c7; }
 .kmm-admin td.kmm-nowrap { white-space: nowrap; }
+.kmm-admin span.kmm-muted { color: #777; }

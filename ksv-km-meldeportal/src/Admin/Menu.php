@@ -24,6 +24,7 @@ final class Menu {
 		['Import / Export', ImportExportPage::class, Capabilities::MANAGE],
 		['Verarbeitung', VerarbeitungPage::class, Capabilities::VIEW],
 		['Export', ExportPage::class, Capabilities::MANAGE],
+		['Belege', BelegePage::class, Capabilities::MANAGE],
 		['Protokoll', ProtokollPage::class, Capabilities::VIEW],
 		['Einstellungen', SettingsPage::class, Capabilities::MANAGE],
 	];

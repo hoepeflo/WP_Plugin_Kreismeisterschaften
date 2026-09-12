@@ -433,7 +433,7 @@
 				html += '<p class="kmm-muted">Noch keine Mannschaft.</p>';
 			}
 			html += teams.map((t) => `<div class="kmm-karte ${t.vollstaendig ? '' : 'is-unvollstaendig'}">
-				<div class="kmm-karte-haupt"><strong>Mannschaft ${t.nummer}</strong> <span class="kmm-muted">${h(t.klasse)}</span>${t.vollstaendig ? '' : `<span class="kmm-badge kmm-badge-warn">unvollständig (${t.mitglieder.length}/${t.groesse})</span>`}
+				<div class="kmm-karte-haupt"><strong>Mannschaft ${t.nummer}</strong> <span class="kmm-muted">${h(t.klasse)}</span>${t.vollstaendig ? '' : `<span class="kmm-badge kmm-badge-warn">unvollständig (${t.mitglieder.length}/${t.groesse})</span>${t.unvollstaendig_grund && t.mitglieder.length >= t.groesse ? `<div class="kmm-fehler">${h(t.unvollstaendig_grund)}</div>` : ''}`}
 					<div>${t.mitglieder.map((x) => h(x.nachname + ', ' + x.vorname) + (x.konflikt ? ' <span class="kmm-fehler">(Konflikt)</span>' : '')).join(' · ')}</div>
 					${t.startgeld > 0 ? `<div class="kmm-muted">Mannschaftsstartgeld ${geld(t.startgeld)}</div>` : ''}</div>
 				<div class="kmm-karte-aktionen">${rw ? `<button type="button" class="kmm-button kmm-button-small kmm-button-secondary" data-action="mannschaft-bearbeiten" data-id="${t.id}" data-disziplin="${dId}">Bearbeiten</button> <button type="button" class="kmm-button kmm-button-small kmm-button-danger" data-action="mannschaft-loeschen" data-id="${t.id}">✕</button>` : ''}</div>

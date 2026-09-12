@@ -823,7 +823,8 @@ final class MeldungService {
 			'klasse'           => $pool?->bezeichnung ?? '',
 			'groesse'          => $d?->mannschaft_groesse ?? 3,
 			'mitglieder'       => $mitglieder,
-			'vollstaendig'     => $d !== null && count($mitglieder) === $d->mannschaft_groesse,
+			'vollstaendig'     => $d !== null && count($mitglieder) === $d->mannschaft_groesse && !$ma['unvollstaendig'],
+			'unvollstaendig_grund' => $ma['unvollstaendig'] ? 'Mitglied nicht startberechtigt oder abgemeldet' : (count($mitglieder) < ($d?->mannschaft_groesse ?? 3) ? 'zu wenige Mitglieder' : ''),
 			'startgeld'        => (float) $ma['startgeld'],
 		];
 	}
