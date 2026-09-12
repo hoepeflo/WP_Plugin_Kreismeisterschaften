@@ -43,6 +43,7 @@ final class Settings {
 			'csv_ganze_ringe_format'         => 'ganz',
 			'csv_verband_modus'              => 'vn_nummer',
 			'csv_verband_fest'               => '',
+			'csv_kopfzeile'                  => true,
 			// Absender für Mails (leer = WordPress-Standard).
 			'mail_absender_name'             => '',
 			'mail_absender_adresse'          => '',

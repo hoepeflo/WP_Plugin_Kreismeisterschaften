@@ -39,6 +39,7 @@ final class SettingsPage extends AdminPage {
 			'csv_ganze_ringe_format'            => self::post_str('csv_ganze_ringe_format') === 'komma_null' ? 'komma_null' : 'ganz',
 			'csv_verband_modus'                 => in_array(self::post_str('csv_verband_modus'), ['vn_nummer', 'leer', 'fest'], true) ? self::post_str('csv_verband_modus') : 'vn_nummer',
 			'csv_verband_fest'                  => self::post_str('csv_verband_fest', 20),
+			'csv_kopfzeile'                     => self::post_bool('csv_kopfzeile'),
 			'mail_absender_name'                => self::post_str('mail_absender_name', 100),
 			'mail_absender_adresse'             => sanitize_email(self::post_str('mail_absender_adresse', 190)),
 			'daten_bei_deinstallation_loeschen' => self::post_bool('daten_bei_deinstallation_loeschen'),
@@ -77,6 +78,7 @@ final class SettingsPage extends AdminPage {
 		$row(__('Trennzeichen', 'ksv-km-meldeportal'), self::select('csv_trennzeichen', [';' => __('Semikolon (;)', 'ksv-km-meldeportal'), ',' => __('Komma (,)', 'ksv-km-meldeportal'), 'tab' => __('Tabulator', 'ksv-km-meldeportal')], $s['csv_trennzeichen']));
 		$row(__('Zeichensatz', 'ksv-km-meldeportal'), self::select('csv_zeichensatz', ['windows-1252' => 'Windows-1252', 'utf-8' => 'UTF-8 ohne BOM', 'utf-8-bom' => 'UTF-8 mit BOM'], $s['csv_zeichensatz']));
 		$row(__('Ganze Ringe schreiben als', 'ksv-km-meldeportal'), self::select('csv_ganze_ringe_format', ['ganz' => '375', 'komma_null' => '375,0'], $s['csv_ganze_ringe_format']));
+		$row(__('Kopfzeile', 'ksv-km-meldeportal'), self::checkbox('csv_kopfzeile', (bool) ($s['csv_kopfzeile'] ?? true), __('erste Zeile mit Spaltennamen (wie im DAVID-Muster)', 'ksv-km-meldeportal')));
 		$row(__('Spalte „Verband“', 'ksv-km-meldeportal'), self::select('csv_verband_modus', ['vn_nummer' => __('= VN-Nummer (laut Muster)', 'ksv-km-meldeportal'), 'leer' => __('leer', 'ksv-km-meldeportal'), 'fest' => __('fester Wert:', 'ksv-km-meldeportal')], $s['csv_verband_modus']) . ' ' . self::input('csv_verband_fest', $s['csv_verband_fest'] ?? '', 'text', 'class="kmm-short"'));
 		echo '</table>';
 

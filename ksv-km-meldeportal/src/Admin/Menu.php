@@ -22,6 +22,7 @@ final class Menu {
 		['Vereine', VereinePage::class, Capabilities::MANAGE],
 		['Stammdaten', StammdatenPage::class, Capabilities::MANAGE],
 		['Import / Export', ImportExportPage::class, Capabilities::MANAGE],
+		['Export', ExportPage::class, Capabilities::MANAGE],
 		['Protokoll', ProtokollPage::class, Capabilities::VIEW],
 		['Einstellungen', SettingsPage::class, Capabilities::MANAGE],
 	];

@@ -48,11 +48,12 @@ bash tools/build-zip.sh   # installierbares ZIP nach build/
 
 Route `/km-meldung/` nach Anmeldung per Zugangslink: vier Schritte Schützen, Meldung, Mannschaften, Prüfen & Einreichen; PDF der eigenen Meldung unter `/km-meldung/pdf/`. Serverseitig gerendertes Gerüst (`templates/frontend/app.php`) plus Vanilla-JS (`assets/frontend/app.js`) über die REST-Endpunkte `kmm/v1` (`src/Http/RestApi.php`). Beschreibung in `docs/VEREINSOBERFLAECHE.md`.
 
-## Backend (Stand Meilenstein 7)
+## Backend (Stand Meilenstein 8)
 
 | Seite | Inhalt |
 |---|---|
 | Übersicht | Statusübersicht aller Vereine (Offen/Entwurf/Eingereicht, Einzelmeldungen, Mannschaften, fehlende Ergebnisse, Konflikte, Startgeld, Zugang), Details je Verein, Erinnerung jetzt senden |
+| Export | DAVID21-CSV (gesamt / je Disziplin, Format einstellbar) und PDF-Meldelisten (Umfang, Gruppierung), Export-Protokoll |
 | Protokoll | Änderungsprotokoll (wer, wann, was) mit Filtern nach Sportjahr, Verein, Akteur und Text |
 | System | Schema-Version, Tabellen, Cron, Migration erneut ausführen |
 | Sportjahre | anlegen (mit Klassensatz nach Konzept 4.1), Meldebeginn/-schluss/Erinnerung, aktivieren, ins Folgejahr kopieren, löschen |
@@ -64,4 +65,4 @@ Route `/km-meldung/` nach Anmeldung per Zugangslink: vier Schritte Schützen, Me
 Konvertierungsskript und Bogen-Vorlage: `tools/README.md`. Ergebnis für 2026: `docs/regeltabelle-2026.json`, `docs/pruefbericht-2026.md`, `docs/regeltabelle-2026-uebersicht.md`.
 
 Installation, Caching-Ausschluss und Server-Cronjob: `docs/INSTALLATION.md`.
-Datenmodell: `docs/DATENMODELL.md`. Regel-Engine: `docs/REGEL-ENGINE.md`. Zugang der Vereine: `docs/ZUGANG.md`. Austauschformat der Regeltabelle: `docs/REGELTABELLE-FORMAT.md`.
+Datenmodell: `docs/DATENMODELL.md`. Regel-Engine: `docs/REGEL-ENGINE.md`. Zugang der Vereine: `docs/ZUGANG.md`. Vereinsoberfläche: `docs/VEREINSOBERFLAECHE.md`. Ausgaben: `docs/EXPORT.md`. Testlauf: `docs/CHECKLISTE-TESTLAUF.md`. Austauschformat der Regeltabelle: `docs/REGELTABELLE-FORMAT.md`.
