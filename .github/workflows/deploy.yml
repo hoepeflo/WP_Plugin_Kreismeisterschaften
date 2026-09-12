@@ -45,7 +45,7 @@ jobs:
           # dry-run: true               # erst testen, dann auskommentieren
 
   deploy-meldeportal:
-    name: KM-Meldeportal per FTP
+    name: KM-Portal per FTP
     runs-on: ubuntu-latest
     concurrency:
       group: ftp-deploy-meldeportal
@@ -82,7 +82,7 @@ jobs:
           protocol: ftp
           port: 21
           local-dir: ./ksv-km-meldeportal/
-          # Zielordner des Meldeportals relativ zum FTP-Root, als Repository-Variable
+          # Zielordner des KM-Portals relativ zum FTP-Root, als Repository-Variable
           # KMM_FTP_SERVER_DIR setzen (z. B. /../ksv-km-meldeportal/ oder
           # /wp-content/plugins/ksv-km-meldeportal/), Standard: /ksv-km-meldeportal/
           server-dir: ${{ vars.KMM_FTP_SERVER_DIR || '/ksv-km-meldeportal/' }}

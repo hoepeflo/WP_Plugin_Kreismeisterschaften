@@ -1,4 +1,4 @@
-name: KM-Meldeportal CI
+name: KM-Portal CI
 
 on:
   push:
