@@ -48,3 +48,10 @@ jobs:
 
       - name: ZIP bauen (Probelauf)
         run: bash tools/build-zip.sh
+
+      - name: ZIP als Artefakt bereitstellen (zum Testen ohne Deploy)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ksv-km-meldeportal-zip
+          path: ksv-km-meldeportal/build/*.zip
+          retention-days: 14
