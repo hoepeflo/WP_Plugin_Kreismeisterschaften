@@ -89,6 +89,8 @@ final class StartplanAnsicht {
 		}
 		$filter = trim($disziplin);
 		$durchgaenge = [];
+		$spalten = [];
+		$kennzahlen = [];
 		$starter = 0;
 		foreach ((new DurchgangRepository())->by_wettkampftag($tag_id) as $dg) {
 			$zeilen = [];
@@ -105,7 +107,9 @@ final class StartplanAnsicht {
 				$klasse_id = $em['startklasse_id'] ?? $em['mannschaft_klasse_id'];
 				$k = $klasse_id !== null ? $rw->klasse((int) $klasse_id) : null;
 				$e = $einheiten[ (int) $b['einheit_id'] ] ?? null;
+				$spalte = (int) $b['einheit_id'] . '-' . (int) $b['position'];
 				$zeilen[] = [
+					'spalte'      => $spalte,
 					'einheit'     => $e !== null ? (string) $e['bezeichnung'] : '',
 					'position'    => (int) $b['position'],
 					'mehrfach'    => $e !== null && (int) $e['kapazitaet'] > 1,
@@ -114,30 +118,82 @@ final class StartplanAnsicht {
 					'vorname'     => $s !== null ? (string) $s['vorname'] : '',
 					'verein'      => $vereine[ (int) $b['verein_id'] ] ?? '',
 					'startklasse' => $k?->bezeichnung ?? '',
+					'altersgruppe' => self::altersgruppe($k?->bezeichnung ?? ''),
 					'kennzahl'    => $d?->kennzahl ?? '',
 					'disziplin'   => $d?->bezeichnung ?? '',
 				];
+				$spalten[ $spalte ] = [
+					'key'        => $spalte,
+					'einheit'    => $e !== null ? (string) $e['bezeichnung'] : '',
+					'position'   => (int) $b['position'],
+					'mehrfach'   => $e !== null && (int) $e['kapazitaet'] > 1,
+					'sortierung' => $e !== null ? (int) $e['sortierung'] : 0,
+				];
+				$kennzahlen[ $d?->kennzahl ?? '' ] = true;
 			}
 			if ($zeilen === []) {
 				continue;
 			}
 			usort($zeilen, static fn(array $a, array $b): int => [$a['sortierung'], $a['einheit'], $a['position']] <=> [$b['sortierung'], $b['einheit'], $b['position']]);
 			$starter += count($zeilen);
+			$zellen = [];
+			foreach ($zeilen as $z) {
+				$zellen[ $z['spalte'] ] = $z;
+			}
 			$durchgaenge[] = [
 				'nummer'      => (int) $dg['nummer'],
 				'bezeichnung' => (string) $dg['bezeichnung'],
 				'beginn'      => Clock::format_local((string) $dg['beginn'], 'H:i'),
 				'ende'        => Clock::format_local((string) $dg['ende'], 'H:i'),
 				'zeilen'      => $zeilen,
+				'zellen'      => $zellen,
 			];
 		}
+		uasort($spalten, static fn(array $a, array $b): int => [$a['sortierung'], $a['einheit'], $a['position']] <=> [$b['sortierung'], $b['einheit'], $b['position']]);
 		$datum = \DateTimeImmutable::createFromFormat('!Y-m-d', (string) $tag['datum']);
+		$gruppen = [];
+		foreach ($durchgaenge as $dg) {
+			foreach ($dg['zeilen'] as $z) {
+				if ($z['altersgruppe'] !== '') {
+					$gruppen[ $z['altersgruppe'] ] = true;
+				}
+			}
+		}
+		unset($kennzahlen['']);
 		return [
 			'tag'         => $tag,
 			'datum'       => $datum !== false ? wp_date('D, d.m.Y', $datum->getTimestamp()) : (string) $tag['datum'],
 			'durchgaenge' => $durchgaenge,
+			'spalten'     => array_values($spalten),
+			'gruppen'     => array_keys($gruppen),
+			'disziplinen' => count($kennzahlen),
 			'starter'     => $starter,
 		];
+	}
+
+	/** Farblich hervorgehobene Nachwuchsklassen wie auf den gewohnten Startplänen. */
+	public const GRUPPEN = ['schueler' => 'Schüler', 'jugend' => 'Jugend', 'junioren' => 'Junioren'];
+
+	/**
+	 * Grobe Altersgruppe aus der Klassenbezeichnung (Schüler, Jugend, Junioren nach SpO);
+	 * alles andere bleibt ohne Kennzeichnung.
+	 */
+	public static function altersgruppe(string $klasse): string {
+		foreach (self::GRUPPEN as $key => $praefix) {
+			if (str_starts_with($klasse, $praefix)) {
+				return $key;
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * Beschriftung einer Spalte: Einheit, bei mehreren Positionen mit Nummer.
+	 *
+	 * @param array<string, mixed> $spalte
+	 */
+	public static function spalte_label(array $spalte): string {
+		return (string) $spalte['einheit'] . ($spalte['mehrfach'] ? ' / ' . (int) $spalte['position'] : '');
 	}
 
 	/** Bezeichnung des Sportjahres für Überschriften. */

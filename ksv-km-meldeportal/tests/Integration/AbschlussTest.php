@@ -94,6 +94,12 @@ final class AbschlussTest extends IntegrationTestCase {
 		$this->assertSame('SV Musterhausen', $zeile['verein']);
 		$this->assertSame('Stand 1', $zeile['einheit']);
 		$this->assertSame('09:00', $plan['durchgaenge'][0]['beginn']);
+		// Raster: eine Spalte je belegtem Platz, Zellen nach Spaltenschlüssel.
+		$this->assertCount(1, $plan['spalten']);
+		$this->assertSame('Stand 1', $plan['spalten'][0]['einheit']);
+		$key = $plan['spalten'][0]['key'];
+		$this->assertSame('Bauer', $plan['durchgaenge'][0]['zellen'][ $key ]['name']);
+		$this->assertSame(1, $plan['disziplinen']);
 		$this->assertArrayNotHasKey('geburtsdatum', $zeile, 'nur die öffentlichen Angaben');
 		$this->assertArrayNotHasKey('meldeergebnis', $zeile);
 	}
@@ -104,6 +110,10 @@ final class AbschlussTest extends IntegrationTestCase {
 		$this->assertStringContainsString('Bauer, Anna', $html);
 		$this->assertStringContainsString('SV Musterhausen', $html);
 		$this->assertStringContainsString('Bitte 20 Minuten vorher', $html);
+		$this->assertStringContainsString('kmm-startplan-raster', $html, 'Raster statt Liste');
+		$this->assertStringContainsString('<th>Stand 1</th>', $html, 'Stand als Spaltenkopf');
+		$this->assertStringContainsString('Durchgang 1', $html);
+		$this->assertStringContainsString('getauscht werden', $html, 'Hinweis zum Tauschen steht unter dem Plan');
 		$this->assertStringNotContainsString('123450001', $html, 'keine Mitgliedsnummer');
 		$this->assertStringNotContainsString('374', $html, 'kein Meldeergebnis');
 
@@ -120,8 +130,10 @@ final class AbschlussTest extends IntegrationTestCase {
 		$html = (new PdfStartplan())->html($plan);
 		$this->assertStringContainsString('Durchgang 1', $html);
 		$this->assertStringContainsString('09:00', $html);
-		$this->assertStringContainsString('Stand 1', $html);
+		$this->assertStringContainsString('>Stand 1</th>', $html, 'Stand als Spaltenkopf');
 		$this->assertStringContainsString('Bauer, Anna', $html);
+		$this->assertStringContainsString('SV Musterhausen', $html);
+		$this->assertStringContainsString('getauscht werden', $html, 'Hinweis zum Tauschen steht unter dem Plan');
 		$this->assertStringContainsString('Entwurf', $html, 'vor der Veröffentlichung als Entwurf gekennzeichnet');
 
 		(new StartplanService($this->sid))->veroeffentlichen($this->tag, false);

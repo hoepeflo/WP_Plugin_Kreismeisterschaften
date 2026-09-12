@@ -1,7 +1,11 @@
 <?php
 /**
- * PDF-Startplan für Aushang und Standaufsicht (Konzept 12.6): sortiert nach Durchgang
- * und Einheit, mit denselben Angaben wie der öffentliche Startplan.
+ * PDF-Startplan für Aushang und Standaufsicht (Konzept 12.6).
+ *
+ * Querformat als Raster, wie die Startpläne auf Papier seit jeher aussehen: Zeilen sind
+ * die Durchgänge mit ihrer Uhrzeit, Spalten die Stände, in der Zelle Verein und Name.
+ * Nachwuchsklassen (Schüler, Jugend, Junioren) sind farbig hinterlegt, darunter steht die
+ * Legende.
  *
  * Ein noch nicht veröffentlichter Tag lässt sich im Backend als Vorschau drucken; das
  * PDF trägt dann einen deutlichen Entwurfsvermerk.
@@ -13,9 +17,13 @@ declare(strict_types=1);
 
 namespace KSV\KMM\Application;
 
+use KSV\KMM\Http\Shortcode;
 use KSV\KMM\Support\Clock;
 
 final class PdfStartplan {
+
+	/** Farben der Nachwuchsklassen, wie in der Legende. */
+	private const FARBEN = ['schueler' => '#fdf3dc', 'jugend' => '#e3f4e9', 'junioren' => '#e8eeff'];
 
 	/**
 	 * @return array{dateiname: string, inhalt: string, starter: int}
@@ -30,7 +38,8 @@ final class PdfStartplan {
 		}
 		$tag = $plan['tag'];
 		$name = sanitize_file_name(sprintf('startplan-%s-%s%s.pdf', (string) $tag['datum'], sanitize_title((string) $tag['bezeichnung']), $disziplin !== '' ? '-' . sanitize_title($disziplin) : ''));
-		return ['dateiname' => $name, 'inhalt' => Pdf::aus_html($this->html($plan, $disziplin)), 'starter' => (int) $plan['starter']];
+		$inhalt = Pdf::aus_html($this->html($plan, $disziplin), 'A4-L', ['left' => 10, 'right' => 10, 'top' => 12, 'bottom' => 12]);
+		return ['dateiname' => $name, 'inhalt' => $inhalt, 'starter' => (int) $plan['starter']];
 	}
 
 	/**
@@ -39,18 +48,14 @@ final class PdfStartplan {
 	public function html(array $plan, string $disziplin = ''): string {
 		$tag = $plan['tag'];
 		$entwurf = !StartplanAnsicht::oeffentlich($tag);
-		$css = 'body{font-family:dejavusans,sans-serif;font-size:9.5pt;color:#111}'
-			. 'h1{font-size:15pt;margin:0 0 2mm}h2{font-size:11pt;margin:6mm 0 1.5mm;padding-bottom:1mm;border-bottom:1px solid #444}'
-			. '.kopf{font-size:9pt;color:#444;margin:0 0 4mm}'
-			. '.entwurf{border:1px solid #9b1c1c;color:#9b1c1c;padding:1.5mm 3mm;margin:0 0 4mm;font-weight:bold}'
-			. '.hinweis{border-left:2px solid #666;padding:1mm 3mm;margin:0 0 4mm;color:#333}'
-			. 'table{width:100%;border-collapse:collapse}'
-			. 'th{background:#eee;font-size:8pt;text-transform:uppercase;text-align:left;padding:1.2mm 2mm;border-bottom:1px solid #999}'
-			. 'td{padding:1.2mm 2mm;border-bottom:1px solid #ddd}'
-			. 'tr.z td{background:#fafafa}'
-			. '.fuss{font-size:7.5pt;color:#666;margin-top:6mm}';
+		$spalten = $plan['spalten'];
+		$mit_kennzahl = (int) $plan['disziplinen'] > 1;
+		// Spaltenbreite: Zeitspalte fest, der Rest zu gleichen Teilen.
+		$breite = $spalten !== [] ? round(86 / count($spalten), 2) : 86;
 		$h = static fn(string $s): string => esc_html($s);
-		$html = '<html><head><meta charset="utf-8"><style>' . $css . '</style></head><body>';
+
+		// Ab zehn Spalten wird es eng: Schrift eine Stufe kleiner, damit Namen nicht umbrechen.
+		$html = '<html><head><meta charset="utf-8"><style>' . $this->css(count($spalten) >= 10) . '</style></head><body>';
 		$html .= '<h1>' . $h((string) $tag['bezeichnung']) . '</h1>';
 		$kopf = [(string) $plan['datum']];
 		if ((string) $tag['ort'] !== '') {
@@ -67,28 +72,69 @@ final class PdfStartplan {
 		if ((string) $tag['hinweis'] !== '') {
 			$html .= '<p class="hinweis">' . $h((string) $tag['hinweis']) . '</p>';
 		}
-		foreach ($plan['durchgaenge'] as $dg) {
-			$titel = sprintf('Durchgang %d · %s–%s Uhr', $dg['nummer'], $dg['beginn'], $dg['ende']);
-			if ($dg['bezeichnung'] !== '') {
-				$titel .= ' · ' . $dg['bezeichnung'];
-			}
-			$html .= '<h2>' . $h($titel) . '</h2>';
-			$html .= '<table><thead><tr><th style="width:16%">Stand</th><th style="width:28%">Name</th><th style="width:25%">Verein</th><th style="width:20%">Klasse</th>' . ($disziplin === '' ? '<th style="width:11%">Disziplin</th>' : '') . '</tr></thead><tbody>';
-			foreach ($dg['zeilen'] as $i => $z) {
-				$html .= '<tr' . ($i % 2 === 1 ? ' class="z"' : '') . '>';
-				$html .= '<td>' . $h($z['einheit'] . ($z['mehrfach'] ? ' / ' . $z['position'] : '')) . '</td>';
-				$html .= '<td>' . $h(trim($z['name'] . ', ' . $z['vorname'], ', ')) . '</td>';
-				$html .= '<td>' . $h($z['verein']) . '</td>';
-				$html .= '<td>' . $h($z['startklasse']) . '</td>';
-				if ($disziplin === '') {
-					$html .= '<td>' . $h($z['kennzahl']) . '</td>';
-				}
-				$html .= '</tr>';
-			}
-			$html .= '</tbody></table>';
+
+		$html .= '<table><thead><tr><th class="zeit" width="14%">Zeit</th>';
+		foreach ($spalten as $sp) {
+			$html .= '<th width="' . $breite . '%">' . $h(StartplanAnsicht::spalte_label($sp)) . '</th>';
 		}
+		$html .= '</tr></thead><tbody>';
+		foreach ($plan['durchgaenge'] as $dg) {
+			$html .= '<tr><th class="zeit"><div class="von">' . $h($dg['beginn']) . '</div><div class="bis">' . $h('bis ' . $dg['ende']) . '</div>';
+			$html .= '<div class="dg">' . $h(sprintf('Durchgang %d', (int) $dg['nummer']) . ($dg['bezeichnung'] !== '' ? ' · ' . $dg['bezeichnung'] : '')) . '</div>';
+			$html .= '</th>';
+			foreach ($spalten as $sp) {
+				$z = $dg['zellen'][ $sp['key'] ] ?? null;
+				if ($z === null) {
+					$html .= '<td></td>';
+					continue;
+				}
+				$farbe = self::FARBEN[ $z['altersgruppe'] ] ?? '';
+				$html .= '<td' . ($farbe !== '' ? ' style="background:' . $farbe . '"' : '') . '>';
+				$html .= '<div class="verein">' . $h($z['verein']) . '</div>';
+				$html .= '<div class="name">' . $h(trim($z['name'] . ', ' . $z['vorname'], ', ')) . '</div>';
+				$zusatz = array_filter([$z['startklasse'], $mit_kennzahl ? $z['kennzahl'] : '']);
+				if ($zusatz !== []) {
+					$html .= '<div class="klasse">' . $h(implode(' · ', $zusatz)) . '</div>';
+				}
+				$html .= '</td>';
+			}
+			$html .= '</tr>';
+		}
+		$html .= '</tbody></table>';
+
+		if ($plan['gruppen'] !== []) {
+			$anteil = round(100 / count($plan['gruppen']), 2);
+			$html .= '<table class="legende" style="width:' . min(60, 18 * count($plan['gruppen'])) . '%"><tr>';
+			foreach ($plan['gruppen'] as $g) {
+				$html .= '<td width="' . $anteil . '%" style="background:' . (self::FARBEN[ $g ] ?? '#fff') . '">' . $h(StartplanAnsicht::GRUPPEN[ $g ] ?? $g) . '</td>';
+			}
+			$html .= '</tr></table>';
+		}
+		$html .= '<p class="fuss">' . $h(Shortcode::HINWEIS) . '</p>';
 		$html .= '<p class="fuss">' . $h(sprintf('KSV Fallingbostel · %s · Stand: %s Uhr', StartplanAnsicht::sportjahr_titel((int) $tag['sportjahr_id']), Clock::format_local(Clock::now_utc()))) . '</p>';
 		$html .= '</body></html>';
 		return $html;
+	}
+
+	private function css(bool $eng): string {
+		return 'body{font-family:dejavusans,sans-serif;font-size:' . ($eng ? '7.5pt' : '8.5pt') . ';color:#111}'
+			. 'h1{font-size:14pt;margin:0 0 1mm}'
+			. '.kopf{font-size:9pt;color:#333;margin:0 0 3mm;font-weight:bold}'
+			. '.entwurf{border:1px solid #9b1c1c;color:#9b1c1c;padding:1.5mm 3mm;margin:0 0 3mm;font-weight:bold}'
+			. '.hinweis{border-left:2px solid #666;padding:1mm 3mm;margin:0 0 3mm;color:#333}'
+			. 'table{width:100%;border-collapse:collapse}'
+			. 'th,td{border:0.3mm solid #444;padding:' . ($eng ? '1mm 0.8mm' : '1.2mm 1.5mm') . ';text-align:center;vertical-align:middle}'
+			. 'thead th{background:#eee;font-size:' . ($eng ? '7pt' : '8pt') . ';font-weight:bold}'
+			. 'th.zeit{background:#f4f4f4}'
+			. 'th.zeit div.von{font-weight:bold;font-size:' . ($eng ? '9pt' : '10pt') . '}'
+			. 'th.zeit div.bis{font-weight:normal;font-size:7.5pt;color:#444}'
+			. 'th.zeit div.dg{font-weight:normal;font-size:7pt;color:#555;margin-top:0.6mm}'
+			. 'td div{margin:0}'
+			. '.verein{font-size:' . ($eng ? '6.5pt' : '7.5pt') . ';color:#444}'
+			. '.name{font-weight:bold;font-size:' . ($eng ? '7.5pt' : '9pt') . '}'
+			. '.klasse{font-size:' . ($eng ? '6.5pt' : '7pt') . ';color:#444}'
+			. 'table.legende{margin-top:3mm}'
+			. 'table.legende td{padding:1mm 3mm;font-size:8pt;text-align:center}'
+			. '.fuss{font-size:7.5pt;color:#555;margin:2mm 0 0}';
 	}
 }

@@ -79,8 +79,11 @@ Kalendertermine – unabhängig vom Kalender-Plugin:
 [kmm_startplan]                             alle veröffentlichten Tage
 ```
 
-Er zeigt erst nach der Veröffentlichung Inhalte und nur Name, Vorname, Verein,
-Startklasse, Einheit/Position und Uhrzeit. Beschreibung: `docs/STARTPLAN.md`.
+Der Plan erscheint als Raster wie ein Stundenplan: Zeilen sind die Durchgänge mit ihrer
+Uhrzeit, Spalten die Stände, in der Zelle Verein und Name; Schüler, Jugend und Junioren
+sind farbig hinterlegt. Er zeigt erst nach der Veröffentlichung Inhalte und nur Name,
+Vorname, Verein, Startklasse, Einheit/Position und Uhrzeit. Dasselbe Raster gibt es als
+PDF im Querformat für den Aushang. Beschreibung: `docs/STARTPLAN.md`.
 
 Konvertierungsskript und Bogen-Vorlage: `tools/README.md`. Ergebnis für 2026: `docs/regeltabelle-2026.json`, `docs/pruefbericht-2026.md`, `docs/regeltabelle-2026-uebersicht.md`.
 

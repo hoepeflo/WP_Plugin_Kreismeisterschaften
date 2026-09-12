@@ -159,6 +159,24 @@ Tests: `tests/Integration/RestverteilungTest.php`.
 
 ## Meilenstein 10: Veröffentlichung (Konzept 12.6)
 
+### Darstellung: Raster statt Liste
+
+Der veröffentlichte Startplan sieht aus wie ein Stundenplan, so wie die Startpläne auf
+Papier seit jeher aussehen – die Vereine kennen das Format:
+
+- **Zeilen** sind die Durchgänge: Beginn groß, Ende und Durchgangsnummer klein darunter.
+- **Spalten** sind die Plätze. Eine Spalte je Einheit; hat eine Einheit mehrere Positionen
+  (Bogenscheibe, Flintenrotte), bekommt jede Position eine eigene Spalte („Scheibe A / 2“).
+  Es erscheinen nur Plätze, die auch belegt sind – bei einem Filter nach Disziplin wird die
+  Tabelle also automatisch schmaler.
+- **Zelle**: Verein klein darüber, Name fett, darunter Startklasse (und die Kennzahl, wenn
+  der Tag mehrere Disziplinen hat).
+- **Farben**: Schüler, Jugend und Junioren sind hinterlegt, darunter steht die Legende.
+  Die Zuordnung kommt aus der Klassenbezeichnung (`StartplanAnsicht::altersgruppe`);
+  gibt es an einem Tag keine dieser Klassen, entfällt die Legende.
+- **Unter jedem Plan** steht: „Startplätze können untereinander getauscht werden. Ein
+  Hinweis am Wettkampftag an das Personal vor Ort genügt.“ (`Shortcode::HINWEIS`)
+
 ### Shortcode `[kmm_startplan]`
 
 In jeden Beitrag oder jede Seite setzbar, auch in bestehende Kalendertermine, unabhängig
@@ -175,13 +193,20 @@ Vor der Veröffentlichung erscheint nur der Satz „Der Startplan ist noch nicht
 veröffentlicht.“ Öffentlich sind ausschließlich Name, Vorname, Verein, Startklasse,
 Einheit/Position und Uhrzeit (`StartplanAnsicht::plan`) – kein Geburtsdatum, keine
 Mitgliedsnummer, kein Meldeergebnis, kein Startgeld. Abgemeldete Starter fallen heraus.
-Das Stylesheet ist bewusst klein (ein paar Zeilen inline), damit der Plan sich in jedes
-Theme einfügt; unter 600 px werden die Tabellen zu Karten.
+
+Das Stylesheet ist bewusst klein und inline, damit der Plan sich in jedes Theme einfügt.
+Ab zehn Spalten schaltet die Tabelle auf eine kompaktere Schrift. Passt sie trotzdem nicht
+in die Inhaltsspalte des Themes, lässt sie sich seitlich verschieben; ein kleines Skript
+blendet dann den Hinweis darauf ein (ohne JavaScript bleibt er verborgen). Unter 700 px
+wird aus jeder Rasterzeile eine Karte: Durchgang als Überschrift, darunter Stand für Stand
+ein Eintrag; leere Plätze entfallen.
 
 ### PDF-Startplan
 
-`PdfStartplan` erzeugt dieselbe Ansicht als PDF, sortiert nach Durchgang und Einheit, für
-Aushang und Standaufsicht. Knopf „Startplan als PDF“ am Wettkampftag. Ein noch nicht
-veröffentlichter Tag lässt sich als Vorschau drucken und trägt dann den Vermerk „Entwurf“.
+`PdfStartplan` erzeugt dasselbe Raster als PDF im **Querformat** (A4 quer, schmale Ränder),
+für Aushang und Standaufsicht. Knopf „Startplan als PDF“ am Wettkampftag. Ab zehn Spalten
+wird die Schrift eine Stufe kleiner, damit zwölf Stände – das übliche Maximum in der
+Gegend – in eine Zeile passen. Ein noch nicht veröffentlichter Tag lässt sich als Vorschau
+drucken und trägt dann den Vermerk „Entwurf“.
 
 Tests: `tests/Integration/AbschlussTest.php`.

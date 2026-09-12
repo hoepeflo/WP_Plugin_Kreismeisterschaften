@@ -23,6 +23,9 @@ final class Shortcode {
 
 	public const TAG = 'kmm_startplan';
 
+	/** Steht unter jedem Startplan (PDF und Web). */
+	public const HINWEIS = 'Startplätze können untereinander getauscht werden. Ein Hinweis am Wettkampftag an das Personal vor Ort genügt.';
+
 	public static function register(): void {
 		add_shortcode(self::TAG, [self::class, 'startplan']);
 	}
@@ -58,6 +61,7 @@ final class Shortcode {
 			return '<div class="kmm-startplan kmm-startplan-leer"><p>' . esc_html($text) . '</p></div>';
 		}
 		self::styles();
+		self::script();
 		$html = '<div class="kmm-startplan">';
 		foreach ($plaene as $plan) {
 			$html .= self::ein_tag($plan, $mit_titel, $disziplin);
@@ -67,6 +71,9 @@ final class Shortcode {
 	}
 
 	/**
+	 * Ein Wettkampftag als Raster: Zeilen = Durchgänge mit Uhrzeit, Spalten = Stände –
+	 * so, wie die Startpläne auf Papier seit jeher aussehen.
+	 *
 	 * @param array<string, mixed> $plan
 	 */
 	private static function ein_tag(array $plan, bool $mit_titel, string $disziplin): string {
@@ -79,6 +86,7 @@ final class Shortcode {
 		if ((string) $tag['ort'] !== '') {
 			$kopf[] = (string) $tag['ort'];
 		}
+		$kopf[] = sprintf(__('%d Starter', 'ksv-km-meldeportal'), (int) $plan['starter']);
 		if ($disziplin !== '') {
 			$kopf[] = sprintf(__('nur %s', 'ksv-km-meldeportal'), $disziplin);
 		}
@@ -86,50 +94,120 @@ final class Shortcode {
 		if ((string) $tag['hinweis'] !== '') {
 			$html .= '<p class="kmm-startplan-hinweis">' . esc_html((string) $tag['hinweis']) . '</p>';
 		}
-		foreach ($plan['durchgaenge'] as $dg) {
-			$html .= '<h3 class="kmm-startplan-durchgang">' . esc_html(sprintf(__('Durchgang %1$d · %2$s–%3$s Uhr', 'ksv-km-meldeportal'), $dg['nummer'], $dg['beginn'], $dg['ende']) . ($dg['bezeichnung'] !== '' ? ' · ' . $dg['bezeichnung'] : '')) . '</h3>';
-			$html .= '<div class="kmm-startplan-tabelle"><table><thead><tr>';
-			$html .= '<th>' . esc_html__('Stand', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Name', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Verein', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Klasse', 'ksv-km-meldeportal') . '</th>';
-			if ($disziplin === '') {
-				$html .= '<th>' . esc_html__('Disziplin', 'ksv-km-meldeportal') . '</th>';
-			}
-			$html .= '</tr></thead><tbody>';
-			foreach ($dg['zeilen'] as $z) {
-				$html .= '<tr>';
-				$html .= '<td data-label="' . esc_attr__('Stand', 'ksv-km-meldeportal') . '">' . esc_html($z['einheit'] . ($z['mehrfach'] ? ' / ' . $z['position'] : '')) . '</td>';
-				$html .= '<td data-label="' . esc_attr__('Name', 'ksv-km-meldeportal') . '">' . esc_html(trim($z['name'] . ', ' . $z['vorname'], ', ')) . '</td>';
-				$html .= '<td data-label="' . esc_attr__('Verein', 'ksv-km-meldeportal') . '">' . esc_html($z['verein']) . '</td>';
-				$html .= '<td data-label="' . esc_attr__('Klasse', 'ksv-km-meldeportal') . '">' . esc_html($z['startklasse']) . '</td>';
-				if ($disziplin === '') {
-					$html .= '<td data-label="' . esc_attr__('Disziplin', 'ksv-km-meldeportal') . '">' . esc_html(trim($z['kennzahl'] . ' ' . $z['disziplin'])) . '</td>';
-				}
-				$html .= '</tr>';
-			}
-			$html .= '</tbody></table></div>';
+
+		$spalten = $plan['spalten'];
+		$mit_kennzahl = (int) $plan['disziplinen'] > 1;
+		// Ab zehn Spalten wird es eng: kompaktere Schrift, damit möglichst alles sichtbar bleibt.
+		$eng = count($spalten) >= 10 ? ' is-eng' : '';
+		$html .= '<div class="kmm-startplan-tabelle"><table class="kmm-startplan-raster' . $eng . '"><thead><tr><th class="kmm-sp-zeit">' . esc_html__('Zeit', 'ksv-km-meldeportal') . '</th>';
+		foreach ($spalten as $sp) {
+			$html .= '<th>' . esc_html(StartplanAnsicht::spalte_label($sp)) . '</th>';
 		}
+		$html .= '</tr></thead><tbody>';
+		foreach ($plan['durchgaenge'] as $dg) {
+			$html .= '<tr><th class="kmm-sp-zeit" scope="row">' . esc_html($dg['beginn']) . '<small>' . esc_html(sprintf(__('bis %s', 'ksv-km-meldeportal'), $dg['ende'])) . '</small>';
+			$html .= '<small>' . esc_html(sprintf(__('Durchgang %d', 'ksv-km-meldeportal'), (int) $dg['nummer']) . ($dg['bezeichnung'] !== '' ? ' · ' . $dg['bezeichnung'] : '')) . '</small>';
+			$html .= '</th>';
+			foreach ($spalten as $sp) {
+				$z = $dg['zellen'][ $sp['key'] ] ?? null;
+				$label = StartplanAnsicht::spalte_label($sp);
+				if ($z === null) {
+					$html .= '<td class="kmm-sp-leer" data-label="' . esc_attr($label) . '"></td>';
+					continue;
+				}
+				$html .= '<td data-label="' . esc_attr($label) . '"' . ($z['altersgruppe'] !== '' ? ' data-gruppe="' . esc_attr($z['altersgruppe']) . '"' : '') . '>';
+				$html .= '<span class="kmm-sp-verein">' . esc_html($z['verein']) . '</span>';
+				$html .= '<span class="kmm-sp-name">' . esc_html(trim($z['name'] . ', ' . $z['vorname'], ', ')) . '</span>';
+				$zusatz = array_filter([$z['startklasse'], $mit_kennzahl ? $z['kennzahl'] : '']);
+				if ($zusatz !== []) {
+					$html .= '<span class="kmm-sp-klasse">' . esc_html(implode(' · ', $zusatz)) . '</span>';
+				}
+				$html .= '</td>';
+			}
+			$html .= '</tr>';
+		}
+		$html .= '</tbody></table><p class="kmm-startplan-scrollhinweis" hidden>' . esc_html__('Die Tabelle lässt sich seitlich verschieben.', 'ksv-km-meldeportal') . '</p></div>';
+
+		if ($plan['gruppen'] !== []) {
+			$html .= '<p class="kmm-startplan-legende">';
+			foreach ($plan['gruppen'] as $g) {
+				$html .= '<span data-gruppe="' . esc_attr($g) . '">' . esc_html(StartplanAnsicht::GRUPPEN[ $g ] ?? $g) . '</span>';
+			}
+			$html .= '</p>';
+		}
+		$html .= '<p class="kmm-startplan-fuss">' . esc_html(self::HINWEIS) . '</p>';
 		return $html;
 	}
 
-	/** Eigenes, sehr kleines Stylesheet – der Startplan steht in einem fremden Theme. */
+	/**
+	 * Zeigt den Hinweis auf das seitliche Verschieben nur, wenn die Tabelle breiter ist
+	 * als der Platz im Theme. Ohne JavaScript bleibt der Hinweis einfach verborgen.
+	 */
+	private static function script(): void {
+		static $gesetzt = false;
+		if ($gesetzt) {
+			return;
+		}
+		$gesetzt = true;
+		$js = '(function(){function p(){document.querySelectorAll(".kmm-startplan-tabelle").forEach(function(d){'
+			. 'var h=d.querySelector(".kmm-startplan-scrollhinweis");if(h){h.hidden=d.scrollWidth<=d.clientWidth+1;}});}'
+			. 'if(document.readyState!=="loading"){p();}else{document.addEventListener("DOMContentLoaded",p);}'
+			. 'window.addEventListener("resize",p);})();';
+		wp_register_script('kmm-startplan', false, [], KMM_VERSION, true);
+		wp_enqueue_script('kmm-startplan');
+		wp_add_inline_script('kmm-startplan', $js);
+	}
+
+	/** Eigenes, kleines Stylesheet – der Startplan steht in einem fremden Theme. */
 	private static function styles(): void {
 		static $gesetzt = false;
 		if ($gesetzt) {
 			return;
 		}
 		$gesetzt = true;
-		$css = '.kmm-startplan{margin:1.5em 0}'
+		$css = '.kmm-startplan{margin:1.5em 0;--kmm-sp-linie:rgba(128,128,128,.35);'
+			. '--kmm-sp-schueler:#fdf3dc;--kmm-sp-jugend:#e3f4e9;--kmm-sp-junioren:#e8eeff}'
 			. '.kmm-startplan-kopf{font-weight:600;margin:.2em 0 .8em}'
 			. '.kmm-startplan-hinweis{padding:.6em .8em;border-left:3px solid currentColor;opacity:.85;margin:0 0 1em}'
-			. '.kmm-startplan-durchgang{margin:1.4em 0 .4em;font-size:1.05em}'
-			. '.kmm-startplan-tabelle{overflow-x:auto}'
-			. '.kmm-startplan table{width:100%;border-collapse:collapse;font-size:.95em}'
-			. '.kmm-startplan th,.kmm-startplan td{text-align:left;padding:.35em .6em;border-bottom:1px solid rgba(128,128,128,.3)}'
-			. '.kmm-startplan th{font-size:.85em;text-transform:uppercase;letter-spacing:.03em;opacity:.75}'
-			. '.kmm-startplan td:first-child{white-space:nowrap}'
-			. '@media (max-width:600px){.kmm-startplan thead{display:none}'
-			. '.kmm-startplan tr{display:block;margin-bottom:.8em;border:1px solid rgba(128,128,128,.3);border-radius:6px;padding:.3em .5em}'
-			. '.kmm-startplan td{display:flex;justify-content:space-between;gap:1em;border:0;padding:.2em 0}'
-			. '.kmm-startplan td::before{content:attr(data-label);font-size:.85em;opacity:.7}}';
+			// Der Startplan ist breit; in schmalen Themes wird waagerecht gescrollt.
+			. '.kmm-startplan-tabelle{overflow-x:auto;max-width:100%;scrollbar-width:thin}'
+			. '.kmm-startplan-raster{width:100%;border-collapse:collapse;font-size:13px;line-height:1.25}'
+			. '.kmm-startplan-raster th,.kmm-startplan-raster td{border:1px solid var(--kmm-sp-linie);padding:.35em .45em;text-align:center;vertical-align:middle}'
+			. '.kmm-startplan-raster thead th{font-size:11px;text-transform:uppercase;letter-spacing:.03em;opacity:.8;white-space:nowrap}'
+			. '.kmm-startplan-raster th.kmm-sp-zeit{font-weight:700;font-size:15px;white-space:nowrap;width:1%}'
+			. '.kmm-startplan-raster tbody th.kmm-sp-zeit small{display:block;font-weight:400;opacity:.7;font-size:11px}'
+			. '.kmm-startplan-raster td span{display:block}'
+			. '.kmm-sp-verein{font-size:11px;opacity:.75}'
+			. '.kmm-sp-name{font-weight:600;font-size:14px}'
+			. '.kmm-sp-klasse{font-size:11px;opacity:.7}'
+			. '.kmm-startplan-raster td[data-gruppe=schueler]{background:var(--kmm-sp-schueler)}'
+			. '.kmm-startplan-raster td[data-gruppe=jugend]{background:var(--kmm-sp-jugend)}'
+			. '.kmm-startplan-raster td[data-gruppe=junioren]{background:var(--kmm-sp-junioren)}'
+			. '.kmm-startplan-raster td[data-gruppe]{color:#111}'
+			. '.kmm-startplan-legende{display:flex;flex-wrap:wrap;gap:.5em;margin:.8em 0 0;font-size:.85em}'
+			. '.kmm-startplan-legende span{padding:.15em .8em;border:1px solid var(--kmm-sp-linie);border-radius:3px;color:#111}'
+			. '.kmm-startplan-legende span[data-gruppe=schueler]{background:var(--kmm-sp-schueler)}'
+			. '.kmm-startplan-legende span[data-gruppe=jugend]{background:var(--kmm-sp-jugend)}'
+			. '.kmm-startplan-legende span[data-gruppe=junioren]{background:var(--kmm-sp-junioren)}'
+			. '.kmm-startplan-raster.is-eng{font-size:11px}'
+			. '.kmm-startplan-raster.is-eng th,.kmm-startplan-raster.is-eng td{padding:.3em .25em}'
+			. '.kmm-startplan-raster.is-eng .kmm-sp-name{font-size:12px}'
+			. '.kmm-startplan-raster.is-eng .kmm-sp-verein,.kmm-startplan-raster.is-eng .kmm-sp-klasse{font-size:10px}'
+			. '.kmm-startplan-scrollhinweis{margin:.4em 0 0;font-size:12px;opacity:.7}'
+			. '.kmm-startplan-fuss{margin:.8em 0 0;font-size:.9em;opacity:.8}'
+			// Unter 700 px wird aus jeder Rasterzeile eine Karte: Durchgang als Überschrift,
+			// darunter Stand für Stand ein Eintrag. Leere Plätze entfallen.
+			. '@media (max-width:700px){'
+			. '.kmm-startplan-raster,.kmm-startplan-raster tbody,.kmm-startplan-raster tr,.kmm-startplan-raster td,.kmm-startplan-raster th{display:block}'
+			. '.kmm-startplan-raster thead{display:none}'
+			. '.kmm-startplan-raster tr{margin-bottom:1em;border:1px solid var(--kmm-sp-linie);border-radius:6px;overflow:hidden}'
+			. '.kmm-startplan-raster th,.kmm-startplan-raster td{border:0;border-top:1px solid var(--kmm-sp-linie);text-align:left}'
+			. '.kmm-startplan-raster tbody th.kmm-sp-zeit{width:auto;border-top:0;font-size:16px;background:rgba(128,128,128,.12)}'
+			. '.kmm-startplan-raster tbody th.kmm-sp-zeit small{display:inline;margin-left:.3em}'
+			. '.kmm-startplan-raster tbody th.kmm-sp-zeit small::before{content:"– "}'
+			. '.kmm-startplan-raster td.kmm-sp-leer{display:none}'
+			. '.kmm-startplan-raster td::before{content:attr(data-label);display:block;font-size:11px;opacity:.7}'
+			. '}';
 		wp_register_style('kmm-startplan', false, [], KMM_VERSION);
 		wp_enqueue_style('kmm-startplan');
 		wp_add_inline_style('kmm-startplan', $css);

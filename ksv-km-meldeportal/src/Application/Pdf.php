@@ -16,9 +16,11 @@ final class Pdf {
 	}
 
 	/**
+	 * @param string             $format  mPDF-Format, z. B. „A4“ oder „A4-L“ (Querformat)
+	 * @param array<string, int> $raender Optionale Ränder in mm (left, right, top, bottom)
 	 * @throws \RuntimeException wenn mPDF fehlt.
 	 */
-	public static function aus_html(string $html, string $format = 'A4'): string {
+	public static function aus_html(string $html, string $format = 'A4', array $raender = []): string {
 		if (!self::verfuegbar()) {
 			throw new \RuntimeException('Die PDF-Bibliothek (mPDF) ist nicht installiert. Bitte das Plugin mit vendor/ ausliefern (tools/build-zip.sh).');
 		}
@@ -32,10 +34,10 @@ final class Pdf {
 			'mode'          => 'utf-8',
 			'format'        => $format,
 			'tempDir'       => $tmp,
-			'margin_left'   => 15,
-			'margin_right'  => 15,
-			'margin_top'    => 18,
-			'margin_bottom' => 18,
+			'margin_left'   => $raender['left'] ?? 15,
+			'margin_right'  => $raender['right'] ?? 15,
+			'margin_top'    => $raender['top'] ?? 18,
+			'margin_bottom' => $raender['bottom'] ?? 18,
 			'default_font'  => 'dejavusans',
 		]);
 		$mpdf->SetTitle('KM-Portal');
