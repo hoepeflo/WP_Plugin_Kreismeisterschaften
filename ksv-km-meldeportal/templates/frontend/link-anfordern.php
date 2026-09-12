@@ -14,6 +14,7 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 ?>
+<div class="kmm-panel">
 <h1><?php echo esc_html($title); ?></h1>
 <?php if ($limit) : ?>
 	<div class="kmm-alert kmm-alert-warn"><?php esc_html_e('Zu viele Anfragen. Bitte versuchen Sie es in einer Stunde erneut.', 'ksv-km-meldeportal'); ?></div>
@@ -27,3 +28,4 @@ if (!defined('ABSPATH')) {
 	<input type="email" id="kmm-email" name="email" required autocomplete="email" inputmode="email">
 	<button type="submit" class="kmm-button"><?php esc_html_e('Link anfordern', 'ksv-km-meldeportal'); ?></button>
 </form>
+</div>

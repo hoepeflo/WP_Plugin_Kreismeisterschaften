@@ -12,6 +12,8 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 ?>
+<div class="kmm-panel">
 <h1><?php echo esc_html($title); ?></h1>
 <div class="kmm-alert kmm-alert-error"><?php echo esc_html($text); ?></div>
 <p><a class="kmm-button" href="<?php echo esc_url(KSV\KMM\Http\Router::url()); ?>"><?php esc_html_e('Zurück zur Meldung', 'ksv-km-meldeportal'); ?></a></p>
+</div>

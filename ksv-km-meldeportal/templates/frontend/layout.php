@@ -19,6 +19,8 @@ $content = isset($content) && is_string($content) ? $content : '';
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#1c5d3a">
 <meta name="robots" content="noindex, nofollow">
 <title><?php echo esc_html($title); ?> – KSV Fallingbostel</title>
 <link rel="stylesheet" href="<?php echo esc_url(KMM_PLUGIN_URL . 'assets/frontend/app.css?v=' . rawurlencode(KMM_VERSION)); ?>">
@@ -26,7 +28,10 @@ $content = isset($content) && is_string($content) ? $content : '';
 <body class="kmm">
 <header class="kmm-header">
 	<div class="kmm-container">
-		<a class="kmm-brand" href="<?php echo esc_url(KSV\KMM\Http\Router::url()); ?>">KM-Meldeportal · KSV Fallingbostel</a>
+		<a class="kmm-brand" href="<?php echo esc_url(KSV\KMM\Http\Router::url()); ?>">
+			<span class="kmm-brand-mark" aria-hidden="true"></span>
+			<span class="kmm-brand-text">KM-Meldeportal<small><?php esc_html_e('KSV Fallingbostel', 'ksv-km-meldeportal'); ?></small></span>
+		</a>
 	</div>
 </header>
 <main class="kmm-main">
