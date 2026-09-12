@@ -44,3 +44,7 @@
 .kmm-admin .kmm-block-form { background: #fff; border: 1px solid #c3c4c7; padding: 8px 12px; margin: 8px 0 16px; }
 .kmm-admin ul.kmm-liste-kompakt { margin: 4px 0 8px 18px; list-style: disc; }
 .kmm-admin .kmm-badge-verarbeitet { background: #dbeafe; color: #1e3a8a; }
+.kmm-admin .kmm-standgruppe { margin-bottom: 10px; }
+.kmm-admin .kmm-staende { display: flex; flex-wrap: wrap; gap: 6px; }
+.kmm-admin .kmm-stand { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border: 1px solid #c3c4c7; border-radius: 4px; background: #f6f7f7; }
+.kmm-admin .kmm-stand.is-aktiv { background: #e3f4e8; border-color: #86efac; }

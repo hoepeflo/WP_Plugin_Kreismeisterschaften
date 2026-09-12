@@ -176,6 +176,16 @@ Neue Spalten: `einzelmeldung.abmeldegrund`, `einzelmeldung.nachgemeldet`, `sport
 Rolle `kmm_referent` (Capabilities `kmm_view`, `kmm_referent`) wird bei Aktivierung und
 Migration angelegt.
 
+## Schema-Version 4 (rein additiv)
+
+Neue Spalten mit Standardwert NULL: `wettkampftag.schiessstand_id`, `einheit.standgruppe_id`,
+`einheit.nummer`.
+
+| Tabelle | Inhalt |
+|---|---|
+| `kmm_schiessstand` | Schießstand als sportjahrübergreifende Stammdaten: Bezeichnung, Ort, Notiz, Reihenfolge. |
+| `kmm_standgruppe` | Standgruppe eines Schießstands: Bezeichnung („10 m Stände“), Name je Einheit (`praefix`, z. B. „Stand“), Anzahl, erste Nummer, Kapazität je Einheit, optional Disziplin-Kennzahlen (z. B. Auflagetische). Beim Wettkampftag werden angekreuzte Stände zu Einheiten (`einheit.standgruppe_id` + `nummer`). |
+
 ## Optionen
 
 | Option | Inhalt |

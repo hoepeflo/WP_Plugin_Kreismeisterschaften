@@ -29,7 +29,7 @@ final class MigrationPhase2Test extends IntegrationTestCase {
 		$disziplinen_vorher = (new DisziplinRepository())->count(['sportjahr_id' => $sid]);
 
 		// Zustand „Version 2": neue Tabellen fehlen, neue Spalten fehlen.
-		foreach (['aenderung', 'beleg', 'referent', 'referent_zustaendigkeit', 'wettkampftag', 'einheit', 'durchgang', 'durchgang_zulassung', 'buchung'] as $t) {
+		foreach (['aenderung', 'beleg', 'referent', 'referent_zustaendigkeit', 'wettkampftag', 'einheit', 'durchgang', 'durchgang_zulassung', 'buchung', 'schiessstand', 'standgruppe'] as $t) {
 			$wpdb->query('DROP TABLE IF EXISTS ' . Tables::name($t)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		}
 		$wpdb->query('ALTER TABLE ' . Tables::name('einzelmeldung') . ' DROP COLUMN nachgemeldet, DROP COLUMN abmeldegrund'); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -39,7 +39,7 @@ final class MigrationPhase2Test extends IntegrationTestCase {
 
 		Migrator::maybe_migrate();
 
-		$this->assertSame(3, (int) get_option(Schema::OPTION_VERSION));
+		$this->assertSame(Schema::VERSION, (int) get_option(Schema::OPTION_VERSION));
 		foreach (Migrator::table_status() as $name => $ok) {
 			$this->assertTrue($ok, $name);
 		}
@@ -53,7 +53,7 @@ final class MigrationPhase2Test extends IntegrationTestCase {
 		$this->assertFalse(get_role(Capabilities::ROLE_REFERENT)->has_cap(Capabilities::MANAGE));
 
 		// Zweiter Lauf ändert nichts.
-		$this->assertSame([], Migrator::migrate(3));
+		$this->assertSame([], Migrator::migrate(Schema::VERSION));
 	}
 
 	public function test_buchung_eindeutigkeit_auf_datenbankebene(): void {

@@ -95,6 +95,10 @@ final class Migrator {
 		\KSV\KMM\Auth\Capabilities::add_to_roles();
 	}
 
+	/** Version 4: Schießstände und Standgruppen (nur neue Tabellen und optionale Spalten, keine Datenänderung). */
+	private static function step_4(): void {
+	}
+
 	/**
 	 * Status aller Tabellen für die Systemseite.
 	 *

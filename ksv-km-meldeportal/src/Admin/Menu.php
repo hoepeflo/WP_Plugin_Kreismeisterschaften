@@ -25,6 +25,7 @@ final class Menu {
 		['Import / Export', ImportExportPage::class, Capabilities::MANAGE],
 		['Verarbeitung', VerarbeitungPage::class, Capabilities::VIEW],
 		['Wettkampftage', WettkampftagePage::class, Capabilities::VIEW],
+		['Schießstände', SchiessstaendePage::class, Capabilities::MANAGE],
 		['Export', ExportPage::class, Capabilities::VIEW],
 		['Belege', BelegePage::class, Capabilities::MANAGE],
 		['Protokoll', ProtokollPage::class, Capabilities::VIEW],

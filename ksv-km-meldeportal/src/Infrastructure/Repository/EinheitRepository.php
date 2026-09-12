@@ -13,6 +13,7 @@ final class EinheitRepository extends Repository {
 
 	protected const TABLE = 'einheit';
 	protected const INT_COLUMNS = ['id', 'kapazitaet', 'sortierung'];
+	protected const NULLABLE_COLUMNS = ['standgruppe_id', 'nummer'];
 
 	/**
 	 * @return array<int, array<string, mixed>>

@@ -36,6 +36,18 @@ Neue Wettkampftage stehen im Status **Entwurf**: Vereine sehen nichts, der Stand
 
 Tests: `tests/Integration/StartplanTest.php`.
 
+### Schießstände als Stammdaten (Schema 4)
+
+Backend → **Schießstände** (nur Admin): ein Ort mit Standgruppen, z. B. „10 m Stände“
+12 × „Stand“ ab 1 mit Kapazität 1, „Bogen“ 6 × „Scheibe“ mit Kapazität 4, „50 m Auflage“
+mit Disziplinbeschränkung. Beim Wettkampftag den Schießstand wählen (Ort wird
+übernommen, wenn leer) und im Block „Stände freigeben“ ankreuzen, welche Stände an diesem
+Tag zur Verfügung stehen („alle“ / „keine“ je Gruppe). `StartplanService::
+einheiten_aus_schiessstand` legt fehlende Einheiten an (`standgruppe_id`, `nummer`) und
+entfernt abgewählte ohne Buchungen; von Hand angelegte Einheiten bleiben unberührt.
+Standgruppen mit freigegebenen Einheiten und Schießstände mit Wettkampftagen sind gegen
+Löschen geschützt. Tests: `tests/Integration/SchiessstandTest.php`.
+
 ## Meilenstein 8: Freigabe und Buchung (Konzept 12.4)
 
 ### Freigabe (`StartplanService::freigeben`)

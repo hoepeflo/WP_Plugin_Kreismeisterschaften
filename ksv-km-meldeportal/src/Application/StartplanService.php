@@ -110,10 +110,20 @@ final class StartplanService {
 			'buchungsfrist' => $daten['buchungsfrist'] ?? null,
 			'hinweis'      => $daten['hinweis'] ?? null,
 			'beitrag_id'   => isset($daten['beitrag_id']) && (int) $daten['beitrag_id'] > 0 ? (int) $daten['beitrag_id'] : null,
+			'schiessstand_id' => isset($daten['schiessstand_id']) && (int) $daten['schiessstand_id'] > 0 ? (int) $daten['schiessstand_id'] : null,
 			'ergebnis_url' => isset($daten['ergebnis_url']) ? esc_url_raw((string) $daten['ergebnis_url']) : '',
 			'sortierung'   => (int) ($daten['sortierung'] ?? 0),
 			'updated_at'   => Clock::now_utc(),
 		];
+		if ($satz['schiessstand_id'] !== null) {
+			$stand = (new \KSV\KMM\Infrastructure\Repository\SchiessstandRepository())->find($satz['schiessstand_id']);
+			if ($stand === null) {
+				throw new \InvalidArgumentException('Schießstand nicht gefunden.');
+			}
+			if ($satz['ort'] === '') {
+				$satz['ort'] = (string) $stand['bezeichnung'] . ((string) $stand['ort'] !== '' ? ', ' . (string) $stand['ort'] : '');
+			}
+		}
 		if ($id > 0) {
 			$this->tag($id);
 			$this->tage->update($id, $satz);
@@ -182,6 +192,65 @@ final class StartplanService {
 			return $id;
 		}
 		return $this->einheiten->insert($satz);
+	}
+
+	/**
+	 * Einheiten des Tages aus den angekreuzten Ständen des Schießstands abgleichen:
+	 * angekreuzte Nummern werden angelegt (falls noch nicht vorhanden), abgewählte entfernt
+	 * (nur ohne Buchungen). Von Hand angelegte Einheiten bleiben unberührt.
+	 *
+	 * @param array<int, list<int>> $auswahl standgruppe_id => gewählte Nummern
+	 * @return array{angelegt: int, entfernt: int, behalten: int}
+	 */
+	public function einheiten_aus_schiessstand(int $tag_id, array $auswahl): array {
+		$this->schreibrecht();
+		$tag = $this->tag($tag_id);
+		if ($tag['schiessstand_id'] === null) {
+			throw new \RuntimeException('Dem Wettkampftag ist kein Schießstand zugeordnet.');
+		}
+		$rw = RegelwerkLader::laden($this->sportjahr_id);
+		$gruppen = new \KSV\KMM\Infrastructure\Repository\StandgruppeRepository();
+		$angelegt = 0;
+		$entfernt = 0;
+		$behalten = 0;
+		$vorhanden = $this->einheiten->by_wettkampftag($tag_id);
+		$sortierung = 0;
+		foreach ($gruppen->by_schiessstand((int) $tag['schiessstand_id']) as $g) {
+			$gid = (int) $g['id'];
+			$gewaehlt = array_map('intval', $auswahl[ $gid ] ?? []);
+			$disziplin_ids = [];
+			foreach (array_filter(array_map('trim', explode(',', (string) $g['disziplin_kennzahlen']))) as $kz) {
+				$d = $rw->disziplin_nach_kennzahl($kz);
+				if ($d !== null) {
+					$disziplin_ids[] = $d->id;
+				}
+			}
+			foreach (\KSV\KMM\Infrastructure\Repository\StandgruppeRepository::nummern($g) as $nr) {
+				$sortierung++;
+				$existiert = null;
+				foreach ($vorhanden as $e) {
+					if ($e['standgruppe_id'] !== null && (int) $e['standgruppe_id'] === $gid && (int) $e['nummer'] === $nr) {
+						$existiert = $e;
+					}
+				}
+				if (in_array($nr, $gewaehlt, true)) {
+					if ($existiert === null) {
+						$this->einheiten->insert(['wettkampftag_id' => $tag_id, 'bezeichnung' => \KSV\KMM\Infrastructure\Repository\StandgruppeRepository::bezeichnung($g, $nr), 'kapazitaet' => (int) $g['kapazitaet'], 'disziplin_ids' => implode(',', $disziplin_ids), 'standgruppe_id' => $gid, 'nummer' => $nr, 'sortierung' => $sortierung]);
+						$angelegt++;
+					} else {
+						$behalten++;
+					}
+				} elseif ($existiert !== null) {
+					if ($this->buchungen->count(['einheit_id' => (int) $existiert['id']]) > 0) {
+						throw new \RuntimeException(sprintf('%s hat Buchungen und kann nicht abgewählt werden.', (string) $existiert['bezeichnung']));
+					}
+					$this->einheiten->delete((int) $existiert['id']);
+					$entfernt++;
+				}
+			}
+		}
+		Protokoll::admin('wettkampftag.einheiten', sprintf('%s %s: %d Einheiten aus Schießstand freigegeben, %d entfernt', (string) $tag['datum'], (string) $tag['bezeichnung'], $angelegt, $entfernt), $this->sportjahr_id, null, 'wettkampftag', $tag_id);
+		return ['angelegt' => $angelegt, 'entfernt' => $entfernt, 'behalten' => $behalten];
 	}
 
 	public function einheit_loeschen(int $id): void {

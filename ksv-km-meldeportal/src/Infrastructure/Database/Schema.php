@@ -24,7 +24,7 @@ final class Schema {
 	 * Schema-Version. Bei jeder Änderung an definitions() erhöhen; der Migrator
 	 * führt dbDelta() erneut aus, sobald die gespeicherte Version abweicht.
 	 */
-	public const VERSION = 3;
+	public const VERSION = 4;
 
 	public const OPTION_VERSION = 'kmm_schema_version';
 
@@ -58,6 +58,9 @@ final class Schema {
 		'durchgang',
 		'durchgang_zulassung',
 		'buchung',
+		// Phase 2 (Schema 4): Schießstände als Stammdaten
+		'schiessstand',
+		'standgruppe',
 	];
 
 	/**
@@ -472,6 +475,7 @@ final class Schema {
   veroeffentlicht_am datetime DEFAULT NULL,
   ausgeblendet_am datetime DEFAULT NULL,
   beitrag_id bigint(20) unsigned DEFAULT NULL,
+  schiessstand_id bigint(20) unsigned DEFAULT NULL,
   ergebnis_url varchar(255) NOT NULL DEFAULT '',
   erinnerung_am datetime DEFAULT NULL,
   erinnerung_gesendet_am datetime DEFAULT NULL,
@@ -489,6 +493,8 @@ final class Schema {
   bezeichnung varchar(100) NOT NULL,
   kapazitaet tinyint(3) unsigned NOT NULL DEFAULT 1,
   disziplin_ids varchar(255) NOT NULL DEFAULT '',
+  standgruppe_id bigint(20) unsigned DEFAULT NULL,
+  nummer smallint(5) unsigned DEFAULT NULL,
   sortierung smallint(5) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY  (id),
   KEY wettkampftag_id (wettkampftag_id)
@@ -533,6 +539,32 @@ final class Schema {
   UNIQUE KEY einzelmeldung_id (einzelmeldung_id),
   KEY wettkampftag_id (wettkampftag_id),
   KEY verein_id (verein_id)
+) {$charset_collate};";
+
+		$defs['schiessstand'] = "CREATE TABLE {$t('schiessstand')} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  bezeichnung varchar(150) NOT NULL,
+  ort varchar(150) NOT NULL DEFAULT '',
+  notiz text,
+  sortierung smallint(5) unsigned NOT NULL DEFAULT 0,
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  KEY sortierung (sortierung)
+) {$charset_collate};";
+
+		$defs['standgruppe'] = "CREATE TABLE {$t('standgruppe')} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  schiessstand_id bigint(20) unsigned NOT NULL,
+  bezeichnung varchar(100) NOT NULL,
+  praefix varchar(50) NOT NULL DEFAULT 'Stand',
+  anzahl smallint(5) unsigned NOT NULL DEFAULT 1,
+  nummer_von smallint(5) unsigned NOT NULL DEFAULT 1,
+  kapazitaet tinyint(3) unsigned NOT NULL DEFAULT 1,
+  disziplin_kennzahlen varchar(255) NOT NULL DEFAULT '',
+  sortierung smallint(5) unsigned NOT NULL DEFAULT 0,
+  PRIMARY KEY  (id),
+  KEY schiessstand_id (schiessstand_id)
 ) {$charset_collate};";
 
 		return $defs;
