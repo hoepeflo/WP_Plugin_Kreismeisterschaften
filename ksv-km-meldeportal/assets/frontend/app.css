@@ -136,3 +136,13 @@ h2 { font-size: 1.2rem; margin: 24px 0 12px; }
 .kmm-sp-zelle.is-eigen { background: #dcfce7; border-color: #86efac; cursor: pointer; }
 .kmm-sp-zelle.is-eigen.is-auswahl { box-shadow: 0 0 0 3px rgba(20, 83, 45, .25); }
 .kmm-link { background: none; border: 0; padding: 0; color: var(--kmm-primary, #14532d); text-decoration: underline; cursor: pointer; font: inherit; }
+
+/* Feinschliff */
+.kmm-ergebnis.is-busy { opacity: .6; }
+.kmm-button:disabled { opacity: .6; cursor: progress; }
+.kmm-button, .kmm-karte, .kmm-sp-zelle, .kmm-tabs button { transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease; }
+.kmm-tabelle tbody tr:hover td { background: #f8fafc; }
+.kmm-tabelle tr.is-konflikt:hover td { background: var(--kmm-error-bg); }
+.kmm-ergebnis:focus, .kmm-form input:focus, .kmm-form select:focus { outline: 2px solid var(--kmm-primary); outline-offset: 1px; }
+.kmm-karte:hover { border-color: var(--kmm-primary); }
+.kmm-toast { box-shadow: 0 6px 20px rgba(0, 0, 0, .25); }

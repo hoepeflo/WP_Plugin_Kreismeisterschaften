@@ -45,6 +45,9 @@ final class MeldungService {
 
 	private Engine $engine;
 
+	/** @var array<int, array<string, mixed>|null> */
+	private array $mannschaft_cache = [];
+
 	/**
 	 * @param array<string, mixed> $verein Verein der Sitzung
 	 * @param bool $admin Admin-Modus (Backend-Bearbeitung nach Meldeschluss): keine Phasen- und
@@ -494,6 +497,7 @@ final class MeldungService {
 	 * @return array<string, mixed>
 	 */
 	public function mannschaft_speichern(?int $mannschaft_id, int $disziplin_id, array $einzelmeldung_ids): array {
+		$this->mannschaft_cache = [];
 		$m = $this->schreibrecht();
 		$d = $this->engine->regelwerk()->disziplin($disziplin_id);
 		$this->zustaendig_pruefen($d);
@@ -569,6 +573,7 @@ final class MeldungService {
 	}
 
 	public function mannschaft_loeschen(int $mannschaft_id): void {
+		$this->mannschaft_cache = [];
 		$this->schreibrecht();
 		$mannschaft = $this->eigene_mannschaft($mannschaft_id);
 		$this->zustaendig_pruefen((int) $mannschaft['disziplin_id']);
@@ -796,7 +801,12 @@ final class MeldungService {
 			$kennzahl = $b->kennzahl;
 			$hinweise = $b->hinweise;
 		}
-		$mannschaft = $em['mannschaft_id'] !== null ? $this->mannschaften->find((int) $em['mannschaft_id']) : null;
+		$mannschaft = null;
+		if ($em['mannschaft_id'] !== null) {
+			$mid = (int) $em['mannschaft_id'];
+			$this->mannschaft_cache[ $mid ] ??= $this->mannschaften->find($mid);
+			$mannschaft = $this->mannschaft_cache[ $mid ];
+		}
 		return [
 			'id'                 => (int) $em['id'],
 			'schuetze_id'        => $em['schuetze_id'] !== null ? (int) $em['schuetze_id'] : null,

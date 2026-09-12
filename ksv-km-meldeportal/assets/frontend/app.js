@@ -277,9 +277,12 @@
 				const labels = {};
 				state.angebot.forEach((a) => { const g = gruppeVon(a); labels[g.key] = g.label; if (!gruppen.has(g.key)) { gruppen.set(g.key, []); } gruppen.get(g.key).push(a); });
 				let erste = true;
+				state.offeneGruppen = state.offeneGruppen || {};
+				$$('#kmm-tab-meldung details.kmm-gruppe-details').forEach((d) => { state.offeneGruppen[d.dataset.gruppe] = d.open; });
 				gruppen.forEach((liste, code) => {
 					const gemeldet = liste.filter((a) => a.gemeldet_id).length;
-					teil += `<details class="kmm-gruppe-details" ${erste || gemeldet ? 'open' : ''}><summary>${h(labels[code])} <span class="kmm-muted">(${liste.length} Disziplinen${gemeldet ? ', ' + gemeldet + ' gemeldet' : ''})</span></summary><div class="kmm-liste kmm-liste-kompakt">`;
+					const offen = code in state.offeneGruppen ? state.offeneGruppen[code] : (erste || gemeldet);
+					teil += `<details class="kmm-gruppe-details" data-gruppe="${h(code)}" ${offen ? 'open' : ''}><summary>${h(labels[code])} <span class="kmm-muted">(${liste.length} Disziplinen${gemeldet ? ', ' + gemeldet + ' gemeldet' : ''})</span></summary><div class="kmm-liste kmm-liste-kompakt">`;
 					teil += liste.map((a) => `
 					<div class="kmm-karte ${a.gemeldet_id ? 'is-gemeldet' : ''}">
 						<div class="kmm-karte-haupt">
@@ -350,14 +353,27 @@
 		if (t.dataset.action === 'ergebnis' || t.dataset.action === 'nicht-meldung') {
 			const id = Number(t.dataset.id);
 			const body = t.dataset.action === 'ergebnis' ? { meldeergebnis: t.value } : { nicht_meldung: t.checked };
+			t.classList.add('is-busy');
 			try {
 				const r = await api('PUT', `meldung/einzel/${id}`, body);
 				state.meldung = r.meldung;
-				renderAll();
+				// Nur die betroffene Zeile und die Zusammenfassung aktualisieren – die Tabelle bleibt
+				// stehen, damit ein bereits angeklicktes nächstes Feld nicht verschwindet.
+				const em = r.einzelmeldung || state.meldung.einzelmeldungen.find((x) => x.id === id);
+				if (em && t.dataset.action === 'ergebnis') {
+					t.value = em.meldeergebnis;
+					t.classList.toggle('is-leer', em.meldeergebnis === '');
+				}
+				renderKopf();
+				renderEinreichen();
+				const warn = $('#kmm-tab-meldung .kmm-alert-warn');
+				if (warn) { warn.hidden = state.meldung.ohne_ergebnis === 0; if (!warn.hidden) { warn.textContent = `${state.meldung.ohne_ergebnis} Meldung(en) ohne Meldeergebnis. Bitte das Ergebnis der Vereinsmeisterschaft eintragen – es wird für die Startplanung benötigt.`; } }
 				if (t.dataset.action === 'ergebnis') { toast('Ergebnis gespeichert.'); }
 			} catch (e) {
 				toast(e.message, 'error');
 				t.focus();
+			} finally {
+				t.classList.remove('is-busy');
 			}
 		}
 	});
@@ -370,19 +386,31 @@
 			if (b.dataset.action === 'einzel-anlegen') {
 				const dId = Number(b.dataset.disziplin);
 				const paraSel = $(`select[data-para-for="${dId}"]`);
+				b.disabled = true;
+				b.textContent = '…';
 				const r = await api('POST', 'meldung/einzel', { schuetze_id: state.angebotFuer, disziplin_id: dId, para_klasse_id: paraSel && paraSel.value ? Number(paraSel.value) : null });
 				state.meldung = r.meldung;
-				state.schuetzen = await api('GET', 'schuetzen');
-				state.angebot = await api('GET', `schuetzen/${state.angebotFuer}/angebot`);
+				const a = (state.angebot || []).find((x) => x.disziplin_id === dId);
+				if (a) { a.gemeldet_id = r.einzelmeldung.id; }
+				const sch = state.schuetzen.find((x) => x.id === state.angebotFuer);
+				if (sch) { sch.meldungen = (sch.meldungen || 0) + 1; }
 				renderAll();
 				toast(`${r.einzelmeldung.kennzahl} gemeldet (${r.einzelmeldung.kennzahl_voll}).`);
+				api('GET', 'schuetzen').then((liste) => { state.schuetzen = liste; renderSchuetzen(); }).catch(() => {});
 			} else if (b.dataset.action === 'einzel-loeschen') {
 				if (!window.confirm('Meldung entfernen?')) { return; }
+				b.disabled = true;
+				const alt = state.meldung.einzelmeldungen.find((x) => x.id === id);
 				const r = await api('DELETE', `meldung/einzel/${id}`);
 				state.meldung = r.meldung;
-				state.schuetzen = await api('GET', 'schuetzen');
-				if (state.angebotFuer) { state.angebot = await api('GET', `schuetzen/${state.angebotFuer}/angebot`); }
+				if (alt) {
+					const a = (state.angebot || []).find((x) => x.disziplin_id === alt.disziplin_id && x.gemeldet_id === id);
+					if (a) { a.gemeldet_id = null; }
+					const sch = state.schuetzen.find((x) => x.id === alt.schuetze_id);
+					if (sch && sch.meldungen) { sch.meldungen--; }
+				}
 				renderAll();
+				api('GET', 'schuetzen').then((liste) => { state.schuetzen = liste; renderSchuetzen(); }).catch(() => {});
 			} else if (b.dataset.action === 'konflikt-ok') {
 				const r = await api('POST', `meldung/einzel/${id}/bestaetigen`);
 				state.meldung = r.meldung;
