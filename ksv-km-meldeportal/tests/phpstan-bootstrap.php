@@ -15,3 +15,8 @@ define('KMM_PLUGIN_FILE', __DIR__ . '/../ksv-km-meldeportal.php');
 define('KMM_PLUGIN_DIR', dirname(__DIR__) . '/');
 define('KMM_PLUGIN_URL', 'https://example.org/wp-content/plugins/ksv-km-meldeportal/');
 define('KMM_PLUGIN_BASENAME', 'ksv-km-meldeportal/ksv-km-meldeportal.php');
+// Ausgabeformate von $wpdb (in den WordPress-Stubs nicht als Konstanten enthalten).
+define('ARRAY_A', 'ARRAY_A');
+define('ARRAY_N', 'ARRAY_N');
+define('OBJECT', 'OBJECT');
+define('OBJECT_K', 'OBJECT_K');
