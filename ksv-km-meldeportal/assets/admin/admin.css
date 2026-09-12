@@ -15,3 +15,21 @@
 .kmm-admin table.kmm-regeln tr.kmm-group-row th { background: #eef2f5; }
 .kmm-admin table.kmm-regeln select { max-width: 14em; }
 .kmm-admin .nav-tab-wrapper { margin-bottom: 12px; }
+.kmm-admin .kmm-kacheln { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.kmm-admin .kmm-kachel { background: #fff; border: 1px solid #c3c4c7; border-radius: 4px; padding: 10px 14px; min-width: 120px; }
+.kmm-admin .kmm-kachel-wert { font-size: 22px; font-weight: 600; }
+.kmm-admin .kmm-kachel-label { color: #646970; font-size: 12px; }
+.kmm-admin .kmm-kachel.warn .kmm-kachel-wert { color: #996800; }
+.kmm-admin .kmm-kachel.fail .kmm-kachel-wert { color: #b32d2e; }
+.kmm-admin .kmm-badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; background: #e5e7eb; }
+.kmm-admin .kmm-badge-entwurf { background: #fff4d6; color: #8a5a00; }
+.kmm-admin .kmm-badge-eingereicht { background: #e3f4e8; color: #14532d; }
+.kmm-admin .kmm-akteur-verein { background: #e0ecff; } .kmm-admin .kmm-akteur-system { background: #eee; }
+.kmm-admin .kmm-warn { color: #996800; font-weight: 600; }
+.kmm-admin .kmm-phase { background: #fff; border: 1px solid #c3c4c7; padding: 4px 12px; margin: 8px 0; }
+.kmm-admin table .r { text-align: right; }
+.kmm-admin tr.kmm-detail td { background: #f6f7f7; }
+.kmm-admin tr.kmm-zeile-konflikt td { background: #fde8e8; }
+.kmm-admin tr.kmm-zeile-warn td { background: #fff4d6; }
+.kmm-admin .kmm-filter { margin: 8px 0 12px; }
+.kmm-admin .kmm-protokoll pre { font-size: 11px; max-height: 200px; overflow: auto; }

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace KSV\KMM;
 
 use KSV\KMM\Admin\Menu;
+use KSV\KMM\Application\Erinnerung;
 use KSV\KMM\Application\Revalidierung;
 use KSV\KMM\Auth\Capabilities;
 use KSV\KMM\Http\RestApi;
@@ -45,6 +46,7 @@ final class Plugin {
 		RestApi::register();
 		Cron::register();
 		Revalidierung::register();
+		Erinnerung::register();
 
 		if (is_admin()) {
 			Migrator::maybe_migrate();

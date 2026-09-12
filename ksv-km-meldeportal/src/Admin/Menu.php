@@ -17,10 +17,12 @@ final class Menu {
 
 	/** @var array<int, array{0: string, 1: class-string<AdminPage>, 2: string}> Titel, Klasse, Capability */
 	private const PAGES = [
+		['Übersicht', UebersichtPage::class, Capabilities::VIEW],
 		['Sportjahre', SportjahrePage::class, Capabilities::MANAGE],
 		['Vereine', VereinePage::class, Capabilities::MANAGE],
 		['Stammdaten', StammdatenPage::class, Capabilities::MANAGE],
 		['Import / Export', ImportExportPage::class, Capabilities::MANAGE],
+		['Protokoll', ProtokollPage::class, Capabilities::VIEW],
 		['Einstellungen', SettingsPage::class, Capabilities::MANAGE],
 	];
 
@@ -46,14 +48,14 @@ final class Menu {
 			__('KM-Meldeportal', 'ksv-km-meldeportal'),
 			Capabilities::VIEW,
 			self::SLUG,
-			[SystemPage::class, 'render'],
+			[UebersichtPage::class, 'render'],
 			'dashicons-clipboard',
 			58
 		);
-		add_submenu_page(self::SLUG, __('System', 'ksv-km-meldeportal'), __('System', 'ksv-km-meldeportal'), Capabilities::MANAGE, self::SLUG, [SystemPage::class, 'render']);
-		foreach (self::PAGES as [$title, $class, $cap]) {
-			add_submenu_page(self::SLUG, __($title, 'ksv-km-meldeportal'), __($title, 'ksv-km-meldeportal'), $cap, $class::SLUG, [$class, 'render']); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
+		foreach (self::PAGES as $i => [$title, $class, $cap]) {
+			add_submenu_page(self::SLUG, __($title, 'ksv-km-meldeportal'), __($title, 'ksv-km-meldeportal'), $cap, $i === 0 ? self::SLUG : $class::SLUG, [$class, 'render']); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
 		}
+		add_submenu_page(self::SLUG, __('System', 'ksv-km-meldeportal'), __('System', 'ksv-km-meldeportal'), Capabilities::MANAGE, 'kmm-system', [SystemPage::class, 'render']);
 	}
 
 	public static function enqueue_assets(string $hook): void {

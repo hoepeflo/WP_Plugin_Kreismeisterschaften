@@ -75,7 +75,11 @@ Phase 2 die tägliche Sammelmail) soll ein echter Cronjob den Aufruf übernehmen
    und „Nächster Cron-Lauf" liegt maximal eine Stunde in der Zukunft.
 
 Das Plugin plant ein stündliches Ereignis `kmm_hourly`; die Erinnerungsmail prüft darin,
-ob ihr eingestellter Zeitpunkt erreicht ist.
+ob ihr eingestellter Zeitpunkt (Feld „Erinnerungsmail am“ des Sportjahres) erreicht ist.
+Sie geht einmalig an aktive Vereine mit Status Offen oder Entwurf und Adresse, enthält einen
+neuen Zugangslink (alte bleiben gültig) und wird nach dem Meldeschluss nicht mehr versandt.
+In der Übersicht lässt sie sich jederzeit manuell auslösen; „Versandvermerk zurücksetzen“
+erlaubt einen zweiten automatischen Versand zu einem neuen Zeitpunkt.
 
 ## Zeitzone
 
