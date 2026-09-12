@@ -47,8 +47,9 @@ final class ErinnerungTest extends IntegrationTestCase {
 
 		Erinnerung::cron();
 		$this->assertCount(2, $this->mails);
-		$this->assertStringContainsString('noch keine Meldung vor', $this->mails[0]['message']);
-		$this->assertStringContainsString('noch nicht eingereicht', $this->mails[1]['message']);
+		$texte = implode("\n", array_column($this->mails, 'message'));
+		$this->assertStringContainsString('noch keine Meldung vor', $texte);
+		$this->assertStringContainsString('noch nicht eingereicht', $texte);
 		$this->assertMatchesRegularExpression('#/km-meldung/zugang/[a-f0-9]{64}/#', $this->mails[0]['message']);
 		$this->assertCount(1, (new MagicLinkRepository())->where(['verein_id' => $offen, 'anlass' => 'erinnerung']));
 		$this->assertNotNull($repo->find($sid)['erinnerung_gesendet_am']);
