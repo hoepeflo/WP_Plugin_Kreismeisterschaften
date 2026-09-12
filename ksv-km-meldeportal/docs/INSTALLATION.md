@@ -72,7 +72,9 @@ Phase 2 die tägliche Sammelmail) soll ein echter Cronjob den Aufruf übernehmen
    */5 * * * * php /pfad/zu/wordpress/wp-cron.php > /dev/null 2>&1
    ```
 3. Auf der Systemseite steht bei „WP-Cron" dann „deaktiviert (Server-Cronjob erwartet)",
-   und „Nächster Cron-Lauf" liegt maximal eine Stunde in der Zukunft.
+   und „Nächster Cron-Lauf" liegt maximal eine Stunde in der Zukunft. „Nächste Sammelmail"
+   zeigt den täglichen Lauf zur eingestellten Uhrzeit (Einstellungen → Mail; Phase 2,
+   `docs/SAMMELMAIL.md`).
 
 Das Plugin plant ein stündliches Ereignis `kmm_hourly`; die Erinnerungsmail prüft darin,
 ob ihr eingestellter Zeitpunkt (Feld „Erinnerungsmail am“ des Sportjahres) erreicht ist.

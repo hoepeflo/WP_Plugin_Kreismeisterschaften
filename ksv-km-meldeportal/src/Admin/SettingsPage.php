@@ -42,6 +42,8 @@ final class SettingsPage extends AdminPage {
 			'csv_kopfzeile'                     => self::post_bool('csv_kopfzeile'),
 			'mail_absender_name'                => self::post_str('mail_absender_name', 100),
 			'mail_absender_adresse'             => sanitize_email(self::post_str('mail_absender_adresse', 190)),
+			'sammelmail_aktiv'                  => self::post_bool('sammelmail_aktiv'),
+			'sammelmail_uhrzeit'                => preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', self::post_str('sammelmail_uhrzeit', 5)) === 1 ? self::post_str('sammelmail_uhrzeit', 5) : '18:00',
 			'daten_bei_deinstallation_loeschen' => self::post_bool('daten_bei_deinstallation_loeschen'),
 		];
 		Settings::update($werte);
@@ -85,6 +87,8 @@ final class SettingsPage extends AdminPage {
 		echo '<h2>' . esc_html__('Mail', 'ksv-km-meldeportal') . '</h2><table class="form-table">';
 		$row(__('Absendername', 'ksv-km-meldeportal'), self::input('mail_absender_name', $s['mail_absender_name'], 'text', 'class="regular-text"'), __('leer = WordPress-Standard bzw. Einstellung von WP Mail SMTP', 'ksv-km-meldeportal'));
 		$row(__('Absenderadresse', 'ksv-km-meldeportal'), self::input('mail_absender_adresse', $s['mail_absender_adresse'], 'email', 'class="regular-text"'));
+		$row(__('Tägliche Sammelmail', 'ksv-km-meldeportal'), self::checkbox('sammelmail_aktiv', (bool) ($s['sammelmail_aktiv'] ?? true), __('Vereine einmal täglich über Änderungen nach Meldeschluss informieren (Status, Nach-/Abmeldungen, Korrekturen, Startplan)', 'ksv-km-meldeportal')), __('Abgeschaltet werden Änderungen weiter gesammelt, aber nicht versendet; manueller Versand über die Übersicht bleibt möglich.', 'ksv-km-meldeportal'));
+		$row(__('Sammelmail: Uhrzeit', 'ksv-km-meldeportal'), self::input('sammelmail_uhrzeit', $s['sammelmail_uhrzeit'] ?? '18:00', 'time', 'class="kmm-short"'), __('Ortszeit der WordPress-Einstellungen. Versand über WP-Cron; auf dem Server sollte ein echter Cronjob wp-cron.php anstoßen (docs/INSTALLATION.md).', 'ksv-km-meldeportal'));
 		echo '</table>';
 
 		echo '<h2>' . esc_html__('Deinstallation', 'ksv-km-meldeportal') . '</h2><table class="form-table">';

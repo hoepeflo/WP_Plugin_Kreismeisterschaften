@@ -13,6 +13,7 @@ namespace KSV\KMM\Admin;
 use KSV\KMM\Application\Erinnerung;
 use KSV\KMM\Application\Mailer;
 use KSV\KMM\Application\MeldungService;
+use KSV\KMM\Application\Sammelmail;
 use KSV\KMM\Auth\Rechte;
 use KSV\KMM\Http\Router;
 use KSV\KMM\Infrastructure\RegelwerkLader;
@@ -24,6 +25,7 @@ use KSV\KMM\Infrastructure\Repository\MeldungRepository;
 use KSV\KMM\Infrastructure\Repository\SportjahrRepository;
 use KSV\KMM\Infrastructure\Repository\VereinRepository;
 use KSV\KMM\Support\Clock;
+use KSV\KMM\Support\Settings;
 
 final class UebersichtPage extends AdminPage {
 
@@ -39,6 +41,14 @@ final class UebersichtPage extends AdminPage {
 			if (self::action() === 'erinnerung_senden') {
 				$r = Erinnerung::senden($sid, true);
 				$text = sprintf(__('Erinnerung an %d Vereine gesendet.', 'ksv-km-meldeportal'), $r['gesendet']);
+				if ($r['fehler'] !== []) {
+					$text .= "\n" . implode("\n", $r['fehler']);
+				}
+				self::redirect($text, $r['fehler'] === [] ? 'success' : 'warning', ['sportjahr' => $sid]);
+			}
+			if (self::action() === 'sammelmail_senden') {
+				$r = Sammelmail::senden($sid, true);
+				$text = sprintf(__('Sammelmail an %1$d Vereine gesendet (%2$d Änderungen).', 'ksv-km-meldeportal'), $r['gesendet'], $r['aenderungen']);
 				if ($r['fehler'] !== []) {
 					$text .= "\n" . implode("\n", $r['fehler']);
 				}
@@ -216,7 +226,31 @@ final class UebersichtPage extends AdminPage {
 				echo '</form>';
 			}
 		}
+		self::render_sammelmail($sid);
 		echo '</div>';
+	}
+
+	private static function render_sammelmail(int $sid): void {
+		$offen = (new \KSV\KMM\Infrastructure\Repository\AenderungRepository())->offen_je_sportjahr($sid);
+		$anzahl = array_sum(array_map('count', $offen));
+		$lauf = Sammelmail::letzter_lauf();
+		$naechster = wp_next_scheduled(\KSV\KMM\Cron::DAILY_HOOK);
+		echo '<p><strong>' . esc_html__('Sammelmail:', 'ksv-km-meldeportal') . '</strong> ';
+		echo esc_html(Settings::get('sammelmail_aktiv') ? sprintf(__('täglich um %s Uhr', 'ksv-km-meldeportal'), (string) Settings::get('sammelmail_uhrzeit')) : __('abgeschaltet', 'ksv-km-meldeportal'));
+		if ($naechster !== false && Settings::get('sammelmail_aktiv')) {
+			echo ' · ' . esc_html(sprintf(__('nächster Lauf %s', 'ksv-km-meldeportal'), Clock::format_local(gmdate(Clock::DB_FORMAT, (int) $naechster))));
+		}
+		if ($lauf !== null) {
+			echo ' · ' . esc_html(sprintf(__('letzter Lauf %s', 'ksv-km-meldeportal'), Clock::format_local($lauf['am'])));
+		}
+		echo ' · ' . esc_html(sprintf(__('%1$d offene Änderungen bei %2$d Vereinen', 'ksv-km-meldeportal'), $anzahl, count($offen)));
+		echo ' · <a href="' . esc_url(Menu::url(SettingsPage::SLUG)) . '">' . esc_html__('Einstellungen', 'ksv-km-meldeportal') . '</a></p>';
+		if (current_user_can(\KSV\KMM\Auth\Capabilities::MANAGE)) {
+			self::form_open('sammelmail_senden', 'class="kmm-inline-form" onsubmit="return confirm(\'' . esc_js(sprintf(__('Sammelmail jetzt an %d Vereine senden?', 'ksv-km-meldeportal'), count($offen))) . '\')"');
+			echo '<input type="hidden" name="sportjahr_id" value="' . $sid . '">';
+			submit_button(__('Sammelmail jetzt senden', 'ksv-km-meldeportal'), 'secondary', 'submit', false, $anzahl === 0 ? ['disabled' => 'disabled'] : []);
+			echo '</form>';
+		}
 	}
 
 	/**

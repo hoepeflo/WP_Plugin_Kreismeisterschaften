@@ -250,7 +250,7 @@ final class MeldungService {
 		$text = sprintf('%s, %s in %s (%s)', (string) $s['nachname'], (string) $s['vorname'], $d->kennzahl, $b->kennzahl);
 		if ($this->nach_meldeschluss()) {
 			$this->einzel->update($id, ['nachgemeldet' => true]);
-			$this->aenderung($id, AenderungTyp::NACHMELDUNG, 'Nachmeldung: ' . $text);
+			$this->aenderung($id, AenderungTyp::NACHMELDUNG, $text);
 		}
 		$this->protokoll('meldung.einzel.anlegen', $text, 'einzelmeldung', $id);
 		return $this->einzel_ansicht((array) $this->einzel->find($id), $s);
@@ -291,7 +291,17 @@ final class MeldungService {
 			$this->einzel->update($id, $update);
 			if ($this->nach_meldeschluss()) {
 				$ansicht = $this->einzel_ansicht((array) $this->einzel->find($id));
-				$this->aenderung($id, AenderungTyp::KORREKTUR, sprintf('Korrektur: %s, %s in %s (%s)', $ansicht['nachname'], $ansicht['vorname'], $ansicht['kennzahl'], implode(', ', array_keys($update))), $update);
+				$was = [];
+				if (array_key_exists('meldeergebnis', $update)) {
+					$was[] = 'Meldeergebnis ' . ($ansicht['meldeergebnis'] !== '' ? $ansicht['meldeergebnis'] : 'entfernt');
+				}
+				if (array_key_exists('nicht_meldung', $update)) {
+					$was[] = 'Nicht-Meldung ' . ($update['nicht_meldung'] ? 'gesetzt' : 'entfernt');
+				}
+				if (array_key_exists('para_klasse_id', $update)) {
+					$was[] = 'Para-Klasse ' . ($ansicht['para'] ?? 'entfernt') . ', Startklasse ' . $ansicht['startklasse'];
+				}
+				$this->aenderung($id, AenderungTyp::KORREKTUR, sprintf('%s, %s in %s: %s', $ansicht['nachname'], $ansicht['vorname'], $ansicht['kennzahl'], implode('; ', $was)), $update);
 			}
 		}
 		return $this->einzel_ansicht((array) $this->einzel->find($id));
@@ -340,7 +350,7 @@ final class MeldungService {
 			(new VerarbeitungService($this->sportjahr_id()))->mannschaft_pruefen((int) $em['mannschaft_id']);
 		}
 		$ansicht = $this->einzel_ansicht((array) $this->einzel->find($id));
-		$text = sprintf('Abmeldung: %s, %s in %s%s (Startgeld %s)', $ansicht['nachname'], $ansicht['vorname'], $ansicht['kennzahl'], $grund !== '' ? ' – ' . $grund : '', $berechnen ? 'wird berechnet' : 'entfällt');
+		$text = sprintf('%s, %s in %s abgemeldet%s (Startgeld %s)', $ansicht['nachname'], $ansicht['vorname'], $ansicht['kennzahl'], $grund !== '' ? ' – ' . $grund : '', $berechnen ? 'wird berechnet' : 'entfällt');
 		Aenderungen::erfassen($this->sportjahr_id(), $this->verein_id(), $id, AenderungTyp::ABMELDUNG, $text, ['startgeld_berechnen' => $berechnen, 'platz_frei' => $b !== null]);
 		$this->protokoll('meldung.abmelden', $text, 'einzelmeldung', $id, ['startgeld_berechnen' => $berechnen]);
 		return $ansicht;

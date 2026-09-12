@@ -47,7 +47,9 @@ final class Settings {
 			// Absender für Mails (leer = WordPress-Standard).
 			'mail_absender_name'             => '',
 			'mail_absender_adresse'          => '',
-			// Phase 2: tägliche Sammelmail (Uhrzeit in der WordPress-Zeitzone, HH:MM).
+			// Phase 2: tägliche Sammelmail an Vereine mit Änderungen nach Meldeschluss
+			// (abschaltbar; Uhrzeit in der WordPress-Zeitzone, HH:MM).
+			'sammelmail_aktiv'               => true,
 			'sammelmail_uhrzeit'             => '18:00',
 			// Phase 2: Erinnerung an Vereine mit Startern ohne Platz, Tage vor der Buchungsfrist.
 			'buchung_erinnerung_tage'        => 3,

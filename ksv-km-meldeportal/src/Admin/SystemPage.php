@@ -54,6 +54,11 @@ final class SystemPage {
 			__('Nächster Cron-Lauf (kmm_hourly)', 'ksv-km-meldeportal'),
 			$next_cron ? Clock::format_local(gmdate(Clock::DB_FORMAT, (int) $next_cron)) : __('nicht geplant', 'ksv-km-meldeportal')
 		);
+		$next_daily = wp_next_scheduled(Cron::DAILY_HOOK);
+		self::row(
+			__('Nächste Sammelmail (kmm_sammelmail)', 'ksv-km-meldeportal'),
+			$next_daily ? Clock::format_local(gmdate(Clock::DB_FORMAT, (int) $next_daily)) : __('nicht geplant', 'ksv-km-meldeportal')
+		);
 		self::row(
 			__('WP-Cron', 'ksv-km-meldeportal'),
 			(defined('DISABLE_WP_CRON') && DISABLE_WP_CRON)

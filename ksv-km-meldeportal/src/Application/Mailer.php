@@ -20,6 +20,7 @@ final class Mailer {
 	public const TYP_MAGIC_LINK   = 'magic_link';
 	public const TYP_BESTAETIGUNG = 'bestaetigung';
 	public const TYP_ERINNERUNG   = 'erinnerung';
+	public const TYP_SAMMELMAIL   = 'sammelmail';
 
 	/**
 	 * @param string[]             $empfaenger
