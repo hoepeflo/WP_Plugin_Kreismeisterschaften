@@ -54,6 +54,9 @@ final class StammdatenPage extends AdminPage {
 				case 'disziplin_loeschen':
 					self::delete_disziplin($sportjahr_id, self::post_int('id'));
 					self::redirect(__('Disziplin gelöscht.', 'ksv-km-meldeportal'), 'success', $args);
+				case 'disziplinen_schnell':
+					$n = self::save_disziplinen_schnell($sportjahr_id);
+					self::redirect($n > 0 ? sprintf(__('%d Disziplinen geändert. Bestehende Meldungen werden neu geprüft.', 'ksv-km-meldeportal'), $n) : __('Keine Änderungen.', 'ksv-km-meldeportal'), 'success', $args);
 				case 'regeln_speichern':
 					$n = self::save_regeln($sportjahr_id, self::post_int('disziplin_id'));
 					self::redirect(sprintf(__('%d Regeln gespeichert. Bestehende Meldungen werden neu geprüft.', 'ksv-km-meldeportal'), $n), 'success', $args + ['disziplin' => self::post_int('disziplin_id')]);
@@ -263,6 +266,17 @@ final class StammdatenPage extends AdminPage {
 			echo '<p>' . esc_html__('Noch keine Disziplinen. Am schnellsten geht der Import des Konvertierungsergebnisses (JSON).', 'ksv-km-meldeportal') . '</p>';
 			return;
 		}
+		// Schnellbearbeitung: Angeboten und Ergebnisformat direkt in der Tabelle. Die Felder
+		// hängen über das form-Attribut an diesem Formular (keine verschachtelten Formulare).
+		$schnell_id = 'kmm-disziplinen-schnell';
+		self::form_open('disziplinen_schnell', 'id="' . $schnell_id . '" class="kmm-inline-form"');
+		echo '<input type="hidden" name="sportjahr_id" value="' . $sid . '"><input type="hidden" name="tab" value="disziplinen">';
+		submit_button(__('Änderungen an Angeboten / Ergebnis speichern', 'ksv-km-meldeportal'), 'secondary', 'submit', false, ['id' => 'kmm-schnell-speichern']);
+		echo ' <span class="description" id="kmm-schnell-hinweis">' . esc_html__('Änderungen in den Spalten „Angeboten“ und „Ergebnis“ werden direkt gespeichert.', 'ksv-km-meldeportal') . '</span></form>';
+		$format_options = [];
+		foreach (ErgebnisFormat::ALLE as $f) {
+			$format_options[ $f ] = ErgebnisFormat::label($f);
+		}
 		echo '<table class="widefat striped"><thead><tr><th>Kennzahl</th><th>Bezeichnung</th><th>Gruppe</th><th>Typ</th><th>Angeboten</th><th>Mannsch.</th><th>Ergebnis</th><th>Tarif</th><th>M.-Startgeld</th><th>Regeln</th><th></th></tr></thead><tbody>';
 		foreach ($list as $d) {
 			$id = (int) $d['id'];
@@ -271,9 +285,9 @@ final class StammdatenPage extends AdminPage {
 			echo '<td>' . esc_html((string) $d['bezeichnung']) . '</td>';
 			echo '<td>' . esc_html($gruppen[ (int) $d['gruppe_id'] ] ?? '?') . '</td>';
 			echo '<td>' . esc_html(DisziplinTyp::label((string) $d['typ'])) . '</td>';
-			echo '<td>' . ($d['angeboten'] ? '✔' : '–') . '</td>';
+			echo '<td><input type="checkbox" name="angeboten[' . $id . ']" value="1" form="' . $schnell_id . '" ' . checked((bool) $d['angeboten'], true, false) . ' title="' . esc_attr__('Bei der KM angeboten', 'ksv-km-meldeportal') . '"></td>';
 			echo '<td>' . (int) $d['mannschaft_groesse'] . '</td>';
-			echo '<td>' . esc_html(ErgebnisFormat::label((string) $d['ergebnis_format'])) . '</td>';
+			echo '<td><input type="hidden" name="ids[]" value="' . $id . '" form="' . $schnell_id . '">' . self::select('ergebnis_format[' . $id . ']', $format_options, (string) $d['ergebnis_format'], 'form="' . $schnell_id . '"') . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo '<td>' . esc_html($d['tarif_override'] !== null ? self::geld($d['tarif_override']) : __('Stufe', 'ksv-km-meldeportal')) . '</td>';
 			echo '<td>' . esc_html(self::geld($d['mannschaft_startgeld'])) . '</td>';
 			echo '<td><a href="' . esc_url(self::url(['sportjahr' => $sid, 'tab' => 'regeln', 'disziplin' => $id])) . '">' . (int) ($regel_counts[ $id ] ?? 0) . '</a></td>';
@@ -284,6 +298,44 @@ final class StammdatenPage extends AdminPage {
 			echo '</form></td></tr>';
 		}
 		echo '</tbody></table>';
+		// Direkt speichern, sobald ein Feld geändert wird (ohne JavaScript bleibt der Button).
+		echo '<script>(function(){var f=document.getElementById("' . $schnell_id . '");if(!f)return;document.querySelectorAll("[form=\'' . $schnell_id . '\']").forEach(function(el){el.addEventListener("change",function(){document.getElementById("kmm-schnell-hinweis").textContent="' . esc_js(__('Speichern …', 'ksv-km-meldeportal')) . '";f.requestSubmit?f.requestSubmit():f.submit();});});})();</script>';
+	}
+
+	/**
+	 * Schnellbearbeitung der Tabellenspalten „Angeboten“ und „Ergebnis“.
+	 *
+	 * @return int Zahl der geänderten Disziplinen
+	 */
+	private static function save_disziplinen_schnell(int $sid): int {
+		$repo = new DisziplinRepository();
+		$ids = isset($_POST['ids']) && is_array($_POST['ids']) ? array_map('intval', $_POST['ids']) : [];
+		$angeboten = isset($_POST['angeboten']) && is_array($_POST['angeboten']) ? $_POST['angeboten'] : [];
+		$formate = isset($_POST['ergebnis_format']) && is_array($_POST['ergebnis_format']) ? $_POST['ergebnis_format'] : [];
+		$n = 0;
+		$geaendert = [];
+		foreach ($ids as $id) {
+			$d = $repo->find($id);
+			if ($d === null || (int) $d['sportjahr_id'] !== $sid) {
+				continue;
+			}
+			$format = sanitize_key((string) ($formate[ $id ] ?? $d['ergebnis_format']));
+			$daten = [
+				'angeboten'       => isset($angeboten[ $id ]),
+				'ergebnis_format' => ErgebnisFormat::is_valid($format) ? $format : (string) $d['ergebnis_format'],
+			];
+			if ($daten['angeboten'] === (bool) $d['angeboten'] && $daten['ergebnis_format'] === (string) $d['ergebnis_format']) {
+				continue;
+			}
+			$repo->update($id, $daten);
+			$geaendert[] = sprintf('%s: %s, %s', (string) $d['kennzahl'], $daten['angeboten'] ? 'angeboten' : 'nicht angeboten', ErgebnisFormat::label($daten['ergebnis_format']));
+			$n++;
+		}
+		if ($n > 0) {
+			Protokoll::admin('disziplin.schnell', sprintf('%d Disziplinen geändert: %s', $n, implode('; ', $geaendert)), $sid, null, 'sportjahr', $sid);
+			(new SportjahrService())->regeln_geaendert($sid);
+		}
+		return $n;
 	}
 
 	/**
