@@ -15,7 +15,7 @@
    Alternativ den Ordner `ksv-km-meldeportal/` per FTP nach `wp-content/plugins/` legen.
 3. Bei der Aktivierung werden die Tabellen `wp_kmm_*` angelegt, die Rewrite-Regeln
    aktualisiert und das Cron-Ereignis `kmm_hourly` geplant.
-4. Unter „KM-Meldeportal → System" prüfen: alle Tabellen „vorhanden", Schema-Version
+4. Unter „KM-Portal → System" prüfen: alle Tabellen „vorhanden", Schema-Version
    gleich der Code-Version.
 
 Updates per FTP (ohne erneute Aktivierung) werden erkannt: Weicht die gespeicherte

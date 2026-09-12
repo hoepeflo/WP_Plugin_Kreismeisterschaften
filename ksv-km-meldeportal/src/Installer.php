@@ -19,7 +19,7 @@ final class Installer {
 	public static function activate(): void {
 		if (version_compare(PHP_VERSION, '8.1', '<')) {
 			deactivate_plugins(KMM_PLUGIN_BASENAME);
-			wp_die(esc_html__('KSV KM-Meldeportal benötigt PHP 8.1 oder neuer.', 'ksv-km-meldeportal'));
+			wp_die(esc_html__('KSV KM-Portal benötigt PHP 8.1 oder neuer.', 'ksv-km-meldeportal'));
 		}
 		if (!get_option(Settings::OPTION)) {
 			add_option(Settings::OPTION, [], '', false);

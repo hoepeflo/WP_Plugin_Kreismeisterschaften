@@ -1,6 +1,6 @@
 # Ausgaben: DAVID21-Export und PDF-Meldelisten
 
-Backend „KM-Meldeportal → Export“. Grundlage sind die neutralen Meldezeilen aus
+Backend „KM-Portal → Export“. Grundlage sind die neutralen Meldezeilen aus
 `Application\ExportService::zeilen()`: Meldungen mit Startrecht, ohne offenen Konflikt,
 nicht abgemeldet, standardmäßig nur aus **eingereichten** Vereinsmeldungen (Entwürfe
 lassen sich zuschalten). Jeder Export wird in `kmm_export` mit Zeitstempel, Umfang,

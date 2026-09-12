@@ -12,4 +12,4 @@ if (!defined('ABSPATH')) {
 }
 ?>
 <h1><?php echo esc_html($title); ?></h1>
-<p><?php esc_html_e('Das Meldeportal zur Kreisverbandsmeisterschaft ist in Vorbereitung. Die Vereine erhalten ihren Zugangslink per E-Mail zum Start der Meldephase.', 'ksv-km-meldeportal'); ?></p>
+<p><?php esc_html_e('Das KM-Portal zur Kreisverbandsmeisterschaft ist in Vorbereitung. Die Vereine erhalten ihren Zugangslink per E-Mail zum Start der Meldephase.', 'ksv-km-meldeportal'); ?></p>

@@ -100,7 +100,7 @@ final class Zugang {
 		$link = self::link_erzeugen($verein_id, $sportjahr_id, $anlass, $alte_widerrufen);
 		$ok = Mailer::senden(
 			$adressen,
-			sprintf('Ihr Zugang zum KM-Meldeportal %d', (int) $sportjahr['jahr']),
+			sprintf('Ihr Zugang zum KM-Portal %d', (int) $sportjahr['jahr']),
 			'magic-link',
 			[
 				'verein'       => $verein,

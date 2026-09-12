@@ -36,7 +36,7 @@ final class SystemPage {
 		$next_cron = wp_next_scheduled(Cron::HOURLY_HOOK);
 
 		echo '<div class="wrap kmm-admin">';
-		Menu::page_header(__('KM-Meldeportal – System', 'ksv-km-meldeportal'));
+		Menu::page_header(__('KM-Portal – System', 'ksv-km-meldeportal'));
 
 		if ($notice !== '') {
 			echo '<div class="notice notice-success"><p>' . esc_html($notice) . '</p></div>';

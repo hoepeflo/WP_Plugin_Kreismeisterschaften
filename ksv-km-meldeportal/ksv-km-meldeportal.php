@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: KSV KM-Meldeportal
+ * Plugin Name: KSV KM-Portal
  * Plugin URI:  https://github.com/hoepeflo/WP_Plugin_Kreismeisterschaften
- * Description: Meldeportal der Vereine zur Kreisverbandsmeisterschaft des KSV Fallingbostel – Schützenlisten, Meldungen, Mannschaften, DAVID21-Export und PDF-Meldelisten.
+ * Description: Portal zur Kreisverbandsmeisterschaft des KSV Fallingbostel – Meldung der Vereine, Startrechtsprüfung, Startplan und Startplatzbuchung, DAVID21-Export, Belege und PDF-Listen.
  * Version:     0.9.0
  * Author:      Florian Höper / KSV Fallingbostel
  * Author URI:  https://github.com/hoepeflo

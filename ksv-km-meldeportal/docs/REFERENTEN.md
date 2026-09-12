@@ -9,7 +9,7 @@ erlaubt, weitere Rechte schaltet der Admin je Person frei.
 
 1. WordPress → Benutzer → Neu: Benutzer mit Rolle **KM-Referent** anlegen (Rolle wird bei
    Aktivierung/Migration angelegt, `Auth\Capabilities::add_to_roles`).
-2. KM-Meldeportal → **Referenten** (nur Admin): Benutzer wählen, Wettbewerbsgruppen
+2. KM-Portal → **Referenten** (nur Admin): Benutzer wählen, Wettbewerbsgruppen
    (Checkboxen, Zuordnung über den Gruppencode) und/oder einzelne Disziplinen
    (Kennzahlen) zuweisen, Rechte setzen:
    - **Verarbeitungsstatus setzen** (`darf_status`): Startrechtsprüfung, Sammelaktionen

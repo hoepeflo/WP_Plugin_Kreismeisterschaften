@@ -54,7 +54,7 @@ final class Rechte {
 		return $r;
 	}
 
-	/** Darf der Benutzer das Backend des Meldeportals überhaupt lesen? */
+	/** Darf der Benutzer das Backend des KM-Portals überhaupt lesen? */
 	public static function darf_lesen(?int $user_id = null): bool {
 		if (self::ist_admin($user_id)) {
 			return true;

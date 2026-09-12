@@ -1,4 +1,4 @@
-# KM-Meldeportal KSV Fallingbostel – Konzept
+# KM-Portal KSV Fallingbostel – Konzept
 
 Stand: 11.09.2026 · Status: abgestimmter Entwurf, offene Punkte siehe Abschnitt 12
 
@@ -267,7 +267,7 @@ Die Buchung wird gesperrt. „Rest verteilen“ setzt alle startberechtigten Mel
 
 Ein Shortcode pro Wettkampftag (optional gefiltert nach Disziplin) lässt sich in jeden Beitrag setzen, auch in die bestehenden Kalendertermine, unabhängig vom Kalender-Plugin. Er zeigt erst nach der Veröffentlichung Inhalte. Öffentlich sind nur Name, Vorname, Verein, Startklasse, Einheit/Position und Uhrzeit. Zusätzlich gibt es einen PDF-Startplan, sortiert nach Durchgang und Einheit, etwa für Aushang und Standaufsicht. Der Datenschutzhinweis erwähnt die Veröffentlichung.
 
-Die Verknüpfung mit dem bestehenden Ergebnis-Plugin (Link vom Startplan zu den Ergebnissen und umgekehrt) folgt später.
+Das bestehende Ergebnis-Plugin wird nicht verknüpft, sondern langfristig in das KM-Portal übernommen (siehe `docs/ERGEBNISSE-INTEGRATION.md`).
 
 ## 13. Offene Punkte
 

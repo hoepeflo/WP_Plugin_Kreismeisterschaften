@@ -1,6 +1,6 @@
-# KSV KM-Meldeportal (WordPress-Plugin)
+# KSV KM-Portal (WordPress-Plugin)
 
-Meldeportal der Vereine des Kreisschützenverbands Fallingbostel zur Kreisverbandsmeisterschaft.
+Meldeportal der Vereine des Kreisschützenverbands Fallingbostel zur Kreisverbandsmeisterschaft. Das Plugin heißt im WordPress-Menü „KM-Portal"; Ordner, Text-Domain, Datenbanktabellen und Präfix bleiben unverändert (`ksv-km-meldeportal`, `kmm_`).
 Plugin von Florian Höper (https://github.com/hoepeflo).
 
 Verbindliche Grundlage ist das Konzept unter `docs/KM-Meldeportal_Konzept.md`.

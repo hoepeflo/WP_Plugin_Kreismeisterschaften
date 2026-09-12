@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
 }
 echo "Guten Tag,\n\n";
 echo sprintf("der Startplan für %s am %s%s ist freigegeben. Für den Verein %s (VN %s) sind dort %d Starter gemeldet.\n\n", $tag['bezeichnung'], $datum, $tag['ort'] !== '' ? ' (' . $tag['ort'] . ')' : '', $verein['name'], $verein['vn_nummer'], $meldungen);
-echo "Bitte buchen Sie im Meldeportal unter „Startplätze“ für jeden Starter einen Platz: Schützen wählen, freien Platz antippen. Bis zur Frist können Sie umbuchen und Plätze wieder freigeben.\n\n";
+echo "Bitte buchen Sie im KM-Portal unter „Startplätze“ für jeden Starter einen Platz: Schützen wählen, freien Platz antippen. Bis zur Frist können Sie umbuchen und Plätze wieder freigeben.\n\n";
 if ($frist !== '') {
 	echo sprintf("Buchungsfrist: %s Uhr. Danach verteilt der KSV die restlichen Starter auf freie Plätze.\n\n", $frist);
 }

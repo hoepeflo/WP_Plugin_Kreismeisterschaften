@@ -28,7 +28,7 @@ Ausgaben:
 
 | Datei | Inhalt |
 |---|---|
-| `regeltabelle-2026.json` | Import-Dokument für „KM-Meldeportal → Import / Export“ (ohne Gruppen/Klassen; die kommen aus dem Klassensatz des Sportjahres) |
+| `regeltabelle-2026.json` | Import-Dokument für „KM-Portal → Import / Export“ (ohne Gruppen/Klassen; die kommen aus dem Klassensatz des Sportjahres) |
 | `pruefbericht-2026.md` | **Unklare Zellen** (von Hand prüfen), Hinweise (Annahmen des Skripts), übersprungene Zeilen, Informationen |
 | `regeltabelle-2026-uebersicht.md` | Matrix je Disziplin (Klasse → Einzel / Mannschaft) zum Abgleich mit dem PDF |
 

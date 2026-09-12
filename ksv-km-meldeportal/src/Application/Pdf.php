@@ -38,8 +38,8 @@ final class Pdf {
 			'margin_bottom' => 18,
 			'default_font'  => 'dejavusans',
 		]);
-		$mpdf->SetTitle('KM-Meldeportal');
-		$mpdf->SetCreator('KSV KM-Meldeportal');
+		$mpdf->SetTitle('KM-Portal');
+		$mpdf->SetCreator('KSV KM-Portal');
 		$mpdf->WriteHTML($html);
 		return $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
 	}

@@ -11,7 +11,7 @@ declare(strict_types=1);
 if (!defined('ABSPATH')) {
 	exit;
 }
-$title = isset($title) && is_string($title) ? $title : 'KM-Meldeportal';
+$title = isset($title) && is_string($title) ? $title : 'KM-Portal';
 $content = isset($content) && is_string($content) ? $content : '';
 ?>
 <!DOCTYPE html>
@@ -30,7 +30,7 @@ $content = isset($content) && is_string($content) ? $content : '';
 	<div class="kmm-container">
 		<a class="kmm-brand" href="<?php echo esc_url(KSV\KMM\Http\Router::url()); ?>">
 			<span class="kmm-brand-mark" aria-hidden="true"></span>
-			<span class="kmm-brand-text">KM-Meldeportal<small><?php esc_html_e('KSV Fallingbostel', 'ksv-km-meldeportal'); ?></small></span>
+			<span class="kmm-brand-text">KM-Portal<small><?php esc_html_e('KSV Fallingbostel', 'ksv-km-meldeportal'); ?></small></span>
 		</a>
 	</div>
 </header>

@@ -1,7 +1,7 @@
 # Austauschformat der Regeltabelle (JSON)
 
 Format `kmm-regeltabelle`, Version 1. Erzeugt vom Konvertierungsskript (`tools/`), gelesen
-vom Backend-Import („KM-Meldeportal → Import / Export“), geschrieben vom Export. Der
+vom Backend-Import („KM-Portal → Import / Export“), geschrieben vom Export. Der
 Parser liegt in `KSV\KMM\Domain\Regeltabelle\Dokument` (reines PHP, unit-getestet).
 
 ```json

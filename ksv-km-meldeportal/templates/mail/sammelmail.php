@@ -19,7 +19,7 @@ echo sprintf("an der Meldung des Vereins %s (VN %s) zur Kreisverbandsmeisterscha
 foreach ($aenderungen as $a) {
 	echo sprintf("- %s Uhr – %s: %s\n", $a['zeit'], $a['typ'], $a['text']);
 }
-echo "\nDen aktuellen Stand Ihrer Meldung sehen Sie im Meldeportal:\n\n" . $url . "\n\n";
+echo "\nDen aktuellen Stand Ihrer Meldung sehen Sie im KM-Portal:\n\n" . $url . "\n\n";
 echo "Der Link öffnet direkt Ihre Vereinsseite; ein früher erhaltener Link bleibt ebenfalls gültig.\n";
 echo sprintf("Falls kein Link mehr funktioniert: %s\n\n", $anfordern);
 echo "Bei Fragen zu einer Änderung wenden Sie sich bitte an den KSV.\n\n";

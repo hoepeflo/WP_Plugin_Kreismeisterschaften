@@ -1,6 +1,6 @@
 <?php
 /**
- * Tabellenschema des Meldeportals (alle Tabellen mit Präfix kmm_).
+ * Tabellenschema des KM-Portals (alle Tabellen mit Präfix kmm_).
  *
  * Reines PHP ohne WordPress-Abhängigkeit, damit die Definitionen unit-testbar sind.
  * Die SQL-Strings folgen den Formatvorgaben von dbDelta(): ein Feld pro Zeile,

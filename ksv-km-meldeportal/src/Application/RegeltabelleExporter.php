@@ -107,7 +107,7 @@ final class RegeltabelleExporter {
 			'format'      => Dokument::FORMAT,
 			'version'     => Dokument::VERSION,
 			'sportjahr'   => (int) $sportjahr['jahr'],
-			'stand'       => sprintf('Export aus dem Meldeportal am %s', gmdate('Y-m-d H:i') . ' UTC'),
+			'stand'       => sprintf('Export aus dem KM-Portal am %s', gmdate('Y-m-d H:i') . ' UTC'),
 			'gruppen'     => $gruppen,
 			'tarife'      => (new TarifRepository())->by_sportjahr($sportjahr_id),
 			'disziplinen' => $disziplinen,

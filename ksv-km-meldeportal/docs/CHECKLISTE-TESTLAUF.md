@@ -4,7 +4,7 @@
 
 - [ ] Plugin-ZIP mit `bash tools/build-zip.sh` bauen (enthält `vendor/` mit mPDF) und installieren; Systemseite: alle Tabellen vorhanden, Schema-Version 2.
 - [ ] WP Fastest Cache: Ausschlussregeln für `km-meldung` und Cookie `kmm_sitzung` gesetzt, Cache geleert (`docs/INSTALLATION.md`).
-- [ ] WP Mail SMTP aktiv; Einstellungen → Absendername/-adresse des Meldeportals prüfen. Eine Testmail über „Link senden“ an die eigene Adresse.
+- [ ] WP Mail SMTP aktiv; Einstellungen → Absendername/-adresse des KM-Portals prüfen. Eine Testmail über „Link senden“ an die eigene Adresse.
 - [ ] Server-Cronjob für `wp-cron.php` eingerichtet oder bewusst WP-Cron per Seitenaufruf akzeptiert.
 - [ ] Sportjahr 2027 angelegt (Klassensatz), aktiviert, Meldebeginn/Meldeschluss (10.01.2027) und Erinnerungszeitpunkt gesetzt.
 - [ ] Regeltabelle 2026 importiert (`docs/regeltabelle-2026.json`), Prüfbericht abgearbeitet (7.15 korrigiert), Bogen-CSV eingemischt oder Bogen-Regeln von Hand gepflegt.

@@ -74,7 +74,7 @@ final class ReferentenPage extends AdminPage {
 			echo '<td>' . esc_html($rechte !== [] ? implode(', ', $rechte) : __('nur lesen und PDF-Listen', 'ksv-km-meldeportal')) . '</td>';
 			echo '<td>' . esc_html((string) $r['notiz']) . '</td>';
 			echo '<td class="kmm-nowrap"><a class="button button-small" href="' . esc_url(self::url(['edit' => (int) $r['id']])) . '">' . esc_html__('Bearbeiten', 'ksv-km-meldeportal') . '</a> ';
-			self::form_open('loeschen', 'class="kmm-inline-form" onsubmit="return confirm(\'' . esc_js(__('Referent entfernen? Der Benutzer bleibt bestehen, verliert aber alle Zuständigkeiten und Rechte im Meldeportal.', 'ksv-km-meldeportal')) . '\')"');
+			self::form_open('loeschen', 'class="kmm-inline-form" onsubmit="return confirm(\'' . esc_js(__('Referent entfernen? Der Benutzer bleibt bestehen, verliert aber alle Zuständigkeiten und Rechte im KM-Portal.', 'ksv-km-meldeportal')) . '\')"');
 			echo '<input type="hidden" name="id" value="' . (int) $r['id'] . '">';
 			submit_button(__('Entfernen', 'ksv-km-meldeportal'), 'secondary small', 'submit', false);
 			echo '</form></td></tr>';

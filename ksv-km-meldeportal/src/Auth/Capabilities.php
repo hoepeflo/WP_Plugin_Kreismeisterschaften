@@ -1,6 +1,6 @@
 <?php
 /**
- * Capabilities des Meldeportals.
+ * Capabilities des KM-Portals.
  *
  * kmm_manage: volle Verwaltung (Admin). kmm_view: lesender Zugriff (Phase 2: Referenten).
  * Administratoren erhalten beide Capabilities bei der Aktivierung; zusätzlich greift

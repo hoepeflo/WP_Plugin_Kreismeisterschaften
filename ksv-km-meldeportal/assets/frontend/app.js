@@ -1,4 +1,4 @@
-/* KM-Meldeportal – Vereinsoberfläche. Vanilla JS ohne Build-Schritt. */
+/* KM-Portal – Vereinsoberfläche. Vanilla JS ohne Build-Schritt. */
 (function () {
 	'use strict';
 

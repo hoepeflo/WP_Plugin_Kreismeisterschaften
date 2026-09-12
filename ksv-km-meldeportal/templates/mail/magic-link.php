@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 echo "Guten Tag,\n\n";
-echo sprintf("hier ist der persönliche Zugang des Vereins %s (VN %s) zum KM-Meldeportal des KSV Fallingbostel für das Sportjahr %d:\n\n", $verein['name'], $verein['vn_nummer'], (int) $sportjahr['jahr']);
+echo sprintf("hier ist der persönliche Zugang des Vereins %s (VN %s) zum KM-Portal des KSV Fallingbostel für das Sportjahr %d:\n\n", $verein['name'], $verein['vn_nummer'], (int) $sportjahr['jahr']);
 echo $url . "\n\n";
 echo "Bitte geben Sie den Link nur an Personen weiter, die für Ihren Verein melden dürfen. Der Link öffnet direkt Ihre Vereinsseite, ein Passwort ist nicht nötig.\n\n";
 if ($meldeschluss !== '') {

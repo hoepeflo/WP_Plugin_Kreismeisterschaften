@@ -87,7 +87,7 @@ final class FrontController {
 		$verein = Zugang::aktueller_verein();
 		status_header(200);
 		if ($verein === null) {
-			View::render('frontend/willkommen', ['title' => __('KM-Meldeportal', 'ksv-km-meldeportal')]);
+			View::render('frontend/willkommen', ['title' => __('KM-Portal', 'ksv-km-meldeportal')]);
 			return;
 		}
 		$this->app($verein, false);

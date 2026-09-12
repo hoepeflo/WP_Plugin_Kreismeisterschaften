@@ -1,6 +1,6 @@
 <?php
 /**
- * Backend-Menü „KM-Meldeportal".
+ * Backend-Menü „KM-Portal".
  *
  * @package KSV\KMM
  */
@@ -50,8 +50,8 @@ final class Menu {
 
 	public static function add_pages(): void {
 		add_menu_page(
-			__('KM-Meldeportal', 'ksv-km-meldeportal'),
-			__('KM-Meldeportal', 'ksv-km-meldeportal'),
+			__('KM-Portal', 'ksv-km-meldeportal'),
+			__('KM-Portal', 'ksv-km-meldeportal'),
 			Capabilities::VIEW,
 			self::SLUG,
 			[UebersichtPage::class, 'render'],

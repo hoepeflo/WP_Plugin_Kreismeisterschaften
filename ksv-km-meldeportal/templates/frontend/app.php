@@ -36,7 +36,7 @@ $config = [
 	<?php if ($admin !== null) : ?>
 	<div class="kmm-admin-leiste"><strong><?php esc_html_e('Admin-Modus', 'ksv-km-meldeportal'); ?></strong> · <?php echo esc_html(sprintf(__('angemeldet als %s', 'ksv-km-meldeportal'), (string) $admin['benutzer'])); ?> · <a href="<?php echo esc_url((string) $admin['zurueck']); ?>"><?php esc_html_e('Zurück zur Übersicht', 'ksv-km-meldeportal'); ?></a></div>
 	<?php endif; ?>
-	<noscript><div class="kmm-alert kmm-alert-error"><?php esc_html_e('Für das Meldeportal muss JavaScript aktiviert sein.', 'ksv-km-meldeportal'); ?></div></noscript>
+	<noscript><div class="kmm-alert kmm-alert-error"><?php esc_html_e('Für das KM-Portal muss JavaScript aktiviert sein.', 'ksv-km-meldeportal'); ?></div></noscript>
 	<div class="kmm-app-kopf">
 		<div>
 			<h1><?php echo esc_html($verein['name']); ?></h1>
