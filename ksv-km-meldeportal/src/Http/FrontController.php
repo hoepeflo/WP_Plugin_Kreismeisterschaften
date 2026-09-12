@@ -140,6 +140,7 @@ final class FrontController {
 			'sportjahr'  => $sportjahr,
 			'state'      => $service->zusammenfassung(),
 			'schuetzen'  => (new SchuetzeService($verein, $sportjahr_id))->liste(),
+			'startplan'  => (new \KSV\KMM\Application\BuchungService($verein, $sportjahr_id, $admin))->tage(),
 			'csrf'       => $admin ? '' : RestApi::csrf_token((int) $verein['sitzung_id']),
 			'api'        => esc_url_raw(rest_url(RestApi::NAMESPACE . '/')),
 			'pdf_url'    => $admin ? add_query_arg('sportjahr', $sportjahr_id, Router::url($admin_pfad . '/pdf')) : Router::url('pdf'),

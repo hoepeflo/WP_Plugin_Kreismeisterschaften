@@ -21,6 +21,8 @@ final class Mailer {
 	public const TYP_BESTAETIGUNG = 'bestaetigung';
 	public const TYP_ERINNERUNG   = 'erinnerung';
 	public const TYP_SAMMELMAIL   = 'sammelmail';
+	public const TYP_FREIGABE     = 'freigabe';
+	public const TYP_BUCHUNG_ERINNERUNG = 'buchung_erinnerung';
 
 	/**
 	 * @param string[]             $empfaenger

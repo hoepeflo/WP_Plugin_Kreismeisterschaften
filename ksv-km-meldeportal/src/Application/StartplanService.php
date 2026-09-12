@@ -30,7 +30,9 @@ use KSV\KMM\Infrastructure\Repository\EinzelmeldungRepository;
 use KSV\KMM\Infrastructure\Repository\MeldungRepository;
 use KSV\KMM\Infrastructure\Repository\SportjahrRepository;
 use KSV\KMM\Infrastructure\Repository\WettkampftagRepository;
+use KSV\KMM\Http\Router;
 use KSV\KMM\Support\Clock;
+use KSV\KMM\Support\Settings;
 
 final class StartplanService {
 
@@ -410,5 +412,144 @@ final class StartplanService {
 			];
 		}
 		return ['tag' => $tag, 'einheiten' => $einheiten, 'durchgaenge' => $durchgaenge, 'plaetze' => $gesamt_plaetze, 'buchungen' => array_sum(array_map('count', $buchungen))];
+	}
+
+	// ----- Freigabe (Konzept 12.4) ------------------------------------------------------------------
+
+	public static function register(): void {
+		add_action('kmm_hourly_tasks', [self::class, 'cron_erinnerung']);
+	}
+
+	/**
+	 * Wettkampftag freigeben: Buchung öffnet sich, alle Vereine mit passenden Startern
+	 * erhalten eine Mail mit ihrem Link.
+	 *
+	 * @return array{gesendet: int, vereine: int, fehler: string[]}
+	 */
+	public function freigeben(int $tag_id): array {
+		$this->schreibrecht();
+		$tag = $this->tag($tag_id);
+		if ((string) $tag['status'] !== WettkampftagStatus::ENTWURF) {
+			throw new \RuntimeException('Der Wettkampftag ist bereits freigegeben.');
+		}
+		$u = $this->uebersicht($tag_id);
+		if ($u['einheiten'] === [] || $u['durchgaenge'] === []) {
+			throw new \RuntimeException('Vor der Freigabe braucht der Wettkampftag mindestens eine Einheit und einen Durchgang.');
+		}
+		foreach ($u['durchgaenge'] as $dg) {
+			if (!$dg['zustaendig']) {
+				throw new \RuntimeException('Keine Berechtigung: Der Wettkampftag enthält Durchgänge außerhalb Ihrer Zuständigkeit.');
+			}
+			if ($dg['zulassungen'] === []) {
+				throw new \RuntimeException(sprintf('Durchgang %d hat keine Zulassung.', $dg['nummer']));
+			}
+		}
+		$jetzt = Clock::now_utc();
+		$erinnerung = null;
+		$tage = (int) Settings::get('buchung_erinnerung_tage');
+		if ($tag['buchungsfrist'] !== null && $tage > 0) {
+			$erinnerung = gmdate(Clock::DB_FORMAT, (int) strtotime((string) $tag['buchungsfrist'] . ' UTC') - $tage * 86400);
+		}
+		$this->tage->update($tag_id, ['status' => WettkampftagStatus::FREIGEGEBEN, 'freigegeben_am' => $jetzt, 'erinnerung_am' => $erinnerung, 'erinnerung_gesendet_am' => null]);
+		$tag = $this->tag($tag_id);
+		$r = $this->mail_an_vereine($tag, 'freigabe', false);
+		Protokoll::admin('wettkampftag.freigeben', sprintf('%s %s freigegeben, Mail an %d Vereine%s', (string) $tag['datum'], (string) $tag['bezeichnung'], $r['gesendet'], $r['fehler'] !== [] ? ', ' . count($r['fehler']) . ' Fehler' : ''), $this->sportjahr_id, null, 'wettkampftag', $tag_id, ['fehler' => $r['fehler']]);
+		return $r;
+	}
+
+	/** Freigabe zurücknehmen (nur ohne Buchungen). */
+	public function freigabe_zuruecknehmen(int $tag_id): void {
+		$this->schreibrecht();
+		$tag = $this->tag($tag_id);
+		if ((string) $tag['status'] !== WettkampftagStatus::FREIGEGEBEN) {
+			throw new \RuntimeException('Der Wettkampftag ist nicht im Status „freigegeben“.');
+		}
+		if ($this->buchungen->count(['wettkampftag_id' => $tag_id]) > 0) {
+			throw new \RuntimeException('Es gibt schon Buchungen; die Freigabe kann nicht zurückgenommen werden.');
+		}
+		$this->tage->update($tag_id, ['status' => WettkampftagStatus::ENTWURF, 'freigegeben_am' => null, 'erinnerung_am' => null]);
+		Protokoll::admin('wettkampftag.freigabe_zurueck', sprintf('%s %s zurück in Entwurf', (string) $tag['datum'], (string) $tag['bezeichnung']), $this->sportjahr_id, null, 'wettkampftag', $tag_id);
+	}
+
+	/**
+	 * Mail an alle Vereine mit passenden Startern (Freigabe) bzw. mit Startern ohne Platz
+	 * (Erinnerung vor der Buchungsfrist).
+	 *
+	 * @param array<string, mixed> $tag
+	 * @return array{gesendet: int, vereine: int, fehler: string[]}
+	 */
+	private function mail_an_vereine(array $tag, string $template, bool $nur_ohne_platz): array {
+		$adressen = new \KSV\KMM\Infrastructure\Repository\VereinEmailRepository();
+		$meldungen = new MeldungRepository();
+		$gesendet = 0;
+		$fehler = [];
+		$betroffene = BuchungService::betroffene_vereine($this->sportjahr_id, (int) $tag['id']);
+		foreach ($betroffene as $b) {
+			if ($nur_ohne_platz && $b['ohne_platz'] === 0) {
+				continue;
+			}
+			$vid = (int) $b['verein']['id'];
+			$empfaenger = $adressen->adressen($vid);
+			$m = $meldungen->by_verein($vid, $this->sportjahr_id);
+			if ($m !== null && is_email((string) $m['ansprechpartner_email'])) {
+				array_unshift($empfaenger, (string) $m['ansprechpartner_email']);
+			}
+			$empfaenger = array_values(array_unique($empfaenger));
+			if ($empfaenger === []) {
+				$fehler[] = (string) $b['verein']['name'] . ': keine E-Mail-Adresse';
+				continue;
+			}
+			try {
+				$link = Zugang::link_erzeugen($vid, $this->sportjahr_id, $template, false);
+			} catch (\RuntimeException $e) {
+				$fehler[] = (string) $b['verein']['name'] . ': ' . $e->getMessage();
+				continue;
+			}
+			$datum = \DateTimeImmutable::createFromFormat('!Y-m-d', (string) $tag['datum']);
+			$ok = Mailer::senden(
+				$empfaenger,
+				$template === 'freigabe'
+					? sprintf('Startplätze buchen: %s am %s', (string) $tag['bezeichnung'], $datum !== false ? $datum->format('d.m.Y') : (string) $tag['datum'])
+					: sprintf('Erinnerung: Startplätze für %s bis %s buchen', (string) $tag['bezeichnung'], Clock::format_local((string) $tag['buchungsfrist'], 'd.m.Y H:i')),
+				$template,
+				[
+					'verein'     => $b['verein'],
+					'tag'        => $tag,
+					'datum'      => $datum !== false ? $datum->format('d.m.Y') : (string) $tag['datum'],
+					'frist'      => $tag['buchungsfrist'] !== null ? Clock::format_local((string) $tag['buchungsfrist'], 'd.m.Y H:i') : '',
+					'meldungen'  => $b['meldungen'],
+					'ohne_platz' => $b['ohne_platz'],
+					'url'        => $link['url'],
+					'anfordern'  => Router::url('link-anfordern'),
+				],
+				$template === 'freigabe' ? Mailer::TYP_FREIGABE : Mailer::TYP_BUCHUNG_ERINNERUNG,
+				$this->sportjahr_id,
+				$vid
+			);
+			if ($ok) {
+				$gesendet++;
+			} else {
+				$fehler[] = (string) $b['verein']['name'] . ': Mailversand fehlgeschlagen';
+			}
+		}
+		return ['gesendet' => $gesendet, 'vereine' => count($betroffene), 'fehler' => $fehler];
+	}
+
+	/** Cron: Erinnerung an Vereine mit Startern ohne Platz, einige Tage vor der Buchungsfrist. */
+	public static function cron_erinnerung(): void {
+		$jetzt = Clock::now_utc();
+		$tage = new WettkampftagRepository();
+		foreach ($tage->where(['status' => WettkampftagStatus::FREIGEGEBEN]) as $tag) {
+			if ($tag['erinnerung_am'] === null || $tag['erinnerung_gesendet_am'] !== null || (string) $tag['erinnerung_am'] > $jetzt) {
+				continue;
+			}
+			if ($tag['buchungsfrist'] !== null && (string) $tag['buchungsfrist'] <= $jetzt) {
+				continue;
+			}
+			$tage->update((int) $tag['id'], ['erinnerung_gesendet_am' => $jetzt]); // zuerst vermerken: kein Doppelversand
+			$service = new self((int) $tag['sportjahr_id']);
+			$r = $service->mail_an_vereine($tag, 'buchung-erinnerung', true);
+			Protokoll::system('wettkampftag.erinnerung', sprintf('%s %s: Erinnerung an %d Vereine mit Startern ohne Platz%s', (string) $tag['datum'], (string) $tag['bezeichnung'], $r['gesendet'], $r['fehler'] !== [] ? ', ' . count($r['fehler']) . ' Fehler' : ''), (int) $tag['sportjahr_id'], null, 'wettkampftag', (int) $tag['id'], ['fehler' => $r['fehler']]);
+		}
 	}
 }

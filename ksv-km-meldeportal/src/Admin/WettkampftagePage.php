@@ -71,6 +71,16 @@ final class WettkampftagePage extends AdminPage {
 				case 'zulassung_entfernen':
 					$service->zulassung_entfernen(self::post_int('id'));
 					self::redirect(__('Zulassung entfernt.', 'ksv-km-meldeportal'), 'success', $args + ['durchgang' => self::post_int('durchgang_id')]);
+				case 'freigeben':
+					$r = $service->freigeben(self::post_int('id'));
+					$text = sprintf(__('Wettkampftag freigegeben. Mail an %1$d von %2$d Vereinen mit passenden Startern gesendet.', 'ksv-km-meldeportal'), $r['gesendet'], $r['vereine']);
+					if ($r['fehler'] !== []) {
+						$text .= "\n" . implode("\n", $r['fehler']);
+					}
+					self::redirect($text, $r['fehler'] === [] ? 'success' : 'warning', $args);
+				case 'freigabe_zurueck':
+					$service->freigabe_zuruecknehmen(self::post_int('id'));
+					self::redirect(__('Freigabe zurückgenommen; der Wettkampftag ist wieder im Entwurf.', 'ksv-km-meldeportal'), 'success', $args);
 			}
 		} catch (\InvalidArgumentException | \RuntimeException $e) {
 			self::redirect($e->getMessage(), 'error', $args + (self::post_int('durchgang_id') > 0 ? ['durchgang' => self::post_int('durchgang_id')] : []));
@@ -166,6 +176,9 @@ final class WettkampftagePage extends AdminPage {
 			echo '<div class="kmm-kachel"><div class="kmm-kachel-wert">' . (int) $wert . '</div><div class="kmm-kachel-label">' . esc_html($label) . '</div></div>';
 		}
 		echo '</div>';
+		if ($schreiben) {
+			self::render_freigabe($sid, $tag_id, $t, $u);
+		}
 		if ($schreiben && (string) $t['status'] !== WettkampftagStatus::ENTWURF) {
 			echo '<div class="notice notice-info inline"><p>' . esc_html__('Der Wettkampftag ist freigegeben bzw. veröffentlicht. Änderungen an Einheiten und Durchgängen wirken sofort auf die Buchung; Einheiten und Durchgänge mit Buchungen können nicht gelöscht werden.', 'ksv-km-meldeportal') . '</p></div>';
 		}
@@ -254,6 +267,7 @@ final class WettkampftagePage extends AdminPage {
 		}
 		echo '</tbody></table>';
 
+		self::render_buchungen($sid, $tag_id, $u);
 		if (!$schreiben) {
 			return;
 		}
@@ -329,6 +343,79 @@ final class WettkampftagePage extends AdminPage {
 		submit_button(__('Zulassung hinzufügen', 'ksv-km-meldeportal'), 'secondary', 'submit', false);
 		echo '</form>';
 		echo '<p class="description">' . esc_html__('Die Startklasse muss in der gewählten Disziplin eine Klasse mit eigener Wertung sein; „alle Startklassen“ ist der Normalfall.', 'ksv-km-meldeportal') . '</p>';
+	}
+
+	/**
+	 * @param array<string, mixed> $t
+	 * @param array<string, mixed> $u
+	 */
+	private static function render_freigabe(int $sid, int $tag_id, array $t, array $u): void {
+		$status = (string) $t['status'];
+		echo '<div class="kmm-phase">';
+		if ($status === WettkampftagStatus::ENTWURF) {
+			$betroffene = \KSV\KMM\Application\BuchungService::betroffene_vereine($sid, $tag_id);
+			echo '<p>' . esc_html(sprintf(__('Entwurf: Vereine sehen den Startplan noch nicht. Mit der Freigabe öffnet sich die Buchung; %d Vereine mit passenden Startern erhalten eine Mail mit ihrem Link.', 'ksv-km-meldeportal'), count($betroffene))) . '</p>';
+			$bereit = $u['einheiten'] !== [] && $u['durchgaenge'] !== [] && array_sum(array_map(static fn(array $d): int => $d['zulassungen'] === [] ? 1 : 0, $u['durchgaenge'])) === 0;
+			self::form_open('freigeben', 'class="kmm-inline-form" onsubmit="return confirm(\'' . esc_js(sprintf(__('Wettkampftag freigeben und %d Vereine benachrichtigen?', 'ksv-km-meldeportal'), count($betroffene))) . '\')"');
+			echo '<input type="hidden" name="sportjahr_id" value="' . $sid . '"><input type="hidden" name="tag_id" value="' . $tag_id . '"><input type="hidden" name="id" value="' . $tag_id . '">';
+			submit_button(__('Freigeben und Vereine benachrichtigen', 'ksv-km-meldeportal'), 'primary', 'submit', false, $bereit ? [] : ['disabled' => 'disabled']);
+			echo '</form>';
+			if (!$bereit) {
+				echo ' <span class="description">' . esc_html__('Vorher mindestens eine Einheit und einen Durchgang mit Zulassung anlegen.', 'ksv-km-meldeportal') . '</span>';
+			}
+		} elseif ($status === WettkampftagStatus::FREIGEGEBEN) {
+			$offen = \KSV\KMM\Application\BuchungService::buchung_offen($t);
+			echo '<p>' . esc_html(sprintf(__('Freigegeben am %s. %s', 'ksv-km-meldeportal'), Clock::format_local($t['freigegeben_am']), $offen['offen'] ? __('Die Vereine buchen bis zur Frist selbst.', 'ksv-km-meldeportal') : $offen['grund']));
+			if ($t['erinnerung_am'] !== null) {
+				echo ' ' . esc_html(sprintf(__('Erinnerung an Vereine mit Startern ohne Platz: %s%s.', 'ksv-km-meldeportal'), Clock::format_local($t['erinnerung_am']), $t['erinnerung_gesendet_am'] !== null ? ' (gesendet)' : ''));
+			}
+			echo '</p>';
+			if ((int) $u['buchungen'] === 0) {
+				self::form_open('freigabe_zurueck', 'class="kmm-inline-form"');
+				echo '<input type="hidden" name="sportjahr_id" value="' . $sid . '"><input type="hidden" name="tag_id" value="' . $tag_id . '"><input type="hidden" name="id" value="' . $tag_id . '">';
+				submit_button(__('Freigabe zurücknehmen', 'ksv-km-meldeportal'), 'secondary', 'submit', false);
+				echo '</form>';
+			}
+			echo '<p class="description">' . esc_html__('Restverteilung und Veröffentlichung folgen nach der Buchungsfrist (nächster Meilenstein).', 'ksv-km-meldeportal') . '</p>';
+		} else {
+			echo '<p>' . esc_html(sprintf(__('Veröffentlicht am %s.', 'ksv-km-meldeportal'), Clock::format_local($t['veroeffentlicht_am']))) . '</p>';
+		}
+		echo '</div>';
+	}
+
+	/**
+	 * @param array<string, mixed> $u
+	 */
+	private static function render_buchungen(int $sid, int $tag_id, array $u): void {
+		if ((int) $u['buchungen'] === 0) {
+			return;
+		}
+		$rw = RegelwerkLader::laden($sid);
+		$einzel = new \KSV\KMM\Infrastructure\Repository\EinzelmeldungRepository();
+		$schuetzen = new \KSV\KMM\Infrastructure\Repository\SchuetzeRepository();
+		$vereine = [];
+		foreach ((new \KSV\KMM\Infrastructure\Repository\VereinRepository())->all() as $v) {
+			$vereine[ (int) $v['id'] ] = (string) $v['name'];
+		}
+		$einheiten = [];
+		foreach ($u['einheiten'] as $e) {
+			$einheiten[ (int) $e['id'] ] = $e;
+		}
+		$durchgaenge = [];
+		foreach ($u['durchgaenge'] as $d) {
+			$durchgaenge[ $d['id'] ] = $d;
+		}
+		echo '<h3>' . esc_html(sprintf(__('Buchungen (%d)', 'ksv-km-meldeportal'), (int) $u['buchungen'])) . '</h3>';
+		echo '<table class="widefat striped"><thead><tr><th>' . esc_html__('Durchgang', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Einheit / Pos.', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Starter', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Disziplin', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Verein', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Gebucht', 'ksv-km-meldeportal') . '</th></tr></thead><tbody>';
+		foreach ((new \KSV\KMM\Infrastructure\Repository\BuchungRepository())->by_wettkampftag($tag_id) as $b) {
+			$em = $einzel->find((int) $b['einzelmeldung_id']);
+			$s = $em !== null && $em['schuetze_id'] !== null ? $schuetzen->find((int) $em['schuetze_id']) : null;
+			$d = $em !== null ? $rw->disziplin((int) $em['disziplin_id']) : null;
+			$dg = $durchgaenge[ (int) $b['durchgang_id'] ] ?? null;
+			$e = $einheiten[ (int) $b['einheit_id'] ] ?? null;
+			echo '<tr><td>' . esc_html($dg !== null ? $dg['nummer'] . ' (' . $dg['zeit'] . ')' : '#' . (int) $b['durchgang_id']) . '</td><td>' . esc_html(($e !== null ? (string) $e['bezeichnung'] : '#' . (int) $b['einheit_id']) . ($e !== null && (int) $e['kapazitaet'] > 1 ? ' / ' . (int) $b['position'] : '')) . '</td><td>' . esc_html($s !== null ? $s['nachname'] . ', ' . $s['vorname'] : '?') . '</td><td>' . esc_html($d !== null ? $d->kennzahl . ' ' . $d->bezeichnung : '') . '</td><td>' . esc_html($vereine[ (int) $b['verein_id'] ] ?? '') . '</td><td>' . esc_html(Clock::format_local($b['gebucht_am'], 'd.m. H:i') . ((string) $b['gebucht_von_typ'] === 'admin' ? ' (KSV)' : '')) . '</td></tr>';
+		}
+		echo '</tbody></table>';
 	}
 
 	private static function status_badge(string $status): string {

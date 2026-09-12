@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace KSV\KMM\Http;
 
+use KSV\KMM\Application\BuchungService;
 use KSV\KMM\Application\MeldungService;
 use KSV\KMM\Application\SchuetzeService;
 use KSV\KMM\Application\Zugang;
@@ -100,6 +101,11 @@ final class RestApi {
 		$r('/meldung/ansprechpartner', 'PUT', [self::class, 'ansprechpartner']);
 		$r('/meldung/einreichen', 'POST', [self::class, 'einreichen']);
 		$r('/meldung/oeffnen', 'POST', [self::class, 'oeffnen']);
+		// Startplan / Buchung (sichtbar erst nach Freigabe eines Wettkampftags):
+		$r('/startplan', 'GET', [self::class, 'startplan_tage']);
+		$r('/startplan/(?P<id>\d+)', 'GET', [self::class, 'startplan_raster'], ['id' => $int]);
+		$r('/startplan/(?P<id>\d+)/buchen', 'POST', [self::class, 'startplan_buchen'], ['id' => $int]);
+		$r('/startplan/buchung/(?P<id>\d+)', 'DELETE', [self::class, 'startplan_freigeben'], ['id' => $int]);
 		// Nur Admin-Modus (Backend, nach Meldeschluss):
 		$r('/meldung/einzel/(?P<id>\d+)/abmelden', 'POST', [self::class, 'abmelden'], ['id' => $int]);
 		$r('/meldung/einzel/(?P<id>\d+)/abmeldung-aufheben', 'POST', [self::class, 'abmeldung_aufheben'], ['id' => $int]);
@@ -126,6 +132,11 @@ final class RestApi {
 	private static function meldung_service(): MeldungService {
 		$v = self::verein();
 		return new MeldungService($v, (int) $v['sportjahr_id'], self::$admin_verein !== null);
+	}
+
+	private static function buchung_service(): BuchungService {
+		$v = self::verein();
+		return new BuchungService($v, (int) $v['sportjahr_id'], self::$admin_verein !== null);
 	}
 
 	private static function schuetze_service(): SchuetzeService {
@@ -308,6 +319,36 @@ final class RestApi {
 			$service = self::meldung_service();
 			$service->nachmeldung_freischalten($utc);
 			return ['ok' => true, 'meldung' => $service->zusammenfassung()];
+		});
+	}
+
+	// ----- Startplan / Buchung ----------------------------------------------------------------
+
+	public static function startplan_tage(\WP_REST_Request $request): \WP_REST_Response|\WP_Error {
+		return self::run(static fn() => self::buchung_service()->tage());
+	}
+
+	public static function startplan_raster(\WP_REST_Request $request): \WP_REST_Response|\WP_Error {
+		return self::run(static fn() => self::buchung_service()->raster((int) $request->get_param('id')));
+	}
+
+	public static function startplan_buchen(\WP_REST_Request $request): \WP_REST_Response|\WP_Error {
+		return self::run(static function () use ($request) {
+			$p = $request->get_json_params();
+			$p = is_array($p) ? $p : [];
+			$service = self::buchung_service();
+			$tag = (int) $request->get_param('id');
+			$r = $service->buchen($tag, (int) ($p['durchgang_id'] ?? 0), (int) ($p['einheit_id'] ?? 0), (int) ($p['position'] ?? 0), (int) ($p['einzelmeldung_id'] ?? 0));
+			return $r + ['raster' => $service->raster($tag)];
+		});
+	}
+
+	public static function startplan_freigeben(\WP_REST_Request $request): \WP_REST_Response|\WP_Error {
+		return self::run(static function () use ($request) {
+			$service = self::buchung_service();
+			$tag = (int) $request->get_param('tag');
+			$service->freigeben((int) $request->get_param('id'));
+			return ['ok' => true, 'raster' => $tag > 0 ? $service->raster($tag) : null];
 		});
 	}
 }

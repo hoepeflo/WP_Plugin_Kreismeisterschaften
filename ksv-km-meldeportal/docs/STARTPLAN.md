@@ -35,3 +35,61 @@ Neue Wettkampftage stehen im Status **Entwurf**: Vereine sehen nichts, der Stand
 „Startgeld bei Abmeldung“ bleibt „nein“, bis der Tag veröffentlicht ist.
 
 Tests: `tests/Integration/StartplanTest.php`.
+
+## Meilenstein 8: Freigabe und Buchung (Konzept 12.4)
+
+### Freigabe (`StartplanService::freigeben`)
+
+Voraussetzung: mindestens eine Einheit und ein Durchgang, jeder Durchgang mit Zulassung;
+Referenten nur, wenn alle Durchgänge in ihrem Bereich liegen. Status → `freigegeben`,
+`freigegeben_am`; alle Vereine mit passenden Startern erhalten eine Mail mit ihrem
+Zugangslink (`templates/mail/freigabe.php`, `Mailer::TYP_FREIGABE`). Zurücknehmen ist nur
+ohne Buchungen möglich. Erinnerung: `erinnerung_am` = Buchungsfrist − Einstellung
+`buchung_erinnerung_tage`; der stündliche Cron (`StartplanService::cron_erinnerung`) mailt
+Vereine mit Startern ohne Platz einmal (`erinnerung_gesendet_am` wird vor dem Versand
+gesetzt).
+
+### Sichtbarkeit für Vereine
+
+Tab **„5 Startplätze“** erscheint erst, wenn mindestens ein freigegebener (oder
+veröffentlichter) Wettkampftag passende Starter des Vereins hat (`BuchungService::tage`).
+Buchbar ist ein Tag im Status `freigegeben` bis zur Buchungsfrist; danach und nach der
+Veröffentlichung nur noch über den KSV (Admin-Modus).
+
+### Eindeutigkeit und gleichzeitige Zugriffe (Datenbankebene)
+
+- `kmm_buchung` hat zwei UNIQUE-Schlüssel: `(durchgang_id, einheit_id, position)` – ein
+  Platz, eine Buchung – und `(einzelmeldung_id)` – eine Meldung, ein Platz.
+- **Neubuchung = ein INSERT** (`BuchungRepository::platz_buchen`), ohne Sperre, ohne
+  vorheriges Lesen. Gleichzeitige Klicks entscheidet die Datenbank: der Verlierer erhält
+  den Duplikatfehler 1062, es wird nichts geschrieben, der Server antwortet „Der Platz
+  wurde gerade von einem anderen Verein gebucht“, das Raster lädt neu.
+- **Umbuchung = ein UPDATE** der bestehenden Zeile (`BuchungRepository::umbuchen`). Ist
+  der Zielplatz belegt, scheitert das UPDATE an UNIQUE(platz) und die alte Buchung bleibt
+  unverändert – der Verein verliert nie seinen Platz. (Ein „erst neu einfügen, dann alt
+  löschen“ wäre wegen UNIQUE(einzelmeldung_id) nicht möglich.)
+- Fachliche Prüfungen vor dem Schreiben (`BuchungService::buchen`): Tag freigegeben und
+  Frist offen, Meldung gehört dem Verein und ist buchbar, Durchgang lässt sie zu, Einheit
+  erlaubt die Disziplin, Position ≤ Kapazität, Schütze steht in keinem zeitlich
+  überschneidenden Durchgang (über alle Disziplinen und Tage, `BuchungRepository::
+  by_schuetze`). Die Überschneidung wird nach dem Schreiben erneut geprüft; im
+  Konfliktfall (zwei gleichzeitige eigene Klicks) wird die eigene Buchung zurückgenommen.
+- Keine Zeitsperren; das Raster fragt alle `buchung_raster_intervall` Sekunden den Stand ab.
+- Fremde Buchungen erscheinen vor der Veröffentlichung nur als „belegt“ ohne Namen.
+
+### REST (`kmm/v1`, Vereinssitzung oder Admin-Modus)
+
+| Endpunkt | Zweck |
+|---|---|
+| `GET /startplan` | sichtbare Tage mit Zahl der Meldungen mit/ohne Platz |
+| `GET /startplan/{tag}` | Raster: Einheiten, Durchgänge (Zeit, Zulassungen, Belegung), eigene Meldungen |
+| `POST /startplan/{tag}/buchen` | `{durchgang_id, einheit_id, position, einzelmeldung_id}` – buchen oder umbuchen |
+| `DELETE /startplan/buchung/{id}?tag=` | eigenen Platz freigeben |
+
+Im Admin-Modus (`BuchungService` mit `admin = true`) gelten Frist und Status nicht;
+Zuteilungen durch den KSV werden als Änderung „Startplan“ erfasst (Sammelmail).
+
+Tests: `tests/Integration/BuchungTest.php` (Freigabe und Mails, Buchen/Umbuchen/Freigeben,
+fremde Plätze ohne Namen, Überschneidung über Disziplinen, gleichzeitige Buchung desselben
+Platzes – nur einer gewinnt, Umbuchen auf belegten Platz lässt die alte Buchung, Frist
+sperrt Vereine, Admin darf weiter, Erinnerung ohne Doppelversand).

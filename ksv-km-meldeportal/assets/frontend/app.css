@@ -112,3 +112,27 @@ h2 { font-size: 1.2rem; margin: 24px 0 12px; }
 .kmm-tabelle tr.is-abgemeldet td { color: #6b7280; }
 .kmm-tabelle tr.is-abgemeldet td strong { text-decoration: line-through; }
 .kmm-startgeld-schalter { display: inline-flex; gap: 4px; align-items: center; font-size: 12px; white-space: nowrap; }
+
+/* Startplätze / Buchungsraster (mobile-first) */
+.kmm-sp-starter { display: grid; grid-template-columns: 1fr; gap: 6px; margin-bottom: 12px; }
+@media (min-width: 700px) { .kmm-sp-starter { grid-template-columns: 1fr 1fr; } }
+.kmm-sp-melder { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; padding: 8px 10px; border: 2px solid #d1d5db; border-radius: 8px; background: #fff; font: inherit; cursor: pointer; }
+.kmm-sp-melder.no-platz { border-color: var(--kmm-warn, #b45309); background: var(--kmm-warn-bg, #fff7ed); }
+.kmm-sp-melder.has-platz { border-color: #86efac; background: #f0fdf4; }
+.kmm-sp-melder.is-auswahl { border-color: var(--kmm-primary, #14532d); box-shadow: 0 0 0 3px rgba(20, 83, 45, .25); }
+.kmm-sp-melder span { font-size: 12px; color: #4b5563; }
+.kmm-sp-melder:disabled { opacity: .7; cursor: default; }
+.kmm-sp-durchgang { border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px; margin-bottom: 10px; }
+.kmm-sp-durchgang.is-passend { border-color: var(--kmm-primary, #14532d); }
+.kmm-sp-durchgang.is-unpassend { opacity: .5; }
+.kmm-sp-kopf { margin-bottom: 6px; }
+.kmm-sp-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; }
+.kmm-sp-zelle { display: flex; flex-direction: column; gap: 2px; padding: 6px 8px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; font: inherit; text-align: left; min-height: 56px; }
+.kmm-sp-zelle .kmm-sp-label { font-size: 11px; color: #6b7280; }
+.kmm-sp-zelle.is-frei { border-style: dashed; cursor: pointer; }
+.kmm-sp-zelle.is-frei:not(:disabled) { border-color: var(--kmm-primary, #14532d); background: #f0fdf4; }
+.kmm-sp-zelle.is-frei:disabled { color: #9ca3af; cursor: default; }
+.kmm-sp-zelle.is-belegt { background: #f3f4f6; color: #6b7280; }
+.kmm-sp-zelle.is-eigen { background: #dcfce7; border-color: #86efac; cursor: pointer; }
+.kmm-sp-zelle.is-eigen.is-auswahl { box-shadow: 0 0 0 3px rgba(20, 83, 45, .25); }
+.kmm-link { background: none; border: 0; padding: 0; color: var(--kmm-primary, #14532d); text-decoration: underline; cursor: pointer; font: inherit; }
