@@ -33,3 +33,9 @@
 .kmm-admin tr.kmm-zeile-warn td { background: #fff4d6; }
 .kmm-admin .kmm-filter { margin: 8px 0 12px; }
 .kmm-admin .kmm-protokoll pre { font-size: 11px; max-height: 200px; overflow: auto; }
+.kmm-admin .kmm-status-verarbeitet { background: #e3f4e8; color: #14532d; }
+.kmm-admin .kmm-status-nicht_startberechtigt { background: #fde8e8; color: #b32d2e; }
+.kmm-admin tr.kmm-zeile-ok td { background: #f3faf5; }
+.kmm-admin .kmm-status-edit summary { cursor: pointer; color: #2271b1; font-size: 12px; }
+.kmm-admin .kmm-status-form { margin-top: 4px; white-space: nowrap; }
+.kmm-admin .kmm-sammel-leiste { margin-top: 10px; padding: 8px; background: #fff; border: 1px solid #c3c4c7; }

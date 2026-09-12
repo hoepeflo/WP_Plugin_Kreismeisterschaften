@@ -112,12 +112,12 @@ final class UebersichtPage extends AdminPage {
 			}
 		}
 
-		$summe = ['offen' => 0, 'entwurf' => 0, 'eingereicht' => 0, 'einzel' => 0, 'ohne_ergebnis' => 0, 'konflikte' => 0, 'mannschaften' => 0, 'startgeld' => 0.0];
+		$summe = ['offen' => 0, 'entwurf' => 0, 'eingereicht' => 0, 'verarbeitet' => 0, 'einzel' => 0, 'ohne_ergebnis' => 0, 'konflikte' => 0, 'mannschaften' => 0, 'startgeld' => 0.0];
 		$zeilen = [];
 		foreach ($vereine as $v) {
 			$vid = (int) $v['id'];
 			$m = $meldungen[ $vid ] ?? null;
-			$status = $m !== null ? (string) $m['status'] : MeldungRepository::STATUS_OFFEN;
+			$status = \KSV\KMM\Application\VerarbeitungService::vereinsstatus($m !== null ? (string) $m['status'] : MeldungRepository::STATUS_OFFEN, array_values(array_filter($einzel, static fn(array $e): bool => (int) $e['verein_id'] === $vid)));
 			$z = $je_verein[ $vid ] ?? ['einzel' => 0, 'ohne_ergebnis' => 0, 'konflikte' => 0, 'ohne_startrecht' => 0, 'mannschaften' => 0, 'unvollstaendig' => 0, 'startgeld' => 0.0];
 			if ($v['ist_aktiv']) {
 				$summe[ $status ] = ($summe[ $status ] ?? 0) + 1;
@@ -132,6 +132,7 @@ final class UebersichtPage extends AdminPage {
 		self::kachel(__('Offen', 'ksv-km-meldeportal'), (string) $summe['offen']);
 		self::kachel(__('Entwurf', 'ksv-km-meldeportal'), (string) $summe['entwurf']);
 		self::kachel(__('Eingereicht', 'ksv-km-meldeportal'), (string) $summe['eingereicht']);
+		self::kachel(__('Verarbeitet', 'ksv-km-meldeportal'), (string) $summe['verarbeitet']);
 		self::kachel(__('Einzelmeldungen', 'ksv-km-meldeportal'), (string) $summe['einzel']);
 		self::kachel(__('Mannschaften', 'ksv-km-meldeportal'), (string) $summe['mannschaften']);
 		self::kachel(__('Ohne Ergebnis', 'ksv-km-meldeportal'), (string) $summe['ohne_ergebnis'], $summe['ohne_ergebnis'] > 0 ? 'warn' : '');
@@ -246,6 +247,7 @@ final class UebersichtPage extends AdminPage {
 		$label = match ($status) {
 			'entwurf' => __('Entwurf', 'ksv-km-meldeportal'),
 			'eingereicht' => __('Eingereicht', 'ksv-km-meldeportal'),
+			'verarbeitet' => __('Verarbeitet', 'ksv-km-meldeportal'),
 			default => __('Offen', 'ksv-km-meldeportal'),
 		};
 		return '<span class="kmm-badge kmm-badge-' . esc_attr($status) . '">' . esc_html($label) . '</span>';

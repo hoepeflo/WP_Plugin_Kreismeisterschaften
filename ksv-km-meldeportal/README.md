@@ -48,11 +48,12 @@ bash tools/build-zip.sh   # installierbares ZIP nach build/
 
 Route `/km-meldung/` nach Anmeldung per Zugangslink: vier Schritte Schützen, Meldung, Mannschaften, Prüfen & Einreichen; PDF der eigenen Meldung unter `/km-meldung/pdf/`. Serverseitig gerendertes Gerüst (`templates/frontend/app.php`) plus Vanilla-JS (`assets/frontend/app.js`) über die REST-Endpunkte `kmm/v1` (`src/Http/RestApi.php`). Beschreibung in `docs/VEREINSOBERFLAECHE.md`.
 
-## Backend (Stand Meilenstein 8)
+## Backend (Stand Phase 2, Meilenstein 2)
 
 | Seite | Inhalt |
 |---|---|
 | Übersicht | Statusübersicht aller Vereine (Offen/Entwurf/Eingereicht, Einzelmeldungen, Mannschaften, fehlende Ergebnisse, Konflikte, Startgeld, Zugang), Details je Verein, Erinnerung jetzt senden |
+| Verarbeitung | Verarbeitungsstatus je Einzelmeldung (ungeprüft / verarbeitet / nicht startberechtigt mit Grund), Filter nach Verein, Gruppe, Disziplin, Status; Sammelaktion; Referenten nur im Zuständigkeitsbereich |
 | Export | DAVID21-CSV (gesamt / je Disziplin, Format einstellbar) und PDF-Meldelisten (Umfang, Gruppierung), Export-Protokoll |
 | Protokoll | Änderungsprotokoll (wer, wann, was) mit Filtern nach Sportjahr, Verein, Akteur und Text |
 | System | Schema-Version, Tabellen, Cron, Migration erneut ausführen |

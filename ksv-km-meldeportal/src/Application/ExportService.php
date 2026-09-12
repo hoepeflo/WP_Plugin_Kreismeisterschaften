@@ -54,7 +54,7 @@ final class ExportService {
 		}
 		$zeilen = [];
 		foreach ((new EinzelmeldungRepository())->by_sportjahr($sportjahr_id) as $em) {
-			if (!$em['startrecht'] || $em['konflikt'] || $em['schuetze_id'] === null || $em['abgemeldet_am'] !== null) {
+			if (!$em['startrecht'] || $em['konflikt'] || $em['schuetze_id'] === null || $em['abgemeldet_am'] !== null || (string) $em['verarbeitungsstatus'] === \KSV\KMM\Domain\Verarbeitungsstatus::NICHT_STARTBERECHTIGT) {
 				continue;
 			}
 			$meldung = $meldungen[ (int) $em['verein_id'] ] ?? null;

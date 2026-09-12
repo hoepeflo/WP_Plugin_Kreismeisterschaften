@@ -102,3 +102,6 @@ h2 { font-size: 1.2rem; margin: 24px 0 12px; }
 .kmm-gruppe-details summary { padding: 10px 12px; cursor: pointer; font-weight: 600; }
 .kmm-gruppe-details .kmm-liste { padding: 0 8px 8px; }
 .kmm-liste-kompakt .kmm-karte { padding: 8px 10px; }
+.kmm-status-verarbeitet { background: #e3f4e8; color: #14532d; }
+.kmm-status-nicht_startberechtigt { background: var(--kmm-error-bg); color: var(--kmm-error); }
+.kmm-status-ungeprueft { background: #e5e7eb; }

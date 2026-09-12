@@ -540,6 +540,7 @@ final class MeldungService {
 			$schuetzen[ (int) $s['id'] ] = $s;
 		}
 		$einzel = [];
+		$roh = [];
 		$mannschaften = [];
 		$summe_einzel = 0.0;
 		$summe_mannschaft = 0.0;
@@ -547,6 +548,7 @@ final class MeldungService {
 		$konflikte = 0;
 		if ($m !== null) {
 			foreach ($this->einzel->by_meldung((int) $m['id']) as $em) {
+				$roh[] = $em;
 				$ansicht = $this->einzel_ansicht($em, $schuetzen[ (int) $em['schuetze_id'] ] ?? null);
 				$einzel[] = $ansicht;
 				if ($em['startrecht'] && !$em['konflikt']) {
@@ -569,7 +571,7 @@ final class MeldungService {
 		return [
 			'verein'          => ['id' => $this->verein_id(), 'name' => (string) $this->verein['name'], 'vn_nummer' => (string) $this->verein['vn_nummer']],
 			'sportjahr'       => ['id' => $this->sportjahr_id(), 'jahr' => (int) $this->sportjahr['jahr'], 'meldeschluss' => Clock::format_local($this->sportjahr['meldeschluss']), 'meldung_beginn' => Clock::format_local($this->sportjahr['meldung_beginn'])],
-			'status'          => $m !== null ? (string) $m['status'] : MeldungRepository::STATUS_OFFEN,
+			'status'          => VerarbeitungService::vereinsstatus($m !== null ? (string) $m['status'] : MeldungRepository::STATUS_OFFEN, $roh),
 			'eingereicht_am'  => $m !== null ? Clock::format_local($m['eingereicht_am']) : '',
 			'phase'           => $this->phase(),
 			'ansprechpartner' => ['name' => (string) ($m['ansprechpartner_name'] ?? ''), 'email' => (string) ($m['ansprechpartner_email'] ?? ''), 'telefon' => (string) ($m['ansprechpartner_telefon'] ?? '')],
@@ -632,6 +634,10 @@ final class MeldungService {
 			'startgeld'          => (float) $em['startgeld'],
 			'konflikt'           => (bool) $em['konflikt'],
 			'konflikt_text'      => (string) $em['konflikt_text'],
+			'verarbeitungsstatus' => (string) $em['verarbeitungsstatus'],
+			'verarbeitungsgrund' => (string) $em['verarbeitungsgrund'],
+			'abgemeldet_am'      => $em['abgemeldet_am'] !== null ? Clock::format_local($em['abgemeldet_am']) : null,
+			'nachgemeldet'       => (bool) $em['nachgemeldet'],
 			'hinweise'           => $hinweise,
 			'sortierung'         => $d !== null ? ($rw->disziplin($d->id) ? $this->disziplin_sort($d->kennzahl) : 0) : 0,
 		];

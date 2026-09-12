@@ -55,7 +55,13 @@
 	}
 
 	function schreibbar() {
-		return state.meldung.phase.schreibbar && state.meldung.status !== 'eingereicht';
+		return state.meldung.phase.schreibbar && state.meldung.status !== 'eingereicht' && state.meldung.status !== 'verarbeitet';
+	}
+	const STATUS_LABEL = { ungeprueft: 'ungeprüft', verarbeitet: 'verarbeitet', nicht_startberechtigt: 'nicht startberechtigt' };
+	// Verarbeitungsstatus wird angezeigt, sobald der Meldeschluss vorbei ist oder ein Status gesetzt wurde.
+	function statusSichtbar() {
+		const m = state.meldung;
+		return m.phase.status === 'geschlossen' || m.phase.status === 'abgeschlossen' || m.einzelmeldungen.some((e) => e.verarbeitungsstatus !== 'ungeprueft' || e.abgemeldet_am);
 	}
 
 	function dialog(html, onSubmit) {
@@ -89,11 +95,13 @@
 
 	function renderKopf() {
 		const m = state.meldung;
-		const label = { offen: 'Offen', entwurf: 'Entwurf', eingereicht: 'Eingereicht' }[m.status] || m.status;
+		const label = { offen: 'Offen', entwurf: 'Entwurf', eingereicht: 'Eingereicht', verarbeitet: 'Verarbeitet' }[m.status] || m.status;
 		$('#kmm-status').innerHTML = `<span class="kmm-badge kmm-badge-${h(m.status)}">${h(label)}</span>` + (m.status === 'eingereicht' && m.eingereicht_am ? `<div class="kmm-muted">am ${h(m.eingereicht_am)}</div>` : '');
 		let banner = '';
 		if (!m.phase.schreibbar) {
 			banner = `<div class="kmm-alert kmm-alert-warn">${h(m.phase.grund)} Die Meldung ist schreibgeschützt.</div>`;
+		} else if (m.status === 'verarbeitet') {
+			banner = '<div class="kmm-alert kmm-alert-ok">Ihre Meldung ist vollständig geprüft. Den Status je Schütze sehen Sie unter „Meldung“.</div>';
 		} else if (m.status === 'eingereicht') {
 			banner = `<div class="kmm-alert kmm-alert-ok">Ihre Meldung ist eingereicht. Änderungen sind bis zum Meldeschluss (${h(m.sportjahr.meldeschluss)} Uhr) möglich: unter „Prüfen &amp; Einreichen“ die Meldung wieder öffnen.</div>`;
 		} else if (m.sportjahr.meldeschluss) {
@@ -278,11 +286,12 @@
 			html += '<p>Noch keine Starter gemeldet.</p>';
 		} else {
 			let aktuell = null;
-			html += '<div class="kmm-tabelle-wrap"><table class="kmm-tabelle"><thead><tr><th>Name</th><th>Klasse</th><th>Startklasse</th><th>Ergebnis</th>' + (m.einstellungen.nicht_meldung_sichtbar ? '<th title="Nicht-Meldung">N-M</th>' : '') + '<th>Mannsch.</th><th class="r">Startgeld</th><th></th></tr></thead><tbody>';
+			const zeigeStatus = statusSichtbar();
+			html += '<div class="kmm-tabelle-wrap"><table class="kmm-tabelle"><thead><tr><th>Name</th><th>Klasse</th><th>Startklasse</th><th>Ergebnis</th>' + (m.einstellungen.nicht_meldung_sichtbar ? '<th title="Nicht-Meldung">N-M</th>' : '') + '<th>Mannsch.</th><th class="r">Startgeld</th>' + (zeigeStatus ? '<th>Status</th>' : '') + '<th></th></tr></thead><tbody>';
 			m.einzelmeldungen.forEach((e) => {
 				if (e.kennzahl !== aktuell) {
 					aktuell = e.kennzahl;
-					html += `<tr class="kmm-gruppe"><th colspan="8">${h(e.kennzahl)} ${h(e.disziplin)}</th></tr>`;
+					html += `<tr class="kmm-gruppe"><th colspan="9">${h(e.kennzahl)} ${h(e.disziplin)}</th></tr>`;
 				}
 				const ergebnisPh = e.ergebnis_format === 'zehntel' ? '389,4' : '375';
 				html += `<tr class="${e.konflikt || !e.startrecht ? 'is-konflikt' : ''}" data-id="${e.id}">
@@ -293,6 +302,7 @@
 					${m.einstellungen.nicht_meldung_sichtbar ? `<td><input type="checkbox" data-action="nicht-meldung" data-id="${e.id}" ${e.nicht_meldung ? 'checked' : ''} ${rw ? '' : 'disabled'}></td>` : ''}
 					<td>${e.mannschaft_nummer ? 'M' + e.mannschaft_nummer : (e.mannschaft_moeglich ? '<span class="kmm-muted">–</span>' : '')}</td>
 					<td class="r">${e.typ === 'mixteam' ? '–' : geld(e.startgeld)}</td>
+					${zeigeStatus ? `<td>${e.abgemeldet_am ? `<span class="kmm-badge kmm-badge-warn">abgemeldet</span><div class="kmm-muted">${h(e.abgemeldet_am)}</div>` : `<span class="kmm-badge kmm-status-${h(e.verarbeitungsstatus)}">${h(STATUS_LABEL[e.verarbeitungsstatus] || e.verarbeitungsstatus)}</span>${e.verarbeitungsgrund ? `<div class="kmm-fehler">${h(e.verarbeitungsgrund)}</div>` : ''}`}${e.nachgemeldet ? '<div class="kmm-muted">Nachmeldung</div>' : ''}</td>` : ''}
 					<td class="kmm-aktionen">${rw ? `${e.konflikt && e.startrecht ? `<button type="button" class="kmm-button kmm-button-small" data-action="konflikt-ok" data-id="${e.id}">OK</button> ` : ''}<button type="button" class="kmm-button kmm-button-small kmm-button-danger" data-action="einzel-loeschen" data-id="${e.id}" title="Meldung entfernen">✕</button>` : ''}</td>
 				</tr>`;
 			});
