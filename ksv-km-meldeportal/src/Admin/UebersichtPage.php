@@ -13,6 +13,8 @@ namespace KSV\KMM\Admin;
 use KSV\KMM\Application\Erinnerung;
 use KSV\KMM\Application\Mailer;
 use KSV\KMM\Application\MeldungService;
+use KSV\KMM\Auth\Rechte;
+use KSV\KMM\Http\Router;
 use KSV\KMM\Infrastructure\RegelwerkLader;
 use KSV\KMM\Infrastructure\Repository\EinzelmeldungRepository;
 use KSV\KMM\Infrastructure\Repository\MagicLinkRepository;
@@ -141,6 +143,7 @@ final class UebersichtPage extends AdminPage {
 		echo '</div>';
 
 		$detail = isset($_GET['verein']) ? (int) $_GET['verein'] : 0;
+		$darf_bearbeiten = Rechte::hat_recht(Rechte::RECHT_MELDUNGEN) && $sportjahr['abgeschlossen_am'] === null;
 
 		echo '<table class="widefat striped kmm-uebersicht"><thead><tr><th>' . esc_html__('Verein', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Status', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Ansprechpartner', 'ksv-km-meldeportal') . '</th><th class="r">' . esc_html__('Einzel', 'ksv-km-meldeportal') . '</th><th class="r">' . esc_html__('Mannsch.', 'ksv-km-meldeportal') . '</th><th class="r">' . esc_html__('Ohne Erg.', 'ksv-km-meldeportal') . '</th><th class="r">' . esc_html__('Konflikte', 'ksv-km-meldeportal') . '</th><th class="r">' . esc_html__('Startgeld', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Zugang', 'ksv-km-meldeportal') . '</th><th></th></tr></thead><tbody>';
 		foreach ($zeilen as $z) {
@@ -149,7 +152,7 @@ final class UebersichtPage extends AdminPage {
 			$n = $z['zahlen'];
 			echo '<tr' . ($v['ist_aktiv'] ? '' : ' class="kmm-muted"') . '>';
 			echo '<td><strong>' . esc_html((string) $v['name']) . '</strong><br><small>VN ' . esc_html((string) $v['vn_nummer']) . ($v['ist_aktiv'] ? '' : ' · ' . esc_html__('inaktiv', 'ksv-km-meldeportal')) . '</small></td>';
-			echo '<td>' . self::status_badge($z['status']) . ($z['meldung'] !== null && $z['meldung']['eingereicht_am'] ? '<br><small>' . esc_html(Clock::format_local($z['meldung']['eingereicht_am'])) . '</small>' : '') . '</td>';
+			echo '<td>' . self::status_badge($z['status']) . ($z['meldung'] !== null && $z['meldung']['eingereicht_am'] ? '<br><small>' . esc_html(Clock::format_local($z['meldung']['eingereicht_am'])) . '</small>' : '') . ($z['meldung'] !== null && $z['meldung']['nachmeldung_bis'] !== null && (string) $z['meldung']['nachmeldung_bis'] > Clock::now_utc() ? '<br><small class="kmm-warn">' . esc_html(sprintf(__('Nachmeldung bis %s', 'ksv-km-meldeportal'), Clock::format_local($z['meldung']['nachmeldung_bis']))) . '</small>' : '') . '</td>';
 			echo '<td>' . ($z['meldung'] !== null && $z['meldung']['ansprechpartner_name'] !== '' ? esc_html((string) $z['meldung']['ansprechpartner_name']) . '<br><small><a href="mailto:' . esc_attr((string) $z['meldung']['ansprechpartner_email']) . '">' . esc_html((string) $z['meldung']['ansprechpartner_email']) . '</a> ' . esc_html((string) $z['meldung']['ansprechpartner_telefon']) . '</small>' : '–') . '</td>';
 			echo '<td class="r">' . (int) $n['einzel'] . ($n['ohne_startrecht'] > 0 ? ' <span class="kmm-fail" title="' . esc_attr__('ohne Startrecht', 'ksv-km-meldeportal') . '">(' . (int) $n['ohne_startrecht'] . ')</span>' : '') . '</td>';
 			echo '<td class="r">' . (int) $n['mannschaften'] . ($n['unvollstaendig'] > 0 ? ' <span class="kmm-fail" title="' . esc_attr__('unvollständig', 'ksv-km-meldeportal') . '">(' . (int) $n['unvollstaendig'] . ')</span>' : '') . '</td>';
@@ -157,7 +160,7 @@ final class UebersichtPage extends AdminPage {
 			echo '<td class="r">' . ($n['konflikte'] > 0 ? '<span class="kmm-fail">' . (int) $n['konflikte'] . '</span>' : '0') . '</td>';
 			echo '<td class="r">' . esc_html(self::geld($n['startgeld'])) . '</td>';
 			echo '<td><small>' . ($z['link'] !== null ? esc_html(sprintf(__('Link %s, %d× genutzt', 'ksv-km-meldeportal'), Clock::format_local($z['link']['erstellt_am'], 'd.m.'), (int) $z['link']['verwendungen'])) : esc_html__('kein Link', 'ksv-km-meldeportal')) . ($z['mail'] !== null && !$z['mail']['erfolgreich'] ? '<br><span class="kmm-fail">' . esc_html__('Mailfehler', 'ksv-km-meldeportal') . '</span>' : '') . '</small></td>';
-			echo '<td>' . ($n['einzel'] > 0 ? '<a class="button button-small" href="' . esc_url(self::url(['sportjahr' => $sid, 'verein' => $vid])) . '">' . esc_html__('Details', 'ksv-km-meldeportal') . '</a>' : '') . '</td>';
+			echo '<td class="kmm-nowrap">' . ($n['einzel'] > 0 ? '<a class="button button-small" href="' . esc_url(self::url(['sportjahr' => $sid, 'verein' => $vid])) . '">' . esc_html__('Details', 'ksv-km-meldeportal') . '</a> ' : '') . ($darf_bearbeiten ? '<a class="button button-small" href="' . esc_url(add_query_arg('sportjahr', $sid, Router::url('admin/' . $vid))) . '" title="' . esc_attr__('Meldung des Vereins im Admin-Modus bearbeiten (auch nach Meldeschluss: Nachmeldung, Abmeldung, Korrektur, Nachmeldungs-Freischaltung)', 'ksv-km-meldeportal') . '">' . esc_html__('Bearbeiten', 'ksv-km-meldeportal') . '</a>' : '') . '</td>';
 			echo '</tr>';
 			if ($detail === $vid) {
 				echo '<tr class="kmm-detail"><td colspan="10">';
@@ -166,7 +169,7 @@ final class UebersichtPage extends AdminPage {
 			}
 		}
 		echo '</tbody></table>';
-		echo '<p class="description">' . esc_html__('Zahlen in Klammern: ohne Startrecht bzw. unvollständige Mannschaften. Konflikte entstehen durch Regeländerungen oder geänderte Schützendaten und müssen vom Verein bestätigt oder entfernt werden.', 'ksv-km-meldeportal') . '</p>';
+		echo '<p class="description">' . esc_html__('Zahlen in Klammern: ohne Startrecht bzw. unvollständige Mannschaften. Konflikte entstehen durch Regeländerungen oder geänderte Schützendaten und müssen vom Verein bestätigt oder entfernt werden.', 'ksv-km-meldeportal') . ($darf_bearbeiten ? ' ' . esc_html__('„Bearbeiten“ öffnet die Meldung des Vereins in der Vereinsoberfläche im Admin-Modus; Änderungen nach Meldeschluss werden protokolliert und in die Sammelmail an den Verein aufgenommen.', 'ksv-km-meldeportal') : '') . '</p>';
 		echo '</div>';
 	}
 
@@ -226,7 +229,8 @@ final class UebersichtPage extends AdminPage {
 		echo '<table class="widefat"><thead><tr><th>Kennzahl</th><th>Disziplin</th><th>Name</th><th>Klasse</th><th>Startklasse</th><th>Ergebnis</th><th>Mannsch.</th><th class="r">Startgeld</th><th>Hinweise</th></tr></thead><tbody>';
 		foreach ($z['einzelmeldungen'] as $e) {
 			$klasse = $e['konflikt'] ? ' class="kmm-zeile-konflikt"' : ($e['meldeergebnis'] === '' && $e['typ'] !== 'mixteam' ? ' class="kmm-zeile-warn"' : '');
-			echo '<tr' . $klasse . '><td>' . esc_html($e['kennzahl_voll']) . '</td><td>' . esc_html($e['disziplin']) . '</td><td>' . esc_html($e['nachname'] . ', ' . $e['vorname']) . ($e['para'] ? ' <small>(' . esc_html($e['para']) . ')</small>' : '') . '</td><td>' . esc_html($e['klasse']) . ($e['hoehermeldung'] ? ' <small>HM</small>' : '') . '</td><td>' . esc_html($e['startklasse']) . '</td><td>' . esc_html($e['meldeergebnis'] !== '' ? $e['meldeergebnis'] : '–') . '</td><td>' . ($e['mannschaft_nummer'] ? 'M' . (int) $e['mannschaft_nummer'] : '') . '</td><td class="r">' . esc_html($e['typ'] === 'mixteam' ? '–' : self::geld($e['startgeld'])) . '</td><td>' . esc_html(trim(($e['konflikt'] ? $e['konflikt_text'] . ' ' : '') . implode(' ', $e['hinweise']))) . '</td></tr>';
+			$vermerk = $e['abgemeldet_am'] !== null ? ' <small class="kmm-fail">' . esc_html(sprintf(__('abgemeldet %s%s, Startgeld %s', 'ksv-km-meldeportal'), $e['abgemeldet_am'], $e['abmeldegrund'] !== '' ? ' (' . $e['abmeldegrund'] . ')' : '', $e['startgeld_berechnen'] ? __('wird berechnet', 'ksv-km-meldeportal') : __('entfällt', 'ksv-km-meldeportal'))) . '</small>' : ($e['nachgemeldet'] ? ' <small>' . esc_html__('Nachmeldung', 'ksv-km-meldeportal') . '</small>' : '');
+			echo '<tr' . $klasse . '><td>' . esc_html($e['kennzahl_voll']) . '</td><td>' . esc_html($e['disziplin']) . '</td><td>' . esc_html($e['nachname'] . ', ' . $e['vorname']) . ($e['para'] ? ' <small>(' . esc_html($e['para']) . ')</small>' : '') . $vermerk . '</td><td>' . esc_html($e['klasse']) . ($e['hoehermeldung'] ? ' <small>HM</small>' : '') . '</td><td>' . esc_html($e['startklasse']) . '</td><td>' . esc_html($e['meldeergebnis'] !== '' ? $e['meldeergebnis'] : '–') . '</td><td>' . ($e['mannschaft_nummer'] ? 'M' . (int) $e['mannschaft_nummer'] : '') . '</td><td class="r">' . esc_html($e['typ'] === 'mixteam' ? '–' : self::geld($e['startgeld'])) . '</td><td>' . esc_html(trim(($e['konflikt'] ? $e['konflikt_text'] . ' ' : '') . implode(' ', $e['hinweise']))) . '</td></tr>';
 		}
 		echo '</tbody></table>';
 		if ($z['mannschaften'] !== []) {

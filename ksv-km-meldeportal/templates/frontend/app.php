@@ -12,6 +12,7 @@
  * @var string $api
  * @var string $pdf_url
  * @var string $abmelden
+ * @var array<string, mixed>|null $admin Admin-Modus (verein_id, sportjahr_id, nonce, zurueck, benutzer) oder null
  */
 
 declare(strict_types=1);
@@ -26,9 +27,13 @@ $config = [
 	'abmelden'  => $abmelden,
 	'meldung'   => $state,
 	'schuetzen' => $schuetzen,
+	'admin'     => $admin,
 ];
 ?>
-<div id="kmm-app" class="kmm-app" data-config="<?php echo esc_attr((string) wp_json_encode($config)); ?>">
+<div id="kmm-app" class="kmm-app<?php echo $admin !== null ? ' kmm-app-admin' : ''; ?>" data-config="<?php echo esc_attr((string) wp_json_encode($config)); ?>">
+	<?php if ($admin !== null) : ?>
+	<div class="kmm-admin-leiste"><strong><?php esc_html_e('Admin-Modus', 'ksv-km-meldeportal'); ?></strong> · <?php echo esc_html(sprintf(__('angemeldet als %s', 'ksv-km-meldeportal'), (string) $admin['benutzer'])); ?> · <a href="<?php echo esc_url((string) $admin['zurueck']); ?>"><?php esc_html_e('Zurück zur Übersicht', 'ksv-km-meldeportal'); ?></a></div>
+	<?php endif; ?>
 	<noscript><div class="kmm-alert kmm-alert-error"><?php esc_html_e('Für das Meldeportal muss JavaScript aktiviert sein.', 'ksv-km-meldeportal'); ?></div></noscript>
 	<div class="kmm-app-kopf">
 		<div>
@@ -52,7 +57,11 @@ $config = [
 	<div id="kmm-toast" class="kmm-toast" hidden></div>
 	<p class="kmm-app-fuss">
 		<a href="<?php echo esc_url($pdf_url); ?>"><?php esc_html_e('Meldung als PDF', 'ksv-km-meldeportal'); ?></a> ·
+		<?php if ($admin !== null) : ?>
+		<a href="<?php echo esc_url((string) $admin['zurueck']); ?>"><?php esc_html_e('Zurück zur Übersicht', 'ksv-km-meldeportal'); ?></a>
+		<?php else : ?>
 		<a href="<?php echo esc_url($abmelden); ?>"><?php esc_html_e('Abmelden', 'ksv-km-meldeportal'); ?></a>
+		<?php endif; ?>
 	</p>
 	<details class="kmm-datenschutz">
 		<summary><?php esc_html_e('Datenschutzhinweis', 'ksv-km-meldeportal'); ?></summary>

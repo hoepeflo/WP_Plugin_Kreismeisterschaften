@@ -35,18 +35,26 @@
 		toast.timer = setTimeout(() => { t.hidden = true; }, art === 'error' ? 8000 : 3500);
 	}
 
+	// Admin-Modus: Backend-Benutzer bearbeitet die Meldung eines Vereins (auch nach Meldeschluss).
+	// Anmeldung über WordPress-Nonce statt Vereinssitzung; Verein und Sportjahr als Header.
+	const admin = cfg.admin || null;
+
 	async function api(method, path, body) {
-		const res = await fetch(cfg.api + path, {
-			method,
-			credentials: 'same-origin',
-			headers: Object.assign({ 'Accept': 'application/json', 'X-KMM-Token': cfg.csrf }, body ? { 'Content-Type': 'application/json' } : {}),
-			body: body ? JSON.stringify(body) : undefined,
-		});
+		const headers = { 'Accept': 'application/json' };
+		if (admin) {
+			headers['X-WP-Nonce'] = admin.nonce;
+			headers['X-KMM-Verein'] = String(admin.verein_id);
+			headers['X-KMM-Sportjahr'] = String(admin.sportjahr_id);
+		} else {
+			headers['X-KMM-Token'] = cfg.csrf;
+		}
+		if (body) { headers['Content-Type'] = 'application/json'; }
+		const res = await fetch(cfg.api + path, { method, credentials: 'same-origin', headers, body: body ? JSON.stringify(body) : undefined });
 		let data = null;
 		try { data = await res.json(); } catch (e) { data = null; }
 		if (!res.ok) {
 			const msg = (data && data.message) ? data.message : ('Fehler ' + res.status);
-			if (res.status === 401) {
+			if (res.status === 401 && !admin) {
 				window.location.href = cfg.abmelden;
 			}
 			throw new Error(msg);
@@ -55,13 +63,16 @@
 	}
 
 	function schreibbar() {
+		if (admin) {
+			return state.meldung.phase.status !== 'abgeschlossen';
+		}
 		return state.meldung.phase.schreibbar && state.meldung.status !== 'eingereicht' && state.meldung.status !== 'verarbeitet';
 	}
 	const STATUS_LABEL = { ungeprueft: 'ungeprüft', verarbeitet: 'verarbeitet', nicht_startberechtigt: 'nicht startberechtigt' };
 	// Verarbeitungsstatus wird angezeigt, sobald der Meldeschluss vorbei ist oder ein Status gesetzt wurde.
 	function statusSichtbar() {
 		const m = state.meldung;
-		return m.phase.status === 'geschlossen' || m.phase.status === 'abgeschlossen' || m.einzelmeldungen.some((e) => e.verarbeitungsstatus !== 'ungeprueft' || e.abgemeldet_am);
+		return !!admin || m.phase.status === 'geschlossen' || m.phase.status === 'abgeschlossen' || m.einzelmeldungen.some((e) => e.verarbeitungsstatus !== 'ungeprueft' || e.abgemeldet_am);
 	}
 
 	function dialog(html, onSubmit) {
@@ -98,8 +109,14 @@
 		const label = { offen: 'Offen', entwurf: 'Entwurf', eingereicht: 'Eingereicht', verarbeitet: 'Verarbeitet' }[m.status] || m.status;
 		$('#kmm-status').innerHTML = `<span class="kmm-badge kmm-badge-${h(m.status)}">${h(label)}</span>` + (m.status === 'eingereicht' && m.eingereicht_am ? `<div class="kmm-muted">am ${h(m.eingereicht_am)}</div>` : '');
 		let banner = '';
-		if (!m.phase.schreibbar) {
+		if (admin) {
+			banner = m.phase.status === 'abgeschlossen'
+				? '<div class="kmm-alert kmm-alert-warn">Das Sportjahr ist abgeschlossen. Die Meldung ist schreibgeschützt.</div>'
+				: `<div class="kmm-alert kmm-alert-warn">Admin-Modus: Änderungen werden im Namen des KSV vorgenommen${m.nach_meldeschluss ? ', als Änderung nach Meldeschluss protokolliert und in die Sammelmail an den Verein aufgenommen' : ''}.${m.nachmeldung_bis ? ' Nachmeldung für den Verein freigeschaltet bis ' + h(m.nachmeldung_bis) + ' Uhr.' : ''}</div>`;
+		} else if (!m.phase.schreibbar) {
 			banner = `<div class="kmm-alert kmm-alert-warn">${h(m.phase.grund)} Die Meldung ist schreibgeschützt.</div>`;
+		} else if (m.phase.status === 'nachmeldung') {
+			banner = `<div class="kmm-alert kmm-alert-ok">Nachmeldung freigeschaltet bis ${h(m.nachmeldung_bis)} Uhr. Änderungen sind bis dahin möglich.</div>`;
 		} else if (m.status === 'verarbeitet') {
 			banner = '<div class="kmm-alert kmm-alert-ok">Ihre Meldung ist vollständig geprüft. Den Status je Schütze sehen Sie unter „Meldung“.</div>';
 		} else if (m.status === 'eingereicht') {
@@ -294,7 +311,8 @@
 					html += `<tr class="kmm-gruppe"><th colspan="9">${h(e.kennzahl)} ${h(e.disziplin)}</th></tr>`;
 				}
 				const ergebnisPh = e.ergebnis_format === 'zehntel' ? '389,4' : '375';
-				html += `<tr class="${e.konflikt || !e.startrecht ? 'is-konflikt' : ''}" data-id="${e.id}">
+				const abg = !!e.abgemeldet_am;
+				html += `<tr class="${e.konflikt || !e.startrecht ? 'is-konflikt' : ''} ${abg ? 'is-abgemeldet' : ''}" data-id="${e.id}">
 					<td><strong>${h(e.nachname)}, ${h(e.vorname)}</strong>${e.para ? `<div class="kmm-muted">${h(e.para)}</div>` : ''}${e.konflikt ? `<div class="kmm-fehler">${h(e.konflikt_text)}</div>` : ''}${(e.hinweise || []).filter((x) => !/^Höhermeldung/.test(x) || true).map((x) => `<div class="kmm-hinweis-klein">${h(x)}</div>`).join('')}</td>
 					<td>${h(e.klasse)}${e.hoehermeldung ? ' <span class="kmm-badge kmm-badge-hm">HM</span>' : ''}</td>
 					<td>${h(e.startklasse)}<div class="kmm-muted">${h(e.kennzahl_voll)}</div></td>
@@ -302,8 +320,8 @@
 					${m.einstellungen.nicht_meldung_sichtbar ? `<td><input type="checkbox" data-action="nicht-meldung" data-id="${e.id}" ${e.nicht_meldung ? 'checked' : ''} ${rw ? '' : 'disabled'}></td>` : ''}
 					<td>${e.mannschaft_nummer ? 'M' + e.mannschaft_nummer : (e.mannschaft_moeglich ? '<span class="kmm-muted">–</span>' : '')}</td>
 					<td class="r">${e.typ === 'mixteam' ? '–' : geld(e.startgeld)}</td>
-					${zeigeStatus ? `<td>${e.abgemeldet_am ? `<span class="kmm-badge kmm-badge-warn">abgemeldet</span><div class="kmm-muted">${h(e.abgemeldet_am)}</div>` : `<span class="kmm-badge kmm-status-${h(e.verarbeitungsstatus)}">${h(STATUS_LABEL[e.verarbeitungsstatus] || e.verarbeitungsstatus)}</span>${e.verarbeitungsgrund ? `<div class="kmm-fehler">${h(e.verarbeitungsgrund)}</div>` : ''}`}${e.nachgemeldet ? '<div class="kmm-muted">Nachmeldung</div>' : ''}</td>` : ''}
-					<td class="kmm-aktionen">${rw ? `${e.konflikt && e.startrecht ? `<button type="button" class="kmm-button kmm-button-small" data-action="konflikt-ok" data-id="${e.id}">OK</button> ` : ''}<button type="button" class="kmm-button kmm-button-small kmm-button-danger" data-action="einzel-loeschen" data-id="${e.id}" title="Meldung entfernen">✕</button>` : ''}</td>
+					${zeigeStatus ? `<td>${abg ? `<span class="kmm-badge kmm-badge-warn">abgemeldet</span><div class="kmm-muted">${h(e.abgemeldet_am)}${e.abmeldegrund ? ' – ' + h(e.abmeldegrund) : ''}</div>${admin && rw ? `<label class="kmm-startgeld-schalter"><input type="checkbox" data-action="startgeld" data-id="${e.id}" ${e.startgeld_berechnen ? 'checked' : ''}> Startgeld berechnen</label>` : `<div class="kmm-muted">Startgeld ${e.startgeld_berechnen ? 'wird berechnet' : 'entfällt'}</div>`}` : `<span class="kmm-badge kmm-status-${h(e.verarbeitungsstatus)}">${h(STATUS_LABEL[e.verarbeitungsstatus] || e.verarbeitungsstatus)}</span>${e.verarbeitungsgrund ? `<div class="kmm-fehler">${h(e.verarbeitungsgrund)}</div>` : ''}`}${e.nachgemeldet ? '<div class="kmm-muted">Nachmeldung</div>' : ''}</td>` : ''}
+					<td class="kmm-aktionen">${rw ? `${e.konflikt && e.startrecht ? `<button type="button" class="kmm-button kmm-button-small" data-action="konflikt-ok" data-id="${e.id}">OK</button> ` : ''}${admin ? (abg ? `<button type="button" class="kmm-button kmm-button-small kmm-button-secondary" data-action="abmeldung-aufheben" data-id="${e.id}">Abmeldung aufheben</button> ` : `<button type="button" class="kmm-button kmm-button-small kmm-button-secondary" data-action="abmelden" data-id="${e.id}">Abmelden</button> `) : ''}<button type="button" class="kmm-button kmm-button-small kmm-button-danger" data-action="einzel-loeschen" data-id="${e.id}" title="Meldung entfernen">✕</button>` : ''}</td>
 				</tr>`;
 			});
 			html += '</tbody></table></div>';
@@ -315,6 +333,15 @@
 		const t = ev.target;
 		if (t.id === 'kmm-melden-schuetze') {
 			if (t.value) { await angebotLaden(Number(t.value)); } else { state.angebotFuer = null; state.angebot = null; renderMeldung(); }
+			return;
+		}
+		if (t.dataset.action === 'startgeld') {
+			try {
+				const r = await api('PUT', `meldung/einzel/${Number(t.dataset.id)}/startgeld`, { berechnen: t.checked });
+				state.meldung = r.meldung;
+				renderAll();
+				toast(t.checked ? 'Startgeld wird berechnet.' : 'Startgeld entfällt.');
+			} catch (e) { toast(e.message, 'error'); renderAll(); }
 			return;
 		}
 		if (t.dataset.action === 'ergebnis' || t.dataset.action === 'nicht-meldung') {
@@ -357,6 +384,26 @@
 				const r = await api('POST', `meldung/einzel/${id}/bestaetigen`);
 				state.meldung = r.meldung;
 				renderAll();
+			} else if (b.dataset.action === 'abmelden') {
+				const e = state.meldung.einzelmeldungen.find((x) => x.id === id);
+				dialog(`<h3>Abmelden: ${h(e ? e.nachname + ', ' + e.vorname + ' – ' + e.kennzahl + ' ' + e.disziplin : '')}</h3>
+					<label>Grund (optional)</label><input name="grund" maxlength="255" placeholder="z. B. verletzt, auf Wunsch des Vereins">
+					<label>Startgeld berechnen</label><select name="startgeld"><option value="">Standard (vor Veröffentlichung des Startplans: nein, danach: ja)</option><option value="1">ja</option><option value="0">nein</option></select>
+					<p class="kmm-muted">Ein gebuchter Startplatz wird frei; eine Mannschaft wird ggf. als unvollständig markiert. Die Abmeldung kann aufgehoben werden.</p>
+					${dialogButtons('Abmelden')}`, async (form) => {
+					const fd = new FormData(form);
+					const sg = fd.get('startgeld');
+					const r = await api('POST', `meldung/einzel/${id}/abmelden`, { grund: fd.get('grund'), startgeld_berechnen: sg === '' ? null : sg === '1' });
+					state.meldung = r.meldung;
+					renderAll();
+					toast(`Abgemeldet. Startgeld ${r.einzelmeldung.startgeld_berechnen ? 'wird berechnet' : 'entfällt'}.`);
+				});
+			} else if (b.dataset.action === 'abmeldung-aufheben') {
+				if (!window.confirm('Abmeldung aufheben? Die Meldung gilt danach wieder als aktiv (ein freigegebener Startplatz wird nicht automatisch neu gebucht).')) { return; }
+				const r = await api('POST', `meldung/einzel/${id}/abmeldung-aufheben`);
+				state.meldung = r.meldung;
+				renderAll();
+				toast('Abmeldung aufgehoben.');
 			}
 		} catch (e) { toast(e.message, 'error'); }
 	});
@@ -469,7 +516,15 @@
 		if (!p.fehler.length && !p.warnungen.length && m.status !== 'eingereicht') {
 			html += '<div class="kmm-alert kmm-alert-ok">Alles vollständig. Die Meldung kann eingereicht werden.</div>';
 		}
-		if (m.status === 'eingereicht') {
+		if (admin) {
+			if (m.status === 'eingereicht' || m.status === 'verarbeitet') {
+				html += `<div class="kmm-alert kmm-alert-ok">Eingereicht am ${h(m.eingereicht_am)} Uhr.</div>`;
+			} else {
+				html += '<div class="kmm-alert kmm-alert-warn">Die Meldung ist nicht eingereicht (Status ' + h(m.status) + '). Einreichen kann nur der Verein.</div>';
+			}
+			html += `<h3>Nachmeldung freischalten</h3><p class="kmm-muted">Der Verein kann seine Meldung bis zum angegebenen Zeitpunkt selbst wieder bearbeiten (auch nach Meldeschluss). Leer lassen, um die Freischaltung zu beenden.</p>
+				<form class="kmm-form kmm-inline" id="kmm-nachmeldung" ${rw ? '' : 'hidden'}><label for="kmm-nachmeldung-bis">Freigeschaltet bis</label><input type="datetime-local" id="kmm-nachmeldung-bis" name="bis" value="${h(m.nachmeldung_bis_input || '')}"> <button type="submit" class="kmm-button kmm-button-secondary">Speichern</button></form>`;
+		} else if (m.status === 'eingereicht') {
 			html += `<div class="kmm-alert kmm-alert-ok">Eingereicht am ${h(m.eingereicht_am)} Uhr. Eine Bestätigung wurde per E-Mail versandt.</div>`;
 			if (m.phase.schreibbar) {
 				html += '<button type="button" class="kmm-button kmm-button-secondary" data-action="oeffnen">Meldung wieder öffnen</button>';
@@ -482,6 +537,16 @@
 	}
 
 	$('#kmm-tab-einreichen').addEventListener('submit', async (ev) => {
+		if (ev.target.id === 'kmm-nachmeldung') {
+			ev.preventDefault();
+			try {
+				const r = await api('PUT', 'meldung/nachmeldung', { bis: new FormData(ev.target).get('bis') });
+				state.meldung = r.meldung;
+				renderAll();
+				toast(r.meldung.nachmeldung_bis ? 'Nachmeldung freigeschaltet bis ' + r.meldung.nachmeldung_bis + ' Uhr.' : 'Freischaltung beendet.');
+			} catch (e) { toast(e.message, 'error'); }
+			return;
+		}
 		if (ev.target.id !== 'kmm-ansprechpartner') { return; }
 		ev.preventDefault();
 		const fd = new FormData(ev.target);
@@ -515,8 +580,11 @@
 		} catch (e) { toast(e.message, 'error'); b.disabled = false; }
 	});
 
+	if (admin) {
+		$('#kmm-tabs button[data-tab=einreichen]').textContent = '4 Ansprechpartner & Nachmeldung';
+	}
 	renderAll();
-	if (state.meldung.einzelmeldungen.length > 0 && state.meldung.status !== 'eingereicht') {
+	if (admin || (state.meldung.einzelmeldungen.length > 0 && state.meldung.status !== 'eingereicht')) {
 		state.tab = 'meldung';
 		renderKopf();
 	}

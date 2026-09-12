@@ -10,11 +10,13 @@ declare(strict_types=1);
 
 namespace KSV\KMM\Application;
 
+use KSV\KMM\Domain\AenderungTyp;
 use KSV\KMM\Domain\Engine\Bewertung;
 use KSV\KMM\Domain\Engine\Engine;
 use KSV\KMM\Domain\Engine\MannschaftPruefung;
 use KSV\KMM\Domain\Engine\Schuetze;
 use KSV\KMM\Domain\ErgebnisFormat;
+use KSV\KMM\Domain\Verarbeitungsstatus;
 use KSV\KMM\Domain\Meldeergebnis;
 use KSV\KMM\Http\Router;
 use KSV\KMM\Infrastructure\RegelwerkLader;
@@ -43,8 +45,10 @@ final class MeldungService {
 
 	/**
 	 * @param array<string, mixed> $verein Verein der Sitzung
+	 * @param bool $admin Admin-Modus (Backend-Bearbeitung nach Meldeschluss): keine Phasen- und
+	 *                    Statusprüfung, Änderungen werden für Sammelmail und Export erfasst.
 	 */
-	public function __construct(private readonly array $verein, int $sportjahr_id) {
+	public function __construct(private readonly array $verein, int $sportjahr_id, private readonly bool $admin = false) {
 		$this->meldungen = new MeldungRepository();
 		$this->einzel = new EinzelmeldungRepository();
 		$this->mannschaften = new MannschaftRepository();
@@ -104,6 +108,12 @@ final class MeldungService {
 	 * @return array<string, mixed> die Meldung
 	 */
 	private function schreibrecht(): array {
+		if ($this->admin) {
+			if ($this->sportjahr['abgeschlossen_am'] !== null) {
+				throw new \RuntimeException('Das Sportjahr ist abgeschlossen.');
+			}
+			return $this->meldung_oder_anlegen();
+		}
 		$phase = $this->phase();
 		if (!$phase['schreibbar']) {
 			throw new \RuntimeException($phase['grund']);
@@ -113,6 +123,39 @@ final class MeldungService {
 			throw new \RuntimeException('Die Meldung ist eingereicht. Zum Bearbeiten bitte zuerst „Meldung wieder öffnen“.');
 		}
 		return $m;
+	}
+
+	public function ist_admin_modus(): bool {
+		return $this->admin;
+	}
+
+	/** Nach dem Meldeschluss (Änderungen werden für Sammelmail und Export erfasst). */
+	private function nach_meldeschluss(): bool {
+		$schluss = $this->sportjahr['meldeschluss'];
+		return $schluss !== null && (string) $schluss <= Clock::now_utc();
+	}
+
+	/**
+	 * Änderung nach Meldeschluss erfassen (Sammelmail, „Änderungen seit Export").
+	 *
+	 * @param array<string, mixed> $details
+	 */
+	private function aenderung(?int $einzelmeldung_id, string $typ, string $text, array $details = []): void {
+		if (!$this->nach_meldeschluss()) {
+			return; // Während der Meldephase (auch Admin-Bearbeitung) ist es keine „Änderung nach Meldeschluss".
+		}
+		Aenderungen::erfassen($this->sportjahr_id(), $this->verein_id(), $einzelmeldung_id, $typ, $text, $details);
+	}
+
+	/**
+	 * @param array<string, mixed> $details
+	 */
+	private function protokoll(string $aktion, string $text, string $objekt_typ = '', ?int $objekt_id = null, array $details = []): void {
+		if ($this->admin) {
+			Protokoll::admin($aktion, sprintf('[%s] %s', (string) $this->verein['name'], $text), $this->sportjahr_id(), $this->verein_id(), $objekt_typ, $objekt_id, $details);
+		} else {
+			Protokoll::verein($this->verein_id(), (string) $this->verein['name'], $aktion, $text, $this->sportjahr_id(), $objekt_typ, $objekt_id, $details);
+		}
 	}
 
 	private function status_entwurf(int $meldung_id): void {
@@ -204,7 +247,12 @@ final class MeldungService {
 		}
 		$this->status_entwurf((int) $m['id']);
 		$this->schuetzen->update($schuetze_id, ['zuletzt_gemeldet_jahr' => (int) $this->sportjahr['jahr']]);
-		Protokoll::verein($this->verein_id(), (string) $this->verein['name'], 'meldung.einzel.anlegen', sprintf('%s, %s in %s (%s)', (string) $s['nachname'], (string) $s['vorname'], $d->kennzahl, $b->kennzahl), $this->sportjahr_id(), 'einzelmeldung', $id);
+		$text = sprintf('%s, %s in %s (%s)', (string) $s['nachname'], (string) $s['vorname'], $d->kennzahl, $b->kennzahl);
+		if ($this->nach_meldeschluss()) {
+			$this->einzel->update($id, ['nachgemeldet' => true]);
+			$this->aenderung($id, AenderungTyp::NACHMELDUNG, 'Nachmeldung: ' . $text);
+		}
+		$this->protokoll('meldung.einzel.anlegen', $text, 'einzelmeldung', $id);
 		return $this->einzel_ansicht((array) $this->einzel->find($id), $s);
 	}
 
@@ -241,6 +289,10 @@ final class MeldungService {
 		}
 		if ($update !== []) {
 			$this->einzel->update($id, $update);
+			if ($this->nach_meldeschluss()) {
+				$ansicht = $this->einzel_ansicht((array) $this->einzel->find($id));
+				$this->aenderung($id, AenderungTyp::KORREKTUR, sprintf('Korrektur: %s, %s in %s (%s)', $ansicht['nachname'], $ansicht['vorname'], $ansicht['kennzahl'], implode(', ', array_keys($update))), $update);
+			}
 		}
 		return $this->einzel_ansicht((array) $this->einzel->find($id));
 	}
@@ -251,10 +303,95 @@ final class MeldungService {
 		if ($em['mannschaft_id'] !== null) {
 			$this->aus_mannschaft_entfernen($em);
 		}
+		$buchung = (new \KSV\KMM\Infrastructure\Repository\BuchungRepository())->by_einzelmeldung($id);
+		if ($buchung !== null) {
+			(new \KSV\KMM\Infrastructure\Repository\BuchungRepository())->delete((int) $buchung['id']);
+		}
 		$this->einzel->delete($id);
 		$s = $em['schuetze_id'] !== null ? $this->schuetzen->find((int) $em['schuetze_id']) : null;
 		$d = $this->engine->regelwerk()->disziplin((int) $em['disziplin_id']);
-		Protokoll::verein($this->verein_id(), (string) $this->verein['name'], 'meldung.einzel.loeschen', sprintf('%s in %s', $s !== null ? $s['nachname'] . ', ' . $s['vorname'] : '?', $d?->kennzahl ?? '?'), $this->sportjahr_id(), 'einzelmeldung', $id);
+		$text = sprintf('%s in %s', $s !== null ? $s['nachname'] . ', ' . $s['vorname'] : '?', $d?->kennzahl ?? '?');
+		$this->aenderung(null, AenderungTyp::KORREKTUR, 'Meldung entfernt: ' . $text);
+		$this->protokoll('meldung.einzel.loeschen', $text, 'einzelmeldung', $id);
+	}
+
+	// ----- Abmeldung (nur Backend) ------------------------------------------------------------
+
+	/**
+	 * Meldung abmelden (Zeitpunkt, Grund, Schalter „Startgeld berechnen"). Gebuchter Platz
+	 * wird frei, die Mannschaft ggf. als unvollständig markiert.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function abmelden(int $id, string $grund = '', ?bool $startgeld_berechnen = null): array {
+		$this->admin_only();
+		$em = $this->eigene_einzelmeldung($id);
+		if ($em['abgemeldet_am'] !== null) {
+			throw new \RuntimeException('Die Meldung ist bereits abgemeldet.');
+		}
+		$berechnen = $startgeld_berechnen ?? Abmeldung::startgeld_standard($em);
+		$this->einzel->update($id, ['abgemeldet_am' => Clock::now_utc(), 'abmeldegrund' => mb_substr(trim($grund), 0, 255), 'startgeld_berechnen' => $berechnen]);
+		$buchungen = new \KSV\KMM\Infrastructure\Repository\BuchungRepository();
+		$b = $buchungen->by_einzelmeldung($id);
+		if ($b !== null) {
+			$buchungen->delete((int) $b['id']);
+		}
+		if ($em['mannschaft_id'] !== null) {
+			(new VerarbeitungService($this->sportjahr_id()))->mannschaft_pruefen((int) $em['mannschaft_id']);
+		}
+		$ansicht = $this->einzel_ansicht((array) $this->einzel->find($id));
+		$text = sprintf('Abmeldung: %s, %s in %s%s (Startgeld %s)', $ansicht['nachname'], $ansicht['vorname'], $ansicht['kennzahl'], $grund !== '' ? ' – ' . $grund : '', $berechnen ? 'wird berechnet' : 'entfällt');
+		Aenderungen::erfassen($this->sportjahr_id(), $this->verein_id(), $id, AenderungTyp::ABMELDUNG, $text, ['startgeld_berechnen' => $berechnen, 'platz_frei' => $b !== null]);
+		$this->protokoll('meldung.abmelden', $text, 'einzelmeldung', $id, ['startgeld_berechnen' => $berechnen]);
+		return $ansicht;
+	}
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	public function abmeldung_aufheben(int $id): array {
+		$this->admin_only();
+		$em = $this->eigene_einzelmeldung($id);
+		if ($em['abgemeldet_am'] === null) {
+			throw new \RuntimeException('Die Meldung ist nicht abgemeldet.');
+		}
+		$this->einzel->update($id, ['abgemeldet_am' => null, 'abmeldegrund' => '', 'startgeld_berechnen' => true]);
+		if ($em['mannschaft_id'] !== null) {
+			(new VerarbeitungService($this->sportjahr_id()))->mannschaft_pruefen((int) $em['mannschaft_id']);
+		}
+		$ansicht = $this->einzel_ansicht((array) $this->einzel->find($id));
+		$text = sprintf('Abmeldung aufgehoben: %s, %s in %s', $ansicht['nachname'], $ansicht['vorname'], $ansicht['kennzahl']);
+		Aenderungen::erfassen($this->sportjahr_id(), $this->verein_id(), $id, AenderungTyp::KORREKTUR, $text);
+		$this->protokoll('meldung.abmeldung_aufheben', $text, 'einzelmeldung', $id);
+		return $ansicht;
+	}
+
+	/**
+	 * Schalter „Startgeld berechnen" (in beide Richtungen übersteuerbar).
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function startgeld_schalter(int $id, bool $berechnen): array {
+		$this->admin_only();
+		$this->eigene_einzelmeldung($id);
+		$this->einzel->update($id, ['startgeld_berechnen' => $berechnen]);
+		$ansicht = $this->einzel_ansicht((array) $this->einzel->find($id));
+		$this->protokoll('meldung.startgeld_schalter', sprintf('%s, %s in %s: Startgeld %s', $ansicht['nachname'], $ansicht['vorname'], $ansicht['kennzahl'], $berechnen ? 'wird berechnet' : 'entfällt'), 'einzelmeldung', $id);
+		return $ansicht;
+	}
+
+	/** Nachmeldungs-Freischaltung für den Verein (Backend). */
+	public function nachmeldung_freischalten(?string $bis_utc): void {
+		$this->admin_only();
+		$m = $this->meldung_oder_anlegen();
+		$this->meldungen->update((int) $m['id'], ['nachmeldung_bis' => $bis_utc]);
+		$this->protokoll('meldung.nachmeldung', $bis_utc !== null ? sprintf('Nachmeldung freigeschaltet bis %s', Clock::format_local($bis_utc)) : 'Nachmeldungs-Freischaltung beendet', 'meldung', (int) $m['id']);
+	}
+
+	private function admin_only(): void {
+		if (!$this->admin) {
+			throw new \RuntimeException('Nur im Backend möglich.');
+		}
 	}
 
 	/**
@@ -293,7 +430,7 @@ final class MeldungService {
 		}
 		$out = [];
 		foreach ($this->einzel->where(['meldung_id' => (int) $m['id'], 'disziplin_id' => $disziplin_id]) as $em) {
-			if (!$em['startrecht'] || $em['konflikt']) {
+			if (!$em['startrecht'] || $em['konflikt'] || $em['abgemeldet_am'] !== null || (string) $em['verarbeitungsstatus'] === Verarbeitungsstatus::NICHT_STARTBERECHTIGT) {
 				continue;
 			}
 			if ($em['mannschaft_id'] !== null && (int) $em['mannschaft_id'] !== $mannschaft_id) {
@@ -382,7 +519,9 @@ final class MeldungService {
 			$this->einzel->update((int) $em['id'], ['mannschaft_id' => $mannschaft_id]);
 		}
 		$this->status_entwurf((int) $m['id']);
-		Protokoll::verein($this->verein_id(), (string) $this->verein['name'], $aktion, sprintf('%s Mannschaft %d (%d Mitglieder)', $d->kennzahl, (int) ($this->mannschaften->find((int) $mannschaft_id)['nummer'] ?? 0), count($rows)), $this->sportjahr_id(), 'mannschaft', $mannschaft_id);
+		$text = sprintf('%s Mannschaft %d (%d Mitglieder)', $d->kennzahl, (int) ($this->mannschaften->find((int) $mannschaft_id)['nummer'] ?? 0), count($rows));
+		$this->aenderung(null, AenderungTyp::MANNSCHAFT, ($aktion === 'meldung.mannschaft.anlegen' ? 'Mannschaft angelegt: ' : 'Mannschaft geändert: ') . $text);
+		$this->protokoll($aktion, $text, 'mannschaft', $mannschaft_id);
 		return $this->mannschaft_ansicht((array) $this->mannschaften->find((int) $mannschaft_id));
 	}
 
@@ -394,7 +533,9 @@ final class MeldungService {
 		}
 		$this->mannschaften->delete($mannschaft_id);
 		$d = $this->engine->regelwerk()->disziplin((int) $mannschaft['disziplin_id']);
-		Protokoll::verein($this->verein_id(), (string) $this->verein['name'], 'meldung.mannschaft.loeschen', sprintf('%s Mannschaft %d', $d?->kennzahl ?? '?', (int) $mannschaft['nummer']), $this->sportjahr_id(), 'mannschaft', $mannschaft_id);
+		$text = sprintf('%s Mannschaft %d', $d?->kennzahl ?? '?', (int) $mannschaft['nummer']);
+		$this->aenderung(null, AenderungTyp::MANNSCHAFT, 'Mannschaft aufgelöst: ' . $text);
+		$this->protokoll('meldung.mannschaft.loeschen', $text, 'mannschaft', $mannschaft_id);
 	}
 
 	/**
@@ -551,7 +692,8 @@ final class MeldungService {
 				$roh[] = $em;
 				$ansicht = $this->einzel_ansicht($em, $schuetzen[ (int) $em['schuetze_id'] ] ?? null);
 				$einzel[] = $ansicht;
-				if ($em['startrecht'] && !$em['konflikt']) {
+				$zaehlt = $em['startrecht'] && !$em['konflikt'] && (string) $em['verarbeitungsstatus'] !== Verarbeitungsstatus::NICHT_STARTBERECHTIGT && ($em['abgemeldet_am'] === null || $em['startgeld_berechnen']);
+				if ($zaehlt) {
 					$summe_einzel += (float) $em['startgeld'];
 				}
 				if ($ansicht['meldeergebnis'] === '' && $ansicht['typ'] !== 'mixteam') {
@@ -581,6 +723,10 @@ final class MeldungService {
 			'ohne_ergebnis'   => $ohne_ergebnis,
 			'konflikte'       => $konflikte,
 			'einstellungen'   => ['nicht_meldung_sichtbar' => (bool) Settings::get('nicht_meldung_sichtbar')],
+			'admin'           => $this->admin,
+			'nach_meldeschluss' => $this->nach_meldeschluss(),
+			'nachmeldung_bis' => $m !== null && $m['nachmeldung_bis'] !== null ? Clock::format_local($m['nachmeldung_bis']) : '',
+			'nachmeldung_bis_input' => $m !== null ? Clock::utc_to_local_input($m['nachmeldung_bis']) : '',
 			'pruefung'        => $this->einreichen_pruefen(),
 		];
 	}
@@ -637,6 +783,8 @@ final class MeldungService {
 			'verarbeitungsstatus' => (string) $em['verarbeitungsstatus'],
 			'verarbeitungsgrund' => (string) $em['verarbeitungsgrund'],
 			'abgemeldet_am'      => $em['abgemeldet_am'] !== null ? Clock::format_local($em['abgemeldet_am']) : null,
+			'abmeldegrund'       => (string) $em['abmeldegrund'],
+			'startgeld_berechnen' => (bool) $em['startgeld_berechnen'],
 			'nachgemeldet'       => (bool) $em['nachgemeldet'],
 			'hinweise'           => $hinweise,
 			'sortierung'         => $d !== null ? ($rw->disziplin($d->id) ? $this->disziplin_sort($d->kennzahl) : 0) : 0,

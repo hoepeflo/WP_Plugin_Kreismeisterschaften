@@ -2,8 +2,8 @@
 /**
  * Verteilt Aufrufe der Vereinsoberfläche auf die Seiten.
  *
- * Routen: start | zugang/<token> | link-anfordern | abmelden
- * (Meldeseiten und REST folgen in Meilenstein 6.)
+ * Routen: start | zugang/<token> | link-anfordern | pdf | abmelden |
+ * admin/<verein_id>[/pdf] (Admin-Modus, WordPress-Login und Recht „Meldungen bearbeiten“).
  *
  * @package KSV\KMM
  */
@@ -36,6 +36,9 @@ final class FrontController {
 				return;
 			case 'pdf':
 				$this->pdf();
+				return;
+			case 'admin':
+				$this->admin((int) ($segments[1] ?? 0), (string) ($segments[2] ?? ''));
 				return;
 			case 'abmelden':
 				Zugang::abmelden();
@@ -87,18 +90,67 @@ final class FrontController {
 			View::render('frontend/willkommen', ['title' => __('KM-Meldeportal', 'ksv-km-meldeportal')]);
 			return;
 		}
-		$sportjahr = (new SportjahrRepository())->find((int) $verein['sportjahr_id']);
-		$service = new MeldungService($verein, (int) $verein['sportjahr_id']);
+		$this->app($verein, false);
+	}
+
+	/**
+	 * Admin-Modus: Meldung eines Vereins im Backend bearbeiten (auch nach Meldeschluss).
+	 * Kein Magic Link, sondern WordPress-Login mit Recht „Meldungen bearbeiten“.
+	 */
+	private function admin(int $verein_id, string $unterseite): void {
+		if (!AdminModus::erlaubt()) {
+			if (!is_user_logged_in()) {
+				wp_safe_redirect(wp_login_url(Router::url('admin/' . $verein_id)));
+				return;
+			}
+			status_header(403);
+			View::render('frontend/fehler', ['title' => __('Keine Berechtigung', 'ksv-km-meldeportal'), 'text' => __('Für die Bearbeitung von Meldungen fehlt das Recht „Meldungen bearbeiten“.', 'ksv-km-meldeportal')]);
+			return;
+		}
+		$sportjahr_id = isset($_GET['sportjahr']) ? (int) $_GET['sportjahr'] : 0;
+		if ($sportjahr_id <= 0) {
+			$aktiv = (new SportjahrRepository())->aktiv();
+			$sportjahr_id = $aktiv !== null ? (int) $aktiv['id'] : 0;
+		}
+		$verein = AdminModus::verein($verein_id, $sportjahr_id);
+		if ($verein === null) {
+			status_header(404);
+			View::render('frontend/fehler', ['title' => __('Verein nicht gefunden', 'ksv-km-meldeportal'), 'text' => __('Verein oder Sportjahr nicht gefunden.', 'ksv-km-meldeportal')]);
+			return;
+		}
+		if ($unterseite === 'pdf') {
+			$this->pdf_ausgeben($verein, true);
+			return;
+		}
+		status_header(200);
+		$this->app($verein, true);
+	}
+
+	/**
+	 * @param array<string, mixed> $verein
+	 */
+	private function app(array $verein, bool $admin): void {
+		$sportjahr_id = (int) $verein['sportjahr_id'];
+		$sportjahr = (new SportjahrRepository())->find($sportjahr_id);
+		$service = new MeldungService($verein, $sportjahr_id, $admin);
+		$admin_pfad = 'admin/' . (int) $verein['id'];
 		View::render('frontend/app', [
-			'title'      => sprintf(__('Meldung %s', 'ksv-km-meldeportal'), (string) $verein['name']),
+			'title'      => sprintf($admin ? __('Meldung %s (Admin)', 'ksv-km-meldeportal') : __('Meldung %s', 'ksv-km-meldeportal'), (string) $verein['name']),
 			'verein'     => $verein,
 			'sportjahr'  => $sportjahr,
 			'state'      => $service->zusammenfassung(),
-			'schuetzen'  => (new SchuetzeService($verein, (int) $verein['sportjahr_id']))->liste(),
-			'csrf'       => RestApi::csrf_token((int) $verein['sitzung_id']),
+			'schuetzen'  => (new SchuetzeService($verein, $sportjahr_id))->liste(),
+			'csrf'       => $admin ? '' : RestApi::csrf_token((int) $verein['sitzung_id']),
 			'api'        => esc_url_raw(rest_url(RestApi::NAMESPACE . '/')),
-			'pdf_url'    => Router::url('pdf'),
+			'pdf_url'    => $admin ? add_query_arg('sportjahr', $sportjahr_id, Router::url($admin_pfad . '/pdf')) : Router::url('pdf'),
 			'abmelden'   => Router::url('abmelden'),
+			'admin'      => $admin ? [
+				'verein_id'    => (int) $verein['id'],
+				'sportjahr_id' => $sportjahr_id,
+				'nonce'        => wp_create_nonce('wp_rest'),
+				'zurueck'      => admin_url('admin.php?page=kmm&sportjahr=' . $sportjahr_id),
+				'benutzer'     => wp_get_current_user()->display_name,
+			] : null,
 		]);
 	}
 
@@ -108,7 +160,14 @@ final class FrontController {
 			wp_safe_redirect(Router::url('link-anfordern'));
 			return;
 		}
-		$service = new MeldungService($verein, (int) $verein['sportjahr_id']);
+		$this->pdf_ausgeben($verein, false);
+	}
+
+	/**
+	 * @param array<string, mixed> $verein
+	 */
+	private function pdf_ausgeben(array $verein, bool $admin): void {
+		$service = new MeldungService($verein, (int) $verein['sportjahr_id'], $admin);
 		try {
 			$pdf = (new PdfMeldung())->erzeugen($service->zusammenfassung());
 		} catch (\Throwable $e) {

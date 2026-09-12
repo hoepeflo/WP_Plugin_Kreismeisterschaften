@@ -21,4 +21,13 @@ final class ExportRepository extends Repository {
 	public function by_sportjahr(int $sportjahr_id, int $limit = 50): array {
 		return array_slice($this->where(['sportjahr_id' => $sportjahr_id], 'id DESC'), 0, $limit);
 	}
+
+	/**
+	 * Letzter Export eines Typs im Sportjahr (Basis für „Änderungen seit Export“).
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	public function letzter(int $sportjahr_id, string $typ): ?array {
+		return $this->where(['sportjahr_id' => $sportjahr_id, 'typ' => $typ], 'id DESC')[0] ?? null;
+	}
 }

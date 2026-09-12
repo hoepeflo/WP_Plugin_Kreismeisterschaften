@@ -105,3 +105,10 @@ h2 { font-size: 1.2rem; margin: 24px 0 12px; }
 .kmm-status-verarbeitet { background: #e3f4e8; color: #14532d; }
 .kmm-status-nicht_startberechtigt { background: var(--kmm-error-bg); color: var(--kmm-error); }
 .kmm-status-ungeprueft { background: #e5e7eb; }
+
+/* Admin-Modus (Backend-Bearbeitung einer Vereinsmeldung) */
+.kmm-admin-leiste { background: #1e293b; color: #f1f5f9; padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; font-size: 14px; }
+.kmm-admin-leiste a { color: #93c5fd; }
+.kmm-tabelle tr.is-abgemeldet td { color: #6b7280; }
+.kmm-tabelle tr.is-abgemeldet td strong { text-decoration: line-through; }
+.kmm-startgeld-schalter { display: inline-flex; gap: 4px; align-items: center; font-size: 12px; white-space: nowrap; }

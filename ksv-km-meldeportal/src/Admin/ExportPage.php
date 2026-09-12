@@ -13,9 +13,11 @@ use KSV\KMM\Application\ExportService;
 use KSV\KMM\Application\Pdf;
 use KSV\KMM\Application\PdfMeldelisten;
 use KSV\KMM\Infrastructure\RegelwerkLader;
+use KSV\KMM\Infrastructure\Repository\AenderungRepository;
 use KSV\KMM\Infrastructure\Repository\ExportRepository;
 use KSV\KMM\Infrastructure\Repository\GruppeRepository;
 use KSV\KMM\Infrastructure\Repository\MeldungRepository;
+use KSV\KMM\Infrastructure\Repository\VereinRepository;
 use KSV\KMM\Support\Clock;
 use KSV\KMM\Support\Settings;
 
@@ -122,6 +124,8 @@ final class ExportPage extends AdminPage {
 		submit_button(__('PDF herunterladen', 'ksv-km-meldeportal'), 'primary', 'submit', false);
 		echo '</form>';
 
+		self::render_aenderungen($sid);
+
 		echo '<h2>' . esc_html__('Bisherige Exporte', 'ksv-km-meldeportal') . '</h2>';
 		$exporte = (new ExportRepository())->by_sportjahr($sid);
 		if ($exporte === []) {
@@ -135,5 +139,42 @@ final class ExportPage extends AdminPage {
 			echo '</tbody></table>';
 		}
 		echo '</div>';
+	}
+
+	/**
+	 * Änderungen nach Meldeschluss seit dem letzten DAVID21-Export (Konzept 12.2): Nach-,
+	 * Ab- und Ummeldungen, Statusänderungen, die im Wettkampfprogramm nachgezogen werden müssen.
+	 */
+	private static function render_aenderungen(int $sid): void {
+		$letzter = (new ExportRepository())->letzter($sid, ExportService::TYP_DAVID);
+		$aenderungen = (new AenderungRepository())->seit($sid, $letzter !== null ? (string) $letzter['erstellt_am'] : null);
+		echo '<h2>' . esc_html__('Änderungen seit dem letzten DAVID21-Export', 'ksv-km-meldeportal') . '</h2>';
+		if ($letzter === null) {
+			echo '<p class="description">' . esc_html__('Noch kein DAVID21-Export; es werden alle Änderungen nach Meldeschluss angezeigt.', 'ksv-km-meldeportal') . '</p>';
+		} else {
+			echo '<p class="description">' . esc_html(sprintf(__('Letzter DAVID21-Export: %s (%s).', 'ksv-km-meldeportal'), Clock::format_local($letzter['erstellt_am'], 'd.m.Y H:i:s'), (string) $letzter['dateiname'])) . '</p>';
+		}
+		if ($aenderungen === []) {
+			echo '<p>' . esc_html__('Keine Änderungen.', 'ksv-km-meldeportal') . '</p>';
+			return;
+		}
+		$vereine = [];
+		foreach ((new VereinRepository())->all() as $v) {
+			$vereine[ (int) $v['id'] ] = (string) $v['name'];
+		}
+		$typen = [
+			\KSV\KMM\Domain\AenderungTyp::STATUS      => __('Status', 'ksv-km-meldeportal'),
+			\KSV\KMM\Domain\AenderungTyp::ABMELDUNG   => __('Abmeldung', 'ksv-km-meldeportal'),
+			\KSV\KMM\Domain\AenderungTyp::NACHMELDUNG => __('Nachmeldung', 'ksv-km-meldeportal'),
+			\KSV\KMM\Domain\AenderungTyp::KORREKTUR   => __('Korrektur', 'ksv-km-meldeportal'),
+			\KSV\KMM\Domain\AenderungTyp::MANNSCHAFT  => __('Mannschaft', 'ksv-km-meldeportal'),
+			\KSV\KMM\Domain\AenderungTyp::STARTPLAN   => __('Startplan', 'ksv-km-meldeportal'),
+		];
+		echo '<table class="widefat striped"><thead><tr><th>' . esc_html__('Zeitpunkt', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Verein', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Art', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Änderung', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Sammelmail', 'ksv-km-meldeportal') . '</th></tr></thead><tbody>';
+		foreach ($aenderungen as $a) {
+			echo '<tr><td>' . esc_html(Clock::format_local($a['erstellt_am'], 'd.m.Y H:i')) . '</td><td>' . esc_html($vereine[ (int) $a['verein_id'] ] ?? ('#' . (int) $a['verein_id'])) . '</td><td>' . esc_html($typen[ (string) $a['typ'] ] ?? (string) $a['typ']) . '</td><td>' . esc_html((string) $a['text']) . '</td><td>' . esc_html($a['versendet_am'] !== null ? Clock::format_local($a['versendet_am'], 'd.m.Y H:i') : __('offen', 'ksv-km-meldeportal')) . '</td></tr>';
+		}
+		echo '</tbody></table>';
+		echo '<p class="description">' . esc_html(sprintf(__('%d Änderungen. Nach einem neuen DAVID21-Export beginnt die Liste leer.', 'ksv-km-meldeportal'), count($aenderungen))) . '</p>';
 	}
 }

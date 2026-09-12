@@ -46,3 +46,9 @@ Services laden Datensätze nur über den Verein der Sitzung; fremde IDs ergeben 
   Wieder öffnen, Schreibschutz nach Meldeschluss, MixTeam, Para, Fremdzugriff.
 - Browser-Test (Playwright, nicht im Repo): Anmeldung, Schützen, Melden, Ergebnis, Mannschaft,
   Einreichen, PDF – wurde für Meilenstein 6 in Chromium (400 px und 1200 px) durchgespielt.
+
+## Admin-Modus (Phase 2)
+
+Backend-Benutzer mit dem Recht „Meldungen bearbeiten“ öffnen dieselbe Oberfläche unter
+`/km-meldung/admin/<Verein-ID>/` (Link „Bearbeiten“ in der Übersicht) – auch nach
+Meldeschluss. Details: `docs/AENDERUNGEN-NACH-MELDESCHLUSS.md`.

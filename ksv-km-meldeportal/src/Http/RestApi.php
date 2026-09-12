@@ -6,6 +6,11 @@
  * schreibende Methoden zusätzlich das sitzungsgebundene CSRF-Token (Header X-KMM-Token).
  * Alle Daten werden serverseitig auf den Verein der Sitzung begrenzt.
  *
+ * Admin-Modus (Header X-KMM-Verein + X-KMM-Sportjahr): WordPress-Benutzer mit dem Recht
+ * „Meldungen bearbeiten“; die Anmeldung läuft über den WordPress-REST-Nonce (X-WP-Nonce),
+ * der zugleich der CSRF-Schutz ist. Abmelden, Startgeld-Schalter und Nachmeldungs-
+ * Freischaltung gibt es nur im Admin-Modus (der Service lehnt sie sonst ab).
+ *
  * @package KSV\KMM
  */
 
@@ -30,9 +35,29 @@ final class RestApi {
 	}
 
 	/**
+	 * Verein des aktuellen Aufrufs im Admin-Modus (vom permission_callback gesetzt).
+	 *
+	 * @var array<string, mixed>|null
+	 */
+	private static ?array $admin_verein = null;
+
+	/**
 	 * @return true|\WP_Error
 	 */
 	public static function permission(\WP_REST_Request $request) {
+		self::$admin_verein = null;
+		$verein_header = (string) $request->get_header(AdminModus::HEADER_VEREIN);
+		if ($verein_header !== '') {
+			if (!AdminModus::erlaubt()) {
+				return new \WP_Error('kmm_admin', 'Keine Berechtigung. Bitte im Backend anmelden (Recht „Meldungen bearbeiten“).', ['status' => is_user_logged_in() ? 403 : 401]);
+			}
+			$verein = AdminModus::verein((int) $verein_header, (int) $request->get_header(AdminModus::HEADER_SPORTJAHR));
+			if ($verein === null) {
+				return new \WP_Error('kmm_verein', 'Verein oder Sportjahr nicht gefunden.', ['status' => 404]);
+			}
+			self::$admin_verein = $verein;
+			return true;
+		}
 		$verein = Zugang::aktueller_verein();
 		if ($verein === null) {
 			return new \WP_Error('kmm_nicht_angemeldet', 'Nicht angemeldet. Bitte den Zugangslink erneut aufrufen.', ['status' => 401]);
@@ -75,6 +100,11 @@ final class RestApi {
 		$r('/meldung/ansprechpartner', 'PUT', [self::class, 'ansprechpartner']);
 		$r('/meldung/einreichen', 'POST', [self::class, 'einreichen']);
 		$r('/meldung/oeffnen', 'POST', [self::class, 'oeffnen']);
+		// Nur Admin-Modus (Backend, nach Meldeschluss):
+		$r('/meldung/einzel/(?P<id>\d+)/abmelden', 'POST', [self::class, 'abmelden'], ['id' => $int]);
+		$r('/meldung/einzel/(?P<id>\d+)/abmeldung-aufheben', 'POST', [self::class, 'abmeldung_aufheben'], ['id' => $int]);
+		$r('/meldung/einzel/(?P<id>\d+)/startgeld', 'PUT', [self::class, 'startgeld'], ['id' => $int]);
+		$r('/meldung/nachmeldung', 'PUT', [self::class, 'nachmeldung']);
 	}
 
 	// ----- Handler ---------------------------------------------------------------------
@@ -83,6 +113,9 @@ final class RestApi {
 	 * @return array<string, mixed>
 	 */
 	private static function verein(): array {
+		if (self::$admin_verein !== null) {
+			return self::$admin_verein;
+		}
 		$verein = Zugang::aktueller_verein();
 		if ($verein === null) {
 			throw new \RuntimeException('Nicht angemeldet.');
@@ -92,7 +125,7 @@ final class RestApi {
 
 	private static function meldung_service(): MeldungService {
 		$v = self::verein();
-		return new MeldungService($v, (int) $v['sportjahr_id']);
+		return new MeldungService($v, (int) $v['sportjahr_id'], self::$admin_verein !== null);
 	}
 
 	private static function schuetze_service(): SchuetzeService {
@@ -227,6 +260,53 @@ final class RestApi {
 		return self::run(static function () {
 			$service = self::meldung_service();
 			$service->wieder_oeffnen();
+			return ['ok' => true, 'meldung' => $service->zusammenfassung()];
+		});
+	}
+
+	// ----- Admin-Modus ---------------------------------------------------------------------
+
+	public static function abmelden(\WP_REST_Request $request): \WP_REST_Response|\WP_Error {
+		return self::run(static function () use ($request) {
+			$p = $request->get_json_params();
+			$p = is_array($p) ? $p : [];
+			$schalter = array_key_exists('startgeld_berechnen', $p) && $p['startgeld_berechnen'] !== null && $p['startgeld_berechnen'] !== '' ? (bool) $p['startgeld_berechnen'] : null;
+			$service = self::meldung_service();
+			$em = $service->abmelden((int) $request->get_param('id'), (string) ($p['grund'] ?? ''), $schalter);
+			return ['einzelmeldung' => $em, 'meldung' => $service->zusammenfassung()];
+		});
+	}
+
+	public static function abmeldung_aufheben(\WP_REST_Request $request): \WP_REST_Response|\WP_Error {
+		return self::run(static function () use ($request) {
+			$service = self::meldung_service();
+			$em = $service->abmeldung_aufheben((int) $request->get_param('id'));
+			return ['einzelmeldung' => $em, 'meldung' => $service->zusammenfassung()];
+		});
+	}
+
+	public static function startgeld(\WP_REST_Request $request): \WP_REST_Response|\WP_Error {
+		return self::run(static function () use ($request) {
+			$p = $request->get_json_params();
+			$service = self::meldung_service();
+			$em = $service->startgeld_schalter((int) $request->get_param('id'), (bool) (is_array($p) ? ($p['berechnen'] ?? false) : false));
+			return ['einzelmeldung' => $em, 'meldung' => $service->zusammenfassung()];
+		});
+	}
+
+	public static function nachmeldung(\WP_REST_Request $request): \WP_REST_Response|\WP_Error {
+		return self::run(static function () use ($request) {
+			$p = $request->get_json_params();
+			$bis = trim((string) (is_array($p) ? ($p['bis'] ?? '') : ''));
+			$utc = null;
+			if ($bis !== '') {
+				$utc = \KSV\KMM\Support\Clock::local_to_utc($bis);
+				if ($utc === null) {
+					throw new \InvalidArgumentException('Bitte einen gültigen Zeitpunkt angeben.');
+				}
+			}
+			$service = self::meldung_service();
+			$service->nachmeldung_freischalten($utc);
 			return ['ok' => true, 'meldung' => $service->zusammenfassung()];
 		});
 	}
