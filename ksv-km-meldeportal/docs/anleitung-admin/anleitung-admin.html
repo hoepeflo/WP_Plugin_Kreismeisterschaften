@@ -319,29 +319,45 @@
 	<p>Der Knopf setzt alle übrigen Starter automatisch auf freie, passende Plätze. Vorher sagt Ihnen die Zeile darüber, wie viele davon einen Platz bekämen und wie viele nicht – nichts wird geschrieben, solange Sie nicht klicken.</p>
 	<p>Verteilt wird in fester Reihenfolge: erst nach Disziplin, dann nach Verein, dann nach Namen. Dieselbe Ausgangslage ergibt also immer dasselbe Ergebnis, und Starter eines Vereins stehen möglichst beieinander. Geprüft werden dabei Zulassung, Disziplinbeschränkung des Standes, Kapazität und Zeitüberschneidungen.</p>
 	<figure>
-		<img src="14-verteilt.png" alt="Meldung nach der Restverteilung">
+		<img src="13-verteilt.png" alt="Meldung nach der Restverteilung">
 		<figcaption>Nach dem Verteilen meldet das Portal, wie viele Starter gesetzt wurden</figcaption>
 	</figure>
 	<div class="kasten">
 		<p><strong>Das Verfahren ist bewusst einfach</strong> und sucht nicht die bestmögliche Gesamtverteilung, sondern füllt der Reihe nach auf. Wer keinen Platz bekommt, steht mit Grund in der Liste und lässt sich von Hand setzen.</p>
 	</div>
 
-	<h3>Starter verschieben und tauschen</h3>
-	<p>Unter den Buchungen steht jede Zeile mit einem Auswahlfeld <strong>Verschieben nach</strong>. Darin stehen alle Plätze des Tages, entweder als „frei“ oder mit dem Namen, der dort steht.</p>
+	<h3>Der Startplan als Matrix</h3>
+	<p>Unter dem Wettkampftag steht der ganze Plan als Raster: Zeilen sind die Durchgänge, Spalten die Plätze. Anders als im Aushang sind hier auch die <strong>freien</strong> Plätze zu sehen – sonst wüsste man beim Verschieben nicht, wohin.</p>
 	<figure>
-		<img src="13-buchungen.png" alt="Buchungstabelle mit Auswahlfeld zum Verschieben">
-		<figcaption>Zielplatz wählen und auf „Setzen“ klicken</figcaption>
+		<img src="14-matrix.png" alt="Startplan als Matrix mit belegten und freien Plätzen">
+		<figcaption>Startplan-Matrix (Ausschnitt): links die Durchgänge mit Uhrzeit und Zulassung, oben die Stände</figcaption>
+	</figure>
+	<p>Ein Feld mit schrägen Streifen ist frei, ein graues Feld gehört zu einem Stand, der in diesem Durchgang gar nicht vorgesehen ist – etwa weil dort eine andere Disziplin läuft.</p>
+
+	<h3>Starter verschieben und tauschen</h3>
+	<p>Zwei Wege führen zum Ziel, beide machen dasselbe:</p>
+	<ul>
+		<li><strong>Mit der Maus ziehen:</strong> Starter anfassen und auf den neuen Platz fallen lassen.</li>
+		<li><strong>Zweimal klicken:</strong> erst den Starter, dann den Zielplatz. Das geht auch am Tablet und mit der Tastatur (Tabulator und Eingabetaste). Sobald ein Starter gewählt ist, heben sich alle freien Plätze grün hervor.</li>
+	</ul>
+	<figure>
+		<img src="15-matrix-auswahl.png" alt="Gewählter Starter, freie Plätze grün hervorgehoben">
+		<figcaption>Ist ein Starter gewählt, zeigt die Matrix, wohin er kann (Ausschnitt)</figcaption>
 	</figure>
 	<ul>
 		<li>Ist der Zielplatz <strong>frei</strong>, wird der Starter dorthin verschoben.</li>
 		<li>Ist er <strong>belegt</strong>, tauschen beide Starter die Plätze. Es geht also nie ein Platz verloren.</li>
-		<li>Geprüft werden für beide Starter Zulassung, Stand, Kapazität und Zeitüberschneidung. Passt etwas nicht, bleibt alles, wie es war, und Sie bekommen den Grund genannt.</li>
+		<li>Geprüft werden für beide Starter Zulassung, Stand, Kapazität und Zeitüberschneidung. Passt etwas nicht, bleibt alles, wie es war, und unter der Matrix steht der Grund – zum Beispiel „Czinski, Damian ist für Durchgang 1 nicht zugelassen“.</li>
+		<li>Die Seite lädt dabei nicht neu; die beiden Felder tauschen ihren Inhalt sofort.</li>
 	</ul>
+	<div class="kasten">
+		<p><strong>Ohne Maus und ohne JavaScript</strong> geht es weiter über die Liste: <em>Alle Buchungen als Liste</em> unter der Matrix aufklappen, dort je Zeile den Zielplatz im Auswahlfeld wählen und auf „Setzen“ klicken. Dieselbe Prüfung, dasselbe Ergebnis.</p>
+	</div>
 
 	<h3>Veröffentlichen</h3>
 	<p><strong>Startplan veröffentlichen</strong> macht den Plan öffentlich. Auf Wunsch bekommen die Vereine eine Mail. Ab jetzt buchen sie nicht mehr selbst; Änderungen nimmt nur noch der KSV vor und sie sind sofort sichtbar. Im Buchungsraster der Vereine erscheinen jetzt auch die Starter der anderen Vereine mit Namen.</p>
 	<figure>
-		<img src="15-veroeffentlicht.png" alt="Veröffentlichter Wettkampftag mit Shortcode und PDF">
+		<img src="16-veroeffentlicht.png" alt="Veröffentlichter Wettkampftag mit Shortcode und PDF">
 		<figcaption>Nach der Veröffentlichung: Shortcode zum Kopieren und PDF für den Aushang</figcaption>
 	</figure>
 	<h3>Startplan auf die Website und an die Wand</h3>
@@ -357,7 +373,7 @@
 	<h2>11 Belege und Startgeld</h2>
 	<p>Für die Abrechnung mit den Vereinen erzeugt das Portal je Verein einen Beleg mit allen Startgeldpositionen.</p>
 	<figure>
-		<img src="16-belege.png" alt="Belegübersicht je Verein">
+		<img src="17-belege.png" alt="Belegübersicht je Verein">
 		<figcaption>KM-Portal → Belege (nur Administratoren)</figcaption>
 	</figure>
 	<ul>
@@ -371,7 +387,7 @@
 <section>
 	<h2>12 Export und Meldelisten</h2>
 	<figure>
-		<img src="17-export.png" alt="Exportseite mit DAVID21-CSV und PDF-Meldelisten">
+		<img src="18-export.png" alt="Exportseite mit DAVID21-CSV und PDF-Meldelisten">
 		<figcaption>KM-Portal → Export</figcaption>
 	</figure>
 	<h3>DAVID21-Export</h3>
@@ -385,7 +401,7 @@
 	<h2>13 Protokoll</h2>
 	<p>Das Protokoll hält fest, wer wann was getan hat – Vereine und KSV gleichermaßen.</p>
 	<figure>
-		<img src="18-protokoll.png" alt="Protokollseite mit Filtern">
+		<img src="19-protokoll.png" alt="Protokollseite mit Filtern">
 		<figcaption>KM-Portal → Protokoll</figcaption>
 	</figure>
 	<p>Filtern lässt sich nach Sportjahr, Verein, Akteur und Text. Bei Rückfragen eines Vereins („wir haben das nie geändert“) ist das der schnellste Weg zur Klärung.</p>
@@ -394,7 +410,7 @@
 <section>
 	<h2>14 Einstellungen</h2>
 	<figure>
-		<img src="19-einstellungen.png" alt="Einstellungsseite">
+		<img src="20-einstellungen.png" alt="Einstellungsseite">
 		<figcaption>KM-Portal → Einstellungen (nur Administratoren)</figcaption>
 	</figure>
 	<table>
@@ -411,7 +427,7 @@
 	<h2>15 Sportjahr abschließen</h2>
 	<p>Nach der Meisterschaft wird das Sportjahr abgeschlossen. Das schließt es für Änderungen und entfernt auf Wunsch den Personenbezug aus den Meldungen.</p>
 	<figure>
-		<img src="20-abschluss.png" alt="Abschlussseite mit Hinweisen und Anonymisierung">
+		<img src="21-abschluss.png" alt="Abschlussseite mit Hinweisen und Anonymisierung">
 		<figcaption>KM-Portal → Sportjahre → Abschließen</figcaption>
 	</figure>
 	<h3>Was passiert</h3>
@@ -430,7 +446,7 @@
 <section>
 	<h2>16 System und Fehlersuche</h2>
 	<figure>
-		<img src="21-system.png" alt="Systemseite mit Tabellen und Cron-Status">
+		<img src="22-system.png" alt="Systemseite mit Tabellen und Cron-Status">
 		<figcaption>KM-Portal → System (nur Administratoren)</figcaption>
 	</figure>
 	<p>Die Seite zeigt die Schema-Version, ob alle Tabellen vorhanden sind und wann die geplanten Aufgaben zuletzt gelaufen sind.</p>

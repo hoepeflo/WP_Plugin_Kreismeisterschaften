@@ -389,6 +389,88 @@ final class Startplatzvergabe {
 		return $out;
 	}
 
+	/**
+	 * Der ganze Wettkampftag als Matrix für das Backend: Zeilen = Durchgänge,
+	 * Spalten = alle Plätze (Einheit × Position), auch die freien. Anders als die
+	 * öffentliche Ansicht zeigt sie leere Plätze und markiert, welcher Platz in welchem
+	 * Durchgang überhaupt in Frage kommt – sonst wüsste man beim Verschieben nicht, wohin.
+	 *
+	 * @return array{spalten: list<array<string, mixed>>, durchgaenge: list<array<string, mixed>>, gebucht: int, plaetze: int}
+	 */
+	public function matrix(int $tag_id): array {
+		$this->startplan->tag($tag_id);
+		$rw = RegelwerkLader::laden($this->sportjahr_id);
+		$schuetzen = $this->schuetzen;
+		$vereine = [];
+		foreach ((new VereinRepository())->all() as $v) {
+			$vereine[ (int) $v['id'] ] = (string) $v['name'];
+		}
+		$einheiten = $this->einheiten->by_wettkampftag($tag_id);
+		$spalten = [];
+		foreach ($einheiten as $e) {
+			for ($p = 1; $p <= (int) $e['kapazitaet']; $p++) {
+				$spalten[] = [
+					'key'       => (int) $e['id'] . '-' . $p,
+					'einheit_id' => (int) $e['id'],
+					'position'  => $p,
+					'label'     => (string) $e['bezeichnung'] . ((int) $e['kapazitaet'] > 1 ? ' / ' . $p : ''),
+					'disziplin_ids' => EinheitRepository::disziplin_ids($e),
+				];
+			}
+		}
+		$belegung = [];
+		$gebucht = 0;
+		foreach ($this->buchungen->by_wettkampftag($tag_id) as $b) {
+			$em = $this->einzel->find((int) $b['einzelmeldung_id']);
+			$s = $em !== null && $em['schuetze_id'] !== null ? $schuetzen->find((int) $em['schuetze_id']) : null;
+			$d = $em !== null ? $rw->disziplin((int) $em['disziplin_id']) : null;
+			$klasse_id = $em !== null ? ($em['startklasse_id'] ?? $em['mannschaft_klasse_id']) : null;
+			$k = $klasse_id !== null ? $rw->klasse((int) $klasse_id) : null;
+			$belegung[ (int) $b['durchgang_id'] ][ (int) $b['einheit_id'] . '-' . (int) $b['position'] ] = [
+				'buchung_id' => (int) $b['id'],
+				'name'       => $s !== null ? $s['nachname'] . ', ' . $s['vorname'] : '?',
+				'verein'     => $vereine[ (int) $b['verein_id'] ] ?? '',
+				'kennzahl'   => $d?->kennzahl ?? '',
+				'klasse'     => $k?->bezeichnung ?? '',
+				'admin'      => (string) $b['gebucht_von_typ'] === 'admin',
+			];
+			$gebucht++;
+		}
+		$durchgaenge = [];
+		$plaetze = 0;
+		foreach ($this->durchgaenge->by_wettkampftag($tag_id) as $dg) {
+			$zul = $this->zulassungen->by_durchgang((int) $dg['id']);
+			$dis_ids = [];
+			$texte = [];
+			foreach ($zul as $z) {
+				$dis_ids[ (int) $z['disziplin_id'] ] = true;
+				$d = $rw->disziplin((int) $z['disziplin_id']);
+				$kl = $z['startklasse_id'] !== null ? $rw->klasse((int) $z['startklasse_id']) : null;
+				$texte[] = ($d?->kennzahl ?? '?') . ($kl !== null ? ' (' . $kl->bezeichnung . ')' : '');
+			}
+			$erlaubt = [];
+			foreach ($spalten as $sp) {
+				$ok = $zul !== [] && ($sp['disziplin_ids'] === [] || array_intersect($sp['disziplin_ids'], array_keys($dis_ids)) !== []);
+				$erlaubt[ $sp['key'] ] = $ok;
+				if ($ok) {
+					$plaetze++;
+				}
+			}
+			$durchgaenge[] = [
+				'id'          => (int) $dg['id'],
+				'nummer'      => (int) $dg['nummer'],
+				'bezeichnung' => (string) $dg['bezeichnung'],
+				'beginn'      => Clock::format_local((string) $dg['beginn'], 'H:i'),
+				'ende'        => Clock::format_local((string) $dg['ende'], 'H:i'),
+				'zulassungen' => implode('; ', $texte),
+				'zustaendig'  => $this->startplan->durchgang_zustaendig((int) $dg['id']),
+				'erlaubt'     => $erlaubt,
+				'zellen'      => $belegung[ (int) $dg['id'] ] ?? [],
+			];
+		}
+		return ['spalten' => $spalten, 'durchgaenge' => $durchgaenge, 'gebucht' => $gebucht, 'plaetze' => $plaetze];
+	}
+
 	// ----- Verschieben und Tauschen ---------------------------------------------------------------
 
 	/**

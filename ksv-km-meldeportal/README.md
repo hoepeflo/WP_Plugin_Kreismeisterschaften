@@ -65,7 +65,7 @@ Route `/km-meldung/` nach Anmeldung per Zugangslink: vier Schritte Schützen, Me
 | Einstellungen | Route, offene Punkte aus Konzept 13 (Nicht-Meldung, FITASC, CSV-Format …), Mail-Absender |
 | Referenten | beliebige WordPress-Benutzer mit Rechten und Zuständigkeit (Gruppe/Disziplin) |
 | Schießstände | Stammdaten mit Standgruppen; am Wettkampftag nur noch ankreuzen |
-| Wettkampftage | Einheiten, Durchgänge, Zulassungen, Freigabe, Restverteilung, Verschieben/Tauschen, Veröffentlichung, PDF-Startplan |
+| Wettkampftage | Einheiten, Durchgänge, Zulassungen, Freigabe, Restverteilung, Startplan-Matrix mit Verschieben per Ziehen oder zwei Klicks, Veröffentlichung, PDF-Startplan |
 | Belege | Buchhaltungsbelege je Verein (Startgeldpositionen, PDF) |
 
 ## Veröffentlichter Startplan

@@ -137,6 +137,34 @@ final class WettkampftagePage extends AdminPage {
 		}
 	}
 
+	/**
+	 * Verschieben aus der Startplan-Matrix (Ziehen und Fallenlassen). Antwortet mit JSON,
+	 * damit die Seite nicht bei jedem Zug neu lädt. Ohne JavaScript bleibt das Formular
+	 * in der Buchungsliste der Weg.
+	 */
+	public static function ajax_verschieben(): void {
+		check_ajax_referer('kmm_' . self::SLUG, 'nonce');
+		if (!Rechte::hat_recht(Rechte::RECHT_STARTPLAN)) {
+			wp_send_json_error(['message' => __('Keine Berechtigung.', 'ksv-km-meldeportal')], 403);
+		}
+		$sid = isset($_POST['sportjahr_id']) ? (int) $_POST['sportjahr_id'] : 0;
+		$buchung = isset($_POST['buchung_id']) ? (int) $_POST['buchung_id'] : 0;
+		$durchgang = isset($_POST['durchgang_id']) ? (int) $_POST['durchgang_id'] : 0;
+		$einheit = isset($_POST['einheit_id']) ? (int) $_POST['einheit_id'] : 0;
+		$position = isset($_POST['position']) ? (int) $_POST['position'] : 0;
+		try {
+			$r = (new Startplatzvergabe($sid))->verschieben($buchung, $durchgang, $einheit, $position);
+		} catch (\InvalidArgumentException | \RuntimeException $e) {
+			wp_send_json_error(['message' => $e->getMessage()]);
+		}
+		wp_send_json_success([
+			'getauscht' => $r['getauscht'],
+			'message'   => $r['getauscht']
+				? sprintf(__('Plätze getauscht mit %s.', 'ksv-km-meldeportal'), $r['mit'])
+				: __('Starter verschoben.', 'ksv-km-meldeportal'),
+		]);
+	}
+
 	public static function render(): void {
 		if (!Rechte::darf_lesen()) {
 			wp_die(esc_html__('Keine Berechtigung.', 'ksv-km-meldeportal'));
@@ -336,6 +364,7 @@ final class WettkampftagePage extends AdminPage {
 			echo '<p class="description">' . esc_html__('„Duplizieren“ hängt Kopien mit gleicher Dauer, Bezeichnung und denselben Zulassungen hinten an: erste Zahl = Zahl der Kopien, zweite Zahl = Pause dazwischen in Minuten.', 'ksv-km-meldeportal') . '</p>';
 		}
 
+		self::render_matrix($sid, $tag_id, $schreiben);
 		self::render_buchungen($sid, $tag_id, $u, $schreiben);
 		if (!$schreiben) {
 			return;
@@ -549,6 +578,61 @@ final class WettkampftagePage extends AdminPage {
 	 * @param array<string, mixed> $u
 	 */
 	/**
+	 * Der Startplan als Matrix: Zeilen = Durchgänge, Spalten = Plätze. Belegte Felder
+	 * lassen sich mit der Maus auf einen anderen Platz ziehen; ist der belegt, tauschen
+	 * beide. Ohne Maus (und ohne JavaScript-Unterstützung) geht dasselbe über Anklicken
+	 * des Starters und dann des Zielplatzes.
+	 */
+	private static function render_matrix(int $sid, int $tag_id, bool $schreiben): void {
+		$m = (new Startplatzvergabe($sid))->matrix($tag_id);
+		if ($m['spalten'] === [] || $m['durchgaenge'] === []) {
+			return;
+		}
+		echo '<h3>' . esc_html__('Startplan', 'ksv-km-meldeportal') . '</h3>';
+		echo '<p class="description">' . esc_html(sprintf(__('%1$d von %2$d Plätzen belegt.', 'ksv-km-meldeportal'), (int) $m['gebucht'], (int) $m['plaetze']));
+		if ($schreiben) {
+			echo ' ' . esc_html__('Starter mit der Maus auf einen anderen Platz ziehen – oder den Starter anklicken und dann den Zielplatz. Ist der Zielplatz belegt, tauschen beide.', 'ksv-km-meldeportal');
+		}
+		echo '</p>';
+		echo '<div class="kmm-matrix-huelle"><table class="kmm-matrix' . ($schreiben ? ' is-bearbeitbar' : '') . '" data-sportjahr="' . $sid . '"><thead><tr><th class="kmm-matrix-zeit">' . esc_html__('Zeit', 'ksv-km-meldeportal') . '</th>';
+		foreach ($m['spalten'] as $sp) {
+			echo '<th>' . esc_html((string) $sp['label']) . '</th>';
+		}
+		echo '</tr></thead><tbody>';
+		foreach ($m['durchgaenge'] as $dg) {
+			$bearbeitbar = $schreiben && $dg['zustaendig'];
+			echo '<tr><th class="kmm-matrix-zeit" scope="row"><strong>' . esc_html($dg['beginn']) . '</strong><span>' . esc_html('bis ' . $dg['ende']) . '</span>';
+			echo '<span>' . esc_html(sprintf(__('Durchgang %d', 'ksv-km-meldeportal'), (int) $dg['nummer'])) . '</span>';
+			if ($dg['zulassungen'] !== '') {
+				echo '<span class="kmm-matrix-zul">' . esc_html((string) $dg['zulassungen']) . '</span>';
+			}
+			echo '</th>';
+			foreach ($m['spalten'] as $sp) {
+				$key = (string) $sp['key'];
+				$z = $dg['zellen'][ $key ] ?? null;
+				if (!$dg['erlaubt'][ $key ] && $z === null) {
+					echo '<td class="kmm-matrix-gesperrt" title="' . esc_attr__('In diesem Durchgang nicht vorgesehen', 'ksv-km-meldeportal') . '"></td>';
+					continue;
+				}
+				$attr = ' data-durchgang="' . (int) $dg['id'] . '" data-einheit="' . (int) $sp['einheit_id'] . '" data-position="' . (int) $sp['position'] . '"';
+				$attr .= ' data-platz="' . esc_attr(sprintf(__('Durchgang %1$d, %2$s', 'ksv-km-meldeportal'), (int) $dg['nummer'], (string) $sp['label'])) . '"';
+				if ($z === null) {
+					echo '<td class="kmm-matrix-frei"' . $attr . '><span>' . esc_html__('frei', 'ksv-km-meldeportal') . '</span></td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					continue;
+				}
+				echo '<td class="kmm-matrix-belegt"' . $attr . ' data-buchung="' . (int) $z['buchung_id'] . '"' . ($bearbeitbar ? ' draggable="true" tabindex="0"' : '') . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo '<span class="kmm-matrix-verein">' . esc_html((string) $z['verein']) . '</span>';
+				echo '<strong>' . esc_html((string) $z['name']) . '</strong>';
+				echo '<span class="kmm-matrix-klasse">' . esc_html(trim((string) $z['kennzahl'] . ' · ' . (string) $z['klasse'], ' ·')) . '</span>';
+				echo '</td>';
+			}
+			echo '</tr>';
+		}
+		echo '</tbody></table></div>';
+		echo '<p class="kmm-matrix-status" role="status" aria-live="polite"></p>';
+	}
+
+	/**
 	 * Buchungen mit Verschieben/Tauschen (Konzept 12.5).
 	 *
 	 * @param array<string, mixed> $u
@@ -583,9 +667,9 @@ final class WettkampftagePage extends AdminPage {
 			$sch = $em !== null && $em['schuetze_id'] !== null ? $schuetzen->find((int) $em['schuetze_id']) : null;
 			$namen[ (int) $b['einzelmeldung_id'] ] = $sch !== null ? $sch['nachname'] . ', ' . $sch['vorname'] : '?';
 		}
-		echo '<h3>' . esc_html(sprintf(__('Buchungen (%d)', 'ksv-km-meldeportal'), (int) $u['buchungen'])) . '</h3>';
+		echo '<details class="kmm-buchungsliste"><summary>' . esc_html(sprintf(__('Alle Buchungen als Liste (%d)', 'ksv-km-meldeportal'), (int) $u['buchungen'])) . '</summary>';
 		if ($schreiben) {
-			echo '<p class="description">' . esc_html__('Zum Verschieben den Zielplatz wählen und auf „Setzen“ klicken. Ist der Zielplatz belegt, tauschen beide Starter die Plätze. Geprüft werden Zulassung, Einheit, Kapazität und Zeitüberschneidungen.', 'ksv-km-meldeportal') . '</p>';
+			echo '<p class="description">' . esc_html__('Zum Verschieben ohne Maus: Zielplatz wählen und auf „Setzen“ klicken. Ist der Zielplatz belegt, tauschen beide Starter die Plätze.', 'ksv-km-meldeportal') . '</p>';
 		}
 		echo '<table class="widefat striped"><thead><tr><th>' . esc_html__('Durchgang', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Einheit / Pos.', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Starter', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Disziplin', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Verein', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Gebucht', 'ksv-km-meldeportal') . '</th>' . ($schreiben ? '<th>' . esc_html__('Verschieben nach', 'ksv-km-meldeportal') . '</th>' : '') . '</tr></thead><tbody>';
 		foreach ($buchungen as $b) {
@@ -620,7 +704,7 @@ final class WettkampftagePage extends AdminPage {
 			}
 			echo '</tr>';
 		}
-		echo '</tbody></table>';
+		echo '</tbody></table></details>';
 	}
 
 	private static function status_badge(string $status): string {

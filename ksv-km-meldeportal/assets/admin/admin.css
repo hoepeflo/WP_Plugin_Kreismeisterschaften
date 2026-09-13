@@ -169,3 +169,57 @@
 
 .kmm-admin .kmm-duplizieren { white-space: nowrap; }
 .kmm-admin .kmm-duplizieren input[type=number] { width: 3.6em; margin-right: 2px; }
+
+/* ----- Startplan-Matrix: Zeilen = Durchgänge, Spalten = Plätze ------------------------------------ */
+
+.kmm-admin .kmm-matrix-huelle { overflow-x: auto; margin: 10px 0 4px; scrollbar-width: thin; }
+.kmm-admin table.kmm-matrix {
+	border-collapse: collapse; background: var(--kmm-surface);
+	border: 1px solid var(--kmm-border); border-radius: var(--kmm-radius);
+	box-shadow: var(--kmm-schatten); font-size: 12px; line-height: 1.25;
+}
+.kmm-admin table.kmm-matrix th,
+.kmm-admin table.kmm-matrix td {
+	border: 1px solid var(--kmm-border); padding: 5px 6px; text-align: center;
+	vertical-align: middle; min-width: 92px;
+}
+.kmm-admin table.kmm-matrix thead th {
+	background: var(--kmm-surface-2); color: var(--kmm-text-muted);
+	font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em;
+	white-space: nowrap; position: sticky; top: 0; z-index: 2;
+}
+.kmm-admin table.kmm-matrix th.kmm-matrix-zeit {
+	background: var(--kmm-surface-2); text-align: left; white-space: nowrap;
+	min-width: 128px; width: 1%; position: sticky; left: 0; z-index: 3;
+}
+.kmm-admin table.kmm-matrix th.kmm-matrix-zeit strong { font-size: 14px; display: block; }
+.kmm-admin table.kmm-matrix th.kmm-matrix-zeit span { display: block; font-weight: 400; font-size: 10.5px; }
+.kmm-admin table.kmm-matrix th.kmm-matrix-zeit .kmm-matrix-zul { color: var(--kmm-primary); }
+
+.kmm-admin .kmm-matrix-belegt { background: var(--kmm-surface); }
+.kmm-admin .kmm-matrix-belegt strong { display: block; font-size: 12.5px; }
+.kmm-admin .kmm-matrix-verein { display: block; font-size: 10.5px; color: var(--kmm-text-muted); }
+.kmm-admin .kmm-matrix-klasse { display: block; font-size: 10.5px; color: var(--kmm-text-muted); }
+.kmm-admin .kmm-matrix-frei { color: #9aa3a0; font-size: 11px; background: repeating-linear-gradient(135deg, transparent 0 6px, rgba(0, 0, 0, .025) 6px 12px); }
+.kmm-admin .kmm-matrix-gesperrt { background: #f0f1f1; }
+
+/* Bearbeitbar: ziehen, anklicken, Ziel hervorheben */
+.kmm-admin table.kmm-matrix.is-bearbeitbar .kmm-matrix-belegt { cursor: grab; }
+.kmm-admin table.kmm-matrix.is-bearbeitbar .kmm-matrix-belegt:hover { background: var(--kmm-primary-weich); }
+.kmm-admin table.kmm-matrix .is-zieht { opacity: .4; }
+.kmm-admin table.kmm-matrix .is-auswahl { outline: 2px solid var(--kmm-primary); outline-offset: -2px; background: var(--kmm-primary-weich); }
+.kmm-admin table.kmm-matrix.hat-auswahl .kmm-matrix-frei,
+.kmm-admin table.kmm-matrix.hat-auswahl .kmm-matrix-belegt { cursor: pointer; }
+.kmm-admin table.kmm-matrix.hat-auswahl .kmm-matrix-frei { background: var(--kmm-ok-bg); color: var(--kmm-ok); }
+.kmm-admin table.kmm-matrix .is-ueber { outline: 2px dashed var(--kmm-primary); outline-offset: -2px; }
+.kmm-admin table.kmm-matrix.is-busy { opacity: .6; pointer-events: none; }
+.kmm-admin table.kmm-matrix .kmm-frisch { animation: kmm-frisch 1.5s ease-out; }
+@keyframes kmm-frisch { from { background: var(--kmm-ok-bg); } to { background: transparent; } }
+
+.kmm-admin .kmm-matrix-status { min-height: 1.4em; margin: 2px 0 14px; font-size: 12px; }
+.kmm-admin .kmm-matrix-status.is-ok { color: var(--kmm-ok); font-weight: 600; }
+.kmm-admin .kmm-matrix-status.is-fehler { color: var(--kmm-error); font-weight: 600; }
+.kmm-admin .kmm-matrix-status.is-info { color: var(--kmm-text-muted); }
+
+.kmm-admin details.kmm-buchungsliste { margin: 6px 0 18px; }
+.kmm-admin details.kmm-buchungsliste > summary { cursor: pointer; font-weight: 600; padding: 6px 0; }

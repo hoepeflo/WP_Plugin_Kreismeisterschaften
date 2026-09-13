@@ -36,6 +36,7 @@ final class Menu {
 		add_action('admin_menu', [self::class, 'add_pages']);
 		add_action('admin_enqueue_scripts', [self::class, 'enqueue_assets']);
 		add_action('admin_init', [self::class, 'handle_posts']);
+		add_action('wp_ajax_kmm_startplan_verschieben', [WettkampftagePage::class, 'ajax_verschieben']);
 	}
 
 	/** POST-Aktionen der Seiten vor der Ausgabe verarbeiten (Redirect danach). */
@@ -69,6 +70,19 @@ final class Menu {
 			return;
 		}
 		wp_enqueue_style('kmm-admin', KMM_PLUGIN_URL . 'assets/admin/admin.css', [], KMM_VERSION);
+		if (strpos($hook, WettkampftagePage::SLUG) !== false) {
+			wp_enqueue_script('kmm-startplan-matrix', KMM_PLUGIN_URL . 'assets/admin/startplan.js', [], KMM_VERSION, true);
+			wp_localize_script('kmm-startplan-matrix', 'kmmStartplan', [
+				'ajaxUrl' => admin_url('admin-ajax.php'),
+				'nonce'   => wp_create_nonce('kmm_' . WettkampftagePage::SLUG),
+				'texte'   => [
+					'fehler'  => __('Das Verschieben hat nicht geklappt.', 'ksv-km-meldeportal'),
+					'laeuft'  => __('wird gespeichert …', 'ksv-km-meldeportal'),
+					'gewaehlt' => __('Gewählt. Jetzt den Zielplatz anklicken.', 'ksv-km-meldeportal'),
+					'frei'    => __('frei', 'ksv-km-meldeportal'),
+				],
+			]);
+		}
 	}
 
 	/**

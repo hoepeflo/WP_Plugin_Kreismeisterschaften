@@ -190,6 +190,30 @@ final class RestverteilungTest extends IntegrationTestCase {
 		}
 	}
 
+	public function test_matrix_zeigt_alle_plaetze_und_markiert_unzulaessige(): void {
+		$this->frist_beenden();
+		$a = new BuchungService($this->vereine['A'], $this->sid, true);
+		$a->buchen($this->tag, $this->dg1, $this->staende[0], 1, $this->em['A2_1.10']);
+		$m = (new Startplatzvergabe($this->sid))->matrix($this->tag);
+
+		// Zwei Stände mit Kapazität 1 ergeben zwei Spalten – auch die freien.
+		$this->assertCount(2, $m['spalten']);
+		$this->assertSame('Stand 1', $m['spalten'][0]['label']);
+		$this->assertCount(3, $m['durchgaenge'], 'DG1, DG2 und DG3');
+		$this->assertSame(1, $m['gebucht']);
+		$this->assertSame(6, $m['plaetze'], 'drei Durchgänge mal zwei Stände');
+
+		$dg1 = $m['durchgaenge'][0];
+		$key = (string) $m['spalten'][0]['key'];
+		$this->assertSame('A2, X', $dg1['zellen'][ $key ]['name']);
+		$this->assertSame('SV A', $dg1['zellen'][ $key ]['verein']);
+		$this->assertArrayNotHasKey((string) $m['spalten'][1]['key'], $dg1['zellen'], 'Stand 2 ist frei');
+		$this->assertTrue($dg1['erlaubt'][ $key ]);
+		$this->assertTrue($dg1['zustaendig']);
+		$this->assertSame('09:00', $dg1['beginn']);
+		$this->assertStringContainsString('1.10', (string) $dg1['zulassungen']);
+	}
+
 	public function test_startplan_zeigt_disziplin_und_klasse_nur_wenn_sie_unterscheiden(): void {
 		$this->frist_beenden();
 		(new Startplatzvergabe($this->sid))->restverteilung($this->tag);

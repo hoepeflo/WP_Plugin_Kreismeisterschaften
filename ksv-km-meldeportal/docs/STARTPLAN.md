@@ -132,10 +132,34 @@ Starter, die einen Platz bekämen, und listet die Starter ohne Platz.
   damit in die tägliche Sammelmail an den Verein.
 - Vor der Buchungsfrist wird die Restverteilung abgelehnt.
 
+### Der Startplan als Matrix im Backend (`Startplatzvergabe::matrix`)
+
+Am Wettkampftag steht der ganze Plan als Raster: Zeilen sind die Durchgänge, Spalten die
+Plätze. Anders als die öffentliche Ansicht zeigt die Matrix **auch die freien Plätze** –
+sonst wüsste man beim Verschieben nicht, wohin. Plätze, die in einem Durchgang gar nicht
+in Frage kommen (Stand auf andere Disziplinen beschränkt, Durchgang ohne Zulassung), sind
+grau und nicht anklickbar.
+
 ### Verschieben und Tauschen (`Startplatzvergabe::verschieben`)
 
-In der Buchungstabelle steht je Zeile ein Auswahlfeld mit allen Plätzen des Tages („frei“
-oder mit Namen). Ist der Zielplatz frei, wird verschoben (ein UPDATE); ist er belegt,
+In der Matrix geht das auf zwei Wegen, die beide dieselbe Prüfung durchlaufen:
+
+- **Ziehen und Fallenlassen** mit der Maus (HTML5-Drag-and-drop).
+- **Zwei Klicks**: erst der Starter, dann der Zielplatz. Funktioniert auch am Tablet und
+  mit der Tastatur (die belegten Felder sind fokussierbar, Eingabetaste wählt aus). Ist
+  ein Starter gewählt, heben sich die freien Plätze hervor; Escape bricht ab.
+
+Beides schickt einen einzelnen Aufruf an `admin-ajax.php`
+(`wp_ajax_kmm_startplan_verschieben` → `WettkampftagePage::ajax_verschieben`, abgesichert
+über `check_ajax_referer` und `Rechte::RECHT_STARTPLAN`). Die Antwort ist JSON; das Skript
+tauscht die beiden Felder im Raster, die Seite lädt nicht neu. Schlägt die Prüfung fehl,
+bleibt alles unverändert und der Grund steht unter der Matrix.
+
+Ohne JavaScript bleibt die Matrix eine reine Ansicht. Verschoben wird dann über die
+aufklappbare Liste **Alle Buchungen als Liste** darunter: je Zeile ein Auswahlfeld mit
+allen Plätzen des Tages („frei“ oder mit Namen), dazu ein Formular ohne JavaScript.
+
+Ist der Zielplatz frei, wird verschoben (ein UPDATE); ist er belegt,
 tauschen beide Starter die Plätze.
 
 Der Tausch läuft in einer Transaktion über die Parkposition 0, weil `UNIQUE(durchgang_id,
