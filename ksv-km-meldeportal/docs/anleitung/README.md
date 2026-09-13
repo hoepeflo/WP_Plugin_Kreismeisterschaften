@@ -15,4 +15,6 @@ daneben. Alle abgebildeten Namen, Vereine und Ergebnisse sind Musterdaten.
 4. PDF drucken, zum Beispiel über den Druckdialog des Browsers (A4, Hintergrundgrafiken
    aktivieren, Ränder 18/16 mm) oder per Kommandozeile mit Chromium/Playwright.
 
+Das Gegenstück für den KSV liegt unter `../anleitung-admin/`.
+
 Das ZIP des Plugins enthält `docs/` nicht; die Anleitung wird separat verteilt.

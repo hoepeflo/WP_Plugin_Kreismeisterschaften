@@ -93,4 +93,4 @@ Datenmodell: `docs/DATENMODELL.md`. Regel-Engine: `docs/REGEL-ENGINE.md`. Zugang
 
 Phase 2: Änderungen nach Meldeschluss `docs/AENDERUNGEN-NACH-MELDESCHLUSS.md`, Sammelmail `docs/SAMMELMAIL.md`, Belege `docs/BELEGE.md`, Referenten `docs/REFERENTEN.md`, Startplan `docs/STARTPLAN.md`, Abschluss und Anonymisierung `docs/ABSCHLUSS.md`, Ergebnisdienst `docs/ERGEBNISSE-INTEGRATION.md`.
 
-Anleitung für die Vereine zum Weitergeben: `docs/KM-Portal-Anleitung-Vereine.pdf`.
+Anleitungen zum Weitergeben: `docs/KM-Portal-Anleitung-Vereine.pdf` (für die Vereine) und `docs/KM-Portal-Anleitung-Administratoren.pdf` (für Administratoren und Referenten des KSV).

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>KM-Portal – Anleitung für Administratoren und Referenten</title>
+<style>
+	@page { size: A4; margin: 18mm 16mm 16mm; }
+	:root {
+		--gruen: #1c5d3a;
+		--gruen-weich: #eaf3ee;
+		--text: #16201c;
+		--muted: #5d6b64;
+		--rand: #dce2df;
+		--warn-bg: #fdf3dc;
+		--warn: #8a5a00;
+	}
+	* { box-sizing: border-box; }
+	body {
+		font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+		font-size: 10.5pt; line-height: 1.5; color: var(--text); margin: 0;
+	}
+	h1 { font-size: 22pt; line-height: 1.15; margin: 0 0 6pt; letter-spacing: -.02em; }
+	h2 {
+		font-size: 14pt; margin: 0 0 8pt; padding-bottom: 4pt; letter-spacing: -.01em;
+		page-break-after: avoid;
+		border-bottom: 2px solid var(--gruen-weich); color: var(--gruen);
+	}
+	h3 { font-size: 11.5pt; margin: 12pt 0 4pt; }
+	p { margin: 0 0 7pt; }
+	ul, ol { margin: 0 0 8pt; padding-left: 17pt; }
+	li { margin-bottom: 3pt; }
+	a { color: var(--gruen); }
+	figure { margin: 8pt 0 12pt; page-break-inside: avoid; }
+	figure img {
+		width: auto; max-width: 100%; max-height: 195mm; margin: 0 auto;
+		border: 1px solid var(--rand); border-radius: 6px; display: block;
+	}
+	figure img.schmal { max-width: 62%; }
+	figure img.hoch { max-width: 46%; max-height: 170mm; }
+	figcaption { font-size: 8.5pt; color: var(--muted); margin-top: 4pt; text-align: center; }
+	section { margin-top: 16pt; }
+	section.erste { margin-top: 0; page-break-after: always; }
+	h2 { page-break-after: avoid; }
+	h3 { page-break-after: avoid; }
+	figure + p, figure + ol, figure + div { page-break-before: avoid; }
+	.titel {
+		background: var(--gruen); color: #fff; border-radius: 10px;
+		padding: 20pt 22pt; margin-bottom: 14pt;
+	}
+	.titel p { margin: 0; opacity: .9; font-size: 11pt; }
+	.titel .zeile { font-size: 9pt; opacity: .75; margin-top: 10pt; }
+	.kasten {
+		background: var(--gruen-weich); border-left: 3px solid var(--gruen);
+		border-radius: 0 6px 6px 0; padding: 8pt 12pt; margin: 9pt 0;
+	}
+	.kasten.warn { background: var(--warn-bg); border-left-color: var(--warn); }
+	.kasten p:last-child { margin-bottom: 0; }
+	.schritte { counter-reset: schritt; list-style: none; padding-left: 0; }
+	.schritte > li {
+		counter-increment: schritt; position: relative; padding-left: 24pt; margin-bottom: 7pt;
+	}
+	.schritte > li::before {
+		content: counter(schritt); position: absolute; left: 0; top: 1pt;
+		width: 16pt; height: 16pt; border-radius: 50%; background: var(--gruen); color: #fff;
+		font-size: 9pt; font-weight: 700; text-align: center; line-height: 16pt;
+	}
+	table { width: 100%; border-collapse: collapse; margin: 8pt 0 10pt; font-size: 10pt; }
+	th, td { border: 1px solid var(--rand); padding: 5pt 7pt; text-align: left; vertical-align: top; }
+	th { background: var(--gruen-weich); color: var(--gruen); font-size: 9pt; text-transform: uppercase; letter-spacing: .03em; }
+	.inhalt li { margin-bottom: 4pt; }
+	.fuss { margin-top: 14pt; padding-top: 8pt; border-top: 1px solid var(--rand); font-size: 8.5pt; color: var(--muted); }
+	strong { font-weight: 650; }
+	/* Ergänzungen dieser Anleitung */
+	ol.inhalt { columns: 2; column-gap: 20pt; padding-left: 20pt; }
+	ol.inhalt li { break-inside: avoid; margin-bottom: 2pt; }
+	/* Titelseite kompakt halten, damit Ablauf und Inhalt zusammen daraufpassen */
+	section.erste .titel { padding: 16pt 20pt; margin-bottom: 11pt; }
+	section.erste .schritte > li { margin-bottom: 4pt; }
+	section.erste .kasten { margin: 7pt 0; }
+	section.erste h2 { margin-top: 11pt; margin-bottom: 6pt; }
+	code { font-family: Consolas, "SF Mono", monospace; font-size: 9.5pt; background: #f1f4f2; padding: 0 3px; border-radius: 3px; }
+	figure img { max-height: 192mm; }
+	figure img.breit { max-width: 100%; }
+</style>
+</head>
+<body>
+<section class="erste">
+	<div class="titel">
+		<h1>KM-Portal verwalten</h1>
+		<p>Anleitung für Administratoren und Referenten des Kreisschützenverbands Fallingbostel</p>
+		<p class="zeile">Sportjahr vorbereiten · Meldungen prüfen · Startplan bauen · Startplätze vergeben · abrechnen · abschließen</p>
+	</div>
+
+	<p>Diese Anleitung beschreibt das Backend des KM-Portals: alles, was im WordPress-Menü unter <strong>KM-Portal</strong> zu finden ist. Sie richtet sich an den Kreisschützenverband. Die Vereine arbeiten in einer eigenen Oberfläche, die in der <em>Anleitung für die Vereine</em> beschrieben ist.</p>
+
+	<div class="kasten">
+		<p><strong>Zwei Rollen.</strong> Ein <strong>Administrator</strong> sieht und darf alles. Ein <strong>Referent</strong> ist für bestimmte Wettbewerbsgruppen oder Disziplinen zuständig und arbeitet nur dort – er sieht die übrigen Zeilen, kann sie aber nicht ändern. Wo sich beides unterscheidet, steht es in dieser Anleitung dabei.</p>
+	</div>
+
+	<h2>Der Ablauf eines Sportjahres</h2>
+	<ol class="schritte">
+		<li><strong>Vorbereiten</strong> – Sportjahr anlegen oder aus dem Vorjahr kopieren, Disziplinen und Regeln prüfen, Vereine pflegen, Meldephase festlegen.</li>
+		<li><strong>Meldephase</strong> – Zugangslinks verschicken, Stand der Meldungen verfolgen, bei Rückfragen helfen.</li>
+		<li><strong>Nach Meldeschluss</strong> – Startrecht prüfen, Änderungen und Abmeldungen einpflegen, nach DAVID21 exportieren, Meldelisten drucken.</li>
+		<li><strong>Startplan</strong> – Schießstände hinterlegen, Wettkampftage aufbauen, freigeben; die Vereine buchen selbst.</li>
+		<li><strong>Nach der Buchungsfrist</strong> – Rest verteilen, einzelne Starter verschieben, Startplan veröffentlichen.</li>
+		<li><strong>Abrechnen und abschließen</strong> – Belege je Verein erzeugen, nach der Meisterschaft das Sportjahr abschließen.</li>
+	</ol>
+
+	<h2>Inhalt</h2>
+	<ol class="inhalt">
+		<li>Übersicht: der tägliche Blick auf den Stand</li>
+		<li>Sportjahr anlegen und vorbereiten</li>
+		<li>Vereine und Zugänge</li>
+		<li>Stammdaten: Klassen, Disziplinen, Regeln, Startgeld</li>
+		<li>Regeltabelle importieren und exportieren</li>
+		<li>Nach Meldeschluss: Startrecht prüfen</li>
+		<li>Referenten</li>
+		<li>Schießstände</li>
+		<li>Wettkampftag aufbauen und freigeben</li>
+		<li>Nach der Buchungsfrist</li>
+		<li>Belege und Startgeld</li>
+		<li>Export und Meldelisten</li>
+		<li>Protokoll</li>
+		<li>Einstellungen</li>
+		<li>Sportjahr abschließen</li>
+		<li>System und Fehlersuche</li>
+	</ol>
+</section>
+
+<section>
+	<h2>1 Übersicht: der tägliche Blick auf den Stand</h2>
+	<p>Die Startseite des Menüs <strong>KM-Portal</strong> zeigt für das gewählte Sportjahr alles Wichtige auf einen Blick: die Meldephase, die Kacheln mit den Zahlen und darunter jeden Verein mit seinem Status.</p>
+	<figure>
+		<img src="01-uebersicht.png" alt="Übersichtsseite mit Meldephase, Kacheln und Vereinstabelle">
+		<figcaption>KM-Portal → Übersicht</figcaption>
+	</figure>
+	<h3>Was die Spalten bedeuten</h3>
+	<table>
+		<tr><th>Spalte</th><th>Bedeutung</th></tr>
+		<tr><td>Status</td><td><strong>Offen</strong> = noch nichts erfasst, <strong>Entwurf</strong> = der Verein arbeitet, <strong>Eingereicht</strong> = fertig gemeldet, mit Zeitpunkt.</td></tr>
+		<tr><td>Einzel / Mannsch.</td><td>Zahl der gemeldeten Starter und Mannschaften. Eine Zahl in Klammern heißt: so viele davon ohne Startrecht bzw. unvollständige Mannschaften.</td></tr>
+		<tr><td>Ohne Erg.</td><td>Meldungen ohne Meldeergebnis. Die braucht die Startplanung – hier lohnt eine Nachfrage.</td></tr>
+		<tr><td>Konflikte</td><td>Entstehen durch Regeländerungen oder geänderte Schützendaten. Der Verein muss sie bestätigen oder die Meldung entfernen.</td></tr>
+		<tr><td>Startgeld</td><td>Vorläufige Summe nach den hinterlegten Tarifen.</td></tr>
+		<tr><td>Zugang</td><td>Wann der letzte Zugangslink erzeugt wurde und wie oft er benutzt wurde. „0× genutzt“ über längere Zeit ist ein Hinweis, dass die Mail nicht angekommen ist.</td></tr>
+	</table>
+	<p><strong>Details</strong> klappt die Meldung eines Vereins auf. <strong>Bearbeiten</strong> öffnet die Vereinsoberfläche im Admin-Modus – Sie arbeiten dann so, wie der Verein es sieht, können aber auch nach Meldeschluss ändern. Jede solche Änderung wird protokolliert und landet in der täglichen Sammelmail an den Verein.</p>
+	<div class="kasten">
+		<p><strong>Sammelmail.</strong> Alle Änderungen, die der KSV nach Meldeschluss an einer Meldung vornimmt, sammelt das Portal und schickt sie dem Verein einmal täglich zur eingestellten Uhrzeit. <strong>Sammelmail jetzt senden</strong> stößt den Versand sofort an, etwa kurz vor einer Sitzung.</p>
+	</div>
+</section>
+
+<section>
+	<h2>2 Sportjahr anlegen und vorbereiten</h2>
+	<p>Jedes Sportjahr hat seinen eigenen Satz Klassen, Disziplinen, Regeln und Tarife. So bleiben alte Jahre unverändert, wenn sich die Sportordnung ändert.</p>
+	<figure>
+		<img src="02-sportjahre.png" alt="Liste der Sportjahre mit Aktionen">
+		<figcaption>KM-Portal → Sportjahre</figcaption>
+	</figure>
+	<ol class="schritte">
+		<li><strong>Für ein Folgejahr: „Kopieren nach“.</strong> Das ist der Normalfall. Die Kopie übernimmt Klassen, Disziplinen, Regeln und Tarife des Vorjahres. Höhermeldungen werden bewusst <em>nicht</em> übernommen – sie gelten immer nur für ein Jahr.</li>
+		<li><strong>Für ein ganz neues Jahr: „Sportjahr anlegen“</strong> mit angehaktem Klassensatz. Dann entstehen die Wettbewerbsgruppen, Klassen und Standardtarife nach Konzept, aber noch keine Disziplinen.</li>
+		<li><strong>Bearbeiten</strong> setzt Meldebeginn, Meldeschluss und den Zeitpunkt der Erinnerungsmail.</li>
+		<li><strong>Aktivieren</strong> macht das Jahr zum laufenden. Nur das aktive Sportjahr sehen die Vereine über ihren Zugangslink.</li>
+	</ol>
+	<div class="kasten warn">
+		<p><strong>Meldebeginn und Meldeschluss bestimmen alles Weitere.</strong> Vor dem Beginn können Vereine nichts erfassen, nach dem Schluss nichts mehr ändern – dann übernimmt der KSV. Beide Zeitpunkte lassen sich jederzeit verschieben.</p>
+	</div>
+</section>
+
+<section>
+	<h2>3 Vereine und Zugänge</h2>
+	<p>Die Vereine sind <em>keine</em> WordPress-Benutzer. Sie melden sich mit einem persönlichen Link an, den der KSV per Mail verschickt.</p>
+	<figure>
+		<img src="03-vereine.png" alt="Vereinsliste mit Adressen und Zugangslinks">
+		<figcaption>KM-Portal → Vereine</figcaption>
+	</figure>
+	<ul>
+		<li><strong>Mehrere Adressen je Verein</strong> sind möglich – etwa Sportleitung und Schriftführer. Alle bekommen dieselbe Mail.</li>
+		<li><strong>Link senden</strong> erzeugt einen neuen Zugang und verschickt ihn. <strong>Alle Links senden</strong> macht das für alle aktiven Vereine auf einmal, zum Start der Meldephase.</li>
+		<li>Ein Verein kann sich seinen Link auch selbst anfordern; das Portal schickt ihn dann an die hinterlegten Adressen – nie an eine frei eingegebene.</li>
+		<li><strong>Inaktiv</strong> setzen statt löschen: die Meldungen vergangener Jahre bleiben dann erhalten.</li>
+	</ul>
+	<div class="kasten">
+		<p><strong>Wenn ein Verein den Link nicht findet:</strong> einfach neu senden. Alte Links des Vereins werden dabei ungültig, damit ein weitergeleiteter Link nicht endlos gilt.</p>
+	</div>
+</section>
+
+<section>
+	<h2>4 Stammdaten: Klassen, Disziplinen, Regeln, Startgeld</h2>
+	<p>Unter <strong>Stammdaten</strong> steht alles, was die Regel-Engine braucht. Das Bild zeigt die Disziplinenliste des Sportjahres.</p>
+	<figure>
+		<img src="04-stammdaten.png" alt="Disziplinentabelle mit den Spalten Angeboten und Ergebnis">
+		<figcaption>KM-Portal → Stammdaten → Disziplinen</figcaption>
+	</figure>
+	<h3>Angeboten und Ergebnisformat direkt in der Tabelle</h3>
+	<p>Die beiden Spalten <strong>Angeboten</strong> und <strong>Ergebnis</strong> lassen sich in der Liste selbst ändern, ohne die Disziplin zu öffnen. Der Haken bei <strong>Angeboten</strong> entscheidet, ob die Vereine in dieser Disziplin melden können – so schalten Sie eine Disziplin für ein Jahr ab, ohne sie zu löschen.</p>
+	<h3>Regeln je Disziplin</h3>
+	<p>Hinter <strong>Regeln</strong> steht für jede Klasse, ob sie in dieser Disziplin startberechtigt ist, ob sie eine eigene Wertung hat oder in einer anderen Klasse mitstartet, und ob eine Mannschaftswertung vorgesehen ist. Genau daraus berechnet das Portal für jeden Schützen die Startklasse.</p>
+	<h3>Startgeld</h3>
+	<p>Die Tarife hängen an der Tarifstufe der Klasse (Erwachsene, Jugend, Mannschaft …), nicht an der einzelnen Klasse. Ändern Sie einen Tarif, rechnet das Portal die betroffenen Meldungen automatisch neu.</p>
+	<div class="kasten warn">
+		<p><strong>Regeländerung während der Meldephase.</strong> Wird eine Regel geändert, prüft das Portal alle vorhandenen Meldungen erneut. Passt eine Meldung nicht mehr, wird sie als <strong>Konflikt</strong> markiert – sie verschwindet nicht, aber der Verein muss sie bestätigen oder entfernen. Auf der Übersicht sehen Sie sofort, wie viele Konflikte entstanden sind.</p>
+	</div>
+</section>
+
+<section>
+	<h2>5 Regeltabelle importieren und exportieren</h2>
+	<p>Disziplinen und Regeln lassen sich als Datei ein- und auslesen. Das ist der schnellste Weg, ein Jahr aufzusetzen oder den Stand außerhalb des Portals zu prüfen.</p>
+	<figure>
+		<img src="05-import-export.png" alt="Seite Import / Export mit Datei-Auswahl">
+		<figcaption>KM-Portal → Import / Export</figcaption>
+	</figure>
+	<ul>
+		<li><strong>Export</strong> schreibt den aktuellen Stand als JSON-Datei – gut als Sicherung vor größeren Änderungen.</li>
+		<li><strong>Import</strong> liest eine solche Datei wieder ein. Klassen und Gruppen kommen dabei <em>nicht</em> mit; die stammen aus dem Klassensatz des Sportjahres.</li>
+		<li>Nach jedem Import werden alle Meldungen erneut geprüft (siehe Konflikte oben).</li>
+	</ul>
+</section>
+
+<section>
+	<h2>6 Nach Meldeschluss: Startrecht prüfen</h2>
+	<p>Mit dem Meldeschluss wechselt die Arbeit vom Verein zum KSV. Unter <strong>Verarbeitung</strong> bekommt jede Einzelmeldung einen Verarbeitungsstatus.</p>
+	<figure>
+		<img src="06-verarbeitung.png" alt="Verarbeitungsseite mit Filtern und Statusspalte">
+		<figcaption>KM-Portal → Verarbeitung</figcaption>
+	</figure>
+	<table>
+		<tr><th>Status</th><th>Bedeutung</th></tr>
+		<tr><td>ungeprüft</td><td>Ausgangszustand. Noch niemand hat draufgeschaut.</td></tr>
+		<tr><td>verarbeitet</td><td>Startrecht geprüft, Meldung geht so in den Wettkampf.</td></tr>
+		<tr><td>nicht startberechtigt</td><td>Mit Grund, zum Beispiel fehlendes Startrecht im Verein. Die Meldung bleibt sichtbar, wird aber nicht eingeplant und nicht exportiert.</td></tr>
+	</table>
+	<p>Über die Filter grenzen Sie auf Verein, Wettbewerbsgruppe, Disziplin oder Status ein und setzen den Status für die gefilterte Auswahl auf einmal. <strong>Referenten</strong> sehen hier alle Zeilen, dürfen aber nur die ihres Bereichs ändern.</p>
+	<div class="kasten">
+		<p><strong>Änderungen und Abmeldungen nach Meldeschluss</strong> nehmen Sie in der Vereinsoberfläche im Admin-Modus vor (Übersicht → Bearbeiten). Bei einer Abmeldung fragt das Portal, ob das Startgeld berechnet werden soll. Jede Änderung geht in die Sammelmail an den Verein.</p>
+	</div>
+</section>
+
+<section>
+	<h2>7 Referenten</h2>
+	<p>Referenten sind ganz normale WordPress-Benutzer, denen das Portal zusätzliche Rechte gibt. Ihre bisherige Rolle bleibt unverändert – es funktioniert also auch mit Benutzern, die schon Redakteur oder Autor sind.</p>
+	<figure>
+		<img src="07-referenten.png" alt="Referentenverwaltung mit Rechten und Zuständigkeiten">
+		<figcaption>KM-Portal → Referenten (nur Administratoren)</figcaption>
+	</figure>
+	<h3>Die drei Rechte</h3>
+	<table>
+		<tr><th>Recht</th><th>Was es erlaubt</th></tr>
+		<tr><td>Status setzen</td><td>Verarbeitungsstatus der Einzelmeldungen im eigenen Bereich.</td></tr>
+		<tr><td>Meldungen bearbeiten</td><td>Nachmeldung, Abmeldung, Korrektur und Mannschaften im eigenen Bereich. Die Nachmeldungsfreischaltung eines ganzen Vereins bleibt beim Administrator.</td></tr>
+		<tr><td>Startplan bearbeiten</td><td>Wettkampftage aufbauen, freigeben, Rest verteilen, Starter verschieben, veröffentlichen – nur wenn alle betroffenen Durchgänge im eigenen Bereich liegen.</td></tr>
+	</table>
+	<p><strong>Zuständigkeit</strong> ist entweder eine ganze Wettbewerbsgruppe (zum Beispiel Auflage oder Bogen) oder eine einzelne Disziplin über ihre Kennzahl. Sie gilt über Sportjahre hinweg, muss also nur einmal gesetzt werden.</p>
+	<p><strong>Entfernen</strong> löscht nur den Referenteneintrag und die zusätzlichen Rechte. Der WordPress-Benutzer bleibt bestehen.</p>
+</section>
+
+<section>
+	<h2>8 Schießstände</h2>
+	<p>Schießstände sind Stammdaten und werden einmal angelegt, nicht bei jedem Wettkampftag neu. Ein Schießstand besteht aus <strong>Standgruppen</strong>: „10 m Stände, 12 × Stand ab Nummer 1, Kapazität 1“ oder „Bogen, 6 × Scheibe, Kapazität 4“.</p>
+	<figure>
+		<img src="08-schiessstaende.png" alt="Schießstände mit ihren Standgruppen">
+		<figcaption>KM-Portal → Schießstände (nur Administratoren)</figcaption>
+	</figure>
+	<ul>
+		<li><strong>Kapazität</strong> ist die Zahl der Schützen, die gleichzeitig an einer Einheit stehen. Bei einem Stand ist das 1, bei einer Bogenscheibe oft 4.</li>
+		<li><strong>Beschränkung auf Disziplinen</strong> ist optional: eine 50-m-Bahn lässt sich so auf die Auflagedisziplinen begrenzen.</li>
+		<li>Standgruppen mit freigegebenen Einheiten und Schießstände, die an einem Wettkampftag hängen, sind gegen Löschen geschützt.</li>
+	</ul>
+</section>
+
+<section>
+	<h2>9 Wettkampftag aufbauen und freigeben</h2>
+	<p>Ein Wettkampftag besteht aus <strong>Einheiten</strong> (die Stände) und <strong>Durchgängen</strong> (die Zeiten). Ein Startplatz ist die Kombination aus Durchgang, Einheit und Position.</p>
+	<figure>
+		<img src="09-wettkampftage.png" alt="Liste der Wettkampftage mit Plätzen und Bedarf">
+		<figcaption>KM-Portal → Wettkampftage</figcaption>
+	</figure>
+	<p>In der Liste steht neben jedem Tag die Zahl der <strong>Plätze</strong> und der <strong>Bedarf</strong> – also wie viele buchbare Meldungen zu den Zulassungen dieses Tages passen. Ist der Bedarf größer als die Zahl der Plätze, steht er rot: dann fehlt ein Durchgang oder ein Stand.</p>
+
+	<h3>Stände ankreuzen statt anlegen</h3>
+	<p>Wählen Sie beim Wettkampftag den <strong>Schießstand</strong> aus, erscheint ein Block mit allen Ständen. Kreuzen Sie an, welche an diesem Tag zur Verfügung stehen.</p>
+	<figure>
+		<img src="10-staende-freigeben.png" alt="Stände eines Schießstands zum Ankreuzen">
+		<figcaption>Stände freigeben – „alle“ und „keine“ setzen eine ganze Gruppe auf einmal</figcaption>
+	</figure>
+	<p>Abgewählte Stände werden wieder entfernt, sofern dort noch nichts gebucht ist. Von Hand angelegte Einheiten bleiben unberührt – Sie können also zusätzlich einen Sonderstand eintragen.</p>
+
+	<h3>Durchgänge und Zulassungen</h3>
+	<figure>
+		<img src="11-durchgaenge.png" alt="Durchgangsliste mit Zeiten, Zulassungen und Duplizieren">
+		<figcaption>Durchgänge eines Wettkampftags</figcaption>
+	</figure>
+	<ul>
+		<li>Jeder Durchgang hat Beginn und Ende. Ein Schütze kann nie in zwei Durchgängen stehen, die sich zeitlich überschneiden – auch nicht in verschiedenen Disziplinen und nicht an verschiedenen Wettkampftagen.</li>
+		<li><strong>Zulassungen</strong> sagen, wer in diesem Durchgang buchen darf: eine Disziplin, wahlweise auf eine Startklasse eingegrenzt. Mehrere Zulassungen je Durchgang sind möglich, etwa Luftgewehr und Luftpistole parallel.</li>
+		<li><strong>Duplizieren</strong> hängt Kopien mit gleicher Dauer und denselben Zulassungen hinten an: die erste Zahl ist die Zahl der Kopien, die zweite die Pause dazwischen in Minuten. Drei Durchgänge à 80 Minuten mit 15 Minuten Pause sind damit eine Eingabe.</li>
+	</ul>
+	<div class="kasten warn">
+		<p><strong>Ein Durchgang ohne Zulassung ist wirkungslos</strong> – dort kann niemand buchen. Die Zeile ist deshalb gelb hinterlegt, und die Freigabe ist gesperrt, solange es einen solchen Durchgang gibt.</p>
+	</div>
+
+	<h3>Freigeben</h3>
+	<p>Im Status <strong>Entwurf</strong> sehen die Vereine nichts. Mit <strong>Freigeben und Vereine benachrichtigen</strong> öffnet sich die Buchung: alle Vereine mit passenden Startern bekommen eine Mail mit ihrem Zugangslink, und im Portal erscheint bei ihnen der Reiter „Startplätze“.</p>
+	<p>Bis zur <strong>Buchungsfrist</strong> buchen die Vereine selbst. Einige Tage vorher erinnert das Portal automatisch alle Vereine, die noch Starter ohne Platz haben; die Vorlaufzeit stellen Sie in den Einstellungen ein.</p>
+	<p>Eine Freigabe lässt sich zurücknehmen, solange noch nichts gebucht wurde.</p>
+</section>
+
+<section>
+	<h2>10 Nach der Buchungsfrist</h2>
+	<p>Ist die Frist abgelaufen, können die Vereine nicht mehr buchen. Am Wettkampftag erscheint dann der Block <strong>Nach der Buchungsfrist</strong>.</p>
+	<figure>
+		<img src="12-nach-frist.png" alt="Block mit Restverteilung, PDF und Veröffentlichung">
+		<figcaption>Der Block zeigt, wer noch keinen Platz hat, und was „Rest verteilen“ bewirken würde</figcaption>
+	</figure>
+
+	<h3>Rest verteilen</h3>
+	<p>Der Knopf setzt alle übrigen Starter automatisch auf freie, passende Plätze. Vorher sagt Ihnen die Zeile darüber, wie viele davon einen Platz bekämen und wie viele nicht – nichts wird geschrieben, solange Sie nicht klicken.</p>
+	<p>Verteilt wird in fester Reihenfolge: erst nach Disziplin, dann nach Verein, dann nach Namen. Dieselbe Ausgangslage ergibt also immer dasselbe Ergebnis, und Starter eines Vereins stehen möglichst beieinander. Geprüft werden dabei Zulassung, Disziplinbeschränkung des Standes, Kapazität und Zeitüberschneidungen.</p>
+	<figure>
+		<img src="14-verteilt.png" alt="Meldung nach der Restverteilung">
+		<figcaption>Nach dem Verteilen meldet das Portal, wie viele Starter gesetzt wurden</figcaption>
+	</figure>
+	<div class="kasten">
+		<p><strong>Das Verfahren ist bewusst einfach</strong> und sucht nicht die bestmögliche Gesamtverteilung, sondern füllt der Reihe nach auf. Wer keinen Platz bekommt, steht mit Grund in der Liste und lässt sich von Hand setzen.</p>
+	</div>
+
+	<h3>Starter verschieben und tauschen</h3>
+	<p>Unter den Buchungen steht jede Zeile mit einem Auswahlfeld <strong>Verschieben nach</strong>. Darin stehen alle Plätze des Tages, entweder als „frei“ oder mit dem Namen, der dort steht.</p>
+	<figure>
+		<img src="13-buchungen.png" alt="Buchungstabelle mit Auswahlfeld zum Verschieben">
+		<figcaption>Zielplatz wählen und auf „Setzen“ klicken</figcaption>
+	</figure>
+	<ul>
+		<li>Ist der Zielplatz <strong>frei</strong>, wird der Starter dorthin verschoben.</li>
+		<li>Ist er <strong>belegt</strong>, tauschen beide Starter die Plätze. Es geht also nie ein Platz verloren.</li>
+		<li>Geprüft werden für beide Starter Zulassung, Stand, Kapazität und Zeitüberschneidung. Passt etwas nicht, bleibt alles, wie es war, und Sie bekommen den Grund genannt.</li>
+	</ul>
+
+	<h3>Veröffentlichen</h3>
+	<p><strong>Startplan veröffentlichen</strong> macht den Plan öffentlich. Auf Wunsch bekommen die Vereine eine Mail. Ab jetzt buchen sie nicht mehr selbst; Änderungen nimmt nur noch der KSV vor und sie sind sofort sichtbar. Im Buchungsraster der Vereine erscheinen jetzt auch die Starter der anderen Vereine mit Namen.</p>
+	<figure>
+		<img src="15-veroeffentlicht.png" alt="Veröffentlichter Wettkampftag mit Shortcode und PDF">
+		<figcaption>Nach der Veröffentlichung: Shortcode zum Kopieren und PDF für den Aushang</figcaption>
+	</figure>
+	<h3>Startplan auf die Website und an die Wand</h3>
+	<ul>
+		<li><strong>Shortcode:</strong> Der angezeigte Text, zum Beispiel <code>[kmm_startplan tag="1"]</code>, lässt sich in jeden Beitrag und jede Seite setzen – auch in einen bestehenden Kalendertermin, unabhängig vom Kalender-Plugin. Mit <code>disziplin="1.10"</code> zeigt er nur eine Disziplin.</li>
+		<li><strong>Startplan als PDF</strong> erzeugt den Plan im Querformat, sortiert nach Durchgang und Stand – für Aushang und Standaufsicht. Vor der Veröffentlichung geht das auch schon, das PDF trägt dann den Vermerk „Entwurf“.</li>
+		<li>Öffentlich sind nur Name, Vorname, Verein, Startklasse, Stand und Uhrzeit. Kein Geburtsdatum, keine Mitgliedsnummer, kein Meldeergebnis.</li>
+	</ul>
+	<p>Die Veröffentlichung lässt sich zurücknehmen; der Plan verschwindet dann wieder aus der Öffentlichkeit.</p>
+</section>
+
+<section>
+	<h2>11 Belege und Startgeld</h2>
+	<p>Für die Abrechnung mit den Vereinen erzeugt das Portal je Verein einen Beleg mit allen Startgeldpositionen.</p>
+	<figure>
+		<img src="16-belege.png" alt="Belegübersicht je Verein">
+		<figcaption>KM-Portal → Belege (nur Administratoren)</figcaption>
+	</figure>
+	<ul>
+		<li>Ein Beleg listet Einzelstarts und Mannschaften mit Disziplin, Klasse und Betrag und trägt eine fortlaufende Belegnummer.</li>
+		<li><strong>Abgemeldete Starter</strong> erscheinen nur dann, wenn bei der Abmeldung „Startgeld berechnen“ stehen blieb.</li>
+		<li>Enthält die Meldung noch ungeprüfte Starter, weist der Beleg darauf hin – prüfen Sie also erst den Verarbeitungsstatus, dann erzeugen Sie die Belege.</li>
+		<li>Ein bereits erzeugter Beleg bleibt als Stand erhalten. Ändert sich danach etwas, erzeugen Sie einen neuen; der alte bleibt zur Nachvollziehbarkeit bestehen.</li>
+	</ul>
+</section>
+
+<section>
+	<h2>12 Export und Meldelisten</h2>
+	<figure>
+		<img src="17-export.png" alt="Exportseite mit DAVID21-CSV und PDF-Meldelisten">
+		<figcaption>KM-Portal → Export</figcaption>
+	</figure>
+	<h3>DAVID21-Export</h3>
+	<p>Die CSV-Datei für das Wettkampfprogramm, wahlweise gesamt oder je Disziplin. Enthalten sind nur Meldungen mit Startrecht, die nicht abgemeldet und nicht als „nicht startberechtigt“ markiert sind. Das Zeichenformat stellen Sie in den Einstellungen ein, falls DAVID Umlaute anders erwartet.</p>
+	<h3>PDF-Meldelisten</h3>
+	<p>Listen zum Ausdrucken, gruppiert nach Disziplin, Klasse oder Verein – etwa als Arbeitsunterlage für die Startplanung oder für die Standaufsicht vor der Veröffentlichung des Startplans.</p>
+	<p>Jeder Export wird mit Zeitpunkt, Umfang und Zeilenzahl protokolliert. So ist später nachvollziehbar, welcher Stand an DAVID gegangen ist.</p>
+</section>
+
+<section>
+	<h2>13 Protokoll</h2>
+	<p>Das Protokoll hält fest, wer wann was getan hat – Vereine und KSV gleichermaßen.</p>
+	<figure>
+		<img src="18-protokoll.png" alt="Protokollseite mit Filtern">
+		<figcaption>KM-Portal → Protokoll</figcaption>
+	</figure>
+	<p>Filtern lässt sich nach Sportjahr, Verein, Akteur und Text. Bei Rückfragen eines Vereins („wir haben das nie geändert“) ist das der schnellste Weg zur Klärung.</p>
+</section>
+
+<section>
+	<h2>14 Einstellungen</h2>
+	<figure>
+		<img src="19-einstellungen.png" alt="Einstellungsseite">
+		<figcaption>KM-Portal → Einstellungen (nur Administratoren)</figcaption>
+	</figure>
+	<table>
+		<tr><th>Einstellung</th><th>Wofür</th></tr>
+		<tr><td>Route</td><td>Der Pfad der Vereinsoberfläche, standardmäßig <code>/km-meldung/</code>. Nach einer Änderung die Permalinks einmal neu speichern.</td></tr>
+		<tr><td>Absender</td><td>Name und Adresse für alle Mails des Portals.</td></tr>
+		<tr><td>Uhrzeit der Sammelmail</td><td>Wann die gesammelten Änderungen täglich rausgehen.</td></tr>
+		<tr><td>Erinnerung vor der Buchungsfrist</td><td>Wie viele Tage vorher Vereine mit Startern ohne Platz erinnert werden.</td></tr>
+		<tr><td>Offene Punkte der Sportordnung</td><td>Einzelne Auslegungsfragen (Nicht-Meldung, FITASC, CSV-Format), die sich ohne Programmänderung umstellen lassen.</td></tr>
+	</table>
+</section>
+
+<section>
+	<h2>15 Sportjahr abschließen</h2>
+	<p>Nach der Meisterschaft wird das Sportjahr abgeschlossen. Das schließt es für Änderungen und entfernt auf Wunsch den Personenbezug aus den Meldungen.</p>
+	<figure>
+		<img src="20-abschluss.png" alt="Abschlussseite mit Hinweisen und Anonymisierung">
+		<figcaption>KM-Portal → Sportjahre → Abschließen</figcaption>
+	</figure>
+	<h3>Was passiert</h3>
+	<ol class="schritte">
+		<li><strong>Sicherung.</strong> Zuerst schreibt das Portal alle Daten des Sportjahres als JSON-Datei in einen geschützten Ordner unter <code>uploads/kmm-archiv/</code>. Der Dateiname wird am Sportjahr vermerkt.</li>
+		<li><strong>Schließen.</strong> Es sind keine Änderungen mehr möglich, die Zugangslinks der Vereine werden ungültig, veröffentlichte Startpläne werden ausgeblendet.</li>
+		<li><strong>Anonymisieren</strong> (Haken, standardmäßig gesetzt): Name, Vorname, Geburtsdatum, Mitgliedsnummer und Ansprechpartner verschwinden aus den Meldungen sowie aus dem Änderungs- und dem Systemprotokoll dieses Jahres.</li>
+	</ol>
+	<p><strong>Erhalten bleiben</strong> Verein, Disziplin, Klasse, Geschlecht, Mannschaft und Startgeld. Teilnehmerzahlen je Verein, Disziplin, Klasse und Jahr bleiben also dauerhaft auswertbar. Die <strong>Schützenliste der Vereine</strong> ist davon nicht betroffen – sie bleibt für die Folgejahre bestehen.</p>
+	<div class="kasten warn">
+		<p><strong>Die Anonymisierung lässt sich nicht rückgängig machen.</strong> Solange Sie sie nicht ausgeführt haben, können Sie den Abschluss zurücknehmen. Danach hilft nur noch die Sicherung aus Schritt 1. Wer erst schließen und später anonymisieren will, nimmt den Haken heraus und klickt zu gegebener Zeit „Jetzt anonymisieren“.</p>
+	</div>
+	<p>Vor dem Abschluss weist die Seite auf offene Punkte hin: Meldungen, die nie eingereicht wurden, Vereine ohne Beleg, noch nicht versendete Änderungen und Wettkampftage, die nicht veröffentlicht sind. Das sind Hinweise, keine Sperren.</p>
+</section>
+
+<section>
+	<h2>16 System und Fehlersuche</h2>
+	<figure>
+		<img src="21-system.png" alt="Systemseite mit Tabellen und Cron-Status">
+		<figcaption>KM-Portal → System (nur Administratoren)</figcaption>
+	</figure>
+	<p>Die Seite zeigt die Schema-Version, ob alle Tabellen vorhanden sind und wann die geplanten Aufgaben zuletzt gelaufen sind.</p>
+	<table>
+		<tr><th>Symptom</th><th>Wo nachsehen</th></tr>
+		<tr><td>Ein Verein kommt nicht ins Portal</td><td>Übersicht → Spalte Zugang. Steht dort „0× genutzt“, kam die Mail vermutlich nicht an: Adresse prüfen, Link neu senden.</td></tr>
+		<tr><td>Keine Mails</td><td>Ein SMTP-Plugin muss eingerichtet sein. Der Absender steht in den Einstellungen, der Versand im Protokoll.</td></tr>
+		<tr><td>Sammelmail bleibt aus</td><td>System → Cron. Auf Servern mit wenig Besuchern lohnt ein echter Cronjob statt des WordPress-Standards.</td></tr>
+		<tr><td>Nach einem Update fehlt etwas</td><td>System → „Migration erneut ausführen“ legt fehlende Tabellen und Spalten an. Bestehende Daten bleiben dabei unberührt.</td></tr>
+		<tr><td>Vereinsoberfläche zeigt alte Inhalte</td><td>Die Route <code>/km-meldung/</code> muss vom Seiten-Cache ausgenommen sein.</td></tr>
+	</table>
+	<div class="fuss">
+		<p>Diese Anleitung beschreibt das KM-Portal in der Version 1.0.0. Die abgebildeten Vereine, Namen und Ergebnisse sind Musterdaten. Fragen zum Portal beantwortet Florian Höper.</p>
+	</div>
+</section>
+
+</body>
+</html>
