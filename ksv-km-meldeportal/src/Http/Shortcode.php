@@ -87,16 +87,25 @@ final class Shortcode {
 			$kopf[] = (string) $tag['ort'];
 		}
 		$kopf[] = sprintf(__('%d Starter', 'ksv-km-meldeportal'), (int) $plan['starter']);
-		if ($disziplin !== '') {
-			$kopf[] = sprintf(__('nur %s', 'ksv-km-meldeportal'), $disziplin);
+		// Was an diesem Tag nur einmal vorkommt, steht in der Kopfzeile statt in jeder Zelle.
+		$mit_kennzahl = count($plan['disziplinen']) > 1;
+		$mit_klasse = count($plan['klassen']) > 1;
+		if (!$mit_kennzahl && $plan['disziplinen'] !== []) {
+			$kopf[] = (string) $plan['disziplinen'][0];
+		}
+		if (!$mit_klasse && $plan['klassen'] !== []) {
+			$kopf[] = (string) $plan['klassen'][0];
 		}
 		$html .= '<p class="kmm-startplan-kopf">' . esc_html(implode(' · ', $kopf)) . '</p>';
+		if ($mit_kennzahl) {
+			// Damit die Kennzahlen in den Feldern lesbar bleiben.
+			$html .= '<p class="kmm-startplan-disziplinen">' . esc_html(__('Disziplinen:', 'ksv-km-meldeportal') . ' ' . implode(' · ', $plan['disziplinen'])) . '</p>';
+		}
 		if ((string) $tag['hinweis'] !== '') {
 			$html .= '<p class="kmm-startplan-hinweis">' . esc_html((string) $tag['hinweis']) . '</p>';
 		}
 
 		$spalten = $plan['spalten'];
-		$mit_kennzahl = (int) $plan['disziplinen'] > 1;
 		// Ab zehn Spalten wird es eng: kompaktere Schrift, damit möglichst alles sichtbar bleibt.
 		$eng = count($spalten) >= 10 ? ' is-eng' : '';
 		$html .= '<div class="kmm-startplan-tabelle"><table class="kmm-startplan-raster' . $eng . '"><thead><tr><th class="kmm-sp-zeit">' . esc_html__('Zeit', 'ksv-km-meldeportal') . '</th>';
@@ -115,10 +124,10 @@ final class Shortcode {
 					$html .= '<td class="kmm-sp-leer" data-label="' . esc_attr($label) . '"></td>';
 					continue;
 				}
-				$html .= '<td data-label="' . esc_attr($label) . '"' . ($z['altersgruppe'] !== '' ? ' data-gruppe="' . esc_attr($z['altersgruppe']) . '"' : '') . '>';
+				$html .= '<td data-label="' . esc_attr($label) . '">';
 				$html .= '<span class="kmm-sp-verein">' . esc_html($z['verein']) . '</span>';
 				$html .= '<span class="kmm-sp-name">' . esc_html(trim($z['name'] . ', ' . $z['vorname'], ', ')) . '</span>';
-				$zusatz = array_filter([$z['startklasse'], $mit_kennzahl ? $z['kennzahl'] : '']);
+				$zusatz = array_filter([$mit_kennzahl ? $z['kennzahl'] : '', $mit_klasse ? $z['startklasse'] : '']);
 				if ($zusatz !== []) {
 					$html .= '<span class="kmm-sp-klasse">' . esc_html(implode(' · ', $zusatz)) . '</span>';
 				}
@@ -128,13 +137,6 @@ final class Shortcode {
 		}
 		$html .= '</tbody></table><p class="kmm-startplan-scrollhinweis" hidden>' . esc_html__('Die Tabelle lässt sich seitlich verschieben.', 'ksv-km-meldeportal') . '</p></div>';
 
-		if ($plan['gruppen'] !== []) {
-			$html .= '<p class="kmm-startplan-legende">';
-			foreach ($plan['gruppen'] as $g) {
-				$html .= '<span data-gruppe="' . esc_attr($g) . '">' . esc_html(StartplanAnsicht::GRUPPEN[ $g ] ?? $g) . '</span>';
-			}
-			$html .= '</p>';
-		}
 		$html .= '<p class="kmm-startplan-fuss">' . esc_html(self::HINWEIS) . '</p>';
 		return $html;
 	}
@@ -165,9 +167,9 @@ final class Shortcode {
 			return;
 		}
 		$gesetzt = true;
-		$css = '.kmm-startplan{margin:1.5em 0;--kmm-sp-linie:rgba(128,128,128,.35);'
-			. '--kmm-sp-schueler:#fdf3dc;--kmm-sp-jugend:#e3f4e9;--kmm-sp-junioren:#e8eeff}'
-			. '.kmm-startplan-kopf{font-weight:600;margin:.2em 0 .8em}'
+		$css = '.kmm-startplan{margin:1.5em 0;--kmm-sp-linie:rgba(128,128,128,.35)}'
+			. '.kmm-startplan-kopf{font-weight:600;margin:.2em 0 .3em}'
+			. '.kmm-startplan-disziplinen{margin:0 0 .8em;font-size:.9em;opacity:.8}'
 			. '.kmm-startplan-hinweis{padding:.6em .8em;border-left:3px solid currentColor;opacity:.85;margin:0 0 1em}'
 			// Der Startplan ist breit; in schmalen Themes wird waagerecht gescrollt.
 			. '.kmm-startplan-tabelle{overflow-x:auto;max-width:100%;scrollbar-width:thin}'
@@ -180,15 +182,6 @@ final class Shortcode {
 			. '.kmm-sp-verein{font-size:11px;opacity:.75}'
 			. '.kmm-sp-name{font-weight:600;font-size:14px}'
 			. '.kmm-sp-klasse{font-size:11px;opacity:.7}'
-			. '.kmm-startplan-raster td[data-gruppe=schueler]{background:var(--kmm-sp-schueler)}'
-			. '.kmm-startplan-raster td[data-gruppe=jugend]{background:var(--kmm-sp-jugend)}'
-			. '.kmm-startplan-raster td[data-gruppe=junioren]{background:var(--kmm-sp-junioren)}'
-			. '.kmm-startplan-raster td[data-gruppe]{color:#111}'
-			. '.kmm-startplan-legende{display:flex;flex-wrap:wrap;gap:.5em;margin:.8em 0 0;font-size:.85em}'
-			. '.kmm-startplan-legende span{padding:.15em .8em;border:1px solid var(--kmm-sp-linie);border-radius:3px;color:#111}'
-			. '.kmm-startplan-legende span[data-gruppe=schueler]{background:var(--kmm-sp-schueler)}'
-			. '.kmm-startplan-legende span[data-gruppe=jugend]{background:var(--kmm-sp-jugend)}'
-			. '.kmm-startplan-legende span[data-gruppe=junioren]{background:var(--kmm-sp-junioren)}'
 			. '.kmm-startplan-raster.is-eng{font-size:11px}'
 			. '.kmm-startplan-raster.is-eng th,.kmm-startplan-raster.is-eng td{padding:.3em .25em}'
 			. '.kmm-startplan-raster.is-eng .kmm-sp-name{font-size:12px}'

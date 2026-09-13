@@ -99,7 +99,8 @@ final class AbschlussTest extends IntegrationTestCase {
 		$this->assertSame('Stand 1', $plan['spalten'][0]['einheit']);
 		$key = $plan['spalten'][0]['key'];
 		$this->assertSame('Bauer', $plan['durchgaenge'][0]['zellen'][ $key ]['name']);
-		$this->assertSame(1, $plan['disziplinen']);
+		$this->assertSame(['1.10 Luftgewehr'], $plan['disziplinen'], 'eine Disziplin am Tag');
+		$this->assertSame(['Damen I'], $plan['klassen'], 'eine Klasse am Tag');
 		$this->assertArrayNotHasKey('geburtsdatum', $zeile, 'nur die öffentlichen Angaben');
 		$this->assertArrayNotHasKey('meldeergebnis', $zeile);
 	}
@@ -111,6 +112,11 @@ final class AbschlussTest extends IntegrationTestCase {
 		$this->assertStringContainsString('SV Musterhausen', $html);
 		$this->assertStringContainsString('Bitte 20 Minuten vorher', $html);
 		$this->assertStringContainsString('kmm-startplan-raster', $html, 'Raster statt Liste');
+		// Nur eine Disziplin und eine Klasse am Tag: beides steht in der Kopfzeile, nicht in der Zelle.
+		$this->assertStringContainsString('Damen I', $html);
+		$this->assertSame(1, substr_count($html, 'Damen I'), 'Klasse nur in der Kopfzeile');
+		$this->assertSame(1, substr_count($html, '1.10'), 'Disziplin nur in der Kopfzeile');
+		$this->assertStringNotContainsString('kmm-startplan-legende', $html, 'keine Farblegende mehr');
 		$this->assertStringContainsString('<th>Stand 1</th>', $html, 'Stand als Spaltenkopf');
 		$this->assertStringContainsString('Durchgang 1', $html);
 		$this->assertStringContainsString('getauscht werden', $html, 'Hinweis zum Tauschen steht unter dem Plan');

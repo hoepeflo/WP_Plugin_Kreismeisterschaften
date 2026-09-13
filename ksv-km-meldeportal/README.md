@@ -80,8 +80,9 @@ Kalendertermine – unabhängig vom Kalender-Plugin:
 ```
 
 Der Plan erscheint als Raster wie ein Stundenplan: Zeilen sind die Durchgänge mit ihrer
-Uhrzeit, Spalten die Stände, in der Zelle Verein und Name; Schüler, Jugend und Junioren
-sind farbig hinterlegt. Er zeigt erst nach der Veröffentlichung Inhalte und nur Name,
+Uhrzeit, Spalten die Stände, in der Zelle Verein und Name. Disziplin und Startklasse
+stehen nur dann am einzelnen Startplatz, wenn es an dem Tag mehrere davon gibt – sonst
+reicht die Kopfzeile. Er zeigt erst nach der Veröffentlichung Inhalte und nur Name,
 Vorname, Verein, Startklasse, Einheit/Position und Uhrzeit. Dasselbe Raster gibt es als
 PDF im Querformat für den Aushang. Beschreibung: `docs/STARTPLAN.md`.
 

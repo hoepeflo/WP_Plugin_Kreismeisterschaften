@@ -4,8 +4,8 @@
  *
  * Querformat als Raster, wie die Startpläne auf Papier seit jeher aussehen: Zeilen sind
  * die Durchgänge mit ihrer Uhrzeit, Spalten die Stände, in der Zelle Verein und Name.
- * Nachwuchsklassen (Schüler, Jugend, Junioren) sind farbig hinterlegt, darunter steht die
- * Legende.
+ * Disziplin und Klasse stehen nur dann am einzelnen Startplatz, wenn es an diesem Tag
+ * mehrere davon gibt – sonst reicht die Kopfzeile.
  *
  * Ein noch nicht veröffentlichter Tag lässt sich im Backend als Vorschau drucken; das
  * PDF trägt dann einen deutlichen Entwurfsvermerk.
@@ -21,9 +21,6 @@ use KSV\KMM\Http\Shortcode;
 use KSV\KMM\Support\Clock;
 
 final class PdfStartplan {
-
-	/** Farben der Nachwuchsklassen, wie in der Legende. */
-	private const FARBEN = ['schueler' => '#fdf3dc', 'jugend' => '#e3f4e9', 'junioren' => '#e8eeff'];
 
 	/**
 	 * @return array{dateiname: string, inhalt: string, starter: int}
@@ -49,7 +46,8 @@ final class PdfStartplan {
 		$tag = $plan['tag'];
 		$entwurf = !StartplanAnsicht::oeffentlich($tag);
 		$spalten = $plan['spalten'];
-		$mit_kennzahl = (int) $plan['disziplinen'] > 1;
+		$mit_kennzahl = count($plan['disziplinen']) > 1;
+		$mit_klasse = count($plan['klassen']) > 1;
 		// Spaltenbreite: Zeitspalte fest, der Rest zu gleichen Teilen.
 		$breite = $spalten !== [] ? round(86 / count($spalten), 2) : 86;
 		$h = static fn(string $s): string => esc_html($s);
@@ -62,10 +60,17 @@ final class PdfStartplan {
 			$kopf[] = (string) $tag['ort'];
 		}
 		$kopf[] = sprintf('%d Starter', (int) $plan['starter']);
-		if ($disziplin !== '') {
-			$kopf[] = 'nur ' . $disziplin;
+		// Was an diesem Tag nur einmal vorkommt, steht in der Kopfzeile statt in jeder Zelle.
+		if (!$mit_kennzahl && $plan['disziplinen'] !== []) {
+			$kopf[] = (string) $plan['disziplinen'][0];
+		}
+		if (!$mit_klasse && $plan['klassen'] !== []) {
+			$kopf[] = (string) $plan['klassen'][0];
 		}
 		$html .= '<p class="kopf">' . $h(implode(' · ', $kopf)) . '</p>';
+		if ($mit_kennzahl) {
+			$html .= '<p class="disziplinen">' . $h('Disziplinen: ' . implode(' · ', $plan['disziplinen'])) . '</p>';
+		}
 		if ($entwurf) {
 			$html .= '<p class="entwurf">Entwurf – der Startplan ist noch nicht veröffentlicht.</p>';
 		}
@@ -88,11 +93,10 @@ final class PdfStartplan {
 					$html .= '<td></td>';
 					continue;
 				}
-				$farbe = self::FARBEN[ $z['altersgruppe'] ] ?? '';
-				$html .= '<td' . ($farbe !== '' ? ' style="background:' . $farbe . '"' : '') . '>';
+				$html .= '<td>';
 				$html .= '<div class="verein">' . $h($z['verein']) . '</div>';
 				$html .= '<div class="name">' . $h(trim($z['name'] . ', ' . $z['vorname'], ', ')) . '</div>';
-				$zusatz = array_filter([$z['startklasse'], $mit_kennzahl ? $z['kennzahl'] : '']);
+				$zusatz = array_filter([$mit_kennzahl ? $z['kennzahl'] : '', $mit_klasse ? $z['startklasse'] : '']);
 				if ($zusatz !== []) {
 					$html .= '<div class="klasse">' . $h(implode(' · ', $zusatz)) . '</div>';
 				}
@@ -102,14 +106,6 @@ final class PdfStartplan {
 		}
 		$html .= '</tbody></table>';
 
-		if ($plan['gruppen'] !== []) {
-			$anteil = round(100 / count($plan['gruppen']), 2);
-			$html .= '<table class="legende" style="width:' . min(60, 18 * count($plan['gruppen'])) . '%"><tr>';
-			foreach ($plan['gruppen'] as $g) {
-				$html .= '<td width="' . $anteil . '%" style="background:' . (self::FARBEN[ $g ] ?? '#fff') . '">' . $h(StartplanAnsicht::GRUPPEN[ $g ] ?? $g) . '</td>';
-			}
-			$html .= '</tr></table>';
-		}
 		$html .= '<p class="fuss">' . $h(Shortcode::HINWEIS) . '</p>';
 		$html .= '<p class="fuss">' . $h(sprintf('KSV Fallingbostel · %s · Stand: %s Uhr', StartplanAnsicht::sportjahr_titel((int) $tag['sportjahr_id']), Clock::format_local(Clock::now_utc()))) . '</p>';
 		$html .= '</body></html>';
@@ -119,7 +115,8 @@ final class PdfStartplan {
 	private function css(bool $eng): string {
 		return 'body{font-family:dejavusans,sans-serif;font-size:' . ($eng ? '7.5pt' : '8.5pt') . ';color:#111}'
 			. 'h1{font-size:14pt;margin:0 0 1mm}'
-			. '.kopf{font-size:9pt;color:#333;margin:0 0 3mm;font-weight:bold}'
+			. '.kopf{font-size:9pt;color:#333;margin:0 0 1mm;font-weight:bold}'
+			. '.disziplinen{font-size:8pt;color:#444;margin:0 0 3mm}'
 			. '.entwurf{border:1px solid #9b1c1c;color:#9b1c1c;padding:1.5mm 3mm;margin:0 0 3mm;font-weight:bold}'
 			. '.hinweis{border-left:2px solid #666;padding:1mm 3mm;margin:0 0 3mm;color:#333}'
 			. 'table{width:100%;border-collapse:collapse}'
@@ -133,8 +130,6 @@ final class PdfStartplan {
 			. '.verein{font-size:' . ($eng ? '6.5pt' : '7.5pt') . ';color:#444}'
 			. '.name{font-weight:bold;font-size:' . ($eng ? '7.5pt' : '9pt') . '}'
 			. '.klasse{font-size:' . ($eng ? '6.5pt' : '7pt') . ';color:#444}'
-			. 'table.legende{margin-top:3mm}'
-			. 'table.legende td{padding:1mm 3mm;font-size:8pt;text-align:center}'
 			. '.fuss{font-size:7.5pt;color:#555;margin:2mm 0 0}';
 	}
 }

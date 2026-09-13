@@ -6,15 +6,18 @@ namespace KSV\KMM\Tests\Integration;
 
 use KSV\KMM\Application\BuchungService;
 use KSV\KMM\Application\MeldungService;
+use KSV\KMM\Application\PdfStartplan;
 use KSV\KMM\Application\RegeltabelleImporter;
 use KSV\KMM\Application\SchuetzeService;
 use KSV\KMM\Application\SportjahrService;
+use KSV\KMM\Application\StartplanAnsicht;
 use KSV\KMM\Application\StartplanService;
 use KSV\KMM\Application\Startplatzvergabe;
 use KSV\KMM\Application\VereinService;
 use KSV\KMM\Auth\Rechte;
 use KSV\KMM\Domain\Regeltabelle\Dokument;
 use KSV\KMM\Domain\WettkampftagStatus;
+use KSV\KMM\Http\Shortcode;
 use KSV\KMM\Infrastructure\RegelwerkLader;
 use KSV\KMM\Infrastructure\Repository\BuchungRepository;
 use KSV\KMM\Infrastructure\Repository\SportjahrRepository;
@@ -185,6 +188,32 @@ final class RestverteilungTest extends IntegrationTestCase {
 		} catch (\RuntimeException $e) {
 			$this->assertStringContainsString('nicht zugelassen', $e->getMessage());
 		}
+	}
+
+	public function test_startplan_zeigt_disziplin_und_klasse_nur_wenn_sie_unterscheiden(): void {
+		$this->frist_beenden();
+		(new Startplatzvergabe($this->sid))->restverteilung($this->tag);
+		(new StartplanService($this->sid))->veroeffentlichen($this->tag, false);
+
+		// Zwei Disziplinen, aber nur eine Klasse (alle Herren I): die Kennzahl gehört in jede
+		// Zelle, die Klasse dagegen nur in die Kopfzeile.
+		$plan = (array) StartplanAnsicht::plan($this->tag);
+		$this->assertCount(2, $plan['disziplinen'], '1.10 und 2.10');
+		$this->assertSame(['Herren I'], $plan['klassen']);
+		$html = Shortcode::startplan(['tag' => (string) $this->tag]);
+		$this->assertStringContainsString('Disziplinen:', $html, 'Kennzahlen werden in der Kopfzeile aufgeschlüsselt');
+		$this->assertGreaterThan(1, substr_count($html, '1.10'), 'Kennzahl steht an jedem Startplatz');
+		$this->assertSame(1, substr_count($html, 'Herren I'), 'einzige Klasse nur in der Kopfzeile');
+		$pdf = (new PdfStartplan())->html($plan);
+		$this->assertGreaterThan(1, substr_count($pdf, '1.10'), 'auch im PDF');
+		$this->assertSame(1, substr_count($pdf, 'Herren I'), 'auch im PDF nur in der Kopfzeile');
+
+		// Mit Filter auf eine Disziplin bleibt nur eine übrig: dann reicht die Kopfzeile.
+		$gefiltert = (array) StartplanAnsicht::plan($this->tag, '1.10');
+		$this->assertCount(1, $gefiltert['disziplinen']);
+		$html = Shortcode::startplan(['tag' => (string) $this->tag, 'disziplin' => '1.10']);
+		$this->assertStringNotContainsString('Disziplinen:', $html);
+		$this->assertSame(1, substr_count($html, '1.10'), 'Kennzahl nur noch in der Kopfzeile');
 	}
 
 	public function test_veroeffentlichung_sperrt_die_buchung_und_bleibt_sichtbar(): void {

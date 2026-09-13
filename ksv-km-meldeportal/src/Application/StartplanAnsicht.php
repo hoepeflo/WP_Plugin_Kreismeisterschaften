@@ -90,7 +90,8 @@ final class StartplanAnsicht {
 		$filter = trim($disziplin);
 		$durchgaenge = [];
 		$spalten = [];
-		$kennzahlen = [];
+		$disziplinen = [];
+		$klassen = [];
 		$starter = 0;
 		foreach ((new DurchgangRepository())->by_wettkampftag($tag_id) as $dg) {
 			$zeilen = [];
@@ -118,7 +119,6 @@ final class StartplanAnsicht {
 					'vorname'     => $s !== null ? (string) $s['vorname'] : '',
 					'verein'      => $vereine[ (int) $b['verein_id'] ] ?? '',
 					'startklasse' => $k?->bezeichnung ?? '',
-					'altersgruppe' => self::altersgruppe($k?->bezeichnung ?? ''),
 					'kennzahl'    => $d?->kennzahl ?? '',
 					'disziplin'   => $d?->bezeichnung ?? '',
 				];
@@ -129,7 +129,12 @@ final class StartplanAnsicht {
 					'mehrfach'   => $e !== null && (int) $e['kapazitaet'] > 1,
 					'sortierung' => $e !== null ? (int) $e['sortierung'] : 0,
 				];
-				$kennzahlen[ $d?->kennzahl ?? '' ] = true;
+				if ($d !== null) {
+					$disziplinen[ $d->kennzahl ] = $d->kennzahl . ' ' . $d->bezeichnung;
+				}
+				if (($k?->bezeichnung ?? '') !== '') {
+					$klassen[ (string) $k?->bezeichnung ] = true;
+				}
 			}
 			if ($zeilen === []) {
 				continue;
@@ -151,40 +156,17 @@ final class StartplanAnsicht {
 		}
 		uasort($spalten, static fn(array $a, array $b): int => [$a['sortierung'], $a['einheit'], $a['position']] <=> [$b['sortierung'], $b['einheit'], $b['position']]);
 		$datum = \DateTimeImmutable::createFromFormat('!Y-m-d', (string) $tag['datum']);
-		$gruppen = [];
-		foreach ($durchgaenge as $dg) {
-			foreach ($dg['zeilen'] as $z) {
-				if ($z['altersgruppe'] !== '') {
-					$gruppen[ $z['altersgruppe'] ] = true;
-				}
-			}
-		}
-		unset($kennzahlen['']);
+		ksort($disziplinen);
+		ksort($klassen);
 		return [
 			'tag'         => $tag,
 			'datum'       => $datum !== false ? wp_date('D, d.m.Y', $datum->getTimestamp()) : (string) $tag['datum'],
 			'durchgaenge' => $durchgaenge,
 			'spalten'     => array_values($spalten),
-			'gruppen'     => array_keys($gruppen),
-			'disziplinen' => count($kennzahlen),
+			'disziplinen' => array_values($disziplinen),
+			'klassen'     => array_keys($klassen),
 			'starter'     => $starter,
 		];
-	}
-
-	/** Farblich hervorgehobene Nachwuchsklassen wie auf den gewohnten Startplänen. */
-	public const GRUPPEN = ['schueler' => 'Schüler', 'jugend' => 'Jugend', 'junioren' => 'Junioren'];
-
-	/**
-	 * Grobe Altersgruppe aus der Klassenbezeichnung (Schüler, Jugend, Junioren nach SpO);
-	 * alles andere bleibt ohne Kennzeichnung.
-	 */
-	public static function altersgruppe(string $klasse): string {
-		foreach (self::GRUPPEN as $key => $praefix) {
-			if (str_starts_with($klasse, $praefix)) {
-				return $key;
-			}
-		}
-		return '';
 	}
 
 	/**

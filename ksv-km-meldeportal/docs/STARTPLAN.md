@@ -169,11 +169,18 @@ Papier seit jeher aussehen – die Vereine kennen das Format:
   (Bogenscheibe, Flintenrotte), bekommt jede Position eine eigene Spalte („Scheibe A / 2“).
   Es erscheinen nur Plätze, die auch belegt sind – bei einem Filter nach Disziplin wird die
   Tabelle also automatisch schmaler.
-- **Zelle**: Verein klein darüber, Name fett, darunter Startklasse (und die Kennzahl, wenn
-  der Tag mehrere Disziplinen hat).
-- **Farben**: Schüler, Jugend und Junioren sind hinterlegt, darunter steht die Legende.
-  Die Zuordnung kommt aus der Klassenbezeichnung (`StartplanAnsicht::altersgruppe`);
-  gibt es an einem Tag keine dieser Klassen, entfällt die Legende.
+- **Zelle**: Verein klein darüber, Name fett, darunter das Unterscheidende.
+- **Disziplin und Klasse stehen nur dort, wo sie unterscheiden.** `StartplanAnsicht::plan`
+  liefert dazu `disziplinen` und `klassen` – alles, was an diesem Tag vorkommt:
+  - **Eine** Disziplin am Tag → sie steht einmal in der Kopfzeile, nicht in jeder Zelle.
+  - **Mehrere** Disziplinen → die Kennzahl (z. B. `2.11`) steht an jedem Startplatz, und
+    unter der Kopfzeile werden die Kennzahlen aufgeschlüsselt („Disziplinen: 1.11 LG
+    Auflage · 2.11 LP Auflage“), damit sie lesbar bleiben.
+  - Für die Startklasse gilt dasselbe: eine Klasse → Kopfzeile, mehrere → in jede Zelle.
+  - Ein Filter nach Disziplin greift hier mit: bleibt nur eine übrig, wandert sie in die
+    Kopfzeile und die Zellen werden schmaler.
+  Eine Farblegende gibt es nicht; für die Klassen der SpO wären drei Farben ohnehin zu
+  wenig, und im Feld steht die Klasse ausgeschrieben.
 - **Unter jedem Plan** steht: „Startplätze können untereinander getauscht werden. Ein
   Hinweis am Wettkampftag an das Personal vor Ort genügt.“ (`Shortcode::HINWEIS`)
 
