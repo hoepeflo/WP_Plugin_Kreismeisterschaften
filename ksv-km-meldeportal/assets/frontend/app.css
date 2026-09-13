@@ -383,6 +383,30 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .kmm-check:hover { border-color: var(--kmm-primary); background: var(--kmm-primary-weich); }
 .kmm-check input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--kmm-primary); }
+/* Höhere Spezifität als .kmm-form label, sonst steht das Kästchen über dem Namen. */
+.kmm-form label.kmm-check { display: flex; margin: 0; }
+.kmm-check-text { flex: 1; min-width: 0; }
+.kmm-check-grund { display: block; font-size: .82rem; font-style: normal; margin-top: 2px; }
+.kmm-check-grund:empty { display: none; }
+
+/* Nach der ersten Auswahl: wählbar, gewählt und gesperrt deutlich unterscheiden. */
+.kmm-check.is-gewaehlt {
+	border-color: var(--kmm-primary); background: var(--kmm-primary-weich);
+	box-shadow: inset 3px 0 0 var(--kmm-primary);
+}
+.kmm-check.is-waehlbar { border-color: var(--kmm-border-stark); box-shadow: inset 3px 0 0 var(--kmm-ok-bg); }
+.kmm-check.is-gesperrt {
+	opacity: .5; cursor: not-allowed; background: var(--kmm-surface-2);
+	border-style: dashed;
+}
+.kmm-check.is-gesperrt:hover { border-color: var(--kmm-border); background: var(--kmm-surface-2); }
+.kmm-check.is-gesperrt .kmm-check-grund { color: var(--kmm-warn); }
+.kmm-kandidaten-status {
+	margin: 0 0 8px; font-weight: 600; color: var(--kmm-primary);
+	background: var(--kmm-primary-weich); border-radius: var(--kmm-radius-s);
+	padding: 6px 10px;
+}
+.kmm-kandidaten-status[hidden] { display: none; }
 
 .kmm-toast {
 	position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);

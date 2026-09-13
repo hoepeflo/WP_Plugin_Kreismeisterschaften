@@ -474,15 +474,23 @@
 		el.innerHTML = html;
 	}
 
+	function mixHinweis(info, groesse) {
+		if (info && info.typ === 'mixteam') {
+			return 'Ein MixTeam besteht aus genau einem Mann und einer Frau derselben Mannschaftsklasse. Nach der ersten Auswahl sperrt die Liste alle, die nicht dazupassen – mit Grund.';
+		}
+		return `Bis zu ${groesse} Schützen derselben Mannschaftsklasse wählen. Nach der ersten Auswahl sperrt die Liste alle, die nicht dazupassen – mit Grund.`;
+	}
+
 	async function mannschaftDialog(dId, teamId) {
 		const kandidaten = await api('GET', `meldung/mannschaften/kandidaten?disziplin_id=${dId}${teamId ? '&mannschaft_id=' + teamId : ''}`);
 		const team = teamId ? state.meldung.mannschaften.find((t) => t.id === teamId) : null;
 		const groesse = team ? team.groesse : (kandidaten[0] ? state.meldung.einzelmeldungen.find((e) => e.disziplin_id === dId && e.typ === 'mixteam') ? 2 : 3 : 3);
 		const info = state.meldung.einzelmeldungen.find((e) => e.disziplin_id === dId);
 		dialog(`<h3>${team ? 'Mannschaft ' + team.nummer : 'Neue Mannschaft'} – ${h(info ? info.kennzahl + ' ' + info.disziplin : '')}</h3>
-			<p class="kmm-muted">Bis zu ${groesse} Schützen derselben Mannschaftsklasse wählen. Die Liste zeigt nur passende Schützen; nach der ersten Auswahl bleiben nur Schützen mit gleicher Klasse wählbar.</p>
+			<p class="kmm-muted">${mixHinweis(info, groesse)}</p>
 			${kandidaten.length === 0 ? '<p>Keine passenden Schützen ohne Mannschaft.</p>' : ''}
-			<div class="kmm-kandidaten">${kandidaten.map((k) => `<label class="kmm-check"><input type="checkbox" name="mitglied" value="${k.id}" data-pool="${h(k.mannschaftspool || '')}" data-geschlecht="${h(k.geschlecht)}" ${k.mitglied ? 'checked' : ''}> ${h(k.nachname)}, ${h(k.vorname)} <span class="kmm-muted">${h(k.klasse)} · Pool ${h(k.mannschaftspool || '')}</span></label>`).join('')}</div>
+			<p class="kmm-kandidaten-status" role="status" aria-live="polite"></p>
+			<div class="kmm-kandidaten">${kandidaten.map((k) => `<label class="kmm-check"><input type="checkbox" name="mitglied" value="${k.id}" data-pool="${h(k.mannschaftspool || '')}" data-geschlecht="${h(k.geschlecht)}" ${k.mitglied ? 'checked' : ''}> <span class="kmm-check-text">${h(k.nachname)}, ${h(k.vorname)} <span class="kmm-muted">${h(k.klasse)} · Pool ${h(k.mannschaftspool || '')}</span><em class="kmm-check-grund"></em></span></label>`).join('')}</div>
 			${dialogButtons('Speichern')}`, async (form) => {
 			const ids = Array.from(form.querySelectorAll('input[name=mitglied]:checked')).map((c) => Number(c.value));
 			const r = await api(team ? 'PUT' : 'POST', team ? `meldung/mannschaften/${team.id}` : 'meldung/mannschaften', { disziplin_id: dId, einzelmeldung_ids: ids });
@@ -490,18 +498,50 @@
 			renderAll();
 			toast(`Mannschaft ${r.mannschaft.nummer} gespeichert${r.mannschaft.vollstaendig ? '' : ' (noch unvollständig)'}.`);
 		});
-		// Auswahl auf gleichen Pool/Geschlechtsregel begrenzen.
+		// Auswahl auf gleichen Pool und die MixTeam-Regel begrenzen. Gesperrte Zeilen sagen,
+		// warum sie gesperrt sind – sonst sieht man der Liste nicht an, was passiert ist.
 		const d = document.getElementById('kmm-dialog');
 		const mix = info && info.typ === 'mixteam';
+		const status = d.querySelector('.kmm-kandidaten-status');
 		d.addEventListener('change', function limit() {
 			const checked = Array.from(d.querySelectorAll('input[name=mitglied]:checked'));
+			const pool = checked.length ? checked[0].dataset.pool : '';
 			d.querySelectorAll('input[name=mitglied]').forEach((c) => {
-				if (c.checked) { return; }
-				let ok = checked.length < groesse;
-				if (ok && checked.length) { ok = checked.every((x) => x.dataset.pool === c.dataset.pool); }
-				if (ok && mix) { ok = !checked.some((x) => x.dataset.geschlecht === c.dataset.geschlecht); }
+				const zeile = c.closest('.kmm-check');
+				const grund = zeile.querySelector('.kmm-check-grund');
+				if (c.checked) {
+					c.disabled = false;
+					zeile.className = 'kmm-check is-gewaehlt';
+					grund.textContent = '';
+					return;
+				}
+				let ok = true;
+				let text = '';
+				if (checked.length && c.dataset.pool !== pool) {
+					ok = false;
+					text = 'andere Mannschaftsklasse';
+				} else if (mix && checked.some((x) => x.dataset.geschlecht === c.dataset.geschlecht)) {
+					ok = false;
+					text = c.dataset.geschlecht === 'w' ? 'MixTeam: eine Schützin ist schon dabei' : 'MixTeam: ein Schütze ist schon dabei';
+				} else if (checked.length >= groesse) {
+					ok = false;
+					text = 'Mannschaft ist voll';
+				}
 				c.disabled = !ok;
+				zeile.className = 'kmm-check' + (ok ? (checked.length ? ' is-waehlbar' : '') : ' is-gesperrt');
+				grund.textContent = text;
 			});
+			if (status) {
+				if (!checked.length) {
+					status.textContent = '';
+					status.hidden = true;
+					return;
+				}
+				const rest = groesse - checked.length;
+				status.hidden = false;
+				status.textContent = (mix ? 'MixTeam' : pool) + ' · ' + checked.length + ' von ' + groesse + ' gewählt'
+					+ (rest > 0 ? ', noch ' + rest + ' möglich' : ' – vollständig');
+			}
 		});
 		d.dispatchEvent(new Event('change'));
 	}
