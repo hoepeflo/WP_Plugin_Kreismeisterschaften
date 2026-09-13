@@ -195,18 +195,16 @@ final class RestverteilungTest extends IntegrationTestCase {
 		(new Startplatzvergabe($this->sid))->restverteilung($this->tag);
 		(new StartplanService($this->sid))->veroeffentlichen($this->tag, false);
 
-		// Zwei Disziplinen, aber nur eine Klasse (alle Herren I): die Kennzahl gehört in jede
-		// Zelle, die Klasse dagegen nur in die Kopfzeile.
+		// Zwei Disziplinen: die Kennzahl gehört in jede Zelle. Die Klasse steht immer dort.
 		$plan = (array) StartplanAnsicht::plan($this->tag);
 		$this->assertCount(2, $plan['disziplinen'], '1.10 und 2.10');
-		$this->assertSame(['Herren I'], $plan['klassen']);
 		$html = Shortcode::startplan(['tag' => (string) $this->tag]);
 		$this->assertStringContainsString('Disziplinen:', $html, 'Kennzahlen werden in der Kopfzeile aufgeschlüsselt');
 		$this->assertGreaterThan(1, substr_count($html, '1.10'), 'Kennzahl steht an jedem Startplatz');
-		$this->assertSame(1, substr_count($html, 'Herren I'), 'einzige Klasse nur in der Kopfzeile');
+		$this->assertGreaterThan(1, substr_count($html, 'Herren I'), 'Klasse steht an jedem Startplatz');
 		$pdf = (new PdfStartplan())->html($plan);
 		$this->assertGreaterThan(1, substr_count($pdf, '1.10'), 'auch im PDF');
-		$this->assertSame(1, substr_count($pdf, 'Herren I'), 'auch im PDF nur in der Kopfzeile');
+		$this->assertGreaterThan(1, substr_count($pdf, 'Herren I'), 'auch im PDF an jedem Startplatz');
 
 		// Mit Filter auf eine Disziplin bleibt nur eine übrig: dann reicht die Kopfzeile.
 		$gefiltert = (array) StartplanAnsicht::plan($this->tag, '1.10');
@@ -214,6 +212,7 @@ final class RestverteilungTest extends IntegrationTestCase {
 		$html = Shortcode::startplan(['tag' => (string) $this->tag, 'disziplin' => '1.10']);
 		$this->assertStringNotContainsString('Disziplinen:', $html);
 		$this->assertSame(1, substr_count($html, '1.10'), 'Kennzahl nur noch in der Kopfzeile');
+		$this->assertGreaterThan(1, substr_count($html, 'Herren I'), 'die Klasse bleibt am Startplatz');
 	}
 
 	public function test_veroeffentlichung_sperrt_die_buchung_und_bleibt_sichtbar(): void {

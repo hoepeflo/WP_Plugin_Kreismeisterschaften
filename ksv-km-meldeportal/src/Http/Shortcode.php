@@ -87,14 +87,11 @@ final class Shortcode {
 			$kopf[] = (string) $tag['ort'];
 		}
 		$kopf[] = sprintf(__('%d Starter', 'ksv-km-meldeportal'), (int) $plan['starter']);
-		// Was an diesem Tag nur einmal vorkommt, steht in der Kopfzeile statt in jeder Zelle.
+		// Die Startklasse steht immer am Startplatz – mindestens männlich/weiblich
+		// unterscheidet sich an jedem Wettkampftag. Die Disziplin nur, wenn es mehrere gibt.
 		$mit_kennzahl = count($plan['disziplinen']) > 1;
-		$mit_klasse = count($plan['klassen']) > 1;
 		if (!$mit_kennzahl && $plan['disziplinen'] !== []) {
 			$kopf[] = (string) $plan['disziplinen'][0];
-		}
-		if (!$mit_klasse && $plan['klassen'] !== []) {
-			$kopf[] = (string) $plan['klassen'][0];
 		}
 		$html .= '<p class="kmm-startplan-kopf">' . esc_html(implode(' · ', $kopf)) . '</p>';
 		if ($mit_kennzahl) {
@@ -127,7 +124,7 @@ final class Shortcode {
 				$html .= '<td data-label="' . esc_attr($label) . '">';
 				$html .= '<span class="kmm-sp-verein">' . esc_html($z['verein']) . '</span>';
 				$html .= '<span class="kmm-sp-name">' . esc_html(trim($z['name'] . ', ' . $z['vorname'], ', ')) . '</span>';
-				$zusatz = array_filter([$mit_kennzahl ? $z['kennzahl'] : '', $mit_klasse ? $z['startklasse'] : '']);
+				$zusatz = array_filter([$mit_kennzahl ? $z['kennzahl'] : '', $z['startklasse']]);
 				if ($zusatz !== []) {
 					$html .= '<span class="kmm-sp-klasse">' . esc_html(implode(' · ', $zusatz)) . '</span>';
 				}

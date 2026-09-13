@@ -176,7 +176,8 @@ Papier seit jeher aussehen – die Vereine kennen das Format:
   - **Mehrere** Disziplinen → die Kennzahl (z. B. `2.11`) steht an jedem Startplatz, und
     unter der Kopfzeile werden die Kennzahlen aufgeschlüsselt („Disziplinen: 1.11 LG
     Auflage · 2.11 LP Auflage“), damit sie lesbar bleiben.
-  - Für die Startklasse gilt dasselbe: eine Klasse → Kopfzeile, mehrere → in jede Zelle.
+  - Die **Startklasse steht immer** am Startplatz. An einem Wettkampftag unterscheiden
+    sich die Klassen praktisch immer, und sei es nur männlich/weiblich.
   - Ein Filter nach Disziplin greift hier mit: bleibt nur eine übrig, wandert sie in die
     Kopfzeile und die Zellen werden schmaler.
   Eine Farblegende gibt es nicht; für die Klassen der SpO wären drei Farben ohnehin zu

@@ -4,8 +4,8 @@
  *
  * Querformat als Raster, wie die Startpläne auf Papier seit jeher aussehen: Zeilen sind
  * die Durchgänge mit ihrer Uhrzeit, Spalten die Stände, in der Zelle Verein und Name.
- * Disziplin und Klasse stehen nur dann am einzelnen Startplatz, wenn es an diesem Tag
- * mehrere davon gibt – sonst reicht die Kopfzeile.
+ * Die Startklasse steht immer am Startplatz; die Disziplin nur, wenn es an diesem Tag
+ * mehrere gibt – sonst reicht die Kopfzeile.
  *
  * Ein noch nicht veröffentlichter Tag lässt sich im Backend als Vorschau drucken; das
  * PDF trägt dann einen deutlichen Entwurfsvermerk.
@@ -47,7 +47,6 @@ final class PdfStartplan {
 		$entwurf = !StartplanAnsicht::oeffentlich($tag);
 		$spalten = $plan['spalten'];
 		$mit_kennzahl = count($plan['disziplinen']) > 1;
-		$mit_klasse = count($plan['klassen']) > 1;
 		// Spaltenbreite: Zeitspalte fest, der Rest zu gleichen Teilen.
 		$breite = $spalten !== [] ? round(86 / count($spalten), 2) : 86;
 		$h = static fn(string $s): string => esc_html($s);
@@ -60,12 +59,9 @@ final class PdfStartplan {
 			$kopf[] = (string) $tag['ort'];
 		}
 		$kopf[] = sprintf('%d Starter', (int) $plan['starter']);
-		// Was an diesem Tag nur einmal vorkommt, steht in der Kopfzeile statt in jeder Zelle.
+		// Die Startklasse steht immer am Startplatz; die Disziplin nur, wenn es mehrere gibt.
 		if (!$mit_kennzahl && $plan['disziplinen'] !== []) {
 			$kopf[] = (string) $plan['disziplinen'][0];
-		}
-		if (!$mit_klasse && $plan['klassen'] !== []) {
-			$kopf[] = (string) $plan['klassen'][0];
 		}
 		$html .= '<p class="kopf">' . $h(implode(' · ', $kopf)) . '</p>';
 		if ($mit_kennzahl) {
@@ -96,7 +92,7 @@ final class PdfStartplan {
 				$html .= '<td>';
 				$html .= '<div class="verein">' . $h($z['verein']) . '</div>';
 				$html .= '<div class="name">' . $h(trim($z['name'] . ', ' . $z['vorname'], ', ')) . '</div>';
-				$zusatz = array_filter([$mit_kennzahl ? $z['kennzahl'] : '', $mit_klasse ? $z['startklasse'] : '']);
+				$zusatz = array_filter([$mit_kennzahl ? $z['kennzahl'] : '', $z['startklasse']]);
 				if ($zusatz !== []) {
 					$html .= '<div class="klasse">' . $h(implode(' · ', $zusatz)) . '</div>';
 				}

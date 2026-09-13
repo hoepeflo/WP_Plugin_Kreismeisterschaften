@@ -112,9 +112,8 @@ final class AbschlussTest extends IntegrationTestCase {
 		$this->assertStringContainsString('SV Musterhausen', $html);
 		$this->assertStringContainsString('Bitte 20 Minuten vorher', $html);
 		$this->assertStringContainsString('kmm-startplan-raster', $html, 'Raster statt Liste');
-		// Nur eine Disziplin und eine Klasse am Tag: beides steht in der Kopfzeile, nicht in der Zelle.
+		// Nur eine Disziplin am Tag: sie steht in der Kopfzeile. Die Klasse steht am Startplatz.
 		$this->assertStringContainsString('Damen I', $html);
-		$this->assertSame(1, substr_count($html, 'Damen I'), 'Klasse nur in der Kopfzeile');
 		$this->assertSame(1, substr_count($html, '1.10'), 'Disziplin nur in der Kopfzeile');
 		$this->assertStringNotContainsString('kmm-startplan-legende', $html, 'keine Farblegende mehr');
 		$this->assertStringContainsString('<th>Stand 1</th>', $html, 'Stand als Spaltenkopf');
