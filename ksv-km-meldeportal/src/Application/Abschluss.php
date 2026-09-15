@@ -39,10 +39,12 @@ use KSV\KMM\Infrastructure\Repository\BelegRepository;
 use KSV\KMM\Infrastructure\Repository\EinzelmeldungRepository;
 use KSV\KMM\Infrastructure\Repository\MagicLinkRepository;
 use KSV\KMM\Infrastructure\Repository\MeldungRepository;
+use KSV\KMM\Infrastructure\Repository\SchuetzeRepository;
 use KSV\KMM\Infrastructure\Repository\SportjahrRepository;
 use KSV\KMM\Infrastructure\Repository\VereinRepository;
 use KSV\KMM\Infrastructure\Repository\WettkampftagRepository;
 use KSV\KMM\Support\Clock;
+use KSV\KMM\Support\Settings;
 
 final class Abschluss {
 
@@ -145,7 +147,7 @@ final class Abschluss {
 	 * Sportjahr abschließen. Ohne $anonymisieren wird es nur geschlossen (kein Schreiben
 	 * mehr, Zugänge enden); die Anonymisierung kann später nachgeholt werden.
 	 *
-	 * @return array{sicherung: string, anonymisiert: array<string, int>, tage: int}
+	 * @return array{sicherung: string, anonymisiert: array<string, int>, tage: int, schuetzen_geloescht: int}
 	 */
 	public function abschliessen(int $sportjahr_id, bool $anonymisieren = true): array {
 		$this->recht();
@@ -169,16 +171,23 @@ final class Abschluss {
 			$anonymisiert = $this->anonymisieren($sportjahr_id);
 			$this->sportjahre->update($sportjahr_id, ['anonymisiert_am' => $jetzt]);
 		}
+		$geloescht = $this->schuetzenliste_aufraeumen((int) $sj['jahr']);
 		Protokoll::admin(
 			'sportjahr.abschliessen',
-			sprintf('%s abgeschlossen%s (Sicherung: %s)', $this->titel($sj), $anonymisieren ? ', Meldungen anonymisiert' : '', $sicherung !== '' ? $sicherung : 'keine'),
+			sprintf(
+				'%s abgeschlossen%s (Sicherung: %s)%s',
+				$this->titel($sj),
+				$anonymisieren ? ', Meldungen anonymisiert' : '',
+				$sicherung !== '' ? $sicherung : 'keine',
+				$geloescht > 0 ? sprintf(', %d Schützen aus den Vereinslisten gelöscht', $geloescht) : ''
+			),
 			$sportjahr_id,
 			null,
 			'sportjahr',
 			$sportjahr_id,
-			['anonymisiert' => $anonymisiert, 'tage_ausgeblendet' => $tage]
+			['anonymisiert' => $anonymisiert, 'tage_ausgeblendet' => $tage, 'schuetzen_geloescht' => $geloescht]
 		);
-		return ['sicherung' => $sicherung, 'anonymisiert' => $anonymisiert, 'tage' => $tage];
+		return ['sicherung' => $sicherung, 'anonymisiert' => $anonymisiert, 'tage' => $tage, 'schuetzen_geloescht' => $geloescht];
 	}
 
 	/** Abschluss zurücknehmen – nur solange nicht anonymisiert wurde. */
@@ -212,6 +221,8 @@ final class Abschluss {
 		}
 		$r = $this->anonymisieren($sportjahr_id);
 		$this->sportjahre->update($sportjahr_id, ['anonymisiert_am' => Clock::now_utc()]);
+		// Erst ohne Personenbezug geben die Meldungen ihre Schützen frei.
+		$r['schuetzen_geloescht'] = $this->schuetzenliste_aufraeumen((int) $sj['jahr']);
 		Protokoll::admin('sportjahr.anonymisieren', sprintf('%s anonymisiert', $this->titel($sj)), $sportjahr_id, null, 'sportjahr', $sportjahr_id, $r);
 		return $r;
 	}
@@ -238,6 +249,33 @@ final class Abschluss {
 		$out['aenderung'] = (int) $wpdb->query($wpdb->prepare('UPDATE ' . Tables::name('aenderung') . " SET text = '', details = NULL WHERE sportjahr_id = %d", $sportjahr_id)); // phpcs:ignore WordPress.DB.PreparedSQL
 		$out['protokoll'] = (int) $wpdb->query($wpdb->prepare('UPDATE ' . Tables::name('protokoll') . " SET zusammenfassung = '', details = NULL WHERE sportjahr_id = %d", $sportjahr_id)); // phpcs:ignore WordPress.DB.PreparedSQL
 		return $out;
+	}
+
+	/**
+	 * Löschregel der Schützenliste (Konzept 7.2): Schützen, die seit `schuetzen_loeschfrist_jahre`
+	 * Sportjahren nicht gemeldet wurden, werden aus der Vereinsliste entfernt. 0 = nie löschen.
+	 *
+	 * Schützen, auf die noch eine Einzelmeldung zeigt, bleiben stehen – ein noch nicht
+	 * abgeschlossenes Jahr hält seine Schützen also fest.
+	 *
+	 * @return int Zahl der gelöschten Schützen
+	 */
+	private function schuetzenliste_aufraeumen(int $jahr): int {
+		$frist = (int) Settings::get('schuetzen_loeschfrist_jahre');
+		if ($frist <= 0) {
+			return 0;
+		}
+		$repo = new SchuetzeRepository();
+		$n = 0;
+		foreach ($repo->ohne_meldung_seit($jahr - $frist) as $s) {
+			if ($repo->delete((int) $s['id'])) {
+				$n++;
+			}
+		}
+		if ($n > 0) {
+			Protokoll::system('schuetze.loeschfrist', sprintf('%d Schützen ohne Meldung seit %d gelöscht (Frist: %d Jahre)', $n, $jahr - $frist, $frist), null, null, 'schuetze', null);
+		}
+		return $n;
 	}
 
 	/** Veröffentlichte Startpläne des Jahres ausblenden (Konzept 7.4). */

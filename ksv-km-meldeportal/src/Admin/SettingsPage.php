@@ -67,13 +67,13 @@ final class SettingsPage extends AdminPage {
 		$row(__('Checkbox „Nicht-Meldung“', 'ksv-km-meldeportal'), self::checkbox('nicht_meldung_sichtbar', (bool) $s['nicht_meldung_sichtbar'], __('in der Vereinsoberfläche anzeigen', 'ksv-km-meldeportal')), __('Bedeutung der DAVID-Spalte ist noch offen; das Feld wird immer exportiert.', 'ksv-km-meldeportal'));
 		$row(__('Sitzungsdauer (Tage)', 'ksv-km-meldeportal'), self::input('sitzung_dauer_tage', $s['sitzung_dauer_tage'], 'number', 'min="1" max="365" class="kmm-num"'), __('Gültigkeit des Cookies nach dem Klick auf den Magic Link.', 'ksv-km-meldeportal'));
 		$row(__('„Link anfordern“ – Limit pro Stunde', 'ksv-km-meldeportal'), self::input('link_anfordern_limit', $s['link_anfordern_limit'], 'number', 'min="1" max="100" class="kmm-num"'), __('je IP-Adresse und je E-Mail-Adresse', 'ksv-km-meldeportal'));
-		$row(__('Löschfrist Schützenliste (Jahre)', 'ksv-km-meldeportal'), self::input('schuetzen_loeschfrist_jahre', $s['schuetzen_loeschfrist_jahre'], 'number', 'min="0" max="20" class="kmm-num"'), __('Schützen ohne Meldung seit so vielen Sportjahren werden beim Abschluss eines Sportjahres gelöscht (0 = nie).', 'ksv-km-meldeportal'));
+		$row(__('Löschfrist Schützenliste (Jahre)', 'ksv-km-meldeportal'), self::input('schuetzen_loeschfrist_jahre', $s['schuetzen_loeschfrist_jahre'], 'number', 'min="0" max="20" class="kmm-num"'), __('Schützen ohne Meldung seit so vielen Sportjahren werden beim Abschluss eines Sportjahres aus den Vereinslisten gelöscht (0 = nie). Wer noch an einer Meldung hängt, bleibt erhalten – ein nicht abgeschlossenes Jahr hält seine Schützen fest.', 'ksv-km-meldeportal'));
 		echo '</table>';
 
 		echo '<h2>' . esc_html__('Regeln und Startgeld', 'ksv-km-meldeportal') . '</h2><table class="form-table">';
 		$row(__('FITASC: Schützinnen ab 56', 'ksv-km-meldeportal'), self::select('fitasc_damen_ab_56', ['damen' => __('starten in Damen (61)', 'ksv-km-meldeportal'), 'senioren' => __('starten in Senioren/Veteranen/Master (62/64/66)', 'ksv-km-meldeportal')], $s['fitasc_damen_ab_56']));
 		$row(__('Tarif-Überschreibungen ignorieren', 'ksv-km-meldeportal'), self::checkbox('tarif_override_ignorieren', (bool) $s['tarif_override_ignorieren'], __('alle Disziplinen nach Tarifstufe abrechnen (z. B. Lichtschießen nicht mehr 2,50 €)', 'ksv-km-meldeportal')));
-		$row(__('Erinnerung: Tage vor Meldeschluss', 'ksv-km-meldeportal'), self::input('erinnerung_tage_vor_schluss', $s['erinnerung_tage_vor_schluss'], 'number', 'min="0" max="60" class="kmm-num"'), __('Vorschlag beim Anlegen eines Sportjahres; der konkrete Zeitpunkt steht am Sportjahr.', 'ksv-km-meldeportal'));
+		$row(__('Erinnerung: Tage vor Meldeschluss', 'ksv-km-meldeportal'), self::input('erinnerung_tage_vor_schluss', $s['erinnerung_tage_vor_schluss'], 'number', 'min="0" max="60" class="kmm-num"'), __('Wird beim Speichern eines Sportjahres als Erinnerungszeitpunkt vorgeschlagen, solange dort keiner eingetragen ist (0 = kein Vorschlag).', 'ksv-km-meldeportal'));
 		echo '</table>';
 
 		echo '<h2>' . esc_html__('DAVID21-Export (bis der Testimport das Format klärt)', 'ksv-km-meldeportal') . '</h2><table class="form-table">';

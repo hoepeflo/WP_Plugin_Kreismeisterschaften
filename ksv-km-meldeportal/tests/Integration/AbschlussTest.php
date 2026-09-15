@@ -27,6 +27,7 @@ use KSV\KMM\Infrastructure\Repository\SportjahrRepository;
 use KSV\KMM\Infrastructure\Repository\VereinRepository;
 use KSV\KMM\Infrastructure\Repository\WettkampftagRepository;
 use KSV\KMM\Support\Clock;
+use KSV\KMM\Support\Settings;
 
 /**
  * Phase 2, Meilenstein 10: Veröffentlichung (Shortcode, PDF) und Abschluss des
@@ -44,6 +45,8 @@ final class AbschlussTest extends IntegrationTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		Rechte::cache_leeren();
+		// Beide Automatiken standardmäßig aus; die Tests, um die es geht, schalten sie an.
+		Settings::update(['schuetzen_loeschfrist_jahre' => 0, 'erinnerung_tage_vor_schluss' => 0]);
 		$this->sid = (new SportjahrService())->anlegen(2027, true, 'KM 2027');
 		(new SportjahrRepository())->update($this->sid, ['meldung_beginn' => '2026-01-01 00:00:00', 'meldeschluss' => '2099-01-10 22:59:00']);
 		remove_all_actions('kmm_regeln_geaendert');
@@ -77,6 +80,7 @@ final class AbschlussTest extends IntegrationTestCase {
 		remove_all_filters('pre_wp_mail');
 		wp_set_current_user(1);
 		Rechte::cache_leeren();
+		delete_option(Settings::OPTION);
 	}
 
 	public function test_startplan_ist_erst_nach_der_veroeffentlichung_oeffentlich(): void {
@@ -196,6 +200,55 @@ final class AbschlussTest extends IntegrationTestCase {
 		} catch (\RuntimeException $e) {
 			$this->assertStringContainsString('abgeschlossen', $e->getMessage());
 		}
+	}
+
+	public function test_abschluss_loescht_schuetzen_ohne_meldung_nach_der_frist(): void {
+		$repo = new SchuetzeRepository();
+		$ss = new SchuetzeService($this->verein, $this->sid);
+		// Drei Karteileichen: lange nicht gemeldet, gerade so noch in der Frist, nie gemeldet.
+		$alt = $ss->speichern(0, ['nachname' => 'Alt', 'vorname' => 'Adam', 'geburtsdatum' => '1960-01-01', 'geschlecht' => 'm', 'mitgliedsnummer' => '123450010'])['id'];
+		$knapp = $ss->speichern(0, ['nachname' => 'Knapp', 'vorname' => 'Karl', 'geburtsdatum' => '1960-01-01', 'geschlecht' => 'm', 'mitgliedsnummer' => '123450011'])['id'];
+		$neu = $ss->speichern(0, ['nachname' => 'Neu', 'vorname' => 'Nora', 'geburtsdatum' => '2000-01-01', 'geschlecht' => 'w', 'mitgliedsnummer' => '123450012'])['id'];
+		$repo->update($alt, ['zuletzt_gemeldet_jahr' => 2024]);
+		$repo->update($knapp, ['zuletzt_gemeldet_jahr' => 2026]);
+
+		Settings::update(['schuetzen_loeschfrist_jahre' => 2]);
+		$r = (new Abschluss())->abschliessen($this->sid, true);
+
+		$this->assertSame(1, $r['schuetzen_geloescht'], 'nur der seit 2024 nicht gemeldete');
+		$this->assertNull($repo->find($alt));
+		$this->assertNotNull($repo->find($knapp), '2026 gemeldet, Stichjahr ist 2025');
+		$this->assertNotNull($repo->find($neu), 'gerade angelegt, nie gemeldet – bleibt');
+		// Der Starter dieses Sportjahres bleibt, obwohl er anonymisiert wurde: Bauer war 2027 dabei.
+		$this->assertNotNull($repo->find($this->schuetze));
+	}
+
+	public function test_loeschfrist_null_loescht_nichts(): void {
+		$repo = new SchuetzeRepository();
+		$alt = (new SchuetzeService($this->verein, $this->sid))->speichern(0, ['nachname' => 'Alt', 'vorname' => 'Adam', 'geburtsdatum' => '1960-01-01', 'geschlecht' => 'm', 'mitgliedsnummer' => '123450010'])['id'];
+		$repo->update($alt, ['zuletzt_gemeldet_jahr' => 2000]);
+		Settings::update(['schuetzen_loeschfrist_jahre' => 0]);
+		$this->assertSame(0, (new Abschluss())->abschliessen($this->sid, true)['schuetzen_geloescht']);
+		$this->assertNotNull($repo->find($alt));
+	}
+
+	public function test_erinnerung_wird_aus_dem_meldeschluss_vorgeschlagen(): void {
+		Settings::update(['erinnerung_tage_vor_schluss' => 7]);
+		$service = new SportjahrService();
+		$repo = new SportjahrRepository();
+
+		// Kein Erinnerungszeitpunkt eingetragen: das Portal schlägt Meldeschluss minus 7 Tage vor.
+		$service->speichern($this->sid, ['meldeschluss' => '2027-01-10 22:59:00', 'erinnerung_am' => '']);
+		$this->assertSame('2027-01-03 22:59:00', (string) ((array) $repo->find($this->sid))['erinnerung_am']);
+
+		// Ein eingetragener Zeitpunkt wird nicht überschrieben.
+		$service->speichern($this->sid, ['meldeschluss' => '2027-01-10 22:59:00', 'erinnerung_am' => '2026-12-01 09:00:00']);
+		$this->assertSame('2026-12-01 09:00:00', (string) ((array) $repo->find($this->sid))['erinnerung_am']);
+
+		// Ohne Vorlauf in den Einstellungen bleibt das Feld leer.
+		Settings::update(['erinnerung_tage_vor_schluss' => 0]);
+		$service->speichern($this->sid, ['meldeschluss' => '2027-01-10 22:59:00', 'erinnerung_am' => '']);
+		$this->assertNull(((array) $repo->find($this->sid))['erinnerung_am']);
 	}
 
 	public function test_abschluss_ohne_anonymisierung_laesst_sich_zuruecknehmen(): void {

@@ -18,6 +18,7 @@ use KSV\KMM\Infrastructure\Repository\RegelRepository;
 use KSV\KMM\Infrastructure\Repository\SportjahrRepository;
 use KSV\KMM\Infrastructure\Repository\TarifRepository;
 use KSV\KMM\Support\Clock;
+use KSV\KMM\Support\Settings;
 
 final class SportjahrService {
 
@@ -103,6 +104,32 @@ final class SportjahrService {
 		return ['gruppen' => $n_gruppen, 'klassen' => $n_klassen];
 	}
 
+	/**
+	 * Ist ein Meldeschluss gesetzt, aber kein Erinnerungszeitpunkt, schlägt das Portal einen
+	 * vor: so viele Tage vor dem Meldeschluss, wie in den Einstellungen hinterlegt
+	 * (`erinnerung_tage_vor_schluss`, 0 = kein Vorschlag). Ein eingetragener Zeitpunkt wird
+	 * nie überschrieben.
+	 *
+	 * @param array<string, mixed> $daten
+	 * @return array<string, mixed>
+	 */
+	private function erinnerung_vorschlagen(array $daten): array {
+		if (!array_key_exists('erinnerung_am', $daten) || (string) ($daten['erinnerung_am'] ?? '') !== '') {
+			return $daten;
+		}
+		$schluss = (string) ($daten['meldeschluss'] ?? '');
+		$tage = (int) Settings::get('erinnerung_tage_vor_schluss');
+		if ($schluss === '' || $tage <= 0) {
+			return $daten;
+		}
+		$zeit = strtotime($schluss . ' UTC');
+		if ($zeit === false) {
+			return $daten;
+		}
+		$daten['erinnerung_am'] = gmdate(Clock::DB_FORMAT, $zeit - $tage * 86400);
+		return $daten;
+	}
+
 	public function aktivieren(int $sportjahr_id): void {
 		$jahr = $this->sportjahre->find($sportjahr_id);
 		if ($jahr === null) {
@@ -117,6 +144,7 @@ final class SportjahrService {
 	 */
 	public function speichern(int $sportjahr_id, array $daten): void {
 		$erlaubt = array_intersect_key($daten, array_flip(['bezeichnung', 'meldung_beginn', 'meldeschluss', 'erinnerung_am']));
+		$erlaubt = $this->erinnerung_vorschlagen($erlaubt);
 		$this->sportjahre->update($sportjahr_id, $erlaubt);
 		Protokoll::admin('sportjahr.speichern', 'Sportjahr-Einstellungen gespeichert', $sportjahr_id, null, 'sportjahr', $sportjahr_id, $erlaubt);
 	}

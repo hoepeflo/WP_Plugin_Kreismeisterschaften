@@ -58,6 +58,9 @@ final class SportjahrePage extends AdminPage {
 					if ($r['anonymisiert'] !== []) {
 						$text .= ' ' . sprintf(__('%d Meldungen anonymisiert.', 'ksv-km-meldeportal'), (int) ($r['anonymisiert']['einzelmeldung'] ?? 0));
 					}
+					if ((int) $r['schuetzen_geloescht'] > 0) {
+						$text .= ' ' . sprintf(__('%d Schützen ohne Meldung aus den Vereinslisten gelöscht.', 'ksv-km-meldeportal'), (int) $r['schuetzen_geloescht']);
+					}
 					$text .= ' ' . ($r['sicherung'] !== '' ? sprintf(__('Sicherung: %s', 'ksv-km-meldeportal'), $r['sicherung']) : __('Achtung: Die Sicherung konnte nicht geschrieben werden.', 'ksv-km-meldeportal'));
 					self::redirect($text, $r['sicherung'] !== '' ? 'success' : 'warning', ['abschluss' => self::post_int('id')]);
 				case 'anonymisieren':
@@ -170,8 +173,12 @@ final class SportjahrePage extends AdminPage {
 		echo '<h2>' . esc_html(sprintf(__('Sportjahr %d abschließen', 'ksv-km-meldeportal'), (int) $row['jahr'])) . '</h2>';
 		echo '<div class="kmm-phase">';
 		echo '<p>' . esc_html(sprintf(__('%1$d eingereichte Meldungen mit %2$d Startern.', 'ksv-km-meldeportal'), (int) $p['meldungen'], (int) $p['starter'])) . '</p>';
-		echo '<p class="description">' . esc_html__('Der Abschluss schließt das Sportjahr: keine Änderungen mehr, Zugangslinks der Vereine werden ungültig, veröffentlichte Startpläne werden ausgeblendet. Mit der Anonymisierung werden zusätzlich Name, Vorname, Geburtsdatum, Mitgliedsnummer und Ansprechpartner aus den Meldungen, dem Änderungsprotokoll und dem Systemprotokoll dieses Jahres entfernt. Erhalten bleiben Verein, Disziplin, Klasse, Geschlecht, Mannschaft und Startgeld – die Statistik über die Jahre bleibt also möglich. Die Schützenliste der Vereine ist davon nicht betroffen.', 'ksv-km-meldeportal') . '</p>';
+		$frist = (int) \KSV\KMM\Support\Settings::get('schuetzen_loeschfrist_jahre');
+		echo '<p class="description">' . esc_html__('Der Abschluss schließt das Sportjahr: keine Änderungen mehr, Zugangslinks der Vereine werden ungültig, veröffentlichte Startpläne werden ausgeblendet. Mit der Anonymisierung werden zusätzlich Name, Vorname, Geburtsdatum, Mitgliedsnummer und Ansprechpartner aus den Meldungen, dem Änderungsprotokoll und dem Systemprotokoll dieses Jahres entfernt. Erhalten bleiben Verein, Disziplin, Klasse, Geschlecht, Mannschaft und Startgeld – die Statistik über die Jahre bleibt also möglich. Die Schützenlisten der Vereine werden nicht anonymisiert – sie bleiben für die Folgejahre bestehen.', 'ksv-km-meldeportal') . '</p>';
 		echo '<p class="description">' . esc_html__('Vor dem Abschluss wird eine vollständige Sicherung aller Daten dieses Sportjahres als JSON-Datei in einem geschützten Ordner unter uploads/ abgelegt.', 'ksv-km-meldeportal') . ' <code>' . esc_html(Abschluss::ORDNER) . '/</code></p>';
+		if ($frist > 0) {
+			echo '<p class="description">' . esc_html(sprintf(__('Außerdem werden Schützen aus den Vereinslisten gelöscht, die seit %d Sportjahren nicht gemeldet wurden. Wer noch an einer Meldung hängt, bleibt erhalten. Die Frist steht in den Einstellungen.', 'ksv-km-meldeportal'), $frist)) . '</p>';
+		}
 		if ($p['hinweise'] !== []) {
 			echo '<div class="notice notice-warning inline"><p><strong>' . esc_html__('Vor dem Abschluss prüfen:', 'ksv-km-meldeportal') . '</strong></p><ul class="kmm-liste-kompakt">';
 			foreach ($p['hinweise'] as $h) {

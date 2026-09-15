@@ -419,6 +419,8 @@
 		<tr><td>Absender</td><td>Name und Adresse für alle Mails des Portals.</td></tr>
 		<tr><td>Uhrzeit der Sammelmail</td><td>Wann die gesammelten Änderungen täglich rausgehen.</td></tr>
 		<tr><td>Erinnerung vor der Buchungsfrist</td><td>Wie viele Tage vorher Vereine mit Startern ohne Platz erinnert werden.</td></tr>
+		<tr><td>Erinnerung vor Meldeschluss</td><td>Vorlauf für die Erinnerungsmail an säumige Vereine. Tragen Sie beim Sportjahr einen Meldeschluss ein und lassen den Erinnerungszeitpunkt leer, füllt das Portal ihn mit diesem Vorlauf. Ein selbst eingetragener Zeitpunkt bleibt unangetastet.</td></tr>
+		<tr><td>Löschfrist Schützenliste</td><td>Nach wie vielen Sportjahren ohne Meldung ein Schütze aus der Vereinsliste fällt (siehe Abschluss). 0 schaltet die Regel ab.</td></tr>
 		<tr><td>Offene Punkte der Sportordnung</td><td>Einzelne Auslegungsfragen (Nicht-Meldung, FITASC, CSV-Format), die sich ohne Programmänderung umstellen lassen.</td></tr>
 	</table>
 </section>
@@ -435,8 +437,13 @@
 		<li><strong>Sicherung.</strong> Zuerst schreibt das Portal alle Daten des Sportjahres als JSON-Datei in einen geschützten Ordner unter <code>uploads/kmm-archiv/</code>. Der Dateiname wird am Sportjahr vermerkt.</li>
 		<li><strong>Schließen.</strong> Es sind keine Änderungen mehr möglich, die Zugangslinks der Vereine werden ungültig, veröffentlichte Startpläne werden ausgeblendet.</li>
 		<li><strong>Anonymisieren</strong> (Haken, standardmäßig gesetzt): Name, Vorname, Geburtsdatum, Mitgliedsnummer und Ansprechpartner verschwinden aus den Meldungen sowie aus dem Änderungs- und dem Systemprotokoll dieses Jahres.</li>
+		<li><strong>Schützenlisten aufräumen</strong>: Schützen, die seit der eingestellten Frist nicht mehr gemeldet wurden, fallen aus den Vereinslisten.</li>
 	</ol>
-	<p><strong>Erhalten bleiben</strong> Verein, Disziplin, Klasse, Geschlecht, Mannschaft und Startgeld. Teilnehmerzahlen je Verein, Disziplin, Klasse und Jahr bleiben also dauerhaft auswertbar. Die <strong>Schützenliste der Vereine</strong> ist davon nicht betroffen – sie bleibt für die Folgejahre bestehen.</p>
+	<p><strong>Erhalten bleiben</strong> Verein, Disziplin, Klasse, Geschlecht, Mannschaft und Startgeld. Teilnehmerzahlen je Verein, Disziplin, Klasse und Jahr bleiben also dauerhaft auswertbar.</p>
+
+	<h3>Was mit der Schützenliste passiert</h3>
+	<p>Die Schützenlisten der Vereine werden <strong>nicht</strong> anonymisiert – sie leben über die Jahre weiter, damit die Vereine ihre Starter im Folgejahr nur noch auswählen müssen. Stattdessen greift beim Abschluss die Löschfrist aus den Einstellungen (Standard zwei Jahre): Wer seit so vielen Sportjahren nicht gemeldet wurde, fällt aus der Liste. Nach dem Abschluss meldet das Portal, wie viele das waren.</p>
+	<p>Zwei Dinge schützen davor, dass jemand zu früh verschwindet: Wer noch an einer Meldung hängt, bleibt in jedem Fall stehen – ein noch nicht abgeschlossenes Sportjahr hält seine Schützen also fest. Und wer gerade erst angelegt, aber noch nie gemeldet wurde, wird nicht gleich wieder gelöscht.</p>
 	<div class="kasten warn">
 		<p><strong>Die Anonymisierung lässt sich nicht rückgängig machen.</strong> Solange Sie sie nicht ausgeführt haben, können Sie den Abschluss zurücknehmen. Danach hilft nur noch die Sicherung aus Schritt 1. Wer erst schließen und später anonymisieren will, nimmt den Haken heraus und klickt zu gegebener Zeit „Jetzt anonymisieren“.</p>
 	</div>

@@ -124,7 +124,7 @@ Jeder Verein pflegt seine eigene Schützenliste, die über die Jahre erhalten bl
 | Mitgliedsnummer | 9-stellig; Warnung (keine Sperre), wenn sie nicht mit der VN-Nummer des Vereins beginnt, da Schützen mit Zweitverein vermutlich die Nummer ihres Erstvereins tragen |
 | Höhermeldungen | optional, je Bogen / Auflage / übrige; gilt nur für das laufende Sportjahr |
 
-Löschregel (Vorschlag): Schützen, die zwei Sportjahre nicht gemeldet wurden, werden gelöscht.
+Löschregel: Schützen, die seit der eingestellten Zahl von Sportjahren nicht gemeldet wurden, werden beim Abschluss eines Sportjahres gelöscht (Einstellung „Löschfrist Schützenliste“, Standard zwei Jahre, 0 = nie). Wer noch an einer Einzelmeldung hängt, bleibt erhalten; siehe `docs/ABSCHLUSS.md`.
 
 ### 7.3 Meldung
 
