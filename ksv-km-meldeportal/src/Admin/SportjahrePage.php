@@ -40,6 +40,8 @@ final class SportjahrePage extends AdminPage {
 						'meldung_beginn' => Clock::local_to_utc(self::post_str('meldung_beginn')),
 						'meldeschluss'   => Clock::local_to_utc(self::post_str('meldeschluss')),
 						'erinnerung_am'  => Clock::local_to_utc(self::post_str('erinnerung_am')),
+						'push_meldebeginn' => self::post_bool('push_meldebeginn'),
+						'push_erinnerung'  => self::post_bool('push_erinnerung'),
 					]);
 					self::redirect(__('Sportjahr gespeichert.', 'ksv-km-meldeportal'));
 				case 'aktivieren':
@@ -85,6 +87,11 @@ final class SportjahrePage extends AdminPage {
 		echo '<div class="wrap kmm-admin">';
 		Menu::page_header(__('Sportjahre', 'ksv-km-meldeportal'));
 		self::show_notices();
+
+		$aktiv = $repo->aktiv();
+		if ($aktiv !== null && $aktiv['erinnerung_am'] === null && $aktiv['abgeschlossen_am'] === null) {
+			echo '<div class="notice notice-warning"><p>' . esc_html(sprintf(__('Für das aktive Sportjahr %d ist kein Erinnerungszeitpunkt eingetragen. Ohne ihn gibt es keine Erinnerungsmail und keine Push-Nachricht „Meldeschluss naht“.', 'ksv-km-meldeportal'), (int) $aktiv['jahr'])) . '</p></div>';
+		}
 
 		if ($edit !== null) {
 			self::render_edit_form($edit);
@@ -216,6 +223,30 @@ final class SportjahrePage extends AdminPage {
 	}
 
 	/**
+	 * Schalter des App-Moduls (API-Vertrag 3.3): Push bei Meldebeginn und zur Erinnerung.
+	 *
+	 * @param array<string, mixed> $row
+	 */
+	private static function render_app_push(array $row): void {
+		$zeilen = [
+			'push_meldebeginn' => [__('Push bei Meldebeginn', 'ksv-km-meldeportal'), 'app_meldung_offen_am', __('App-Nachricht „Meldeportal geöffnet“, sobald der Meldebeginn erreicht ist.', 'ksv-km-meldeportal')],
+			'push_erinnerung'  => [__('Push zur Erinnerung', 'ksv-km-meldeportal'), 'app_erinnerung_am', __('App-Nachricht „Meldeschluss naht“ zum Erinnerungszeitpunkt (derselbe wie für die Erinnerungsmail).', 'ksv-km-meldeportal')],
+		];
+		foreach ($zeilen as $feld => [$label, $vermerk, $beschreibung]) {
+			$an = !array_key_exists($feld, $row) || (bool) $row[ $feld ];
+			echo '<tr><th>' . esc_html($label) . '</th><td>' . self::checkbox($feld, $an, $beschreibung); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			if (($row[ $vermerk ] ?? null) !== null) {
+				echo '<p class="description">' . esc_html(sprintf(__('Gesendet am %s.', 'ksv-km-meldeportal'), Clock::format_local((string) $row[ $vermerk ]))) . '</p>';
+			}
+			if ($feld === 'push_erinnerung' && $row['erinnerung_am'] === null) {
+				echo '<div class="notice notice-warning inline"><p>' . esc_html__('Kein Erinnerungszeitpunkt eingetragen: Es wird weder eine Erinnerungsmail noch eine Push-Nachricht „Meldeschluss naht“ gesendet.', 'ksv-km-meldeportal') . '</p></div>';
+			}
+			echo '</td></tr>';
+		}
+		echo '<tr><td colspan="2"><p class="description">' . esc_html__('Push-Nachrichten gehen über den KSV App Connector an die App „KSV Fallingbostel“, nur für das aktive Sportjahr und je Sportjahr nur einmal. Liegt ein Zeitpunkt schon mehr als 24 Stunden zurück, wird nichts nachgeholt.', 'ksv-km-meldeportal') . '</p></td></tr>';
+	}
+
+	/**
 	 * @param array<string, mixed> $row
 	 */
 	private static function render_edit_form(array $row): void {
@@ -227,6 +258,7 @@ final class SportjahrePage extends AdminPage {
 		foreach (['meldung_beginn' => __('Meldebeginn', 'ksv-km-meldeportal'), 'meldeschluss' => __('Meldeschluss', 'ksv-km-meldeportal'), 'erinnerung_am' => __('Erinnerungsmail am', 'ksv-km-meldeportal')] as $field => $label) {
 			echo '<tr><th>' . esc_html($label) . '</th><td>' . self::input($field, Clock::utc_to_local_input($row[ $field ]), 'datetime-local') . '</td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
+		self::render_app_push($row);
 		echo '</table>';
 		echo '<p class="description">' . esc_html__('Zeiten in der WordPress-Zeitzone. Bis zum Meldeschluss können Vereine melden und Meldungen wieder öffnen; Magic Links gelten bis zum Meldeschluss. Die Erinnerungsmail geht an Vereine mit Status Offen oder Entwurf.', 'ksv-km-meldeportal') . '</p>';
 		submit_button(__('Speichern', 'ksv-km-meldeportal'), 'primary', 'submit', false);

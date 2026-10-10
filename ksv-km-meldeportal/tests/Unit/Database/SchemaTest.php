@@ -95,6 +95,21 @@ final class SchemaTest extends TestCase {
 		$this->assertStringContainsString('UNIQUE KEY einzelmeldung_id (einzelmeldung_id)', $defs['buchung']);
 	}
 
+	public function test_app_modul_fields_are_present(): void {
+		$defs = Schema::definitions(self::PREFIX, self::CHARSET);
+		$sportjahr = self::column_names($defs['sportjahr']);
+		foreach (['push_meldebeginn', 'push_erinnerung', 'app_meldung_offen_am', 'app_erinnerung_am'] as $col) {
+			$this->assertContains($col, $sportjahr, $col);
+		}
+		// Push-Schalter je Sportjahr: Standard an (API-Vertrag 3.3).
+		$this->assertStringContainsString('push_meldebeginn tinyint(1) unsigned NOT NULL DEFAULT 1,', $defs['sportjahr']);
+		$this->assertStringContainsString('push_erinnerung tinyint(1) unsigned NOT NULL DEFAULT 1,', $defs['sportjahr']);
+		$tag = self::column_names($defs['wettkampftag']);
+		$this->assertContains('app_startplaetze_am', $tag);
+		$this->assertContains('app_startplan_am', $tag);
+		$this->assertGreaterThanOrEqual(5, Schema::VERSION);
+	}
+
 	public function test_versioned_master_data_carry_sportjahr_id(): void {
 		$defs = Schema::definitions(self::PREFIX, self::CHARSET);
 		foreach (['wettbewerbsgruppe', 'klasse', 'disziplin', 'regel', 'startgeld_tarif', 'hoehermeldung', 'meldung', 'einzelmeldung', 'mannschaft'] as $t) {

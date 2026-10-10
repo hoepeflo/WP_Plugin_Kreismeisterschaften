@@ -24,7 +24,7 @@ final class Schema {
 	 * Schema-Version. Bei jeder Änderung an definitions() erhöhen; der Migrator
 	 * führt dbDelta() erneut aus, sobald die gespeicherte Version abweicht.
 	 */
-	public const VERSION = 4;
+	public const VERSION = 5;
 
 	public const OPTION_VERSION = 'kmm_schema_version';
 
@@ -103,6 +103,10 @@ final class Schema {
   anonymisiert_am datetime DEFAULT NULL,
   regeln_geaendert_am datetime DEFAULT NULL,
   abschluss_backup varchar(255) NOT NULL DEFAULT '',
+  push_meldebeginn tinyint(1) unsigned NOT NULL DEFAULT 1,
+  push_erinnerung tinyint(1) unsigned NOT NULL DEFAULT 1,
+  app_meldung_offen_am datetime DEFAULT NULL,
+  app_erinnerung_am datetime DEFAULT NULL,
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
   PRIMARY KEY  (id),
@@ -481,6 +485,8 @@ final class Schema {
   erinnerung_gesendet_am datetime DEFAULT NULL,
   hinweis text,
   sortierung smallint(5) unsigned NOT NULL DEFAULT 0,
+  app_startplaetze_am datetime DEFAULT NULL,
+  app_startplan_am datetime DEFAULT NULL,
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
   PRIMARY KEY  (id),

@@ -28,7 +28,7 @@ Verbindliche Grundlage ist das Konzept unter `docs/KM-Meldeportal_Konzept.md`.
 | Optionen, Transients | `kmm_*` |
 | Hooks, Cron-Events | `kmm_*` |
 | Capabilities | `kmm_manage`, `kmm_view` |
-| REST-Namespace | `kmm/v1` |
+| REST-Namespace | `kmm/v1` (App-Schnittstelle: gemeinsamer Namespace `ksv-app/v1`, Route `/km`) |
 | Query-Var / Route | `kmm_route`, Standard `/km-meldung/` |
 | Text-Domain | `ksv-km-meldeportal` |
 | Cookie | `kmm_sitzung` |
@@ -67,6 +67,29 @@ Route `/km-meldung/` nach Anmeldung per Zugangslink: vier Schritte Schützen, Me
 | Schießstände | Stammdaten mit Standgruppen; am Wettkampftag nur noch ankreuzen |
 | Wettkampftage | Einheiten, Durchgänge, Zulassungen, Freigabe, Restverteilung, Startplan-Matrix mit Verschieben per Ziehen oder zwei Klicks, Veröffentlichung, PDF-Startplan |
 | Belege | Buchhaltungsbelege je Verein (Startgeldpositionen, PDF) |
+
+## App-Schnittstelle
+
+Das Plugin ist ein App-Modul der App „KSV Fallingbostel“ (Flutter + Firebase).
+**Verbindlich ist der API-Vertrag im Repository `APP_KSV-Fallingbostel`, Datei
+`docs/API-VERTRAG.md`** (Abschnitte 1, 2 und 3.3). Änderungen an Endpunkt oder Ereignissen
+werden zuerst dort eingetragen und erst dann hier umgesetzt; Datenmodell-Änderungen am
+Sportjahr oder Wettkampftag immer gegen den Vertrag prüfen (Tests unter `tests/Unit/App/`).
+
+| Teil | Umsetzung |
+|---|---|
+| `GET /wp-json/ksv-app/v1/km` | öffentlich, `src/Http/AppApi.php`; Inhalt aus `src/Application/App/KmAbbild.php`: aktives Sportjahr (oder `null`) mit `phase` aus `Meldephase`, nicht ausgeblendete Wettkampftage (`geplant` / `buchbar` / `veroeffentlicht`), `startplan_url` nur bei veröffentlichtem Tag mit veröffentlichtem Kalenderbeitrag, Links. ISO 8601 in der WordPress-Zeitzone, `ETag` + `Cache-Control: public, max-age=300`, `304` bei passendem `If-None-Match`. Keine Personendaten. |
+| `links.startplaene` | erste veröffentlichte Seite mit `[kmm_startplan]` ohne `tag`-Attribut, sonst `null`; Filter `kmm_app_startplaene_url` |
+| Ereignisse | `do_action('ksv_app_ereignis', …)` – ohne KSV App Connector wirkungslos. Texte in `src/Application/App/KmEreignis.php`, Entscheidung in `KmAusloeser.php`, Auslösen in `KmApp.php`. |
+| `kmm.meldung_offen.<sportjahr_id>` | stündlicher Cron, sobald `meldung_beginn` des aktiven Sportjahres erreicht ist; Schalter „Push bei Meldebeginn“ am Sportjahr |
+| `kmm.erinnerung.<sportjahr_id>` | stündlicher Cron zu `erinnerung_am` (vor Meldeschluss); Schalter „Push zur Erinnerung“. Ohne Erinnerungszeitpunkt keine Erinnerung (Hinweis im Backend). |
+| `kmm.startplaetze.<tag_id>` / `kmm.startplan.<tag_id>` | `StartplanService::freigeben()` / `veroeffentlichen()`, Häkchen „Auch als Push-Nachricht senden“ (Standard an), nur für das aktive Sportjahr |
+| `kmm.geaendert.<unixzeit>` | ohne Push, Abgleich `km`; einmal je Request nach Änderungen an Sportjahr, Wettkampftag oder Schießstand (über den Hook `kmm_protokolliert`) |
+
+Jedes Push-Ereignis wird je Sportjahr bzw. Wettkampftag nur einmal ausgelöst (Vermerk-Spalten,
+Schema-Version 5). Zeitgesteuerte Ereignisse werden höchstens 24 Stunden nach dem Zeitpunkt
+nachgeholt – beim ersten Einspielen des App-Moduls entstehen so keine Nachrichten für
+längst Vergangenes. Ruhezeiten und Textvorlagen regelt der Connector.
 
 ## Veröffentlichter Startplan
 

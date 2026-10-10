@@ -110,6 +110,22 @@ abstract class Repository {
 		return $result !== false;
 	}
 
+	/**
+	 * Setzt eine Spalte nur, solange sie NULL ist (atomar, ein einziges UPDATE). Dient als
+	 * „genau einmal“-Vermerk, z. B. für ausgelöste App-Ereignisse: Laufen zwei Cron-Aufrufe
+	 * gleichzeitig, gewinnt nur einer.
+	 *
+	 * @return bool true, wenn dieser Aufruf den Wert gesetzt hat.
+	 */
+	public function setzen_wenn_leer(int $id, string $spalte, string $wert): bool {
+		if ($id <= 0 || !in_array($spalte, static::NULLABLE_COLUMNS, true) || !in_array($spalte, $this->columns(), true)) {
+			return false;
+		}
+		// Spaltenname stammt aus der festen Liste NULLABLE_COLUMNS und existiert in der Tabelle.
+		$result = $this->db->query($this->db->prepare("UPDATE {$this->table()} SET {$spalte} = %s WHERE id = %d AND {$spalte} IS NULL", $wert, $id)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		return $result === 1;
+	}
+
 	public function delete(int $id): bool {
 		return (bool) $this->db->delete($this->table(), ['id' => $id], ['%d']);
 	}

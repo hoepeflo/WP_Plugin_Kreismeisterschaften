@@ -13,7 +13,7 @@ final class WettkampftagRepository extends Repository {
 
 	protected const TABLE = 'wettkampftag';
 	protected const INT_COLUMNS = ['id', 'sortierung'];
-	protected const NULLABLE_COLUMNS = ['buchungsfrist', 'freigegeben_am', 'veroeffentlicht_am', 'ausgeblendet_am', 'beitrag_id', 'erinnerung_am', 'erinnerung_gesendet_am', 'hinweis', 'schiessstand_id'];
+	protected const NULLABLE_COLUMNS = ['buchungsfrist', 'freigegeben_am', 'veroeffentlicht_am', 'ausgeblendet_am', 'beitrag_id', 'erinnerung_am', 'erinnerung_gesendet_am', 'hinweis', 'schiessstand_id', 'app_startplaetze_am', 'app_startplan_am'];
 
 	/**
 	 * @return array<int, array<string, mixed>>

@@ -73,5 +73,13 @@ final class Protokoll {
 			'details'         => $details === [] ? null : (string) json_encode($details, JSON_UNESCAPED_UNICODE),
 			'created_at'      => Clock::now_utc(),
 		]);
+		/**
+		 * Nach jedem Protokolleintrag (z. B. für den Daten-Abgleich der App, App\KmApp).
+		 *
+		 * @param string $aktion     z. B. wettkampftag.freigeben
+		 * @param string $objekt_typ z. B. wettkampftag
+		 * @param int|null $objekt_id
+		 */
+		do_action('kmm_protokolliert', $aktion, $objekt_typ, $objekt_id);
 	}
 }

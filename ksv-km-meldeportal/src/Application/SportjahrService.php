@@ -140,10 +140,16 @@ final class SportjahrService {
 	}
 
 	/**
-	 * @param array<string, mixed> $daten bezeichnung, meldung_beginn, meldeschluss, erinnerung_am (UTC oder null)
+	 * @param array<string, mixed> $daten bezeichnung, meldung_beginn, meldeschluss, erinnerung_am (UTC oder null),
+	 *                                    push_meldebeginn, push_erinnerung (bool, App-Modul)
 	 */
 	public function speichern(int $sportjahr_id, array $daten): void {
-		$erlaubt = array_intersect_key($daten, array_flip(['bezeichnung', 'meldung_beginn', 'meldeschluss', 'erinnerung_am']));
+		$erlaubt = array_intersect_key($daten, array_flip(['bezeichnung', 'meldung_beginn', 'meldeschluss', 'erinnerung_am', 'push_meldebeginn', 'push_erinnerung']));
+		foreach (['push_meldebeginn', 'push_erinnerung'] as $schalter) {
+			if (array_key_exists($schalter, $erlaubt)) {
+				$erlaubt[ $schalter ] = (bool) $erlaubt[ $schalter ];
+			}
+		}
 		$erlaubt = $this->erinnerung_vorschlagen($erlaubt);
 		$this->sportjahre->update($sportjahr_id, $erlaubt);
 		Protokoll::admin('sportjahr.speichern', 'Sportjahr-Einstellungen gespeichert', $sportjahr_id, null, 'sportjahr', $sportjahr_id, $erlaubt);

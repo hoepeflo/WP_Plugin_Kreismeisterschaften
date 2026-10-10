@@ -100,6 +100,14 @@ final class Migrator {
 	}
 
 	/**
+	 * Version 5 (App-Modul): Push-Schalter je Sportjahr (Standard: an) und Vermerke, welche
+	 * App-Ereignisse schon ausgelöst wurden (sportjahr, wettkampftag). Nur additive Spalten
+	 * über dbDelta, keine Datenänderung.
+	 */
+	private static function step_5(): void {
+	}
+
+	/**
 	 * Status aller Tabellen für die Systemseite.
 	 *
 	 * @return array<string, bool> Tabellenname => existiert.

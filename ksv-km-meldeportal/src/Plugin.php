@@ -10,11 +10,13 @@ declare(strict_types=1);
 namespace KSV\KMM;
 
 use KSV\KMM\Admin\Menu;
+use KSV\KMM\Application\App\KmApp;
 use KSV\KMM\Application\Erinnerung;
 use KSV\KMM\Application\Sammelmail;
 use KSV\KMM\Application\StartplanService;
 use KSV\KMM\Application\Revalidierung;
 use KSV\KMM\Auth\Capabilities;
+use KSV\KMM\Http\AppApi;
 use KSV\KMM\Http\RestApi;
 use KSV\KMM\Http\Router;
 use KSV\KMM\Http\Shortcode;
@@ -47,11 +49,13 @@ final class Plugin {
 		Capabilities::register();
 		Router::register();
 		RestApi::register();
+		AppApi::register();
 		Cron::register();
 		Revalidierung::register();
 		Erinnerung::register();
 		Sammelmail::register();
 		StartplanService::register();
+		KmApp::register();
 		Shortcode::register();
 
 		if (is_admin()) {

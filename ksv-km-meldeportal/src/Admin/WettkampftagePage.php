@@ -87,8 +87,9 @@ final class WettkampftagePage extends AdminPage {
 					$service->zulassung_entfernen(self::post_int('id'));
 					self::redirect(__('Zulassung entfernt.', 'ksv-km-meldeportal'), 'success', $args + ['durchgang' => self::post_int('durchgang_id')]);
 				case 'freigeben':
-					$r = $service->freigeben(self::post_int('id'));
+					$r = $service->freigeben(self::post_int('id'), self::post_bool('push'));
 					$text = sprintf(__('Wettkampftag freigegeben. Mail an %1$d von %2$d Vereinen mit passenden Startern gesendet.', 'ksv-km-meldeportal'), $r['gesendet'], $r['vereine']);
+					$text .= self::push_hinweis($r['push'], self::post_bool('push'));
 					if ($r['fehler'] !== []) {
 						$text .= "\n" . implode("\n", $r['fehler']);
 					}
@@ -111,11 +112,12 @@ final class WettkampftagePage extends AdminPage {
 					$r = (new Startplatzvergabe($sid))->verschieben(self::post_int('buchung_id'), $ziel[0], $ziel[1], $ziel[2]);
 					self::redirect($r['getauscht'] ? sprintf(__('Plätze getauscht mit %s.', 'ksv-km-meldeportal'), $r['mit']) : __('Starter verschoben.', 'ksv-km-meldeportal'), 'success', $args);
 				case 'veroeffentlichen':
-					$r = $service->veroeffentlichen($tag_id, self::post_int('benachrichtigen') === 1);
+					$r = $service->veroeffentlichen($tag_id, self::post_int('benachrichtigen') === 1, self::post_bool('push'));
 					$text = __('Startplan veröffentlicht.', 'ksv-km-meldeportal');
 					if ($r['vereine'] > 0) {
 						$text .= ' ' . sprintf(__('Mail an %1$d von %2$d Vereinen.', 'ksv-km-meldeportal'), $r['gesendet'], $r['vereine']);
 					}
+					$text .= self::push_hinweis($r['push'], self::post_bool('push'));
 					if ($r['fehler'] !== []) {
 						$text .= "\n" . implode("\n", $r['fehler']);
 					}
@@ -492,6 +494,7 @@ final class WettkampftagePage extends AdminPage {
 			$bereit = $u['einheiten'] !== [] && $u['durchgaenge'] !== [] && array_sum(array_map(static fn(array $d): int => $d['zulassungen'] === [] ? 1 : 0, $u['durchgaenge'])) === 0;
 			self::form_open('freigeben', 'class="kmm-inline-form" onsubmit="return confirm(\'' . esc_js(sprintf(__('Wettkampftag freigeben und %d Vereine benachrichtigen?', 'ksv-km-meldeportal'), count($betroffene))) . '\')"');
 			echo '<input type="hidden" name="sportjahr_id" value="' . $sid . '"><input type="hidden" name="tag_id" value="' . $tag_id . '"><input type="hidden" name="id" value="' . $tag_id . '">';
+			self::push_haekchen($t, 'app_startplaetze_am');
 			submit_button(__('Freigeben und Vereine benachrichtigen', 'ksv-km-meldeportal'), 'primary', 'submit', false, $bereit ? [] : ['disabled' => 'disabled']);
 			echo '</form>';
 			if (!$bereit) {
@@ -520,6 +523,34 @@ final class WettkampftagePage extends AdminPage {
 			echo '</form>';
 		}
 		echo '</div>';
+	}
+
+	/**
+	 * Häkchen „Auch als Push-Nachricht senden“ (App-Modul, Standard: an). Wurde das
+	 * Ereignis für diesen Tag schon ausgelöst, steht stattdessen ein Hinweis da – jedes
+	 * Ereignis geht nur einmal an die App.
+	 *
+	 * @param array<string, mixed> $t
+	 */
+	private static function push_haekchen(array $t, string $vermerk): void {
+		if (($t[ $vermerk ] ?? null) !== null) {
+			echo '<span class="description kmm-stand">' . esc_html(sprintf(__('Push-Nachricht wurde bereits am %s gesendet.', 'ksv-km-meldeportal'), Clock::format_local((string) $t[ $vermerk ]))) . '</span> ';
+			return;
+		}
+		echo '<label class="kmm-stand"><input type="checkbox" name="push" value="1" checked> ' . esc_html__('Auch als Push-Nachricht senden', 'ksv-km-meldeportal') . '</label> ';
+	}
+
+	/** Zusatz zur Erfolgsmeldung zum App-Ereignis. */
+	private static function push_hinweis(bool $push, bool $haekchen): string {
+		if ($push) {
+			return ' ' . __('Push-Nachricht an die App übergeben.', 'ksv-km-meldeportal');
+		}
+		if (!$haekchen) {
+			return '';
+		}
+		return ' ' . (\KSV\KMM\Application\App\KmApp::verbunden()
+			? __('Keine Push-Nachricht: Sie geht nur für das aktive Sportjahr und je Wettkampftag nur einmal.', 'ksv-km-meldeportal')
+			: __('Keine Push-Nachricht: Der KSV App Connector ist nicht aktiv.', 'ksv-km-meldeportal'));
 	}
 
 	/**
@@ -568,6 +599,7 @@ final class WettkampftagePage extends AdminPage {
 			self::form_open('veroeffentlichen', 'class="kmm-inline-form" onsubmit="return confirm(\'' . esc_js(__('Startplan veröffentlichen? Er ist dann über den Shortcode öffentlich sichtbar.', 'ksv-km-meldeportal')) . '\')"');
 			echo '<input type="hidden" name="sportjahr_id" value="' . $sid . '"><input type="hidden" name="tag_id" value="' . $tag_id . '">';
 			echo '<label class="kmm-stand"><input type="checkbox" name="benachrichtigen" value="1" checked> ' . esc_html__('Vereine per Mail informieren', 'ksv-km-meldeportal') . '</label> ';
+			self::push_haekchen($t, 'app_startplan_am');
 			submit_button(__('Startplan veröffentlichen', 'ksv-km-meldeportal'), 'primary', 'submit', false);
 			echo '</form>';
 			echo '<p class="description">' . esc_html__('Nach der Veröffentlichung buchen die Vereine nicht mehr selbst; Änderungen nimmt nur noch der KSV vor und sie sind sofort sichtbar.', 'ksv-km-meldeportal') . '</p>';

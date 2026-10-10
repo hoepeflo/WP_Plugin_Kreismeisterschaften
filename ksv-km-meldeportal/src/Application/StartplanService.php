@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace KSV\KMM\Application;
 
+use KSV\KMM\Application\App\KmApp;
 use KSV\KMM\Auth\Rechte;
 use KSV\KMM\Domain\Engine\Disziplin;
 use KSV\KMM\Domain\Engine\Klasse;
@@ -555,11 +556,12 @@ final class StartplanService {
 
 	/**
 	 * Wettkampftag freigeben: Buchung öffnet sich, alle Vereine mit passenden Startern
-	 * erhalten eine Mail mit ihrem Link.
+	 * erhalten eine Mail mit ihrem Link. Mit $push geht zusätzlich das App-Ereignis
+	 * „Startplätze buchbar“ an den KSV App Connector (API-Vertrag 3.3).
 	 *
-	 * @return array{gesendet: int, vereine: int, fehler: string[]}
+	 * @return array{gesendet: int, vereine: int, fehler: string[], push: bool}
 	 */
-	public function freigeben(int $tag_id): array {
+	public function freigeben(int $tag_id, bool $push = true): array {
 		$this->schreibrecht();
 		$tag = $this->tag($tag_id);
 		if ((string) $tag['status'] !== WettkampftagStatus::ENTWURF) {
@@ -586,6 +588,7 @@ final class StartplanService {
 		$this->tage->update($tag_id, ['status' => WettkampftagStatus::FREIGEGEBEN, 'freigegeben_am' => $jetzt, 'erinnerung_am' => $erinnerung, 'erinnerung_gesendet_am' => null]);
 		$tag = $this->tag($tag_id);
 		$r = $this->mail_an_vereine($tag, 'freigabe', false);
+		$r['push'] = KmApp::startplaetze($tag_id, $push);
 		Protokoll::admin('wettkampftag.freigeben', sprintf('%s %s freigegeben, Mail an %d Vereine%s', (string) $tag['datum'], (string) $tag['bezeichnung'], $r['gesendet'], $r['fehler'] !== [] ? ', ' . count($r['fehler']) . ' Fehler' : ''), $this->sportjahr_id, null, 'wettkampftag', $tag_id, ['fehler' => $r['fehler']]);
 		return $r;
 	}
@@ -608,11 +611,12 @@ final class StartplanService {
 
 	/**
 	 * Startplan veröffentlichen: Vereine können nicht mehr selbst buchen, der Shortcode
-	 * zeigt den Plan öffentlich. Spätere Änderungen des KSV sind sofort sichtbar.
+	 * zeigt den Plan öffentlich. Spätere Änderungen des KSV sind sofort sichtbar. Mit $push
+	 * geht zusätzlich das App-Ereignis „Startplan veröffentlicht“ an den KSV App Connector.
 	 *
-	 * @return array{gesendet: int, vereine: int, fehler: string[]}
+	 * @return array{gesendet: int, vereine: int, fehler: string[], push: bool}
 	 */
-	public function veroeffentlichen(int $tag_id, bool $benachrichtigen = true): array {
+	public function veroeffentlichen(int $tag_id, bool $benachrichtigen = true, bool $push = true): array {
 		$this->schreibrecht();
 		$tag = $this->tag($tag_id);
 		if ((string) $tag['status'] === WettkampftagStatus::ENTWURF) {
@@ -635,6 +639,7 @@ final class StartplanService {
 		if ($benachrichtigen) {
 			$r = $this->mail_an_vereine($tag, 'startplan', false);
 		}
+		$r['push'] = KmApp::startplan($tag_id, $push);
 		Protokoll::admin('wettkampftag.veroeffentlichen', sprintf('%s %s veröffentlicht%s', (string) $tag['datum'], (string) $tag['bezeichnung'], $benachrichtigen ? sprintf(', Mail an %d Vereine', $r['gesendet']) : ''), $this->sportjahr_id, null, 'wettkampftag', $tag_id, ['fehler' => $r['fehler']]);
 		return $r;
 	}

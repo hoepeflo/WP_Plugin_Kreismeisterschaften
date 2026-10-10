@@ -13,8 +13,8 @@ final class SportjahrRepository extends Repository {
 
 	protected const TABLE = 'sportjahr';
 	protected const INT_COLUMNS = ['id', 'jahr'];
-	protected const BOOL_COLUMNS = ['ist_aktiv'];
-	protected const NULLABLE_COLUMNS = ['meldung_beginn', 'meldeschluss', 'erinnerung_am', 'erinnerung_gesendet_am', 'abgeschlossen_am', 'anonymisiert_am', 'regeln_geaendert_am'];
+	protected const BOOL_COLUMNS = ['ist_aktiv', 'push_meldebeginn', 'push_erinnerung'];
+	protected const NULLABLE_COLUMNS = ['meldung_beginn', 'meldeschluss', 'erinnerung_am', 'erinnerung_gesendet_am', 'abgeschlossen_am', 'anonymisiert_am', 'regeln_geaendert_am', 'app_meldung_offen_am', 'app_erinnerung_am'];
 
 	/**
 	 * @return array<int, array<string, mixed>>

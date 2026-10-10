@@ -186,6 +186,19 @@ Neue Spalten mit Standardwert NULL: `wettkampftag.schiessstand_id`, `einheit.sta
 | `kmm_schiessstand` | Schießstand als sportjahrübergreifende Stammdaten: Bezeichnung, Ort, Notiz, Reihenfolge. |
 | `kmm_standgruppe` | Standgruppe eines Schießstands: Bezeichnung („10 m Stände“), Name je Einheit (`praefix`, z. B. „Stand“), Anzahl, erste Nummer, Kapazität je Einheit, optional Disziplin-Kennzahlen (z. B. Auflagetische). Beim Wettkampftag werden angekreuzte Stände zu Einheiten (`einheit.standgruppe_id` + `nummer`). |
 
+## Schema-Version 5 (App-Modul, rein additiv)
+
+Spalten für die App „KSV Fallingbostel“ (siehe README, Abschnitt „App-Schnittstelle“):
+
+| Spalte | Inhalt |
+|---|---|
+| `sportjahr.push_meldebeginn`, `sportjahr.push_erinnerung` | Schalter „Push bei Meldebeginn“ / „Push zur Erinnerung“, Standard 1 (an) |
+| `sportjahr.app_meldung_offen_am`, `sportjahr.app_erinnerung_am` | Vermerk (UTC), wann das App-Ereignis `kmm.meldung_offen.<id>` bzw. `kmm.erinnerung.<id>` ausgelöst wurde; NULL = noch nicht |
+| `wettkampftag.app_startplaetze_am`, `wettkampftag.app_startplan_am` | Vermerk für `kmm.startplaetze.<id>` bzw. `kmm.startplan.<id>` |
+
+Die Vermerke werden atomar gesetzt (`UPDATE … WHERE spalte IS NULL`), damit jedes Ereignis
+nur einmal ausgelöst wird.
+
 ## Optionen
 
 | Option | Inhalt |
