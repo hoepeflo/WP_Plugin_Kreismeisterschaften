@@ -12,6 +12,8 @@
  *  - Liegt der Zeitpunkt mehr als KARENZ Sekunden zurück, wird nichts mehr gesendet
  *    („keine Nachrichten für Vergangenes“, z. B. beim ersten Einspielen des App-Moduls
  *    oder nach längerem Cron-Ausfall).
+ *  - Phasenwechsel: Weicht die Meldephase (vor_beginn/offen/geschlossen/…) vom zuletzt
+ *    gemeldeten Stand ab, folgt ein Abgleich ohne Push (kmm.geaendert.<zeit>).
  *
  * @package KSV\KMM
  */
@@ -19,6 +21,8 @@
 declare(strict_types=1);
 
 namespace KSV\KMM\Application\App;
+
+use KSV\KMM\Application\Meldephase;
 
 final class KmAusloeser {
 
@@ -79,6 +83,31 @@ final class KmAusloeser {
 		return str_starts_with($aktion, 'sportjahr.')
 			|| str_starts_with($aktion, 'wettkampftag.')
 			|| in_array($aktion, ['schiessstand.aendern', 'schiessstand.loeschen'], true);
+	}
+
+	/**
+	 * Kennung der aktuellen Meldephase für den Vergleich mit dem zuletzt an die App gemeldeten
+	 * Stand: „<sportjahr_id>:<phase>“ (Phase aus Meldephase, wie in GET /km). Ohne aktives
+	 * Sportjahr „0:geschlossen“. Die Phase wechselt allein durch die Uhr (meldung_beginn,
+	 * meldeschluss), ohne dass eine Aktion protokolliert wird.
+	 *
+	 * @param array<string, mixed>|null $sportjahr
+	 */
+	public static function phase_kennung(?array $sportjahr, string $jetzt): string {
+		if ($sportjahr === null) {
+			return '0:geschlossen';
+		}
+		return (int) ($sportjahr['id'] ?? 0) . ':' . Meldephase::pruefen($sportjahr, null, $jetzt)['status'];
+	}
+
+	/**
+	 * Hat die Meldephase gegenüber dem zuletzt gemeldeten Stand gewechselt? Dann folgt ein
+	 * Abgleich-Ereignis kmm.geaendert.<zeit>. Ein leerer Stand (Erstlauf) gilt als Wechsel.
+	 *
+	 * @param array<string, mixed>|null $sportjahr
+	 */
+	public static function phase_gewechselt(?array $sportjahr, string $jetzt, string $vorher): bool {
+		return self::phase_kennung($sportjahr, $jetzt) !== $vorher;
 	}
 
 	/**

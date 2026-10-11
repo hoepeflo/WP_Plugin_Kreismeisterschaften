@@ -84,7 +84,7 @@ Sportjahr oder Wettkampftag immer gegen den Vertrag prüfen (Tests unter `tests/
 | `kmm.meldung_offen.<sportjahr_id>` | stündlicher Cron, sobald `meldung_beginn` des aktiven Sportjahres erreicht ist; Schalter „Push bei Meldebeginn“ am Sportjahr |
 | `kmm.erinnerung.<sportjahr_id>` | stündlicher Cron zu `erinnerung_am` (vor Meldeschluss); Schalter „Push zur Erinnerung“. Ohne Erinnerungszeitpunkt keine Erinnerung (Hinweis im Backend). |
 | `kmm.startplaetze.<tag_id>` / `kmm.startplan.<tag_id>` | `StartplanService::freigeben()` / `veroeffentlichen()`, Häkchen „Auch als Push-Nachricht senden“ (Standard an), nur für das aktive Sportjahr |
-| `kmm.geaendert.<unixzeit>` | ohne Push, Abgleich `km`; einmal je Request nach Änderungen an Sportjahr, Wettkampftag oder Schießstand (über den Hook `kmm_protokolliert`) |
+| `kmm.geaendert.<unixzeit>` | ohne Push, Abgleich `km`; einmal je Request nach Änderungen an Sportjahr, Wettkampftag oder Schießstand (über den Hook `kmm_protokolliert`); außerdem aus dem stündlichen Cron, sobald die Meldephase (`vor_beginn`/`offen`/`geschlossen`) allein durch die Uhr gewechselt hat (zuletzt gemeldeter Stand in der Option `kmm_app_phase`) |
 
 Jedes Push-Ereignis wird je Sportjahr bzw. Wettkampftag nur einmal ausgelöst (Vermerk-Spalten,
 Schema-Version 5). Zeitgesteuerte Ereignisse werden höchstens 24 Stunden nach dem Zeitpunkt

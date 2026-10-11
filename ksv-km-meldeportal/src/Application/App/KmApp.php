@@ -25,6 +25,9 @@ final class KmApp {
 
 	public const HOOK = 'ksv_app_ereignis';
 
+	/** Option: zuletzt an die App gemeldete Meldephase („<sportjahr_id>:<phase>“, siehe KmAusloeser). */
+	public const OPTION_PHASE = 'kmm_app_phase';
+
 	/** Wurde in diesem Request eine Änderung an den KM-Daten protokolliert? */
 	private static bool $geaendert = false;
 
@@ -65,14 +68,52 @@ final class KmApp {
 		self::zeitgesteuert(Clock::now_utc());
 	}
 
-	/** Meldebeginn und Erinnerung des aktiven Sportjahres prüfen und ggf. auslösen. */
+	/**
+	 * Meldebeginn und Erinnerung des aktiven Sportjahres prüfen und ggf. auslösen; danach
+	 * einen reinen Phasenwechsel (Uhr) als Abgleich melden.
+	 */
 	public static function zeitgesteuert(string $jetzt): void {
 		$repo = new SportjahrRepository();
 		$sportjahr = $repo->aktiv();
-		// Ohne Connector nichts vermerken: wird er später aktiviert, gilt weiterhin die Karenz.
-		if ($sportjahr === null || !self::verbunden()) {
+		// Ohne Connector nichts vermerken: wird er später aktiviert, gilt weiterhin die Karenz
+		// und der erste Lauf meldet den dann aktuellen Phasenstand.
+		if (!self::verbunden()) {
 			return;
 		}
+		if ($sportjahr !== null) {
+			self::push_ereignisse($repo, $sportjahr, $jetzt);
+		}
+		self::phasenwechsel($sportjahr, $jetzt);
+	}
+
+	/**
+	 * Die Meldephase (vor_beginn → offen → geschlossen) ändert sich allein mit der Uhr; ohne
+	 * Ereignis bliebe GET /km in Firestore bis zur nächsten Änderung veraltet. Weicht die Phase
+	 * vom zuletzt gemeldeten Stand ab, folgt kmm.geaendert.<zeit> (ohne Push, Abgleich „km“).
+	 *
+	 * @param array<string, mixed>|null $sportjahr
+	 * @return bool true, wenn ein Abgleich-Ereignis ausgelöst wurde.
+	 */
+	public static function phasenwechsel(?array $sportjahr, string $jetzt): bool {
+		$vorher = (string) get_option(self::OPTION_PHASE, '');
+		if (!KmAusloeser::phase_gewechselt($sportjahr, $jetzt, $vorher)) {
+			return false;
+		}
+		$kennung = KmAusloeser::phase_kennung($sportjahr, $jetzt);
+		update_option(self::OPTION_PHASE, $kennung, false);
+		if (self::$abgleich_ausgeloest) {
+			return false; // ein Push-Ereignis dieses Laufs stößt den Abgleich „km“ schon an
+		}
+		self::ausloesen(KmEreignis::geaendert(time()));
+		$id = $sportjahr === null ? null : (int) $sportjahr['id'];
+		Protokoll::system('app.phase', sprintf('App-Abgleich nach Phasenwechsel ausgelöst (%s → %s)', $vorher === '' ? '–' : $vorher, $kennung), $id, null, $id === null ? '' : 'sportjahr', $id);
+		return true;
+	}
+
+	/**
+	 * @param array<string, mixed> $sportjahr
+	 */
+	private static function push_ereignisse(SportjahrRepository $repo, array $sportjahr, string $jetzt): void {
 		$id = (int) $sportjahr['id'];
 		$tz = wp_timezone();
 		if (KmAusloeser::meldung_offen($sportjahr, $jetzt) && $repo->setzen_wenn_leer($id, 'app_meldung_offen_am', $jetzt)) {

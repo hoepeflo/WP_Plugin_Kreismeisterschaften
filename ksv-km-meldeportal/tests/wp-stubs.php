@@ -31,3 +31,8 @@ if (!function_exists('sanitize_title')) {
 		return trim($title, '-');
 	}
 }
+if (!function_exists('wp_date')) {
+	function wp_date(string $format, ?int $timestamp = null): string {
+		return gmdate($format, $timestamp ?? time());
+	}
+}

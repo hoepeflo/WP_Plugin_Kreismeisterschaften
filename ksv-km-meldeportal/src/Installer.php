@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace KSV\KMM;
 
+use KSV\KMM\Application\App\KmApp;
 use KSV\KMM\Auth\Capabilities;
 use KSV\KMM\Http\Router;
 use KSV\KMM\Infrastructure\Database\Migrator;
@@ -45,6 +46,7 @@ final class Installer {
 		if ($delete_data) {
 			Migrator::drop_all();
 			delete_option(Settings::OPTION);
+			delete_option(KmApp::OPTION_PHASE);
 		}
 	}
 }

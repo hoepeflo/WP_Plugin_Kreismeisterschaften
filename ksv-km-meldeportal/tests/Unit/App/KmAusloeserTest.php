@@ -107,4 +107,33 @@ final class KmAusloeserTest extends TestCase {
 			$this->assertFalse(KmAusloeser::aenderung_relevant($a), $a);
 		}
 	}
+
+	// ----- Phasenwechsel (Uhr) ---------------------------------------------------------------
+
+	public function test_phase_kennung_folgt_der_uhr(): void {
+		$sj = self::sj();
+		$this->assertSame('3:vor_beginn', KmAusloeser::phase_kennung($sj, '2026-10-31 23:59:59'));
+		$this->assertSame('3:offen', KmAusloeser::phase_kennung($sj, '2026-11-01 00:00:00'));
+		$this->assertSame('3:offen', KmAusloeser::phase_kennung($sj, '2027-01-10 22:58:59'));
+		$this->assertSame('3:geschlossen', KmAusloeser::phase_kennung($sj, '2027-01-10 22:59:00'));
+		$this->assertSame('3:abgeschlossen', KmAusloeser::phase_kennung(self::sj(['abgeschlossen_am' => '2027-03-01 10:00:00']), '2027-03-02 00:00:00'));
+		$this->assertSame('0:geschlossen', KmAusloeser::phase_kennung(null, '2026-11-01 00:00:00'));
+	}
+
+	public function test_phase_gewechselt_nur_bei_abweichendem_stand(): void {
+		$sj = self::sj();
+		// Erstlauf (kein gemerkter Stand) gilt als Wechsel.
+		$this->assertTrue(KmAusloeser::phase_gewechselt($sj, '2026-10-31 12:00:00', ''));
+		// Gleicher Stand: kein Ereignis, auch wenn Stunden vergehen.
+		$this->assertFalse(KmAusloeser::phase_gewechselt($sj, '2026-10-31 12:00:00', '3:vor_beginn'));
+		$this->assertFalse(KmAusloeser::phase_gewechselt($sj, '2026-12-15 12:00:00', '3:offen'));
+		// Meldebeginn bzw. Meldeschluss überschritten: Wechsel.
+		$this->assertTrue(KmAusloeser::phase_gewechselt($sj, '2026-11-01 00:30:00', '3:vor_beginn'));
+		$this->assertTrue(KmAusloeser::phase_gewechselt($sj, '2027-01-10 23:30:00', '3:offen'));
+		// Anderes aktives Sportjahr mit gleicher Phase: Wechsel (Kennung enthält die ID).
+		$this->assertTrue(KmAusloeser::phase_gewechselt(self::sj(['id' => 4]), '2026-12-15 12:00:00', '3:offen'));
+		// Kein aktives Sportjahr mehr.
+		$this->assertTrue(KmAusloeser::phase_gewechselt(null, '2026-12-15 12:00:00', '3:offen'));
+		$this->assertFalse(KmAusloeser::phase_gewechselt(null, '2026-12-15 12:00:00', '0:geschlossen'));
+	}
 }
