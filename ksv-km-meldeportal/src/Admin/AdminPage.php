@@ -141,6 +141,118 @@ abstract class AdminPage {
 		return $html;
 	}
 
+	/** Kennzahl-Präfix → Sparte, wie in der Vereinsoberfläche (assets/frontend/app.js). */
+	private const SPARTEN = ['1' => 'Gewehr', '2' => 'Pistole', '3' => 'Flinte', '6' => 'Bogen', '7' => 'Vorderlader', '11' => 'Lichtschießen', '12' => 'Blasrohr'];
+
+	/**
+	 * Disziplinen einschränken – nach Sparten gruppiert, mit „alle“/„keine“ je Sparte und
+	 * Suchfeld. Keine Auswahl bedeutet wie bisher: gilt für alle Disziplinen.
+	 *
+	 * Die Einschränkung ist der Ausnahmefall (Auflagetische, Bogenscheiben), deshalb steckt
+	 * die Liste in einem zugeklappten `details`. Das klappt auch ohne JavaScript auf;
+	 * das Skript ergänzt nur Zähler, „alle“/„keine“ und die Suche.
+	 *
+	 * @param string                                                          $feld     Feldname ohne []
+	 * @param list<array{wert: string, kennzahl: string, bezeichnung: string}> $optionen
+	 * @param list<string>                                                    $aktiv    gewählte Werte
+	 * @param array{leer?: string, eine?: string, mehrere?: string}           $texte    Kopfzeile; %d = Anzahl
+	 */
+	protected static function disziplin_auswahl(string $feld, array $optionen, array $aktiv, array $texte = []): void {
+		$texte += [
+			'leer'    => __('Gilt für alle Disziplinen – zum Einschränken aufklappen', 'ksv-km-meldeportal'),
+			'eine'    => __('Gilt nur für %d Disziplin', 'ksv-km-meldeportal'),
+			'mehrere' => __('Gilt nur für %d Disziplinen', 'ksv-km-meldeportal'),
+		];
+		$sparten = [];
+		foreach ($optionen as $o) {
+			$praefix = explode('.', $o['kennzahl'])[0];
+			$label = self::SPARTEN[ $praefix ] ?? __('Weitere', 'ksv-km-meldeportal');
+			$sparten[ $label ][] = $o;
+		}
+		echo '<details class="kmm-dis-auswahl" ' . ($aktiv !== [] ? 'open' : '') . '
+			data-leer="' . esc_attr($texte['leer']) . '" data-eine="' . esc_attr($texte['eine']) . '" data-mehrere="' . esc_attr($texte['mehrere']) . '">';
+		echo '<summary><span class="kmm-dis-stand">' . esc_html(self::disziplin_zusammenfassung($texte, count($aktiv))) . '</span></summary>';
+		echo '<div class="kmm-dis-liste">';
+		echo '<p class="kmm-dis-suchzeile"><input type="search" class="kmm-dis-suche" placeholder="' . esc_attr__('Suchen, z. B. Auflage oder 1.11', 'ksv-km-meldeportal') . '" aria-label="' . esc_attr__('Disziplinen durchsuchen', 'ksv-km-meldeportal') . '"></p>';
+		foreach ($sparten as $label => $liste) {
+			echo '<div class="kmm-standgruppe kmm-dis-sparte" data-gesamt="' . count($liste) . '"><p><strong>' . esc_html((string) $label) . '</strong> <span class="description kmm-dis-anzahl">' . esc_html(sprintf(_n('%d Disziplin', '%d Disziplinen', count($liste), 'ksv-km-meldeportal'), count($liste))) . '</span> ';
+			echo '<button type="button" class="button-link kmm-dis-alle" data-wert="1">' . esc_html__('alle', 'ksv-km-meldeportal') . '</button> · <button type="button" class="button-link kmm-dis-alle" data-wert="0">' . esc_html__('keine', 'ksv-km-meldeportal') . '</button></p>';
+			echo '<div class="kmm-staende">';
+			foreach ($liste as $o) {
+				$an = in_array($o['wert'], $aktiv, true);
+				echo '<label class="kmm-stand ' . ($an ? 'is-aktiv' : '') . '" data-suche="' . esc_attr(mb_strtolower($o['kennzahl'] . ' ' . $o['bezeichnung'])) . '">';
+				echo '<input type="checkbox" name="' . esc_attr($feld) . '[]" value="' . esc_attr($o['wert']) . '" ' . checked($an, true, false) . '> ';
+				echo '<span class="kmm-dis-kz">' . esc_html($o['kennzahl']) . '</span> ' . esc_html($o['bezeichnung']) . '</label>';
+			}
+			echo '</div></div>';
+		}
+		echo '</div></details>';
+	}
+
+	/**
+	 * Text der Kopfzeile.
+	 *
+	 * @param array{leer: string, eine: string, mehrere: string} $texte
+	 */
+	private static function disziplin_zusammenfassung(array $texte, int $anzahl): string {
+		if ($anzahl === 0) {
+			return $texte['leer'];
+		}
+		return sprintf($anzahl === 1 ? $texte['eine'] : $texte['mehrere'], $anzahl);
+	}
+
+	/** Einmal je Seite: Zähler, „alle“/„keine“ und Suche der Disziplinauswahl. */
+	protected static function disziplin_auswahl_script(): void {
+		static $gesetzt = false;
+		if ($gesetzt) {
+			return;
+		}
+		$gesetzt = true;
+		$texte = wp_json_encode(['von' => __('von', 'ksv-km-meldeportal')]);
+		echo '<script>(function(){
+var T = ' . ($texte !== false ? $texte : '{}') . ';
+document.querySelectorAll(".kmm-dis-auswahl").forEach(function(box){
+	var stand = box.querySelector(".kmm-dis-stand");
+	function kaesten(){ return Array.prototype.slice.call(box.querySelectorAll("input[type=checkbox]")); }
+	function zeigen(){
+		var n = kaesten().filter(function(c){ return c.checked; }).length;
+		var vorlage = n === 0 ? box.dataset.leer : (n === 1 ? box.dataset.eine : box.dataset.mehrere);
+		stand.textContent = vorlage.replace("%d", n);
+		kaesten().forEach(function(c){ c.closest(".kmm-stand").classList.toggle("is-aktiv", c.checked); });
+	}
+	box.addEventListener("change", zeigen);
+	box.querySelectorAll(".kmm-dis-alle").forEach(function(b){
+		b.addEventListener("click", function(){
+			b.closest(".kmm-dis-sparte").querySelectorAll("input[type=checkbox]").forEach(function(c){
+				if (c.closest(".kmm-stand").hidden) { return; }
+				c.checked = b.dataset.wert === "1";
+			});
+			zeigen();
+		});
+	});
+	box.querySelectorAll(".kmm-dis-anzahl").forEach(function(a){ a.dataset.voll = a.textContent; });
+	var suche = box.querySelector(".kmm-dis-suche");
+	if (suche) {
+		suche.addEventListener("input", function(){
+			var q = suche.value.trim().toLowerCase();
+			box.querySelectorAll(".kmm-dis-sparte").forEach(function(gruppe){
+				var sichtbar = 0;
+				gruppe.querySelectorAll(".kmm-stand").forEach(function(l){
+					var treffer = q === "" || (l.dataset.suche || "").indexOf(q) >= 0;
+					l.hidden = !treffer;
+					if (treffer) { sichtbar++; }
+				});
+				gruppe.hidden = sichtbar === 0;
+				var anzahl = gruppe.querySelector(".kmm-dis-anzahl");
+				if (anzahl) { anzahl.textContent = q === "" ? anzahl.dataset.voll : sichtbar + " " + T.von + " " + gruppe.dataset.gesamt; }
+			});
+		});
+	}
+	zeigen();
+});
+})();</script>';
+	}
+
 	/**
 	 * Sportjahr aus GET (sportjahr=ID) oder das aktive Sportjahr.
 	 *

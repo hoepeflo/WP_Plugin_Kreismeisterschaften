@@ -125,16 +125,21 @@ final class SchiessstaendePage extends AdminPage {
 		}
 		echo '</tbody></table>';
 
-		$kennzahlen = [];
+		$optionen = [];
+		$bekannt = [];
 		$sportjahr = self::current_sportjahr();
 		if ($sportjahr !== null) {
 			foreach (RegelwerkLader::laden((int) $sportjahr['id'])->disziplinen() as $d) {
-				$kennzahlen[ $d->kennzahl ] = $d->kennzahl . ' ' . $d->bezeichnung;
+				$optionen[] = ['wert' => $d->kennzahl, 'kennzahl' => $d->kennzahl, 'bezeichnung' => $d->bezeichnung];
+				$bekannt[ $d->kennzahl ] = true;
 			}
 		}
-		$aktiv = $g !== null ? array_filter(array_map('trim', explode(',', (string) $g['disziplin_kennzahlen']))) : [];
+		$aktiv = $g !== null ? array_values(array_filter(array_map('trim', explode(',', (string) $g['disziplin_kennzahlen'])))) : [];
+		// Eine gespeicherte Kennzahl, die es im Sportjahr nicht mehr gibt, bleibt wählbar.
 		foreach ($aktiv as $k) {
-			$kennzahlen[ $k ] ??= $k;
+			if (!isset($bekannt[ $k ])) {
+				$optionen[] = ['wert' => $k, 'kennzahl' => $k, 'bezeichnung' => __('nicht mehr im Sportjahr', 'ksv-km-meldeportal')];
+			}
 		}
 		self::form_open('gruppe_speichern', 'class="kmm-block-form"');
 		echo '<input type="hidden" name="stand_id" value="' . $sid . '"><input type="hidden" name="id" value="' . ($g !== null ? (int) $g['id'] : 0) . '">';
@@ -146,15 +151,12 @@ final class SchiessstaendePage extends AdminPage {
 		echo esc_html__('Kapazität je Einheit', 'ksv-km-meldeportal') . ' ' . self::input('kapazitaet', $g['kapazitaet'] ?? 1, 'number', 'class="kmm-num" min="1" max="200" required') . ' '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo esc_html__('Reihenfolge', 'ksv-km-meldeportal') . ' ' . self::input('sortierung', $g['sortierung'] ?? count($gruppen) + 1, 'number', 'class="kmm-num" min="0"') . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<p class="description">' . esc_html__('Beispiel: 12 × „Stand“ ab 1 mit Kapazität 1 ergibt Stand 1 bis Stand 12. Bogenscheiben: „Scheibe“ mit Kapazität 4; Flinte: „Rotte“ mit Kapazität 6.', 'ksv-km-meldeportal') . '</p>';
-		echo '<p>' . esc_html__('Nur für Disziplinen (optional, Mehrfachauswahl, z. B. Auflagetische; leer = alle):', 'ksv-km-meldeportal') . '<br><select name="disziplin_kennzahlen[]" multiple size="6" style="min-width:320px">';
-		foreach ($kennzahlen as $kz => $label) {
-			echo '<option value="' . esc_attr($kz) . '" ' . selected(in_array($kz, $aktiv, true), true, false) . '>' . esc_html($label) . '</option>';
-		}
-		echo '</select></p>';
+		self::disziplin_auswahl('disziplin_kennzahlen', $optionen, $aktiv);
 		submit_button($g !== null ? __('Standgruppe speichern', 'ksv-km-meldeportal') : __('Standgruppe hinzufügen', 'ksv-km-meldeportal'), 'secondary', 'submit', false);
 		if ($g !== null) {
 			echo ' <a class="button" href="' . esc_url(self::url(['stand' => $sid])) . '">' . esc_html__('Abbrechen', 'ksv-km-meldeportal') . '</a>';
 		}
 		echo '</form>';
+		self::disziplin_auswahl_script();
 	}
 }

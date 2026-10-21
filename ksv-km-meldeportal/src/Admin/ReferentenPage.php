@@ -109,17 +109,22 @@ final class ReferentenPage extends AdminPage {
 		}
 		$sportjahr = self::current_sportjahr();
 		$gruppen = [];
-		$disziplinen = [];
+		$optionen_dis = [];
+		$bekannt = [];
 		if ($sportjahr !== null) {
 			foreach ((new GruppeRepository())->by_sportjahr((int) $sportjahr['id']) as $g) {
 				$gruppen[ (string) $g['code'] ] = (string) $g['bezeichnung'];
 			}
 			foreach (RegelwerkLader::laden((int) $sportjahr['id'])->disziplinen() as $d) {
-				$disziplinen[ $d->kennzahl ] = $d->kennzahl . ' ' . $d->bezeichnung;
+				$optionen_dis[] = ['wert' => $d->kennzahl, 'kennzahl' => $d->kennzahl, 'bezeichnung' => $d->bezeichnung];
+				$bekannt[ $d->kennzahl ] = true;
 			}
 		}
+		// Eine gespeicherte Kennzahl, die es im Sportjahr nicht mehr gibt, bleibt wählbar.
 		foreach ($disziplinen_aktiv as $k) {
-			$disziplinen[ $k ] ??= $k;
+			if (!isset($bekannt[ $k ])) {
+				$optionen_dis[] = ['wert' => $k, 'kennzahl' => $k, 'bezeichnung' => __('nicht mehr im Sportjahr', 'ksv-km-meldeportal')];
+			}
 		}
 		foreach ($gruppen_aktiv as $k) {
 			$gruppen[ $k ] ??= $k;
@@ -147,11 +152,13 @@ final class ReferentenPage extends AdminPage {
 			echo '<label style="display:inline-block;margin:0 14px 6px 0"><input type="checkbox" name="gruppen[]" value="' . esc_attr($code) . '" ' . checked(in_array($code, $gruppen_aktiv, true), true, false) . '> ' . esc_html($bez) . '</label>';
 		}
 		echo '<p class="description">' . esc_html__('Eine Gruppe umfasst alle ihre Disziplinen, auch in künftigen Sportjahren (Zuordnung über den Gruppencode).', 'ksv-km-meldeportal') . '</p></td></tr>';
-		echo '<tr><th>' . esc_html__('Einzelne Disziplinen', 'ksv-km-meldeportal') . '</th><td><select name="disziplinen[]" multiple size="12" style="min-width:320px">';
-		foreach ($disziplinen as $kz => $bez) {
-			echo '<option value="' . esc_attr($kz) . '" ' . selected(in_array($kz, $disziplinen_aktiv, true), true, false) . '>' . esc_html($bez) . '</option>';
-		}
-		echo '</select><p class="description">' . esc_html__('Zusätzlich oder statt Gruppen; Mehrfachauswahl mit Strg/Cmd. Zuordnung über die Kennzahl, gilt sportjahrübergreifend.', 'ksv-km-meldeportal') . '</p></td></tr>';
+		echo '<tr><th>' . esc_html__('Einzelne Disziplinen', 'ksv-km-meldeportal') . '</th><td>';
+		self::disziplin_auswahl('disziplinen', $optionen_dis, array_map('strval', $disziplinen_aktiv), [
+			'leer'    => __('Keine einzelne Disziplin – zum Auswählen aufklappen', 'ksv-km-meldeportal'),
+			'eine'    => __('%d Disziplin ausgewählt', 'ksv-km-meldeportal'),
+			'mehrere' => __('%d Disziplinen ausgewählt', 'ksv-km-meldeportal'),
+		]);
+		echo '<p class="description">' . esc_html__('Zusätzlich oder statt Gruppen. Zuordnung über die Kennzahl, gilt sportjahrübergreifend.', 'ksv-km-meldeportal') . '</p></td></tr>';
 		echo '<tr><th>' . esc_html__('Rechte', 'ksv-km-meldeportal') . '</th><td>';
 		echo self::checkbox('darf_status', $r !== null && $r['darf_status'], __('Verarbeitungsstatus setzen (Startrechtsprüfung, Sammelaktionen)', 'ksv-km-meldeportal')) . '<br>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo self::checkbox('darf_meldungen', $r !== null && $r['darf_meldungen'], __('Meldungen bearbeiten (Admin-Modus der Vereinsoberfläche: Nachmeldung, Abmeldung, Korrektur)', 'ksv-km-meldeportal')) . '<br>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -162,5 +169,6 @@ final class ReferentenPage extends AdminPage {
 		submit_button(__('Speichern', 'ksv-km-meldeportal'), 'primary', 'submit', false);
 		echo ' <a class="button" href="' . esc_url(self::url()) . '">' . esc_html__('Abbrechen', 'ksv-km-meldeportal') . '</a>';
 		echo '</form>';
+		self::disziplin_auswahl_script();
 	}
 }

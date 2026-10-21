@@ -223,3 +223,31 @@
 
 .kmm-admin details.kmm-buchungsliste { margin: 6px 0 18px; }
 .kmm-admin details.kmm-buchungsliste > summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
+
+/* ----- Disziplinauswahl: alle oder einzelne, nach Sparten ----------------------------------------- */
+
+.kmm-admin details.kmm-dis-auswahl { margin: 10px 0 4px; }
+.kmm-admin details.kmm-dis-auswahl > summary {
+	cursor: pointer; padding: 7px 10px; border: 1px solid var(--kmm-border);
+	border-radius: var(--kmm-radius); background: var(--kmm-surface); font-weight: 600;
+	display: list-item; list-style-position: inside;
+}
+.kmm-admin details.kmm-dis-auswahl[open] > summary {
+	border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom-color: transparent;
+}
+.kmm-admin details.kmm-dis-auswahl > summary:hover { border-color: var(--kmm-primary); color: var(--kmm-primary); }
+.kmm-admin .kmm-dis-liste {
+	border: 1px solid var(--kmm-border); border-radius: var(--kmm-radius);
+	border-top-left-radius: 0; border-top-right-radius: 0;
+	background: var(--kmm-surface-2); padding: 10px 12px; max-height: 340px; overflow-y: auto;
+}
+.kmm-admin .kmm-dis-suchzeile {
+	position: sticky; top: -10px; z-index: 1; margin: -10px -12px 8px; padding: 10px 12px;
+	background: var(--kmm-surface-2); box-shadow: 0 6px 6px -6px rgba(0, 0, 0, .14);
+}
+.kmm-admin .kmm-dis-suche { width: 100%; max-width: 320px; }
+.kmm-admin .kmm-dis-sparte[hidden] { display: none; }
+.kmm-admin .kmm-dis-sparte:last-child { margin-bottom: 0; }
+.kmm-admin .kmm-dis-sparte .kmm-stand[hidden] { display: none; }
+.kmm-admin .kmm-dis-kz { font-variant-numeric: tabular-nums; color: var(--kmm-text-muted); }
+.kmm-admin .kmm-dis-sparte .kmm-stand.is-aktiv .kmm-dis-kz { color: var(--kmm-ok); }

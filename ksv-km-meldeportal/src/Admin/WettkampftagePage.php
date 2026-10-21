@@ -322,16 +322,17 @@ final class WettkampftagePage extends AdminPage {
 			echo '<p>' . esc_html__('Bezeichnung', 'ksv-km-meldeportal') . ' ' . self::input('bezeichnung', $edit_e['bezeichnung'] ?? '', 'text', 'class="kmm-short" required placeholder="Stand 1"') . ' '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo esc_html__('Kapazität', 'ksv-km-meldeportal') . ' ' . self::input('kapazitaet', $edit_e['kapazitaet'] ?? 1, 'number', 'class="kmm-num" min="1" max="200" required') . ' '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo esc_html__('Reihenfolge', 'ksv-km-meldeportal') . ' ' . self::input('sortierung', $edit_e['sortierung'] ?? count($u['einheiten']) + 1, 'number', 'class="kmm-num" min="0"') . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo '<p>' . esc_html__('Nur für Disziplinen (optional, Mehrfachauswahl; leer = alle):', 'ksv-km-meldeportal') . '<br><select name="disziplin_ids[]" multiple size="6" style="min-width:320px">';
-			foreach ($disziplinen as $did => $label) {
-				echo '<option value="' . (int) $did . '" ' . selected(in_array($did, $ids, true), true, false) . '>' . esc_html($label) . '</option>';
+			$optionen = [];
+			foreach ($rw->disziplinen() as $d) {
+				$optionen[] = ['wert' => (string) $d->id, 'kennzahl' => $d->kennzahl, 'bezeichnung' => $d->bezeichnung];
 			}
-			echo '</select></p>';
+			self::disziplin_auswahl('disziplin_ids', $optionen, array_map('strval', $ids));
 			submit_button($edit_e !== null ? __('Einheit speichern', 'ksv-km-meldeportal') : __('Einheit hinzufügen', 'ksv-km-meldeportal'), 'secondary', 'submit', false);
 			if ($edit_e !== null) {
 				echo ' <a class="button" href="' . esc_url(self::url(['sportjahr' => $sid, 'tag' => $tag_id])) . '">' . esc_html__('Abbrechen', 'ksv-km-meldeportal') . '</a>';
 			}
 			echo '</form>';
+			self::disziplin_auswahl_script();
 		}
 
 		// Durchgänge
