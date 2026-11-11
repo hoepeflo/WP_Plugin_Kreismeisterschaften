@@ -48,6 +48,12 @@ Theme (`templates/frontend/layout-theme.php`, `get_header()`/`get_footer()`).
 
 - Adresse, Zugangslinks, Sitzung und die Cache-Sperre des Routers bleiben gleich; Titel
   und `noindex` laufen im Rahmen über `pre_get_document_title` und `wp_robots`.
+- Im Rahmen beendet der Router die Anfrage nicht selbst. Der Inhalt wird gemerkt und
+  `layout-theme.php` über den Filter `template_include` (Priorität 1000) als Vorlage
+  eingehängt, sodass die Seite den normalen Weg von WordPress durchläuft. Das ist nötig:
+  Divi hängt den Theme-Builder-Kopf und -Fuß erst in `template_include` (Priorität 99)
+  ein, und WordPress setzt seine Block-Styles erst beim Laden der Vorlage zusammen. Ein
+  direkter Aufruf von `get_header()` davor liefert Divis Standard-Kopf ohne Styles.
 - Das Stylesheet hängt vollständig an `.kmm` – als eigene Seite am `<body>`, im Rahmen am
   Hüllelement. Elementregeln stehen als `.kmm :where(…)`: Sie setzen sich gegen die
   Grundregeln eines Themes durch, berühren aber weder Kopf noch Fuß der Website.
@@ -57,9 +63,10 @@ Theme (`templates/frontend/layout-theme.php`, `get_header()`/`get_footer()`).
   Seite mit Vereinssitzung und Schützendaten, und die Seite lädt deren Stylesheets mit.
   Ein Theme-Update kann die Darstellung verändern. Deshalb abschaltbar.
 - Geprüft wurde gegen ein klassisches Theme mit den Stylesheets von ksv-fallingbostel.de
-  (Divi, Bootstrap, Download-Manager): Die berechneten Stile aller Portal-Elemente stimmen
-  mit der eigenen Seite überein. Divi selbst (Theme-Builder-Kopf, Skripte) lässt sich nur
-  auf der echten Website prüfen – siehe `docs/INSTALLATION.md`.
+  (Divi, Bootstrap, Download-Manager), das seinen Kopf wie Divi erst in `template_include`
+  einhängt: Die berechneten Stile aller Portal-Elemente stimmen mit der eigenen Seite
+  überein. Die Skripte von Divi lassen sich nur auf der echten Website prüfen – siehe
+  `docs/INSTALLATION.md`.
 
 ## Status und Schreibrecht
 

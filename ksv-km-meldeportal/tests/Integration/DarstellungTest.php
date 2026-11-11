@@ -12,7 +12,7 @@ use KSV\KMM\Support\Settings;
  */
 final class DarstellungTest extends IntegrationTestCase {
 
-	private const HOOKS = ['pre_get_document_title', 'wp_robots', 'body_class', 'wp_enqueue_scripts'];
+	private const HOOKS = ['pre_get_document_title', 'wp_robots', 'body_class', 'wp_enqueue_scripts', 'template_include'];
 
 	/** @var array<string, \WP_Hook|null> */
 	private array $hooks = [];
@@ -30,6 +30,7 @@ final class DarstellungTest extends IntegrationTestCase {
 
 	protected function tearDown(): void {
 		delete_option(Settings::OPTION);
+		View::theme_zuruecksetzen();
 		foreach ($this->hooks as $hook => $stand) {
 			if ($stand === null) {
 				unset($GLOBALS['wp_filter'][ $hook ]);
@@ -55,11 +56,20 @@ final class DarstellungTest extends IntegrationTestCase {
 		$this->assertStringContainsString('noindex, nofollow', $html);
 		$this->assertStringNotContainsString('kmm-im-theme', $html);
 		$this->assertFalse(has_filter('pre_get_document_title'), 'die eigene Seite hängt sich nicht in das Theme');
+		$this->assertFalse(View::wartet_auf_theme(), 'der Router beendet die Anfrage selbst');
 	}
 
 	public function test_im_rahmen_der_website_kommen_kopf_und_fuss_vom_theme(): void {
 		Settings::update(['portal_im_theme' => true]);
-		$html = $this->seite();
+		// Zunächst wird nichts ausgegeben: Die Seite wartet, bis WordPress die Vorlage lädt.
+		// Erst dort hängen Themes Kopf und Fuß ein (Divi im Filter template_include).
+		$this->assertSame('', $this->seite());
+		$this->assertTrue(View::wartet_auf_theme(), 'der Router lässt WordPress weiterlaufen');
+		$vorlage = (string) apply_filters('template_include', '/thema/index.php');
+		$this->assertStringEndsWith('templates/frontend/layout-theme.php', $vorlage);
+		ob_start();
+		include $vorlage;
+		$html = (string) ob_get_clean();
 		$this->assertStringContainsString('class="kmm kmm-im-theme"', $html);
 		$this->assertStringContainsString('Zugangslink anfordern', $html, 'der Inhalt ist derselbe');
 		$this->assertStringNotContainsString('class="kmm-leiste"', $html, 'kein eigener Kopf');

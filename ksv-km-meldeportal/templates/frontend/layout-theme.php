@@ -3,7 +3,7 @@
  * Seitenrahmen der Vereinsoberfläche im Rahmen der Website: Kopf und Fuß des Themes,
  * dazwischen das Portal (Einstellung „Portal im Rahmen der Website anzeigen“).
  *
- * @var array<string, mixed> $data
+ * WordPress lädt diese Datei als Vorlage (Filter template_include, siehe Http\View).
  */
 
 declare(strict_types=1);
@@ -11,7 +11,7 @@ declare(strict_types=1);
 if (!defined('ABSPATH')) {
 	exit;
 }
-$content = isset($data['content']) && is_string($data['content']) ? $data['content'] : '';
+$content = KSV\KMM\Http\View::theme_inhalt();
 
 get_header();
 ?>

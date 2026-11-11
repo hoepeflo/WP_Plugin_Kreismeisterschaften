@@ -58,8 +58,13 @@ final class Router {
 	}
 
 	/**
-	 * Liefert die Meldeseite aus. Der Aufruf endet immer mit exit, damit weder
+	 * Liefert die Meldeseite aus. Als eigene Seite endet der Aufruf mit exit, damit weder
 	 * Theme noch Divi noch ein Seitencache greifen.
+	 *
+	 * Im Rahmen der Website (Einstellung) läuft WordPress dagegen weiter bis zum Laden der
+	 * Vorlage: Themes hängen Kopf und Fuß erst dort ein – Divi seinen Theme-Builder-Kopf im
+	 * Filter template_include –, und WordPress setzt dort seine eigenen Styles zusammen.
+	 * Die Vorlage selbst liefert dann View über denselben Filter.
 	 */
 	public static function dispatch(): void {
 		$route = get_query_var(self::QUERY_VAR, '');
@@ -74,6 +79,9 @@ final class Router {
 
 		$controller = new FrontController();
 		$controller->handle($segments);
+		if (View::wartet_auf_theme()) {
+			return;
+		}
 		exit;
 	}
 
