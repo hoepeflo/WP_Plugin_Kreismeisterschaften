@@ -20,24 +20,32 @@
 
 ## Auslieferung per GitHub Actions
 
-Jeder Push auf `main` startet `.github/workflows/deploy.yml`. Der Job „KM-Portal per FTP"
+Jeder Push auf `main` startet `.github/workflows/deploy.yml`. Der Job „KM-Portal per SFTP"
 baut das Plugin (Composer ohne Dev-Pakete, nur die DejaVu-Schriften von mPDF) und lädt es
-in den Plugin-Ordner der Website.
+mit `tools/deploy-sftp.sh` in den Plugin-Ordner der Website.
 
-- **Eigener FTP-Benutzer:** Startverzeichnis `wp-content/plugins/ksv-km-meldeportal/`,
-  hinterlegt als Secrets `KMM_FTP_USER` und `KMM_FTP_PASS` (Host: `FTP_HOST`). Der Zugang
-  des Ergebnis-Plugins taugt dafür nicht – er startet in dessen Ordner.
-- **Schutz:** Vor dem Upload prüft der Job, dass im Ziel `ksv-km-meldeportal.php` liegt
-  und es kein WordPress-Hauptordner ist. Sonst bricht er ab, ohne etwas hochzuladen.
+- **Eigener SFTP-Benutzer** (IONOS: „SFTP & SSH"), Startverzeichnis
+  `wp-content/plugins/ksv-km-meldeportal/`. Hinterlegt als Secrets `KMM_FTP_HOST`,
+  `KMM_FTP_USER` und `KMM_FTP_PASS` – die Namen stammen aus der FTP-Zeit, gemeint ist
+  SFTP auf Port 22 (abweichend: Repository-Variable `KMM_FTP_PORT`). Der FTP-Zugang des
+  Ergebnis-Plugins taugt dafür nicht, er startet in dessen Ordner.
+- **Schutz:** Vor dem Upload prüft das Skript, dass im Ziel `ksv-km-meldeportal.php` liegt
+  und es kein WordPress-Hauptordner ist. Sonst bricht es ab, ohne etwas zu verändern, und
+  nennt den Grund (Anmeldung abgelehnt, falscher Ordner, Server nicht erreichbar).
   Fehlen die Secrets, wird der Upload mit einer Warnung übersprungen.
+- **Nur Änderungen:** Auf dem Server liegt `.kmm-deploy-state` mit den Prüfsummen des
+  letzten Uploads. Hochgeladen wird, was davon abweicht; gelöscht wird nur, was ein
+  früherer Upload selbst angelegt hat. Die Hauptdatei mit der Versionsnummer geht zuletzt
+  hoch, damit die Seite erst auf neue Stylesheets verweist, wenn sie da sind.
 - **ZIP:** Dasselbe Paket hängt 30 Tage als Artefakt am Lauf (GitHub → Actions → Lauf →
   „Artifacts"). Es enthält den Ordner `ksv-km-meldeportal/` und lässt sich im Backend
   unter „Plugins → Installieren → Plugin hochladen" einspielen.
 - Weicht der Zielordner vom Startverzeichnis ab, die Repository-Variable
-  `KMM_FTP_SERVER_DIR` setzen (mit Schrägstrich am Ende).
+  `KMM_FTP_SERVER_DIR` setzen.
 
-Der erste Lauf in einen Ordner lädt alle Dateien hoch und dauert einige Minuten; danach
-nur noch die geänderten.
+Der erste Lauf in einen Ordner lädt alle Dateien hoch; danach nur noch die geänderten.
+Das Skript lässt sich auch von Hand starten: `KMM_SFTP_HOST=… KMM_SFTP_USER=…
+KMM_SFTP_PASS=… bash tools/deploy-sftp.sh <Ordner mit dem gebauten Plugin>`.
 
 ## Darstellung: eigene Seite oder im Rahmen der Website
 

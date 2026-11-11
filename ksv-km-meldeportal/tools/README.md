@@ -8,6 +8,17 @@ Erzeugt ein installierbares Plugin-ZIP ohne `docs/`, `tools/`, `tests/`:
 bash tools/build-zip.sh      # → build/ksv-km-meldeportal-<version>.zip
 ```
 
+## deploy-sftp.sh
+
+Lädt das gebaute Plugin per SFTP in den Plugin-Ordner der Website – nur geänderte Dateien,
+nach einer Prüfung von Anmeldung und Zielordner. Wird vom Deploy-Job auf GitHub aufgerufen;
+Einzelheiten in `docs/INSTALLATION.md`, Abschnitt „Auslieferung per GitHub Actions".
+Voraussetzung: `lftp`.
+
+```bash
+KMM_SFTP_HOST=… KMM_SFTP_USER=… KMM_SFTP_PASS=… bash tools/deploy-sftp.sh build/ksv-km-meldeportal
+```
+
 ## konvertiere-disziplinplan.py
 
 Einmaliges Konvertierungsskript: NSSV-Disziplinplan (xlsx) → Regeltabellen-JSON
