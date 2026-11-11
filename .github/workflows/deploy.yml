@@ -51,6 +51,12 @@ jobs:
       group: ftp-deploy-meldeportal
       cancel-in-progress: true
 
+    env:
+      # Zielordner relativ zum Startordner des FTP-Benutzers. Der eigene Benutzer des
+      # KM-Portals startet direkt in wp-content/plugins/ksv-km-meldeportal/, deshalb "/".
+      # Abweichend als Repository-Variable KMM_FTP_SERVER_DIR setzen (mit Schrägstrich am Ende).
+      KMM_ZIEL: ${{ vars.KMM_FTP_SERVER_DIR || '/' }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -73,34 +79,76 @@ jobs:
         working-directory: ksv-km-meldeportal
         run: find vendor/mpdf/mpdf/ttfonts -type f ! -name 'DejaVu*' -delete
 
+      # Dasselbe Paket, das per FTP hochgeladen wird, zusätzlich zum Herunterladen:
+      # Lauf öffnen → „Artifacts" → ZIP laden → im Backend unter „Plugins → Installieren →
+      # Plugin hochladen" einspielen. Das ZIP enthält den Ordner ksv-km-meldeportal/.
+      - name: Version lesen
+        id: version
+        run: echo "version=$(grep -E '^\s*\*\s*Version:' ksv-km-meldeportal/ksv-km-meldeportal.php | head -1 | sed -E 's/.*Version:\s*//; s/\s+$//')" >> "$GITHUB_OUTPUT"
+
+      - name: Paket zusammenstellen
+        run: |
+          mkdir -p paket
+          rsync -a ksv-km-meldeportal/ paket/ksv-km-meldeportal/ \
+            --exclude '.git*' --exclude '*.map' --exclude '.DS_Store' --exclude '*.md' \
+            --exclude '/docs' --exclude '/tools' --exclude '/tests' --exclude '/build' \
+            --exclude '/phpunit.xml.dist' --exclude '/phpstan.neon.dist' \
+            --exclude '/composer.json' --exclude '/composer.lock'
+
+      - name: Paket als ZIP anhängen
+        uses: actions/upload-artifact@v4
+        with:
+          name: ksv-km-meldeportal-${{ steps.version.outputs.version }}
+          path: paket/
+          retention-days: 30
+
+      # Ohne eigenen FTP-Zugang wird nicht hochgeladen. Früher lief der Upload mit dem Zugang
+      # des Ergebnis-Plugins in dessen Ordner – ohne Fehler und ohne Wirkung.
+      - name: Eigener FTP-Zugang vorhanden?
+        id: zugang
+        env:
+          KMM_FTP_USER: ${{ secrets.KMM_FTP_USER }}
+          KMM_FTP_PASS: ${{ secrets.KMM_FTP_PASS }}
+        run: |
+          if [ -n "$KMM_FTP_USER" ] && [ -n "$KMM_FTP_PASS" ]; then
+            echo "vorhanden=ja" >> "$GITHUB_OUTPUT"
+          else
+            echo "vorhanden=nein" >> "$GITHUB_OUTPUT"
+            echo "::warning::KM-Portal nicht hochgeladen: Die Secrets KMM_FTP_USER und KMM_FTP_PASS fehlen. Das Paket hängt als ZIP am Lauf."
+          fi
+
+      # Schutz vor einem falschen Startordner: Im Ziel muss das installierte Plugin liegen
+      # und darf kein WordPress-Hauptordner sein – sonst würde die index.php des Plugins
+      # die von WordPress überschreiben.
+      - name: Zielordner prüfen
+        if: steps.zugang.outputs.vorhanden == 'ja'
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          KMM_FTP_USER: ${{ secrets.KMM_FTP_USER }}
+          KMM_FTP_PASS: ${{ secrets.KMM_FTP_PASS }}
+        run: |
+          basis="ftp://${FTP_HOST}${KMM_ZIEL}"
+          holen() { curl -sS --fail --max-time 30 --user "${KMM_FTP_USER}:${KMM_FTP_PASS}" -o /dev/null "${basis}$1"; }
+          if ! holen ksv-km-meldeportal.php; then
+            echo "::error::Im Zielordner „${KMM_ZIEL}“ des FTP-Benutzers liegt keine ksv-km-meldeportal.php (oder die Anmeldung schlägt fehl). Der Benutzer muss in wp-content/plugins/ksv-km-meldeportal/ starten. Nichts hochgeladen."
+            exit 1
+          fi
+          if holen wp-load.php 2>/dev/null; then
+            echo "::error::Der Zielordner „${KMM_ZIEL}“ ist ein WordPress-Hauptordner. Nichts hochgeladen."
+            exit 1
+          fi
+          echo "Zielordner ist der Plugin-Ordner des KM-Portals."
+
       - name: Upload via FTP
+        if: steps.zugang.outputs.vorhanden == 'ja'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USER }}
-          password: ${{ secrets.FTP_PASS }}
+          username: ${{ secrets.KMM_FTP_USER }}
+          password: ${{ secrets.KMM_FTP_PASS }}
           protocol: ftp
           port: 21
-          local-dir: ./ksv-km-meldeportal/
-          # Zielordner des KM-Portals relativ zum FTP-Root, als Repository-Variable
-          # KMM_FTP_SERVER_DIR setzen (z. B. /../ksv-km-meldeportal/ oder
-          # /wp-content/plugins/ksv-km-meldeportal/), Standard: /ksv-km-meldeportal/
-          server-dir: ${{ vars.KMM_FTP_SERVER_DIR || '/ksv-km-meldeportal/' }}
-          exclude: |
-            **/.git*
-            **/.github/**
-            **/node_modules/**
-            **/*.map
-            **/.DS_Store
-            **/*.md
-            docs/**
-            tools/**
-            tests/**
-            build/**
-            phpunit.xml.dist
-            phpstan.neon.dist
-            composer.json
-            composer.lock
-            .gitignore
+          local-dir: ./paket/ksv-km-meldeportal/
+          server-dir: ${{ env.KMM_ZIEL }}
           dangerous-clean-slate: false
           timeout: 300000

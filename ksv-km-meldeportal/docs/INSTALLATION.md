@@ -18,6 +18,27 @@
 4. Unter „KM-Portal → System" prüfen: alle Tabellen „vorhanden", Schema-Version
    gleich der Code-Version.
 
+## Auslieferung per GitHub Actions
+
+Jeder Push auf `main` startet `.github/workflows/deploy.yml`. Der Job „KM-Portal per FTP"
+baut das Plugin (Composer ohne Dev-Pakete, nur die DejaVu-Schriften von mPDF) und lädt es
+in den Plugin-Ordner der Website.
+
+- **Eigener FTP-Benutzer:** Startverzeichnis `wp-content/plugins/ksv-km-meldeportal/`,
+  hinterlegt als Secrets `KMM_FTP_USER` und `KMM_FTP_PASS` (Host: `FTP_HOST`). Der Zugang
+  des Ergebnis-Plugins taugt dafür nicht – er startet in dessen Ordner.
+- **Schutz:** Vor dem Upload prüft der Job, dass im Ziel `ksv-km-meldeportal.php` liegt
+  und es kein WordPress-Hauptordner ist. Sonst bricht er ab, ohne etwas hochzuladen.
+  Fehlen die Secrets, wird der Upload mit einer Warnung übersprungen.
+- **ZIP:** Dasselbe Paket hängt 30 Tage als Artefakt am Lauf (GitHub → Actions → Lauf →
+  „Artifacts"). Es enthält den Ordner `ksv-km-meldeportal/` und lässt sich im Backend
+  unter „Plugins → Installieren → Plugin hochladen" einspielen.
+- Weicht der Zielordner vom Startverzeichnis ab, die Repository-Variable
+  `KMM_FTP_SERVER_DIR` setzen (mit Schrägstrich am Ende).
+
+Der erste Lauf in einen Ordner lädt alle Dateien hoch und dauert einige Minuten; danach
+nur noch die geänderten.
+
 ## Darstellung: eigene Seite oder im Rahmen der Website
 
 Unter „KM-Portal → Einstellungen → Darstellung" lässt sich die Vereinsoberfläche in den
