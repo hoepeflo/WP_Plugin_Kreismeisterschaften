@@ -121,6 +121,7 @@ jobs:
       # und darf kein WordPress-Hauptordner sein – sonst würde die index.php des Plugins
       # die von WordPress überschreiben.
       - name: Zielordner prüfen
+        id: ziel
         if: steps.zugang.outputs.vorhanden == 'ja'
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
@@ -128,16 +129,45 @@ jobs:
           KMM_FTP_PASS: ${{ secrets.KMM_FTP_PASS }}
         run: |
           basis="ftp://${FTP_HOST}${KMM_ZIEL}"
-          holen() { curl -sS --fail --max-time 30 --user "${KMM_FTP_USER}:${KMM_FTP_PASS}" -o /dev/null "${basis}$1"; }
-          if ! holen ksv-km-meldeportal.php; then
-            echo "::error::Im Zielordner „${KMM_ZIEL}“ des FTP-Benutzers liegt keine ksv-km-meldeportal.php (oder die Anmeldung schlägt fehl). Der Benutzer muss in wp-content/plugins/ksv-km-meldeportal/ starten. Nichts hochgeladen."
+          # holen <Datei> [curl-Optionen]: Rückgabewert von curl; die Antwort des Servers steht danach in antwort.txt.
+          holen() {
+            local datei="$1"; shift
+            local code=0
+            curl -sS -v --fail --max-time 30 "$@" --user "${KMM_FTP_USER}:${KMM_FTP_PASS}" -o /dev/null "${basis}${datei}" 2> protokoll.txt || code=$?
+            grep -E '^< [45][0-9]{2}' protokoll.txt | tail -1 | sed 's/^< //' | tr -d '\r\n' > antwort.txt || true
+            rm -f protokoll.txt
+            return $code
+          }
+          # Erst unverschlüsselt wie der Upload bisher, sonst mit TLS – manche Hoster verlangen das je Benutzer.
+          code=0; holen ksv-km-meldeportal.php || code=$?
+          protokoll=ftp
+          tls=()
+          if [ "$code" -eq 67 ]; then
+            erste="$(cat antwort.txt)"
+            code=0; holen ksv-km-meldeportal.php --ssl-reqd || code=$?
+            if [ "$code" -eq 0 ]; then
+              protokoll=ftps
+              tls=(--ssl-reqd)
+              echo "::notice::Der FTP-Server nimmt diesen Benutzer nur mit TLS an; der Upload läuft verschlüsselt."
+            else
+              # Auch mit TLS keine Anmeldung (oder der Server kann kein TLS): Es bleibt bei der Ablehnung.
+              echo "::error::FTP-Anmeldung abgelehnt (Antwort des Servers: „${erste}“, mit TLS: „$(cat antwort.txt)“). Benutzername und Passwort in den Secrets KMM_FTP_USER und KMM_FTP_PASS prüfen – der Benutzername muss genau so lauten, wie der Hoster ihn anzeigt. Neu angelegte FTP-Benutzer sind bei manchen Hostern erst nach einigen Minuten aktiv. Nichts hochgeladen."
+              exit 1
+            fi
+          fi
+          if [ "$code" -eq 78 ] || [ "$code" -eq 19 ] || [ "$code" -eq 9 ]; then
+            echo "::error::Angemeldet, aber im Zielordner „${KMM_ZIEL}“ liegt keine ksv-km-meldeportal.php (Antwort des Servers: „$(cat antwort.txt)“). Der FTP-Benutzer muss in wp-content/plugins/ksv-km-meldeportal/ starten. Nichts hochgeladen."
+            exit 1
+          elif [ "$code" -ne 0 ]; then
+            echo "::error::FTP-Server nicht erreichbar oder Übertragung fehlgeschlagen (curl ${code}, Antwort des Servers: „$(cat antwort.txt)“). Nichts hochgeladen."
             exit 1
           fi
-          if holen wp-load.php 2>/dev/null; then
+          if holen wp-load.php "${tls[@]}"; then
             echo "::error::Der Zielordner „${KMM_ZIEL}“ ist ein WordPress-Hauptordner. Nichts hochgeladen."
             exit 1
           fi
-          echo "Zielordner ist der Plugin-Ordner des KM-Portals."
+          echo "protokoll=${protokoll}" >> "$GITHUB_OUTPUT"
+          echo "Zielordner ist der Plugin-Ordner des KM-Portals (Protokoll: ${protokoll})."
 
       - name: Upload via FTP
         if: steps.zugang.outputs.vorhanden == 'ja'
@@ -146,7 +176,7 @@ jobs:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.KMM_FTP_USER }}
           password: ${{ secrets.KMM_FTP_PASS }}
-          protocol: ftp
+          protocol: ${{ steps.ziel.outputs.protokoll }}
           port: 21
           local-dir: ./paket/ksv-km-meldeportal/
           server-dir: ${{ env.KMM_ZIEL }}
