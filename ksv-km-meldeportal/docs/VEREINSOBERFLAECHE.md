@@ -39,6 +39,28 @@ Teil derselben Seite erkennen:
   Eingabefelder haben mindestens 16 px Schrift (sonst zoomt iOS beim Antippen), Knöpfe
   reagieren ohne Tippverzögerung, Abstände berücksichtigen Notch und Home-Leiste.
 
+### Eigene Seite oder im Rahmen der Website
+
+Standard ist die eigene Seite (`templates/frontend/layout.php`): Kopf und Fuß stammen vom
+Plugin, auf der Meldeseite läuft nur Plugin-Code. Mit der Einstellung **„Portal im Rahmen
+der Website anzeigen“** (`portal_im_theme`, Standard aus) kommen Kopf, Menü und Fuß vom
+Theme (`templates/frontend/layout-theme.php`, `get_header()`/`get_footer()`).
+
+- Adresse, Zugangslinks, Sitzung und die Cache-Sperre des Routers bleiben gleich; Titel
+  und `noindex` laufen im Rahmen über `pre_get_document_title` und `wp_robots`.
+- Das Stylesheet hängt vollständig an `.kmm` – als eigene Seite am `<body>`, im Rahmen am
+  Hüllelement. Elementregeln stehen als `.kmm :where(…)`: Sie setzen sich gegen die
+  Grundregeln eines Themes durch, berühren aber weder Kopf noch Fuß der Website.
+- Der Dunkelmodus gilt nur für die eigene Seite; im Rahmen einer hellen Website bliebe
+  das Portal sonst ein dunkler Block.
+- **Nachteil:** Im Rahmen laufen auch die Skripte des Themes und anderer Plugins auf der
+  Seite mit Vereinssitzung und Schützendaten, und die Seite lädt deren Stylesheets mit.
+  Ein Theme-Update kann die Darstellung verändern. Deshalb abschaltbar.
+- Geprüft wurde gegen ein klassisches Theme mit den Stylesheets von ksv-fallingbostel.de
+  (Divi, Bootstrap, Download-Manager): Die berechneten Stile aller Portal-Elemente stimmen
+  mit der eigenen Seite überein. Divi selbst (Theme-Builder-Kopf, Skripte) lässt sich nur
+  auf der echten Website prüfen – siehe `docs/INSTALLATION.md`.
+
 ## Status und Schreibrecht
 
 - Status `offen` (nichts erfasst) → `entwurf` (erste Änderung) → `eingereicht`; Wieder öffnen → `entwurf`.

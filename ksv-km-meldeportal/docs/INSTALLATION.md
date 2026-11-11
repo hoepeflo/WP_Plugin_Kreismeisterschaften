@@ -18,6 +18,24 @@
 4. Unter „KM-Portal → System" prüfen: alle Tabellen „vorhanden", Schema-Version
    gleich der Code-Version.
 
+## Darstellung: eigene Seite oder im Rahmen der Website
+
+Unter „KM-Portal → Einstellungen → Darstellung" lässt sich die Vereinsoberfläche in den
+Rahmen der Website setzen (Kopf, Menü und Fuß des Themes). Standard ist aus: Dann läuft das
+Portal als eigene Seite im Erscheinungsbild der Website, und auf der Meldeseite läuft nur
+Code des Plugins.
+
+Nach dem Einschalten einmal prüfen – am PC und am Handy, angemeldet über einen Zugangslink:
+
+1. Kopf und Fuß der Website erscheinen wie auf den übrigen Seiten.
+2. Schrift, Knöpfe, Tabelle und Eingabefelder des Portals sehen aus wie vorher.
+3. Dialoge („Neuer Schütze", „Neue Mannschaft") liegen über dem Kopf der Website.
+4. Nach einem Tabwechsel weiter unten auf der Seite stehen die Tabs unter dem Kopf, nicht dahinter.
+5. Cookie-Banner, Pop-ups oder Chat-Fenster der Website stören die Meldung nicht.
+
+Stimmt etwas nicht, den Haken wieder entfernen – die eigene Seite ist sofort zurück.
+Adresse, Zugangslinks und die Cache-Ausschlussregel ändern sich in keinem Fall.
+
 Updates per FTP (ohne erneute Aktivierung) werden erkannt: Weicht die gespeicherte
 Schema-Version vom Code ab, läuft die Migration beim nächsten Backend-Aufruf
 automatisch. Auf der Systemseite kann sie jederzeit erneut angestoßen werden.

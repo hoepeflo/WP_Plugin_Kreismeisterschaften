@@ -1,7 +1,13 @@
-/* KM-Portal – Vereinsoberfläche. Mobil zuerst, ohne Theme und ohne Build-Schritt.
-   Farben, Schrift und Formen folgen der Website des KSV Fallingbostel. */
+/* KM-Portal – Vereinsoberfläche. Mobil zuerst, ohne Build-Schritt.
+   Farben, Schrift und Formen folgen der Website des KSV Fallingbostel.
 
-:root {
+   Alles hängt an .kmm: als eigene Seite ist das der <body>, im Rahmen der Website
+   (Einstellung „Portal im Rahmen der Website anzeigen“) ein Hüllelement. Elementregeln
+   stehen deshalb als „.kmm :where(…)“ – stark genug gegen die Grundregeln eines Themes,
+   schwach genug, dass die eigenen Klassen weiter unten sie überschreiben, und ohne
+   Wirkung auf Kopf und Fuß der Website. */
+
+.kmm {
 	/* Flächen und Text */
 	--kmm-bg: #f4f6f2;
 	--kmm-surface: #ffffff;
@@ -50,8 +56,9 @@
 	--kmm-kopf-bg: var(--kmm-primary);
 }
 
+/* Dunkel nur als eigene Seite: im Rahmen der (hellen) Website bliebe das Portal sonst ein dunkler Block. */
 @media (prefers-color-scheme: dark) {
-	:root {
+	.kmm:not(.kmm-im-theme) {
 		--kmm-bg: #10160d;
 		--kmm-surface: #171f13;
 		--kmm-surface-2: #1e2819;
@@ -80,23 +87,36 @@
 	}
 }
 
-* { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; }
-html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+.kmm, .kmm *, .kmm *::before, .kmm *::after { box-sizing: border-box; }
 
-body.kmm {
+.kmm {
 	font-family: Roboto, ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 	font-size: 16px;
+	font-weight: 400;
 	line-height: 1.6;
+	letter-spacing: normal;
+	text-align: left;
 	color: var(--kmm-text);
+	-webkit-text-size-adjust: 100%;
+	-webkit-tap-highlight-color: transparent;
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+}
+body.kmm {
+	margin: 0;
+	padding: 0;
 	background: var(--kmm-bg);
 	min-height: 100vh;
 	min-height: 100svh;
 	display: flex;
 	flex-direction: column;
-	-webkit-font-smoothing: antialiased;
-	text-rendering: optimizeLegibility;
 }
+
+/* Im Rahmen der Website: Kopf und Fuß kommen vom Theme, das Portal dazwischen bleibt, wie es ist. */
+.kmm-im-theme { background: var(--kmm-bg); min-height: 50vh; clear: both; }
+.kmm-im-theme .kmm-main { padding: 28px 0 56px; }
+/* Tabwechsel springt zu den Tabs – unter einem mitlaufenden Website-Kopf braucht das Abstand. */
+.kmm-im-theme .kmm-tabs { scroll-margin-top: 130px; }
 
 .kmm-container {
 	width: 100%; max-width: 1120px; margin: 0 auto;
@@ -104,14 +124,34 @@ body.kmm {
 }
 
 /* Bedienelemente: sofort reagieren, Beschriftung nicht markieren. */
-button, summary, .kmm-button, .kmm-check {
+.kmm :where(button, summary), .kmm-button, .kmm-check {
 	touch-action: manipulation; -webkit-user-select: none; user-select: none;
 }
-a, input, select, label { touch-action: manipulation; }
+.kmm :where(a, input, select, label) { touch-action: manipulation; }
 
-:where(a, button, summary, input, select, textarea):focus-visible {
+.kmm :where(a, button, summary, input, select, textarea):focus-visible {
 	outline: 2px solid var(--kmm-primary); outline-offset: 2px;
 }
+
+/* ----- Typografie ---------------------------------------------------------------- */
+
+/* Steht vor allen Komponenten: bei gleicher Stärke gewinnt die spätere Regel, also die Klasse.
+   Größen in px statt rem: die Wurzelschriftgröße gehört im Rahmen der Website dem Theme. */
+.kmm :where(h1, h2, h3, h4) { color: var(--kmm-titel); font-family: inherit; font-weight: 600; padding: 0; text-transform: none; }
+.kmm :where(h1) { font-size: clamp(23px, 19px + 1.1vw, 30px); line-height: 1.2; letter-spacing: -.015em; margin: 0 0 14px; overflow-wrap: anywhere; }
+.kmm :where(h2) { font-size: 21px; line-height: 1.3; letter-spacing: -.01em; margin: 28px 0 12px; }
+.kmm :where(h3) { font-size: 17px; line-height: 1.35; letter-spacing: normal; margin: 20px 0 8px; }
+.kmm :where(h4) { font-size: 15px; line-height: 1.4; margin: 16px 0 6px; }
+.kmm :where(p) { margin: 0 0 12px; padding: 0; }
+.kmm :where(ul) { list-style: disc; }
+/* Themes gestalten Knöpfe und Tabellenzellen gern global; hier beginnt beides neutral. */
+.kmm :where(button) { margin: 0; background: none; border: 0; border-radius: 0; box-shadow: none; color: inherit; font: inherit; letter-spacing: normal; text-transform: none; text-shadow: none; }
+.kmm :where(table) { margin: 0; border: 0; }
+.kmm :where(th, td) { border: 0; font-family: inherit; }
+.kmm :where(strong) { font-weight: 600; }
+.kmm-tab > p, .kmm-block > p, .kmm-panel > p { max-width: 72ch; }
+.kmm :where(a) { color: var(--kmm-primary); font-weight: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.kmm-app { font-variant-numeric: tabular-nums; }
 
 /* ----- Kopf, Fuß ---------------------------------------------------------------- */
 
@@ -171,18 +211,6 @@ a, input, select, label { touch-action: manipulation; }
 .kmm-footer a { color: #fff; text-decoration: none; padding: 4px 0; }
 .kmm-footer a:focus-visible { outline-color: #fff; }
 
-/* ----- Typografie ---------------------------------------------------------------- */
-
-h1, h2, h3, h4 { color: var(--kmm-titel); font-weight: 600; }
-h1 { font-size: clamp(1.45rem, 1.2rem + 1.1vw, 1.9rem); line-height: 1.2; letter-spacing: -.015em; margin: 0 0 14px; overflow-wrap: anywhere; }
-h2 { font-size: 1.3rem; line-height: 1.3; letter-spacing: -.01em; margin: 28px 0 12px; }
-h3 { font-size: 1.05rem; line-height: 1.35; margin: 20px 0 8px; }
-h4 { font-size: .95rem; margin: 16px 0 6px; }
-p { margin: 0 0 12px; }
-.kmm-tab > p, .kmm-block > p, .kmm-panel > p { max-width: 72ch; }
-a { color: var(--kmm-primary); text-underline-offset: 2px; }
-.kmm-app { font-variant-numeric: tabular-nums; }
-
 /* ----- Buttons (Pillen wie auf der Website) ------------------------------------------ */
 
 .kmm-button {
@@ -221,10 +249,10 @@ a { color: var(--kmm-primary); text-underline-offset: 2px; }
 	transition: border-color var(--kmm-farbe), box-shadow var(--kmm-farbe);
 }
 .kmm-form input:focus, .kmm-form select:focus, .kmm-form textarea:focus,
-.kmm-ergebnis:focus, select.kmm-select:focus {
+.kmm input.kmm-ergebnis:focus, select.kmm-select:focus {
 	outline: none; border-color: var(--kmm-primary); box-shadow: var(--kmm-ring);
 }
-.kmm-form input:disabled, .kmm-form select:disabled, .kmm-form textarea:disabled, .kmm-ergebnis:disabled {
+.kmm-form input:disabled, .kmm-form select:disabled, .kmm-form textarea:disabled, .kmm input.kmm-ergebnis:disabled {
 	background: var(--kmm-surface-2); color: var(--kmm-muted); cursor: not-allowed;
 }
 .kmm-form input[type=checkbox], .kmm-form input[type=radio] { width: 18px; height: 18px; accent-color: var(--kmm-primary); }
@@ -364,7 +392,7 @@ select.kmm-select { margin: 4px 0 0; }
 	border-radius: var(--kmm-radius); padding: 14px 16px 6px; margin-bottom: 24px;
 	box-shadow: var(--kmm-schatten-s);
 }
-.kmm-melden h2 { margin: 0 0 4px; font-size: 1.1rem; }
+.kmm-melden h2 { margin: 0 0 4px; font-size: 18px; }
 .kmm-melden .kmm-inline { margin-bottom: 4px; }
 .kmm-melden .kmm-gruppe-details { box-shadow: none; }
 
@@ -406,16 +434,16 @@ select.kmm-select { margin: 4px 0 0; }
 /* „M1“ in der Tabelle, „Mannschaft 1“ auf der Handykarte. */
 .kmm-lang { display: none; }
 
-.kmm-ergebnis {
-	width: 7.2em; padding: 7px 9px; font: inherit; font-size: 16px; font-variant-numeric: tabular-nums;
+.kmm input.kmm-ergebnis {
+	width: 7.2em; margin: 0; padding: 7px 9px; font: inherit; font-size: 16px; font-variant-numeric: tabular-nums;
 	color: var(--kmm-text); background: var(--kmm-surface);
 	border: 1px solid var(--kmm-border-stark); border-radius: var(--kmm-radius-s); min-height: 40px;
 	transition: border-color var(--kmm-farbe), box-shadow var(--kmm-farbe), background-color var(--kmm-farbe), opacity var(--kmm-farbe);
 }
-.kmm-ergebnis.is-leer { border-color: #d9b76a; border-color: color-mix(in srgb, var(--kmm-warn) 50%, transparent); background: var(--kmm-warn-bg); }
+.kmm input.kmm-ergebnis.is-leer { border-color: #d9b76a; border-color: color-mix(in srgb, var(--kmm-warn) 50%, transparent); background: var(--kmm-warn-bg); }
 .kmm-ergebnis.is-busy { opacity: .55; }
 /* Rückmeldung dort, wo der Blick ist: das Feld selbst bestätigt das Speichern. */
-.kmm-ergebnis.is-gespeichert { border-color: var(--kmm-primary); background: var(--kmm-ok-bg); }
+.kmm input.kmm-ergebnis.is-gespeichert { border-color: var(--kmm-primary); background: var(--kmm-ok-bg); }
 .kmm-ergebnis::placeholder { color: var(--kmm-muted); opacity: .8; font-size: 14px; }
 
 .kmm-summe { max-width: 440px; }
@@ -444,7 +472,7 @@ select.kmm-select { margin: 4px 0 0; }
 	.kmm-dialog[open] { opacity: 0; transform: scale(.97); }
 	.kmm-dialog[open]::backdrop { opacity: 0; }
 }
-.kmm-dialog h3 { margin-top: 0; font-size: 1.15rem; }
+.kmm-dialog h3 { margin-top: 0; font-size: 18px; }
 .kmm-dialog-buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
 .kmm-kandidaten { display: grid; gap: 6px; max-height: 50vh; max-height: 50dvh; overflow: auto; padding: 2px; overscroll-behavior: contain; }
 .kmm-check {
@@ -453,13 +481,13 @@ select.kmm-select { margin: 4px 0 0; }
 	background: var(--kmm-surface); cursor: pointer;
 	transition: background-color var(--kmm-farbe), border-color var(--kmm-farbe);
 }
-.kmm-check input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--kmm-primary); }
+.kmm-check input[type=checkbox] { margin: 3px 0 0; width: 18px; height: 18px; accent-color: var(--kmm-primary); }
 /* Höhere Spezifität als .kmm-form label, sonst steht das Kästchen über dem Namen. */
 .kmm-form label.kmm-check { display: flex; margin: 0; }
 .kmm-check-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .kmm-check-text strong { font-weight: 600; }
 .kmm-check-text .kmm-muted { display: block; }
-.kmm-check-grund { display: block; font-size: .82rem; font-style: normal; margin-top: 2px; }
+.kmm-check-grund { display: block; font-size: 13px; font-style: normal; margin-top: 2px; }
 .kmm-check-grund:empty { display: none; }
 
 /* Nach der ersten Auswahl: wählbar, gewählt und gesperrt deutlich unterscheiden. */
@@ -485,7 +513,7 @@ select.kmm-select { margin: 4px 0 0; }
 	position: fixed; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px));
 	transform: translate(-50%, 10px); opacity: 0; visibility: hidden; pointer-events: none;
 	background: #1f2a1a; color: #f3f7f0; padding: 12px 20px;
-	border-radius: var(--kmm-radius-pill); max-width: min(90vw, 560px); z-index: 1000;
+	border-radius: var(--kmm-radius-pill); max-width: min(90vw, 560px); z-index: 100000;
 	font-size: 15px; font-weight: 500; text-align: center;
 	box-shadow: var(--kmm-schatten-l);
 	transition: opacity 120ms ease, transform 120ms ease, visibility 0s linear 120ms;
@@ -497,9 +525,9 @@ select.kmm-select { margin: 4px 0 0; }
 .kmm-toast.error { background: var(--kmm-error); color: #fff; }
 .kmm-toast.warn { background: var(--kmm-warn); color: #fff; }
 @media (prefers-color-scheme: dark) {
-	.kmm-toast { background: #e8eee3; color: #10160d; }
-	.kmm-toast.error { background: #7f1d1d; color: #fff; }
-	.kmm-toast.warn { background: #6b4700; color: #fff; }
+	.kmm:not(.kmm-im-theme) .kmm-toast { background: #e8eee3; color: #10160d; }
+	.kmm:not(.kmm-im-theme) .kmm-toast.error { background: #7f1d1d; color: #fff; }
+	.kmm:not(.kmm-im-theme) .kmm-toast.warn { background: #6b4700; color: #fff; }
 }
 
 /* ----- Fuß der App ----------------------------------------------------------------- */
@@ -656,7 +684,7 @@ button.kmm-sp-zelle:active:not(:disabled) { transform: scale(.97); }
 /* ----- Hover nur dort, wo es einen Zeiger gibt – auf dem Handy bliebe der Zustand kleben. -- */
 
 @media (hover: hover) and (pointer: fine) {
-	a:hover { text-decoration-thickness: 2px; }
+	.kmm :where(a):hover { text-decoration-thickness: 2px; }
 	.kmm-leiste a:hover, .kmm-footer a:hover { text-decoration: underline; }
 	.kmm-brand:hover { color: var(--kmm-primary); }
 	.kmm-button:hover { background: var(--kmm-primary-hover); text-decoration: none; }

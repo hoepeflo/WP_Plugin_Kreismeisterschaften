@@ -513,7 +513,7 @@
 		dialog(`<h3>${team ? 'Mannschaft ' + team.nummer : 'Neue Mannschaft'} – ${h(info ? info.kennzahl + ' ' + info.disziplin : '')}</h3>
 			<p class="kmm-muted">${mixHinweis(info, groesse)}</p>
 			${kandidaten.length === 0 ? '<p>Keine passenden Schützen ohne Mannschaft.</p>' : ''}
-			<p class="kmm-kandidaten-status" role="status" aria-live="polite"></p>
+			<div class="kmm-kandidaten-status" role="status" aria-live="polite"></div>
 			<div class="kmm-kandidaten">${kandidaten.map((k) => `<label class="kmm-check"><input type="checkbox" name="mitglied" value="${k.id}" data-pool="${h(k.mannschaftspool || '')}" data-geschlecht="${h(k.geschlecht)}" ${k.mitglied ? 'checked' : ''}> <span class="kmm-check-text"><strong>${h(k.nachname)}, ${h(k.vorname)}</strong><span class="kmm-muted">${h(k.klasse)}${k.mannschaftspool && k.mannschaftspool !== k.klasse ? ' · Mannschaftsklasse ' + h(k.mannschaftspool) : ''}</span><em class="kmm-check-grund"></em></span></label>`).join('')}</div>
 			${dialogButtons('Speichern')}`, async (form) => {
 			const ids = Array.from(form.querySelectorAll('input[name=mitglied]:checked')).map((c) => Number(c.value));

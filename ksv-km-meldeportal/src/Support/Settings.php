@@ -23,6 +23,8 @@ final class Settings {
 		return [
 			// Route der Vereinsoberfläche (ohne Slashes), z. B. "km-meldung".
 			'route_slug'                     => 'km-meldung',
+			// Vereinsoberfläche im Rahmen der Website (Kopf und Fuß des Themes) statt als eigene Seite.
+			'portal_im_theme'                => false,
 			// Checkbox „Nicht-Meldung" in der Vereinsoberfläche anzeigen (Bedeutung offen).
 			'nicht_meldung_sichtbar'         => false,
 			// FITASC: Schützinnen ab 56 starten in Damen (61) oder Senioren (62).

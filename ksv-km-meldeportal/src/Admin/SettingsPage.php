@@ -27,6 +27,7 @@ final class SettingsPage extends AdminPage {
 		$slug = sanitize_title(self::post_str('route_slug', 50));
 		$werte = [
 			'route_slug'                        => $slug !== '' ? $slug : 'km-meldung',
+			'portal_im_theme'                   => self::post_bool('portal_im_theme'),
 			'nicht_meldung_sichtbar'            => self::post_bool('nicht_meldung_sichtbar'),
 			'fitasc_damen_ab_56'                => self::post_str('fitasc_damen_ab_56') === 'senioren' ? 'senioren' : 'damen',
 			'tarif_override_ignorieren'         => self::post_bool('tarif_override_ignorieren'),
@@ -64,6 +65,7 @@ final class SettingsPage extends AdminPage {
 
 		echo '<h2>' . esc_html__('Vereinsoberfläche', 'ksv-km-meldeportal') . '</h2><table class="form-table">';
 		$row(__('Route', 'ksv-km-meldeportal'), esc_html(home_url('/')) . self::input('route_slug', $s['route_slug'], 'text', 'class="kmm-short"') . '/', __('Nach einer Änderung die Ausschlussregel im Caching-Plugin anpassen.', 'ksv-km-meldeportal'));
+		$row(__('Darstellung', 'ksv-km-meldeportal'), self::checkbox('portal_im_theme', (bool) $s['portal_im_theme'], __('Portal im Rahmen der Website anzeigen (Kopf, Menü und Fuß des Themes)', 'ksv-km-meldeportal')), __('Ohne Haken läuft das Portal als eigene Seite im Erscheinungsbild der Website – dann lädt nur das Plugin selbst Code. Mit Haken stehen Kopf und Fuß der Website darum; dabei laufen auch die Skripte des Themes und anderer Plugins auf der Meldeseite. Nach dem Umschalten die Meldeseite einmal am PC und am Handy ansehen. Adresse, Zugangslinks und Cache-Ausschluss bleiben gleich.', 'ksv-km-meldeportal'));
 		$row(__('Checkbox „Nicht-Meldung“', 'ksv-km-meldeportal'), self::checkbox('nicht_meldung_sichtbar', (bool) $s['nicht_meldung_sichtbar'], __('in der Vereinsoberfläche anzeigen', 'ksv-km-meldeportal')), __('Bedeutung der DAVID-Spalte ist noch offen; das Feld wird immer exportiert.', 'ksv-km-meldeportal'));
 		$row(__('Sitzungsdauer (Tage)', 'ksv-km-meldeportal'), self::input('sitzung_dauer_tage', $s['sitzung_dauer_tage'], 'number', 'min="1" max="365" class="kmm-num"'), __('Gültigkeit des Cookies nach dem Klick auf den Magic Link.', 'ksv-km-meldeportal'));
 		$row(__('„Link anfordern“ – Limit pro Stunde', 'ksv-km-meldeportal'), self::input('link_anfordern_limit', $s['link_anfordern_limit'], 'number', 'min="1" max="100" class="kmm-num"'), __('je IP-Adresse und je E-Mail-Adresse', 'ksv-km-meldeportal'));
