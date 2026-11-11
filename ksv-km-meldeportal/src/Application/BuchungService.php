@@ -236,10 +236,12 @@ final class BuchungService {
 			$dis_ids = [];
 			foreach ($this->zulassungen->by_durchgang((int) $dg['id']) as $z) {
 				$d = $rw->disziplin((int) $z['disziplin_id']);
-				$k = $z['startklasse_id'] !== null ? $rw->klasse((int) $z['startklasse_id']) : null;
-				$zul[] = ($d?->kennzahl ?? '?') . ' ' . ($d?->bezeichnung ?? '') . ($k !== null ? ' (' . $k->bezeichnung . ')' : '');
+				$k = $z['startklasse_id'] !== null ? ($rw->klasse((int) $z['startklasse_id'])->bezeichnung ?? '?') : null;
+				$zul[] = ['disziplin' => ($d?->kennzahl ?? '?') . ' ' . ($d?->bezeichnung ?? ''), 'startklasse' => $k];
 				$dis_ids[ (int) $z['disziplin_id'] ] = true;
 			}
+			// Je Disziplin eine Angabe mit allen Klassen statt einer Zeile je Klasse.
+			$zul = StartplanService::zulassungen_lesbar($zul);
 			$spalten = [];
 			foreach ($einheiten as $e) {
 				if ($e['disziplin_ids'] === [] || array_intersect($e['disziplin_ids'], array_keys($dis_ids)) !== []) {

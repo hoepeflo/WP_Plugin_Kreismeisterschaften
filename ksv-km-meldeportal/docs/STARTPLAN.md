@@ -18,6 +18,14 @@ bearbeiten“, Admin immer).
 - Validierung: gültiges Datum; Einheit mit Bezeichnung und Kapazität 1–200; Durchgang mit
   Ende nach Beginn und Beginn am Wettkampftag; Startklasse einer Zulassung muss in der
   Disziplin eine Klasse mit eigener Wertung sein (`startklassen()`).
+- `zulassungen_setzen(durchgang, disziplin, startklassen[])` setzt die Zulassung **einer**
+  Disziplin in einem Schritt: leere Liste oder alle Klassen der Disziplin = eine Zeile mit
+  `startklasse_id NULL` („alle“), sonst je Klasse eine Zeile. Geprüft wird vor dem
+  Schreiben, geschrieben in einer Transaktion (fehlende Zeilen anlegen, überzählige
+  löschen); Zulassungen anderer Disziplinen bleiben unberührt. Am Datenmodell ändert sich
+  nichts. Die Admin-Oberfläche benutzt nur diesen Weg: Disziplin wählen, Startklassen
+  ankreuzen. `zulassungen_lesbar()` fasst die Zeilen für Anzeigen je Disziplin zusammen
+  („2.10 10m Luftpistole (Schüler m, Schüler w)“).
 - Überlappende Durchgänge sind erlaubt (parallele Einheiten); der Konflikt „ein Schütze
   nicht in zwei überlappenden Durchgängen“ wird bei der Buchung je Schütze geprüft
   (Meilenstein 8).

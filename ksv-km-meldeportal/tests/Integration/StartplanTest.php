@@ -234,4 +234,68 @@ final class StartplanTest extends IntegrationTestCase {
 		}
 		wp_delete_user($uid);
 	}
+
+	/** Eine Disziplin mit mehreren Startklassen in einem Schritt zulassen und wieder ändern. */
+	public function test_zulassungen_setzen_je_disziplin(): void {
+		$s = new StartplanService($this->sid);
+		$tag = $s->tag_speichern(0, ['datum' => '2027-03-06', 'bezeichnung' => 'KM Luftdruck', 'ort' => 'X', 'buchungsfrist' => '2099-02-20 22:59:00']);
+		$s->einheit_speichern(0, $tag, 'Stand 1', 1);
+		$dg = $s->durchgang_speichern(0, $tag, 1, '', Clock::local_to_utc('2027-03-06 09:00'), Clock::local_to_utc('2027-03-06 10:30'));
+		$rw = RegelwerkLader::engine($this->sid)->regelwerk();
+		$lp = $rw->disziplin($this->lp);
+		$klassen = $s->startklassen($lp);
+		$this->assertGreaterThan(4, count($klassen));
+		[$k1, $k2, $k3] = [$klassen[0]->id, $klassen[1]->id, $klassen[2]->id];
+		$repo = new DurchgangZulassungRepository();
+		$stand = static function () use ($repo, $dg): array {
+			$out = [];
+			foreach ($repo->by_durchgang($dg) as $z) {
+				$out[ (int) $z['disziplin_id'] ][] = $z['startklasse_id'] === null ? null : (int) $z['startklasse_id'];
+			}
+			return $out;
+		};
+
+		// Mehrere Klassen auf einmal
+		$this->assertSame(['neu' => 2, 'entfernt' => 0, 'behalten' => 0], $s->zulassungen_setzen($dg, $this->lp, [$k1, $k2]));
+		$this->assertEqualsCanonicalizing([$k1, $k2], $stand()[ $this->lp ]);
+		// Ändern: eine Klasse raus, eine dazu – die übrige bleibt, wie sie ist
+		$this->assertSame(['neu' => 1, 'entfernt' => 1, 'behalten' => 1], $s->zulassungen_setzen($dg, $this->lp, [$k2, $k3, $k3]));
+		$this->assertEqualsCanonicalizing([$k2, $k3], $stand()[ $this->lp ]);
+		// Unverändert speichern ändert nichts
+		$this->assertSame(['neu' => 0, 'entfernt' => 0, 'behalten' => 2], $s->zulassungen_setzen($dg, $this->lp, [$k3, $k2]));
+		// Eine andere Disziplin bleibt unberührt
+		$s->zulassungen_setzen($dg, $this->lg, []);
+		$this->assertSame([null], $stand()[ $this->lg ]);
+		$this->assertEqualsCanonicalizing([$k2, $k3], $stand()[ $this->lp ]);
+		// Leere Liste = alle Startklassen; die einzelnen entfallen
+		$this->assertSame(['neu' => 1, 'entfernt' => 2, 'behalten' => 0], $s->zulassungen_setzen($dg, $this->lp, []));
+		$this->assertSame([null], $stand()[ $this->lp ]);
+		// Einzelne Klassen ersetzen „alle“ – sonst bliebe die Einschränkung wirkungslos
+		$s->zulassungen_setzen($dg, $this->lp, [$k1]);
+		$this->assertSame([$k1], $stand()[ $this->lp ]);
+		// Alle Klassen einzeln angekreuzt heißt „alle“
+		$s->zulassungen_setzen($dg, $this->lp, array_map(static fn($k): int => $k->id, $klassen));
+		$this->assertSame([null], $stand()[ $this->lp ]);
+
+		// Fremde Klasse: Fehler, und nichts ändert sich
+		$s->zulassungen_setzen($dg, $this->lp, [$k1, $k2]);
+		try {
+			$s->zulassungen_setzen($dg, $this->lp, [$k3, $rw->klassen_der_gruppe('auflage')[0]->id]);
+			$this->fail('fremde Klasse');
+		} catch (\InvalidArgumentException $e) {
+			$this->assertStringContainsString('Startklasse', $e->getMessage());
+		}
+		$this->assertEqualsCanonicalizing([$k1, $k2], $stand()[ $this->lp ]);
+
+		// Lesbare Zusammenfassung je Disziplin
+		$this->assertSame(
+			['2.10 10m Luftpistole (Schüler m, Schüler w)', '1.10 Luftgewehr (alle Startklassen)'],
+			StartplanService::zulassungen_lesbar([
+				['disziplin' => '2.10 10m Luftpistole', 'startklasse' => 'Schüler m'],
+				['disziplin' => '1.10 Luftgewehr', 'startklasse' => null],
+				['disziplin' => '2.10 10m Luftpistole', 'startklasse' => 'Schüler w'],
+			], true)
+		);
+		$this->assertSame(['1.10 Luftgewehr'], StartplanService::zulassungen_lesbar([['disziplin' => '1.10 Luftgewehr', 'startklasse' => null]]));
+	}
 }

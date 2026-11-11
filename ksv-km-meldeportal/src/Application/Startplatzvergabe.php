@@ -445,9 +445,11 @@ final class Startplatzvergabe {
 			foreach ($zul as $z) {
 				$dis_ids[ (int) $z['disziplin_id'] ] = true;
 				$d = $rw->disziplin((int) $z['disziplin_id']);
-				$kl = $z['startklasse_id'] !== null ? $rw->klasse((int) $z['startklasse_id']) : null;
-				$texte[] = ($d?->kennzahl ?? '?') . ($kl !== null ? ' (' . $kl->bezeichnung . ')' : '');
+				$kl = $z['startklasse_id'] !== null ? ($rw->klasse((int) $z['startklasse_id'])->bezeichnung ?? '?') : null;
+				$texte[] = ['disziplin' => $d?->kennzahl ?? '?', 'startklasse' => $kl];
 			}
+			// Je Kennzahl eine Angabe mit allen Klassen: „2.10 (Schüler m, Jugend m)“.
+			$texte = StartplanService::zulassungen_lesbar($texte);
 			$erlaubt = [];
 			foreach ($spalten as $sp) {
 				$ok = $zul !== [] && ($sp['disziplin_ids'] === [] || array_intersect($sp['disziplin_ids'], array_keys($dis_ids)) !== []);

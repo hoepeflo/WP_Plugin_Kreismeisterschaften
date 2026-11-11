@@ -435,6 +435,86 @@ final class StartplanService {
 		$this->zulassungen->insert(['durchgang_id' => $durchgang_id, 'disziplin_id' => $disziplin_id, 'startklasse_id' => $startklasse_id]);
 	}
 
+	/**
+	 * Legt in einem Schritt fest, welche Startklassen einer Disziplin im Durchgang buchen
+	 * dürfen. Leere Liste = alle Startklassen. Danach stehen für die Disziplin genau diese
+	 * Zulassungen: „alle“ und einzelne Klassen nie nebeneinander, nicht mehr gewählte
+	 * Klassen entfallen. Bestehende Buchungen bleiben unberührt.
+	 *
+	 * @param list<int> $startklasse_ids
+	 * @return array{neu: int, entfernt: int, behalten: int}
+	 */
+	public function zulassungen_setzen(int $durchgang_id, int $disziplin_id, array $startklasse_ids): array {
+		$this->schreibrecht();
+		$dg = $this->durchgaenge->find($durchgang_id);
+		if ($dg === null) {
+			throw new \RuntimeException('Durchgang nicht gefunden.');
+		}
+		$this->tag((int) $dg['wettkampftag_id']);
+		$d = RegelwerkLader::laden($this->sportjahr_id)->disziplin($disziplin_id);
+		if ($d === null) {
+			throw new \InvalidArgumentException('Disziplin nicht gefunden.');
+		}
+		if (!Rechte::zustaendig($d) || !$this->durchgang_zustaendig($durchgang_id)) {
+			throw new \RuntimeException('Keine Berechtigung: Die Disziplin liegt außerhalb Ihrer Zuständigkeit.');
+		}
+		$startklasse_ids = array_values(array_unique(array_map('intval', $startklasse_ids)));
+		$erlaubt = array_map(static fn(Klasse $k): int => $k->id, $this->startklassen($d));
+		foreach ($startklasse_ids as $id) {
+			if (!in_array($id, $erlaubt, true)) {
+				throw new \InvalidArgumentException('Die Klasse ist in dieser Disziplin keine Startklasse.');
+			}
+		}
+		// Wer alle Startklassen einzeln ankreuzt, meint „alle“ – auch für Klassen, die später dazukommen.
+		$soll = $startklasse_ids === [] || count($startklasse_ids) === count($erlaubt) ? [null] : $startklasse_ids;
+		$vorhanden = [];
+		foreach ($this->zulassungen->by_durchgang($durchgang_id) as $z) {
+			if ((int) $z['disziplin_id'] === $disziplin_id) {
+				$vorhanden[ (int) $z['id'] ] = $z['startklasse_id'] === null ? null : (int) $z['startklasse_id'];
+			}
+		}
+		$weg = array_keys(array_filter($vorhanden, static fn(?int $k): bool => !in_array($k, $soll, true)));
+		$neu = array_values(array_filter($soll, static fn(?int $k): bool => !in_array($k, $vorhanden, true)));
+		$this->zulassungen->transaktion(function () use ($weg, $neu, $durchgang_id, $disziplin_id): void {
+			foreach ($weg as $id) {
+				$this->zulassungen->delete($id);
+			}
+			foreach ($neu as $klasse_id) {
+				$this->zulassungen->insert(['durchgang_id' => $durchgang_id, 'disziplin_id' => $disziplin_id, 'startklasse_id' => $klasse_id]);
+			}
+		});
+		return ['neu' => count($neu), 'entfernt' => count($weg), 'behalten' => count($vorhanden) - count($weg)];
+	}
+
+	/**
+	 * Fasst Zulassungen je Disziplin zusammen, in der Reihenfolge ihres ersten Auftretens:
+	 * „2.10 10m Luftpistole (Schüler m, Jugend m)“. Ohne Klassenangabe sind alle Startklassen
+	 * zugelassen; das steht nur dabei, wenn $alle_nennen gesetzt ist.
+	 *
+	 * @param list<array{disziplin: string, startklasse: ?string}> $zulassungen startklasse null = alle
+	 * @return list<string>
+	 */
+	public static function zulassungen_lesbar(array $zulassungen, bool $alle_nennen = false): array {
+		$je_disziplin = [];
+		foreach ($zulassungen as $z) {
+			$je_disziplin[ $z['disziplin'] ] ??= ['alle' => false, 'klassen' => []];
+			if ($z['startklasse'] === null) {
+				$je_disziplin[ $z['disziplin'] ]['alle'] = true;
+			} else {
+				$je_disziplin[ $z['disziplin'] ]['klassen'][] = $z['startklasse'];
+			}
+		}
+		$out = [];
+		foreach ($je_disziplin as $disziplin => $e) {
+			if ($e['alle']) {
+				$out[] = $disziplin . ($alle_nennen ? ' (alle Startklassen)' : '');
+			} else {
+				$out[] = $disziplin . ' (' . implode(', ', $e['klassen']) . ')';
+			}
+		}
+		return $out;
+	}
+
 	public function zulassung_entfernen(int $zulassung_id): void {
 		$this->schreibrecht();
 		$z = $this->zulassungen->find($zulassung_id);
