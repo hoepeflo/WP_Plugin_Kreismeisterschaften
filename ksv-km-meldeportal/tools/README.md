@@ -13,7 +13,7 @@ bash tools/build-zip.sh      # → build/ksv-km-meldeportal-<version>.zip
 Lädt das gebaute Plugin per SFTP in den Plugin-Ordner der Website – nur geänderte Dateien,
 nach einer Prüfung von Anmeldung und Zielordner. Wird vom Deploy-Job auf GitHub aufgerufen;
 Einzelheiten in `docs/INSTALLATION.md`, Abschnitt „Auslieferung per GitHub Actions".
-Voraussetzung: `lftp`.
+Voraussetzung: der `sftp`-Befehl von OpenSSH ab 8.4, sonst nichts.
 
 ```bash
 KMM_SFTP_HOST=… KMM_SFTP_USER=… KMM_SFTP_PASS=… bash tools/deploy-sftp.sh build/ksv-km-meldeportal

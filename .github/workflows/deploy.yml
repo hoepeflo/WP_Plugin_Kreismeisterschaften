@@ -119,13 +119,10 @@ jobs:
             echo "::warning::KM-Portal nicht hochgeladen: Eines der Secrets KMM_FTP_HOST, KMM_FTP_USER, KMM_FTP_PASS fehlt. Das Paket hängt als ZIP am Lauf."
           fi
 
-      - name: lftp installieren
-        if: steps.zugang.outputs.vorhanden == 'ja'
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
-
       # Das Skript prüft zuerst Anmeldung und Zielordner (im Ziel muss das installierte Plugin
       # liegen, es darf kein WordPress-Hauptordner sein) und lädt dann nur, was sich seit dem
-      # letzten Upload geändert hat. Die Secrets heißen aus der FTP-Zeit noch KMM_FTP_*.
+      # letzten Upload geändert hat. Es braucht nur den sftp-Befehl, der auf dem Runner
+      # vorhanden ist. Die Secrets heißen aus der FTP-Zeit noch KMM_FTP_*.
       - name: Upload per SFTP
         if: steps.zugang.outputs.vorhanden == 'ja'
         env:
