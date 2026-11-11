@@ -117,7 +117,7 @@ final class BuchungTest extends IntegrationTestCase {
 
 		$sp = new StartplanService($this->sid);
 		$r = $sp->freigeben($this->tag);
-		$this->assertSame(['gesendet' => 2, 'vereine' => 2, 'fehler' => []], $r, 'nur A und B haben passende Starter');
+		$this->assertSame(['gesendet' => 2, 'vereine' => 2, 'fehler' => [], 'push' => false], $r, 'nur A und B haben passende Starter; ohne App-Anbindung kein Push');
 		$this->assertCount(2, $this->mails);
 		$this->assertStringContainsString('Startplätze buchen', (string) $this->mails[0]['subject']);
 		$this->assertMatchesRegularExpression('#/zugang/[a-f0-9]{64}/#', (string) $this->mails[0]['message']);
