@@ -11,8 +11,43 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Derselbe Commit kommt meist zweimal vorbei: erst auf dem Arbeitszweig, dann auf main.
+  # Auf main wird deshalb nachgesehen, ob ein früherer Lauf dieses Workflows denselben
+  # Commit schon geprüft hat (erfolgreich) oder gerade prüft. Dann entfällt die Prüfung
+  # hier. Schlägt die Nachfrage fehl, wird sicherheitshalber geprüft.
+  schon-geprueft:
+    name: Schon geprüft?
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    outputs:
+      ueberspringen: ${{ steps.suche.outputs.ueberspringen }}
+    steps:
+      - name: Früheren Lauf für denselben Commit suchen
+        id: suche
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          laeufe=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/kmm-ci.yml/runs?head_sha=$GITHUB_SHA&per_page=100" 2>/dev/null) || laeufe=''
+          frueher=$(printf '%s' "$laeufe" | jq -r --argjson ich "$GITHUB_RUN_ID" --argjson nr "$GITHUB_RUN_NUMBER" '
+            [.workflow_runs[]?
+              | select(.id != $ich and .run_number < $nr and (.status != "completed" or .conclusion == "success"))]
+            | first
+            | if . then "#\(.run_number) auf \(.head_branch) (\(.conclusion // .status))" else "" end' 2>/dev/null) || frueher=''
+          if [ -n "$frueher" ]; then
+            echo "ueberspringen=true" >> "$GITHUB_OUTPUT"
+            echo "Dieser Commit wird nicht noch einmal geprüft: Lauf $frueher hat ihn schon geprüft oder prüft ihn gerade." | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "ueberspringen=false" >> "$GITHUB_OUTPUT"
+            echo "Kein früherer Lauf hat diesen Commit erfolgreich geprüft oder prüft ihn gerade – es wird geprüft."
+          fi
+
   check:
     name: Lint, PHPStan, PHPUnit
+    needs: schon-geprueft
+    # Läuft auch, wenn die Vorprüfung entfällt (Arbeitszweig, Pull Request, Handstart) oder scheitert.
+    if: ${{ !cancelled() && needs.schon-geprueft.outputs.ueberspringen != 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
