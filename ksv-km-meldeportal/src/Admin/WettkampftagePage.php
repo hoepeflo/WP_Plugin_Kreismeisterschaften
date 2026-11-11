@@ -71,6 +71,12 @@ final class WettkampftagePage extends AdminPage {
 					$r = $service->einheiten_aus_schiessstand($tag_id, $auswahl);
 					self::redirect(sprintf(__('Stände übernommen: %1$d neu, %2$d entfernt, %3$d unverändert.', 'ksv-km-meldeportal'), $r['angelegt'], $r['entfernt'], $r['behalten']), 'success', $args);
 				case 'durchgang_speichern':
+					// Neu angelegt wird wahlweise gleich eine ganze Folge gleich langer Durchgänge.
+					$anzahl = self::post_int('id') === 0 && isset($_POST['anzahl']) ? self::post_int('anzahl') : 1;
+					if ($anzahl !== 1) {
+						$neu = $service->durchgaenge_anlegen($tag_id, self::post_int('nummer'), self::post_str('bezeichnung', 100), Clock::local_to_utc(self::post_str('beginn')), Clock::local_to_utc(self::post_str('ende')), $anzahl, self::post_int('pause'));
+						self::redirect(sprintf(__('%d Durchgänge angelegt. Über „Bearbeiten“ legen Sie fest, wer dort buchen darf.', 'ksv-km-meldeportal'), count($neu)), 'success', $args);
+					}
 					$id = $service->durchgang_speichern(self::post_int('id'), $tag_id, self::post_int('nummer'), self::post_str('bezeichnung', 100), Clock::local_to_utc(self::post_str('beginn')), Clock::local_to_utc(self::post_str('ende')), self::post_int('sortierung'));
 					self::redirect(__('Durchgang gespeichert.', 'ksv-km-meldeportal'), 'success', $args + ['durchgang' => $id]);
 				case 'durchgang_duplizieren':
@@ -382,23 +388,82 @@ final class WettkampftagePage extends AdminPage {
 			$dg_row = null;
 			$edit_dg = 0;
 		}
-		self::form_open('durchgang_speichern', 'class="kmm-block-form"');
+		self::form_open('durchgang_speichern', 'class="kmm-block-form' . ($dg_row === null ? ' kmm-dg-neu' : '') . '"');
 		echo '<input type="hidden" name="sportjahr_id" value="' . $sid . '"><input type="hidden" name="tag_id" value="' . $tag_id . '"><input type="hidden" name="id" value="' . $edit_dg . '">';
-		echo '<p><strong>' . esc_html($dg_row !== null ? sprintf(__('Durchgang %d bearbeiten', 'ksv-km-meldeportal'), (int) $dg_row['nummer']) : __('Durchgang hinzufügen', 'ksv-km-meldeportal')) . '</strong></p>';
+		echo '<p><strong>' . esc_html($dg_row !== null ? sprintf(__('Durchgang %d bearbeiten', 'ksv-km-meldeportal'), (int) $dg_row['nummer']) : __('Durchgänge hinzufügen', 'ksv-km-meldeportal')) . '</strong></p>';
 		$std_beginn = (string) $t['datum'] . 'T09:00';
 		echo '<p>' . esc_html__('Nr.', 'ksv-km-meldeportal') . ' ' . self::input('nummer', $dg_row['nummer'] ?? count($u['durchgaenge']) + 1, 'number', 'class="kmm-num" min="0"') . ' '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo esc_html__('Beginn', 'ksv-km-meldeportal') . ' ' . self::input('beginn', $dg_row !== null ? Clock::utc_to_local_input($dg_row['beginn']) : $std_beginn, 'datetime-local', 'required') . ' '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo esc_html__('Ende', 'ksv-km-meldeportal') . ' ' . self::input('ende', $dg_row !== null ? Clock::utc_to_local_input($dg_row['ende']) : (string) $t['datum'] . 'T10:30', 'datetime-local', 'required') . ' '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo esc_html__('Bezeichnung', 'ksv-km-meldeportal') . ' ' . self::input('bezeichnung', $dg_row['bezeichnung'] ?? '', 'text', 'class="kmm-short" placeholder="optional"') . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		if ($dg_row === null) {
+			// Mehrere auf einmal: gleiche Dauer, jeweils im Anschluss, dazwischen die Pause.
+			echo '<p class="kmm-dg-serie"><label>' . esc_html__('Anzahl', 'ksv-km-meldeportal') . ' ' . self::input('anzahl', 1, 'number', 'class="kmm-num" min="1" max="50" required') . '</label> '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo '<label>' . esc_html__('Pause dazwischen', 'ksv-km-meldeportal') . ' ' . self::input('pause', 0, 'number', 'class="kmm-num" min="0" max="600" step="5"') . ' ' . esc_html__('Minuten', 'ksv-km-meldeportal') . '</label></p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo '<p class="description kmm-dg-vorschau" aria-live="polite">' . esc_html__('Bei mehr als einem Durchgang gelten Beginn und Ende für den ersten; die weiteren folgen mit gleicher Dauer und der Pause dazwischen.', 'ksv-km-meldeportal') . '</p>';
+		}
 		submit_button($dg_row !== null ? __('Durchgang speichern', 'ksv-km-meldeportal') : __('Durchgang hinzufügen', 'ksv-km-meldeportal'), 'secondary', 'submit', false);
 		if ($dg_row !== null) {
 			echo ' <a class="button" href="' . esc_url(self::url(['sportjahr' => $sid, 'tag' => $tag_id])) . '">' . esc_html__('Schließen', 'ksv-km-meldeportal') . '</a>';
 		}
 		echo '</form>';
+		if ($dg_row === null) {
+			self::durchgang_serie_script();
+		}
 
 		if ($dg_row !== null) {
 			self::render_zulassungen($sid, $tag_id, $service, $u, $edit_dg);
 		}
+	}
+
+	/**
+	 * Zeigt beim Anlegen, welche Zeiten entstehen, und beschriftet den Knopf passend.
+	 * Ohne JavaScript bleibt der erklärende Satz stehen; angelegt wird gleich.
+	 */
+	private static function durchgang_serie_script(): void {
+		$texte = [
+			'eins'    => __('Durchgang hinzufügen', 'ksv-km-meldeportal'),
+			/* translators: %d: Zahl der Durchgänge */
+			'viele'   => __('%d Durchgänge hinzufügen', 'ksv-km-meldeportal'),
+			'zeiten'  => __('Es entstehen:', 'ksv-km-meldeportal'),
+			'tag'     => __('Achtung: Nicht alle Durchgänge beginnen noch am Wettkampftag – so wird nichts angelegt.', 'ksv-km-meldeportal'),
+			'ende'    => __('Das Ende muss nach dem Beginn liegen.', 'ksv-km-meldeportal'),
+			'weitere' => __('… und %d weitere, der letzte', 'ksv-km-meldeportal'),
+		];
+		?>
+<script>
+(function(){
+var f = document.querySelector('form.kmm-dg-neu'); if (!f) { return; }
+var T = <?php echo wp_json_encode($texte); ?>;
+var aus = f.querySelector('.kmm-dg-vorschau'), knopf = f.querySelector('input[type=submit]'), ruhe = aus.textContent;
+function zwei(n){ return (n < 10 ? '0' : '') + n; }
+function uhr(d){ return zwei(d.getHours()) + ':' + zwei(d.getMinutes()); }
+function zeigen(){
+	var n = Math.max(1, Math.min(50, parseInt(f.elements.anzahl.value, 10) || 1));
+	var pause = Math.max(0, parseInt(f.elements.pause.value, 10) || 0) * 60000;
+	var a = new Date(f.elements.beginn.value), e = new Date(f.elements.ende.value);
+	knopf.value = n > 1 ? T.viele.replace('%d', n) : T.eins;
+	aus.classList.remove('kmm-warn');
+	if (n < 2 || isNaN(a) || isNaN(e)) { aus.textContent = ruhe; return; }
+	if (e <= a) { aus.textContent = T.ende; aus.classList.add('kmm-warn'); return; }
+	var dauer = e - a, teile = [], tag = a.toDateString(), passt = true, start = a.getTime(), letzter = '';
+	for (var i = 0; i < n; i++) {
+		var b = new Date(start), z = new Date(start + dauer);
+		if (b.toDateString() !== tag) { passt = false; }
+		letzter = uhr(b) + '–' + uhr(z);
+		if (i < 6) { teile.push(letzter); }
+		start += dauer + pause;
+	}
+	var text = T.zeiten + ' ' + teile.join(', ');
+	if (n > 6) { text += ' ' + T.weitere.replace('%d', n - 6) + ' ' + letzter; }
+	aus.textContent = passt ? text : T.tag;
+	aus.classList.toggle('kmm-warn', !passt);
+}
+['anzahl', 'pause', 'beginn', 'ende'].forEach(function(n){ f.elements[n].addEventListener('input', zeigen); });
+zeigen();
+})();
+</script>
+		<?php
 	}
 
 	/**

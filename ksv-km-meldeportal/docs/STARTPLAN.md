@@ -18,6 +18,11 @@ bearbeiten“, Admin immer).
 - Validierung: gültiges Datum; Einheit mit Bezeichnung und Kapazität 1–200; Durchgang mit
   Ende nach Beginn und Beginn am Wettkampftag; Startklasse einer Zulassung muss in der
   Disziplin eine Klasse mit eigener Wertung sein (`startklassen()`).
+- `durchgaenge_anlegen(tag, nummer, bezeichnung, beginn, ende, anzahl, pause)` legt 1–50
+  gleich lange Durchgänge in einer Transaktion an: der erste von Beginn bis Ende, die
+  weiteren im Anschluss mit der Pause (0–600 Minuten). Beginnt einer nicht mehr am
+  Wettkampftag, entsteht keiner. Zulassungen haben die neuen Durchgänge noch keine
+  (anders als bei `durchgang_duplizieren()`, das sie mitkopiert).
 - `zulassungen_setzen(durchgang, disziplin, startklassen[])` setzt die Zulassung **einer**
   Disziplin in einem Schritt: leere Liste oder alle Klassen der Disziplin = eine Zeile mit
   `startklasse_id NULL` („alle“), sonst je Klasse eine Zeile. Geprüft wird vor dem

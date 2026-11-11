@@ -308,6 +308,60 @@ final class StartplanService {
 	}
 
 	/**
+	 * Legt mehrere gleich lange Durchgänge in einem Schritt an: der erste von Beginn bis
+	 * Ende, die weiteren jeweils im Anschluss mit der angegebenen Pause. Nummern zählen ab
+	 * $nummer hoch (0 = hinten anhängen). Zulassungen bekommen die neuen Durchgänge noch
+	 * keine. Entweder entstehen alle oder keiner.
+	 *
+	 * @param int $anzahl        Zahl der Durchgänge (1–50)
+	 * @param int $pause_minuten Pause zwischen zwei Durchgängen (0–600)
+	 * @return list<int> IDs der neuen Durchgänge in zeitlicher Folge
+	 */
+	public function durchgaenge_anlegen(int $tag_id, int $nummer, string $bezeichnung, ?string $beginn_utc, ?string $ende_utc, int $anzahl = 1, int $pause_minuten = 0): array {
+		$this->schreibrecht();
+		$this->tag($tag_id);
+		if ($anzahl < 1 || $anzahl > 50) {
+			throw new \InvalidArgumentException('Bitte 1 bis 50 Durchgänge angeben.');
+		}
+		if ($pause_minuten < 0 || $pause_minuten > 600) {
+			throw new \InvalidArgumentException('Die Pause muss zwischen 0 und 600 Minuten liegen.');
+		}
+		if ($anzahl === 1) {
+			return [$this->durchgang_speichern(0, $tag_id, $nummer, $bezeichnung, $beginn_utc, $ende_utc)];
+		}
+		$beginn = $beginn_utc !== null ? strtotime($beginn_utc . ' UTC') : false;
+		$ende = $ende_utc !== null ? strtotime($ende_utc . ' UTC') : false;
+		if ($beginn === false || $ende === false) {
+			throw new \InvalidArgumentException('Bitte Beginn und Ende angeben.');
+		}
+		if ($ende <= $beginn) {
+			throw new \InvalidArgumentException('Das Ende muss nach dem Beginn liegen.');
+		}
+		$dauer = $ende - $beginn;
+		if ($nummer <= 0) {
+			$nummer = count($this->durchgaenge->by_wettkampftag($tag_id)) + 1;
+		}
+		$neu = [];
+		$this->durchgaenge->transaktion(function () use (&$neu, $tag_id, $nummer, $bezeichnung, $beginn, $dauer, $anzahl, $pause_minuten): void {
+			$start = $beginn;
+			for ($i = 0; $i < $anzahl; $i++) {
+				try {
+					$neu[] = $this->durchgang_speichern(0, $tag_id, $nummer + $i, $bezeichnung, gmdate(Clock::DB_FORMAT, $start), gmdate(Clock::DB_FORMAT, $start + $dauer));
+				} catch (\InvalidArgumentException $e) {
+					if ($i === 0) {
+						throw $e;
+					}
+					// Ab dem zweiten kann nur noch der Tag nicht passen: Die Folge läuft über Mitternacht.
+					throw new \InvalidArgumentException(sprintf('Durchgang %d von %d würde erst nach dem Wettkampftag beginnen. Es wurde nichts angelegt – bitte Anzahl, Dauer oder Pause verringern.', $i + 1, $anzahl), 0, $e);
+				}
+				$start += $dauer + $pause_minuten * 60;
+			}
+		});
+		Protokoll::admin('durchgang.serie', sprintf('%d Durchgänge angelegt (je %d Minuten, %d Minuten Pause)', $anzahl, intdiv($dauer, 60), $pause_minuten), $this->sportjahr_id, null, 'wettkampftag', $tag_id);
+		return $neu;
+	}
+
+	/**
 	 * Durchgang duplizieren: gleiche Dauer, gleiche Bezeichnung und gleiche Zulassungen,
 	 * zeitlich im Anschluss (mit optionaler Pause). Praktisch für Wettkampftage mit vielen
 	 * gleichartigen Durchgängen.

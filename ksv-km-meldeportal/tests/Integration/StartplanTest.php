@@ -235,6 +235,55 @@ final class StartplanTest extends IntegrationTestCase {
 		wp_delete_user($uid);
 	}
 
+	/** Mehrere gleich lange Durchgänge in einem Schritt: Zeiten, Nummern, alles oder nichts. */
+	public function test_durchgaenge_in_einem_schritt_anlegen(): void {
+		$s = new StartplanService($this->sid);
+		$tag = $s->tag_speichern(0, ['datum' => '2027-03-06', 'bezeichnung' => 'KM Luftdruck', 'ort' => 'X', 'buchungsfrist' => '2099-02-20 22:59:00']);
+		$repo = new DurchgangRepository();
+		$zeiten = static fn(): array => array_map(static fn(array $d): string => (int) $d['nummer'] . ' ' . Clock::format_local($d['beginn'], 'H:i') . '-' . Clock::format_local($d['ende'], 'H:i') . ' ' . $d['bezeichnung'], $repo->by_wettkampftag($tag));
+
+		// Vier Durchgänge à 75 Minuten mit 15 Minuten Pause.
+		$ids = $s->durchgaenge_anlegen($tag, 1, 'Luftpistole', Clock::local_to_utc('2027-03-06 09:00'), Clock::local_to_utc('2027-03-06 10:15'), 4, 15);
+		$this->assertCount(4, $ids);
+		$this->assertSame(['1 09:00-10:15 Luftpistole', '2 10:30-11:45 Luftpistole', '3 12:00-13:15 Luftpistole', '4 13:30-14:45 Luftpistole'], $zeiten());
+		foreach ($ids as $id) {
+			$this->assertSame([], (new DurchgangZulassungRepository())->by_durchgang($id), 'neue Durchgänge haben noch keine Zulassung');
+		}
+
+		// Nummer 0 hängt hinten an; ohne Pause schließen die Durchgänge direkt an.
+		$s->durchgaenge_anlegen($tag, 0, '', Clock::local_to_utc('2027-03-06 15:00'), Clock::local_to_utc('2027-03-06 16:00'), 2);
+		$this->assertSame(['5 15:00-16:00 ', '6 16:00-17:00 '], array_slice($zeiten(), 4));
+
+		// Anzahl 1 verhält sich wie das einfache Anlegen.
+		$this->assertCount(1, $s->durchgaenge_anlegen($tag, 0, 'einzeln', Clock::local_to_utc('2027-03-06 17:00'), Clock::local_to_utc('2027-03-06 18:00')));
+		$this->assertCount(7, $zeiten());
+
+		// Reicht die Folge über Mitternacht, entsteht keiner – auch nicht die, die noch gepasst hätten.
+		try {
+			$s->durchgaenge_anlegen($tag, 0, '', Clock::local_to_utc('2027-03-06 20:00'), Clock::local_to_utc('2027-03-06 22:00'), 3, 30);
+			$this->fail('Folge über Mitternacht muss scheitern');
+		} catch (\InvalidArgumentException $e) {
+			$this->assertStringContainsString('Durchgang 3 von 3', $e->getMessage());
+		}
+		$this->assertCount(7, $zeiten());
+
+		// Unsinnige Angaben.
+		foreach ([[0, 0], [51, 0], [2, -5], [2, 601]] as [$anzahl, $pause]) {
+			try {
+				$s->durchgaenge_anlegen($tag, 0, '', Clock::local_to_utc('2027-03-06 09:00'), Clock::local_to_utc('2027-03-06 10:00'), $anzahl, $pause);
+				$this->fail("Anzahl $anzahl / Pause $pause muss scheitern");
+			} catch (\InvalidArgumentException) {
+				$this->assertCount(7, $zeiten());
+			}
+		}
+		try {
+			$s->durchgaenge_anlegen($tag, 0, '', Clock::local_to_utc('2027-03-06 10:00'), Clock::local_to_utc('2027-03-06 09:00'), 2);
+			$this->fail('Ende vor Beginn muss scheitern');
+		} catch (\InvalidArgumentException) {
+			$this->assertCount(7, $zeiten());
+		}
+	}
+
 	/** Eine Disziplin mit mehreren Startklassen in einem Schritt zulassen und wieder ändern. */
 	public function test_zulassungen_setzen_je_disziplin(): void {
 		$s = new StartplanService($this->sid);
