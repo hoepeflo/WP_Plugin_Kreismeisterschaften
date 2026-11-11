@@ -58,7 +58,7 @@ $config = [
 	<section id="kmm-tab-einreichen" class="kmm-tab" hidden></section>
 	<section id="kmm-tab-startplan" class="kmm-tab" hidden></section>
 	<dialog id="kmm-dialog" class="kmm-dialog"></dialog>
-	<div id="kmm-toast" class="kmm-toast" hidden></div>
+	<div id="kmm-toast" class="kmm-toast" role="status" aria-live="polite"></div>
 	<p class="kmm-app-fuss">
 		<a href="<?php echo esc_url($pdf_url); ?>"><?php esc_html_e('Meldung als PDF', 'ksv-km-meldeportal'); ?></a> ·
 		<?php if ($admin !== null) : ?>

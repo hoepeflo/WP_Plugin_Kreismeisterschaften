@@ -1,27 +1,29 @@
-/* KM-Portal – Vereinsoberfläche. Mobil zuerst, ohne Theme und ohne Build-Schritt. */
+/* KM-Portal – Vereinsoberfläche. Mobil zuerst, ohne Theme und ohne Build-Schritt.
+   Farben, Schrift und Formen folgen der Website des KSV Fallingbostel. */
 
 :root {
 	/* Flächen und Text */
-	--kmm-bg: #f2f5f4;
-	--kmm-bg-akzent: #e8eeeb;
+	--kmm-bg: #f4f6f2;
 	--kmm-surface: #ffffff;
-	--kmm-surface-2: #f7f9f8;
-	--kmm-text: #16201c;
-	--kmm-text-2: #3c4a44;
-	--kmm-muted: #64746c;
-	--kmm-border: #dde3e0;
-	--kmm-border-stark: #c6d0cb;
+	--kmm-surface-2: #f6f8f4;
+	--kmm-text: #1f2a1a;
+	--kmm-text-2: #3a4735;
+	--kmm-titel: #0e0c19;
+	--kmm-muted: #5f6b5a;
+	--kmm-border: #dfe5da;
+	--kmm-border-stark: #c3cdbb;
 
-	/* Marke */
-	--kmm-primary: #1c5d3a;
-	--kmm-primary-hell: #24784b;
-	--kmm-primary-dunkel: #14462c;
-	--kmm-primary-weich: #e7f1eb;
+	/* Marke (KSV-Grün) */
+	--kmm-primary: #2f6806;
+	--kmm-primary-hover: #265605;
+	--kmm-primary-dunkel: #1b3a0a;
+	--kmm-primary-weich: #eaf2e3;
 	--kmm-primary-contrast: #ffffff;
+	--kmm-akzent: #7cc68d;
 
 	/* Status */
-	--kmm-ok: #14653b;
-	--kmm-ok-bg: #e3f4e9;
+	--kmm-ok: #24540a;
+	--kmm-ok-bg: #e6f2dc;
 	--kmm-warn: #8a5a00;
 	--kmm-warn-bg: #fdf3dc;
 	--kmm-error: #9b1c1c;
@@ -33,93 +35,120 @@
 	--kmm-radius: 12px;
 	--kmm-radius-s: 8px;
 	--kmm-radius-pill: 999px;
-	--kmm-schatten-s: 0 1px 2px rgba(16, 32, 24, .06), 0 1px 3px rgba(16, 32, 24, .05);
-	--kmm-schatten-m: 0 2px 4px rgba(16, 32, 24, .05), 0 8px 24px rgba(16, 32, 24, .07);
-	--kmm-schatten-l: 0 12px 48px rgba(16, 32, 24, .18);
-	--kmm-ring: 0 0 0 3px rgba(28, 93, 58, .22);
-	--kmm-tempo: .16s cubic-bezier(.3, .7, .4, 1);
-	--kmm-header-von: var(--kmm-primary);
-	--kmm-header-bis: var(--kmm-primary-dunkel);
-	--kmm-header-text: #ffffff;
+	--kmm-schatten-s: 0 1px 2px rgba(20, 40, 10, .05), 0 1px 3px rgba(20, 40, 10, .05);
+	--kmm-schatten-m: 0 4px 18px rgba(0, 0, 0, .08);
+	--kmm-schatten-l: 0 12px 48px rgba(10, 25, 5, .22);
+	--kmm-ring: 0 0 0 3px rgba(47, 104, 6, .25);
+
+	/* Bewegung: Druck und Einblenden starten schnell und laufen aus, Farbwechsel laufen weich. */
+	--kmm-ease-out: cubic-bezier(.23, 1, .32, 1);
+	--kmm-druck: 140ms var(--kmm-ease-out);
+	--kmm-farbe: 160ms ease;
+
+	--kmm-leiste: var(--kmm-primary);
+	--kmm-fuss: var(--kmm-primary-dunkel);
+	--kmm-kopf-bg: var(--kmm-primary);
 }
 
 @media (prefers-color-scheme: dark) {
 	:root {
-		--kmm-bg: #101613;
-		--kmm-bg-akzent: #16201c;
-		--kmm-surface: #18211d;
-		--kmm-surface-2: #1f2a25;
-		--kmm-text: #e9efec;
-		--kmm-text-2: #c3ceca;
-		--kmm-muted: #94a49d;
-		--kmm-border: #2b3832;
-		--kmm-border-stark: #3a4a42;
-		--kmm-primary: #3d9b64;
-		--kmm-primary-hell: #4cb175;
-		--kmm-primary-dunkel: #2f7d4f;
-		--kmm-primary-weich: #1a2e22;
-		--kmm-primary-contrast: #0b1410;
-		--kmm-ok: #8fe0ab; --kmm-ok-bg: #13291c;
+		--kmm-bg: #10160d;
+		--kmm-surface: #171f13;
+		--kmm-surface-2: #1e2819;
+		--kmm-text: #e8eee3;
+		--kmm-text-2: #c5cfbe;
+		--kmm-titel: #f2f6ee;
+		--kmm-muted: #98a690;
+		--kmm-border: #2b3725;
+		--kmm-border-stark: #3d4c35;
+		--kmm-primary: #7cc68d;
+		--kmm-primary-hover: #93d4a2;
+		--kmm-primary-dunkel: #5aa56c;
+		--kmm-primary-weich: #1b2c16;
+		--kmm-primary-contrast: #0c1a08;
+		--kmm-ok: #9fdc9b; --kmm-ok-bg: #16290f;
 		--kmm-warn: #f0c674; --kmm-warn-bg: #2c2312;
 		--kmm-error: #f5a3a3; --kmm-error-bg: #2e1717;
 		--kmm-info: #a9c0ff; --kmm-info-bg: #151d33;
 		--kmm-schatten-s: 0 1px 2px rgba(0, 0, 0, .4);
-		--kmm-schatten-m: 0 2px 4px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .35);
+		--kmm-schatten-m: 0 4px 18px rgba(0, 0, 0, .4);
 		--kmm-schatten-l: 0 12px 48px rgba(0, 0, 0, .6);
-		--kmm-ring: 0 0 0 3px rgba(77, 177, 118, .3);
-		--kmm-header-von: #183524;
-		--kmm-header-bis: #0f1f16;
-		--kmm-header-text: #dfeae4;
+		--kmm-ring: 0 0 0 3px rgba(124, 198, 141, .35);
+		--kmm-leiste: #16260d;
+		--kmm-fuss: #0b1207;
+		--kmm-kopf-bg: #1f3d12;
 	}
 }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
 
 body.kmm {
-	font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+	font-family: Roboto, ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 	font-size: 16px;
-	line-height: 1.55;
+	line-height: 1.6;
 	color: var(--kmm-text);
 	background: var(--kmm-bg);
-	background-image: radial-gradient(1200px 400px at 50% -180px, var(--kmm-bg-akzent), transparent 70%);
-	background-repeat: no-repeat;
 	min-height: 100vh;
+	min-height: 100svh;
 	display: flex;
 	flex-direction: column;
 	-webkit-font-smoothing: antialiased;
 	text-rendering: optimizeLegibility;
 }
 
-.kmm-container { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+.kmm-container {
+	width: 100%; max-width: 1120px; margin: 0 auto;
+	padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));
+}
+
+/* Bedienelemente: sofort reagieren, Beschriftung nicht markieren. */
+button, summary, .kmm-button, .kmm-check {
+	touch-action: manipulation; -webkit-user-select: none; user-select: none;
+}
+a, input, select, label { touch-action: manipulation; }
+
+:where(a, button, summary, input, select, textarea):focus-visible {
+	outline: 2px solid var(--kmm-primary); outline-offset: 2px;
+}
 
 /* ----- Kopf, Fuß ---------------------------------------------------------------- */
 
+.kmm-leiste {
+	background: var(--kmm-leiste); color: #fff; font-size: 13.5px; font-weight: 500;
+	padding-top: env(safe-area-inset-top, 0px);
+}
+.kmm-leiste .kmm-container {
+	display: flex; justify-content: space-between; align-items: center; gap: 12px;
+	min-height: 36px;
+}
+.kmm-leiste span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.kmm-leiste a { color: inherit; text-decoration: none; white-space: nowrap; padding: 8px 0; }
+.kmm-leiste a:focus-visible { outline-color: #fff; }
+
 .kmm-header {
-	background: linear-gradient(180deg, var(--kmm-header-von), var(--kmm-header-bis));
-	color: var(--kmm-header-text);
-	padding: 12px 0;
-	box-shadow: var(--kmm-schatten-s);
+	background: var(--kmm-surface); color: var(--kmm-text);
+	padding: 10px 0; box-shadow: var(--kmm-schatten-m);
+	position: relative; z-index: 1;
 }
 .kmm-header .kmm-container { display: flex; align-items: center; gap: 10px; }
 .kmm-brand {
-	color: inherit; text-decoration: none; font-weight: 650; letter-spacing: -.01em;
-	display: inline-flex; align-items: center; gap: 10px; min-height: 32px;
+	color: var(--kmm-titel); text-decoration: none; font-weight: 600; font-size: 19px;
+	display: inline-flex; align-items: center; gap: 12px; min-height: 44px;
 }
-.kmm-brand:hover { text-decoration: none; opacity: .92; }
+.kmm-brand-logo { width: 44px; height: 44px; flex: 0 0 44px; object-fit: contain; display: block; }
 .kmm-brand-mark {
-	width: 28px; height: 28px; flex: 0 0 28px; border-radius: 50%;
-	background: rgba(255, 255, 255, .16);
-	box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .55);
+	width: 36px; height: 36px; flex: 0 0 36px; border-radius: 50%;
+	box-shadow: inset 0 0 0 3px var(--kmm-primary);
 	position: relative;
 }
 .kmm-brand-mark::after {
-	content: ""; position: absolute; inset: 9px; border-radius: 50%;
-	background: rgba(255, 255, 255, .9);
+	content: ""; position: absolute; inset: 12px; border-radius: 50%;
+	background: var(--kmm-primary);
 }
 .kmm-brand-text { display: flex; flex-direction: column; line-height: 1.15; }
-.kmm-brand-text small { font-weight: 500; font-size: 12px; opacity: .8; }
+.kmm-brand-text small { font-weight: 500; font-size: 12.5px; color: var(--kmm-muted); }
 
 .kmm-main { flex: 1; padding: 24px 0 48px; }
 .kmm-panel {
@@ -130,61 +159,69 @@ body.kmm {
 .kmm-panel > :last-child { margin-bottom: 0; }
 .kmm-panel h1 { margin-bottom: 10px; }
 @media (min-width: 700px) { .kmm-panel { padding: 32px 34px; } }
+
 .kmm-footer {
-	padding: 20px 0; color: var(--kmm-muted); font-size: 14px;
-	border-top: 1px solid var(--kmm-border);
-	background: var(--kmm-surface);
+	background: var(--kmm-fuss); color: rgba(255, 255, 255, .86); font-size: 14.5px;
+	padding: 26px 0 calc(26px + env(safe-area-inset-bottom, 0px));
 }
-.kmm-footer a { color: inherit; }
+.kmm-footer .kmm-container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px 32px; }
+.kmm-footer-wer { display: flex; flex-direction: column; gap: 2px; }
+.kmm-footer-wer strong { color: #fff; font-weight: 600; }
+.kmm-footer-links { display: flex; flex-wrap: wrap; gap: 4px 22px; align-items: flex-start; }
+.kmm-footer a { color: #fff; text-decoration: none; padding: 4px 0; }
+.kmm-footer a:focus-visible { outline-color: #fff; }
 
 /* ----- Typografie ---------------------------------------------------------------- */
 
-h1 { font-size: clamp(1.45rem, 1.2rem + 1.1vw, 1.85rem); line-height: 1.2; letter-spacing: -.02em; margin: 0 0 14px; font-weight: 680; }
-h2 { font-size: 1.2rem; line-height: 1.3; letter-spacing: -.01em; margin: 28px 0 12px; font-weight: 650; }
-h3 { font-size: 1.02rem; margin: 20px 0 8px; font-weight: 650; }
-h4 { font-size: .95rem; margin: 16px 0 6px; font-weight: 650; }
+h1, h2, h3, h4 { color: var(--kmm-titel); font-weight: 600; }
+h1 { font-size: clamp(1.45rem, 1.2rem + 1.1vw, 1.9rem); line-height: 1.2; letter-spacing: -.015em; margin: 0 0 14px; overflow-wrap: anywhere; }
+h2 { font-size: 1.3rem; line-height: 1.3; letter-spacing: -.01em; margin: 28px 0 12px; }
+h3 { font-size: 1.05rem; line-height: 1.35; margin: 20px 0 8px; }
+h4 { font-size: .95rem; margin: 16px 0 6px; }
 p { margin: 0 0 12px; }
+.kmm-tab > p, .kmm-block > p, .kmm-panel > p { max-width: 72ch; }
 a { color: var(--kmm-primary); text-underline-offset: 2px; }
-a:hover { text-decoration-thickness: 2px; }
+.kmm-app { font-variant-numeric: tabular-nums; }
 
-/* ----- Buttons ------------------------------------------------------------------- */
+/* ----- Buttons (Pillen wie auf der Website) ------------------------------------------ */
 
 .kmm-button {
 	display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-	padding: 10px 18px; border: 1px solid transparent; border-radius: var(--kmm-radius-s);
+	padding: 10px 22px; border: 1.5px solid transparent; border-radius: var(--kmm-radius-pill);
 	background: var(--kmm-primary); color: var(--kmm-primary-contrast);
-	font: inherit; font-weight: 600; text-decoration: none; cursor: pointer;
+	font: inherit; font-size: 15px; font-weight: 700; text-decoration: none; cursor: pointer;
 	min-height: 44px; line-height: 1.3;
-	box-shadow: var(--kmm-schatten-s);
-	transition: background-color var(--kmm-tempo), border-color var(--kmm-tempo), box-shadow var(--kmm-tempo), transform var(--kmm-tempo), opacity var(--kmm-tempo);
+	transition: transform var(--kmm-druck), background-color var(--kmm-farbe), border-color var(--kmm-farbe), opacity var(--kmm-farbe);
 }
-.kmm-button:hover { background: var(--kmm-primary-hell); text-decoration: none; }
-.kmm-button:active { transform: translateY(1px); box-shadow: none; }
+.kmm-button:active { transform: scale(.97); }
 .kmm-button:focus-visible { outline: none; box-shadow: var(--kmm-ring); }
-.kmm-button-small { padding: 6px 12px; min-height: 36px; font-size: 14px; border-radius: var(--kmm-radius-s); }
-.kmm-button-secondary { background: var(--kmm-surface); color: var(--kmm-primary); border-color: var(--kmm-border-stark); }
-.kmm-button-secondary:hover { background: var(--kmm-primary-weich); border-color: var(--kmm-primary); }
-.kmm-button-danger { background: var(--kmm-surface); color: var(--kmm-error); border-color: var(--kmm-border-stark); }
-.kmm-button-danger:hover { background: var(--kmm-error-bg); border-color: var(--kmm-error); }
-.kmm-button[disabled] { opacity: .5; cursor: not-allowed; box-shadow: none; transform: none; }
+.kmm-button-small { padding: 5px 14px; min-height: 36px; font-size: 14px; }
+.kmm-button-secondary { background: var(--kmm-surface); color: var(--kmm-primary); border-color: var(--kmm-border-stark); border-color: color-mix(in srgb, var(--kmm-primary) 45%, var(--kmm-border)); }
+.kmm-button-danger { background: var(--kmm-surface); color: var(--kmm-error); border-color: var(--kmm-border-stark); border-color: color-mix(in srgb, var(--kmm-error) 35%, var(--kmm-border)); }
+.kmm-button-icon { padding: 0; width: 36px; min-width: 36px; }
+.kmm-button[disabled] { opacity: .5; cursor: not-allowed; transform: none; }
 .kmm-link {
 	background: none; border: 0; padding: 0; color: var(--kmm-primary);
 	text-decoration: underline; text-underline-offset: 2px; cursor: pointer; font: inherit;
+}
+@media (pointer: coarse) {
+	.kmm-button-small { min-height: 40px; }
+	.kmm-button-icon { width: 40px; min-width: 40px; }
 }
 
 /* ----- Formulare ----------------------------------------------------------------- */
 
 .kmm-form label { display: block; font-weight: 600; font-size: 14px; margin: 14px 0 5px; color: var(--kmm-text-2); }
 .kmm-form input:not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]),
-.kmm-form select, .kmm-form textarea {
-	width: 100%; max-width: 440px; padding: 10px 12px; font: inherit;
+.kmm-form select, .kmm-form textarea, select.kmm-select {
+	width: 100%; max-width: 440px; padding: 10px 12px; font: inherit; font-size: 16px;
 	color: var(--kmm-text); background: var(--kmm-surface);
 	border: 1px solid var(--kmm-border-stark); border-radius: var(--kmm-radius-s);
-	margin-bottom: 12px; min-height: 44px;
-	transition: border-color var(--kmm-tempo), box-shadow var(--kmm-tempo);
+	margin-bottom: 12px; min-height: 44px; display: block;
+	transition: border-color var(--kmm-farbe), box-shadow var(--kmm-farbe);
 }
 .kmm-form input:focus, .kmm-form select:focus, .kmm-form textarea:focus,
-.kmm-ergebnis:focus, select:focus-visible {
+.kmm-ergebnis:focus, select.kmm-select:focus {
 	outline: none; border-color: var(--kmm-primary); box-shadow: var(--kmm-ring);
 }
 .kmm-form input:disabled, .kmm-form select:disabled, .kmm-form textarea:disabled, .kmm-ergebnis:disabled {
@@ -192,11 +229,15 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .kmm-form input[type=checkbox], .kmm-form input[type=radio] { width: 18px; height: 18px; accent-color: var(--kmm-primary); }
 .kmm-form .kmm-inline, .kmm-inline { margin-bottom: 14px; }
-.kmm-form select { appearance: none; -webkit-appearance: none; padding-right: 36px;
+.kmm-form select, select.kmm-select { appearance: none; -webkit-appearance: none; padding-right: 36px;
 	background-image: linear-gradient(45deg, transparent 50%, var(--kmm-muted) 50%), linear-gradient(135deg, var(--kmm-muted) 50%, transparent 50%);
 	background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
 	background-size: 5px 5px, 5px 5px; background-repeat: no-repeat;
 }
+.kmm-form > .kmm-button { margin-top: 4px; }
+select.kmm-select { margin: 4px 0 0; }
+/* Der Wettkampftag trägt Datum, Bezeichnung und Platzzahl – das braucht mehr Breite. */
+.kmm-form select#kmm-sp-tag { max-width: 640px; }
 
 /* ----- Hinweise ------------------------------------------------------------------ */
 
@@ -205,47 +246,50 @@ a:hover { text-decoration-thickness: 2px; }
 	border: 1px solid transparent; font-size: 15px;
 	display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; align-items: start;
 }
+.kmm-alert[hidden] { display: none; }
 .kmm-alert::before { font-size: 16px; line-height: 1.5; grid-row: 1; }
 .kmm-alert > * { grid-column: 2; }
-.kmm-alert-ok { background: var(--kmm-ok-bg); color: var(--kmm-ok); border-color: #bfe3cd; border-color: color-mix(in srgb, var(--kmm-ok) 22%, transparent); }
+.kmm-alert-ok { background: var(--kmm-ok-bg); color: var(--kmm-ok); border-color: #c5dfb2; border-color: color-mix(in srgb, var(--kmm-ok) 22%, transparent); }
 .kmm-alert-ok::before { content: "✔"; }
 .kmm-alert-warn { background: var(--kmm-warn-bg); color: var(--kmm-warn); border-color: #e8cd94; border-color: color-mix(in srgb, var(--kmm-warn) 26%, transparent); }
 .kmm-alert-warn::before { content: "!"; font-weight: 700; }
 .kmm-alert-error { background: var(--kmm-error-bg); color: var(--kmm-error); border-color: #eec0c0; border-color: color-mix(in srgb, var(--kmm-error) 26%, transparent); }
 .kmm-alert-error::before { content: "✕"; font-weight: 700; }
 .kmm-alert ul { margin: 6px 0 0; padding-left: 20px; }
-.kmm-alert strong { font-weight: 650; }
+.kmm-alert > ul:first-child { margin-top: 0; }
+/* Eine einzelne Meldung braucht keinen Listenpunkt. */
+.kmm-alert ul > li:only-child { list-style: none; margin-left: -20px; }
+.kmm-alert strong { font-weight: 600; }
 
 .kmm-hinweis {
 	padding: 10px 14px; background: var(--kmm-surface); border: 1px solid var(--kmm-border);
-	border-left: 3px solid var(--kmm-primary);
-	border-radius: var(--kmm-radius-s); margin-bottom: 14px; font-size: 14.5px;
-	box-shadow: var(--kmm-schatten-s);
+	border-left: 4px solid var(--kmm-primary);
+	border-radius: var(--kmm-radius-s); margin-bottom: 14px; font-size: 15px;
 }
 .kmm-hinweis-klein { font-size: 13px; color: var(--kmm-muted); }
 .kmm-muted { color: var(--kmm-muted); font-size: 14px; }
 .kmm-warn { color: var(--kmm-warn); font-size: 14px; }
 .kmm-fehler { color: var(--kmm-error); font-size: 14px; }
 
-/* ----- App-Kopf und Tabs ---------------------------------------------------------- */
+/* ----- App-Kopf (grüner Titelbalken wie bei den Kreismeisterschaften) und Tabs ---------- */
 
 .kmm-app-kopf {
-	display: flex; justify-content: space-between; align-items: flex-start; gap: 14px;
-	flex-wrap: wrap; margin-bottom: 16px;
-	padding: 18px 20px; background: var(--kmm-surface);
-	border: 1px solid var(--kmm-border); border-radius: var(--kmm-radius);
-	box-shadow: var(--kmm-schatten-s);
+	display: flex; justify-content: space-between; align-items: flex-start; gap: 8px 14px;
+	flex-wrap: wrap; margin-bottom: 14px;
+	padding: 16px 18px; background: var(--kmm-kopf-bg); color: #fff;
+	border-radius: var(--kmm-radius);
 }
-.kmm-app-kopf h1 { margin: 0 0 2px; }
+.kmm-app-kopf > div:first-child { min-width: 0; flex: 1 1 240px; }
+.kmm-app-kopf h1 { margin: 0 0 2px; color: #fff; }
+.kmm-app-kopf .kmm-muted { color: rgba(255, 255, 255, .84); }
 .kmm-app-status { text-align: right; }
 
 .kmm-badge {
 	display: inline-block; padding: 3px 11px; border-radius: var(--kmm-radius-pill);
-	font-size: 12.5px; font-weight: 650; letter-spacing: .01em;
+	font-size: 12.5px; font-weight: 600; letter-spacing: .01em; line-height: 1.5;
 	background: var(--kmm-surface-2); color: var(--kmm-text-2);
-	border: 1px solid var(--kmm-border);
+	border: 1px solid var(--kmm-border); white-space: nowrap;
 }
-.kmm-badge-offen { background: var(--kmm-surface-2); }
 .kmm-badge-entwurf { background: var(--kmm-warn-bg); color: var(--kmm-warn); border-color: transparent; }
 .kmm-badge-eingereicht, .kmm-badge-ok { background: var(--kmm-ok-bg); color: var(--kmm-ok); border-color: transparent; }
 .kmm-badge-verarbeitet { background: var(--kmm-info-bg); color: var(--kmm-info); border-color: transparent; }
@@ -253,29 +297,28 @@ a:hover { text-decoration-thickness: 2px; }
 .kmm-badge-warn { background: var(--kmm-warn-bg); color: var(--kmm-warn); border-color: transparent; }
 .kmm-status-verarbeitet { background: var(--kmm-ok-bg); color: var(--kmm-ok); border-color: transparent; }
 .kmm-status-nicht_startberechtigt { background: var(--kmm-error-bg); color: var(--kmm-error); border-color: transparent; }
-.kmm-status-ungeprueft { background: var(--kmm-surface-2); }
+.kmm-app-kopf .kmm-badge { font-size: 13px; padding: 4px 13px; border-color: transparent; }
 
-.kmm-tabs {
-	display: flex; gap: 4px; overflow-x: auto; margin: 0 -16px 18px; padding: 5px 16px;
-	scrollbar-width: none;
-}
-.kmm-tabs::-webkit-scrollbar { display: none; }
+/* Alle Schritte bleiben sichtbar: auf dem Handy brechen die Tabs um, statt seitlich zu verschwinden. */
+.kmm-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 20px; }
 .kmm-tabs button {
-	flex: 1 0 auto; min-height: 42px; padding: 8px 14px;
-	border: 1px solid var(--kmm-border); background: var(--kmm-surface);
+	flex: 1 1 auto; min-height: 42px; padding: 7px 14px;
+	border: 1.5px solid var(--kmm-border); background: var(--kmm-surface);
 	color: var(--kmm-text-2); border-radius: var(--kmm-radius-pill);
 	font: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer; white-space: nowrap;
-	transition: background-color var(--kmm-tempo), color var(--kmm-tempo), border-color var(--kmm-tempo), box-shadow var(--kmm-tempo);
+	transition: transform var(--kmm-druck), background-color var(--kmm-farbe), color var(--kmm-farbe), border-color var(--kmm-farbe);
 }
-.kmm-tabs button:hover { border-color: var(--kmm-primary); color: var(--kmm-primary); }
+.kmm-tabs button[hidden] { display: none; }
+.kmm-tabs button:active { transform: scale(.97); }
 .kmm-tabs button:focus-visible { outline: none; box-shadow: var(--kmm-ring); }
 .kmm-tabs button.is-active {
 	background: var(--kmm-primary); color: var(--kmm-primary-contrast);
-	border-color: var(--kmm-primary); box-shadow: var(--kmm-schatten-s);
+	border-color: var(--kmm-primary);
 }
 
 .kmm-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
 .kmm-toolbar h2, .kmm-toolbar h3 { margin: 14px 0 10px; }
+.kmm-tab > h2:first-child, .kmm-tab > .kmm-toolbar:first-child h2 { margin-top: 0; }
 
 /* ----- Karten und Listen ---------------------------------------------------------- */
 
@@ -283,35 +326,47 @@ a:hover { text-decoration-thickness: 2px; }
 .kmm-karte {
 	background: var(--kmm-surface); border: 1px solid var(--kmm-border);
 	border-radius: var(--kmm-radius); padding: 14px 16px;
-	display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+	display: flex; justify-content: space-between; gap: 10px 14px; flex-wrap: wrap;
 	box-shadow: var(--kmm-schatten-s);
-	transition: border-color var(--kmm-tempo), box-shadow var(--kmm-tempo), transform var(--kmm-tempo);
 }
-.kmm-karte:hover { border-color: var(--kmm-border-stark); box-shadow: var(--kmm-schatten-m); }
-.kmm-karte-haupt { display: grid; gap: 3px; flex: 1 1 260px; align-content: start; }
-.kmm-karte-haupt strong { font-weight: 650; letter-spacing: -.005em; }
+.kmm-karte-haupt { display: grid; gap: 3px; flex: 1 1 260px; align-content: start; min-width: 0; overflow-wrap: anywhere; }
+.kmm-karte-haupt strong { font-weight: 600; }
 .kmm-karte-aktionen { display: flex; gap: 6px; align-items: flex-start; flex-wrap: wrap; }
-.kmm-karte.is-gemeldet { border-color: #8fbaa2; border-color: color-mix(in srgb, var(--kmm-primary) 45%, var(--kmm-border)); background: var(--kmm-primary-weich); }
+.kmm-karte.is-gemeldet { border-color: #a9c79a; border-color: color-mix(in srgb, var(--kmm-primary) 45%, var(--kmm-border)); background: var(--kmm-primary-weich); }
 .kmm-karte.is-unvollstaendig { border-color: #d9bd80; border-color: color-mix(in srgb, var(--kmm-warn) 45%, var(--kmm-border)); }
-.kmm-liste-kompakt .kmm-karte { padding: 10px 12px; }
+.kmm-liste-kompakt .kmm-karte { padding: 10px 12px; box-shadow: none; }
+.kmm-leer {
+	padding: 22px 18px; text-align: center; color: var(--kmm-muted);
+	border: 1.5px dashed var(--kmm-border-stark); border-radius: var(--kmm-radius);
+	background: var(--kmm-surface);
+}
+.kmm-leer strong { display: block; color: var(--kmm-text); font-weight: 600; margin-bottom: 2px; }
 
 .kmm-gruppe-details {
 	margin: 10px 0; border: 1px solid var(--kmm-border); border-radius: var(--kmm-radius);
 	background: var(--kmm-surface); box-shadow: var(--kmm-schatten-s); overflow: hidden;
 }
 .kmm-gruppe-details summary {
-	padding: 12px 14px; cursor: pointer; font-weight: 650; list-style: none;
-	display: flex; align-items: center; gap: 8px;
-	transition: background-color var(--kmm-tempo);
+	padding: 12px 14px; cursor: pointer; font-weight: 600; list-style: none;
+	display: flex; align-items: center; gap: 8px; min-height: 48px;
 }
 .kmm-gruppe-details summary::-webkit-details-marker { display: none; }
 .kmm-gruppe-details summary::before {
 	content: "›"; font-size: 20px; line-height: 1; color: var(--kmm-muted);
-	transition: transform var(--kmm-tempo); transform-origin: center;
+	transition: transform 160ms var(--kmm-ease-out); transform-origin: center;
 }
 .kmm-gruppe-details[open] summary::before { transform: rotate(90deg); }
-.kmm-gruppe-details summary:hover { background: var(--kmm-surface-2); }
 .kmm-gruppe-details .kmm-liste { padding: 0 10px 12px; }
+
+/* Starter melden: steht über der Liste, damit es nach „Melden“ ohne Scrollen sichtbar ist. */
+.kmm-melden {
+	background: var(--kmm-surface); border: 1px solid var(--kmm-border);
+	border-radius: var(--kmm-radius); padding: 14px 16px 6px; margin-bottom: 24px;
+	box-shadow: var(--kmm-schatten-s);
+}
+.kmm-melden h2 { margin: 0 0 4px; font-size: 1.1rem; }
+.kmm-melden .kmm-inline { margin-bottom: 4px; }
+.kmm-melden .kmm-gruppe-details { box-shadow: none; }
 
 /* ----- Tabellen -------------------------------------------------------------------- */
 
@@ -321,44 +376,50 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .kmm-tabelle {
 	width: 100%; border-collapse: separate; border-spacing: 0;
-	background: var(--kmm-surface); font-size: 14.5px;
+	background: var(--kmm-surface); font-size: 15px;
 	border: 1px solid var(--kmm-border); border-radius: var(--kmm-radius);
 	overflow: hidden; box-shadow: var(--kmm-schatten-s);
 }
 .kmm-tabelle thead th {
 	background: var(--kmm-surface-2); color: var(--kmm-muted);
-	font-size: 12px; font-weight: 650; text-transform: uppercase; letter-spacing: .04em;
-	padding: 10px; text-align: left; border-bottom: 1px solid var(--kmm-border);
+	font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em;
+	padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--kmm-border);
 }
-.kmm-tabelle td { padding: 10px; border-bottom: 1px solid var(--kmm-border); text-align: left; vertical-align: top; }
-.kmm-tabelle tbody tr:last-child td { border-bottom: 0; }
+.kmm-tabelle td, .kmm-tabelle tbody th { padding: 10px 12px; border-bottom: 1px solid var(--kmm-border); text-align: left; vertical-align: middle; }
+.kmm-tabelle tbody tr:last-child td, .kmm-tabelle tbody tr:last-child th { border-bottom: 0; }
 .kmm-tabelle th.r, .kmm-tabelle td.r { text-align: right; }
-.kmm-tabelle tbody tr { transition: background-color var(--kmm-tempo); }
-.kmm-tabelle tbody tr:hover td { background: var(--kmm-surface-2); }
 .kmm-tabelle tr.kmm-gruppe th {
 	background: var(--kmm-primary-weich); color: var(--kmm-primary); text-align: left;
-	font-size: 13px; font-weight: 650; text-transform: none; letter-spacing: 0;
-	padding: 8px 10px; border-bottom: 1px solid var(--kmm-border);
+	font-size: 14px; font-weight: 600; text-transform: none; letter-spacing: 0;
+	padding: 8px 12px; border-bottom: 1px solid var(--kmm-border);
 }
 .kmm-tabelle tr.is-konflikt td { background: var(--kmm-error-bg); }
-.kmm-tabelle tr.is-konflikt:hover td { background: var(--kmm-error-bg); }
 .kmm-tabelle tr.is-abgemeldet td { color: var(--kmm-muted); }
 .kmm-tabelle tr.is-abgemeldet td strong { text-decoration: line-through; }
-.kmm-tabelle .kmm-aktionen { white-space: nowrap; }
+.kmm-tabelle .kmm-aktionen { white-space: nowrap; text-align: right; }
 .kmm-tabelle input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--kmm-primary); }
+/* break-word, nicht anywhere: sonst staucht ein langer Statustext die Namensspalte auf Buchstabenbreite. */
+.kmm-z-name { overflow-wrap: break-word; min-width: 11em; }
+.kmm-z-status { min-width: 9em; }
+.kmm-z-name strong { font-weight: 600; }
+.kmm-z-klasse .kmm-muted { display: block; }
+/* „M1“ in der Tabelle, „Mannschaft 1“ auf der Handykarte. */
+.kmm-lang { display: none; }
 
 .kmm-ergebnis {
-	width: 5.5em; padding: 7px 8px; font: inherit; font-variant-numeric: tabular-nums;
+	width: 7.2em; padding: 7px 9px; font: inherit; font-size: 16px; font-variant-numeric: tabular-nums;
 	color: var(--kmm-text); background: var(--kmm-surface);
-	border: 1px solid var(--kmm-border-stark); border-radius: var(--kmm-radius-s);
-	transition: border-color var(--kmm-tempo), box-shadow var(--kmm-tempo), opacity var(--kmm-tempo);
+	border: 1px solid var(--kmm-border-stark); border-radius: var(--kmm-radius-s); min-height: 40px;
+	transition: border-color var(--kmm-farbe), box-shadow var(--kmm-farbe), background-color var(--kmm-farbe), opacity var(--kmm-farbe);
 }
 .kmm-ergebnis.is-leer { border-color: #d9b76a; border-color: color-mix(in srgb, var(--kmm-warn) 50%, transparent); background: var(--kmm-warn-bg); }
 .kmm-ergebnis.is-busy { opacity: .55; }
-.kmm-ergebnis::placeholder { color: var(--kmm-muted); opacity: .5; }
+/* Rückmeldung dort, wo der Blick ist: das Feld selbst bestätigt das Speichern. */
+.kmm-ergebnis.is-gespeichert { border-color: var(--kmm-primary); background: var(--kmm-ok-bg); }
+.kmm-ergebnis::placeholder { color: var(--kmm-muted); opacity: .8; font-size: 14px; }
+
 .kmm-summe { max-width: 440px; }
-.kmm-summe th, .kmm-summe td { font-variant-numeric: tabular-nums; }
-.kmm-summe tr:last-child th, .kmm-summe tr:last-child td { font-size: 16px; }
+.kmm-summe tr:last-child th { font-size: 16px; font-weight: 700; color: var(--kmm-titel); background: var(--kmm-surface-2); }
 
 .kmm-block { margin-bottom: 22px; }
 .kmm-startgeld-schalter { display: inline-flex; gap: 5px; align-items: center; font-size: 12px; white-space: nowrap; margin-top: 3px; }
@@ -367,25 +428,37 @@ a:hover { text-decoration-thickness: 2px; }
 
 .kmm-dialog {
 	border: 0; border-radius: var(--kmm-radius); padding: 22px;
-	width: min(560px, 92vw); max-height: 90vh;
+	width: min(560px, 92vw); max-height: 90vh; max-height: 90dvh;
 	background: var(--kmm-surface); color: var(--kmm-text);
 	box-shadow: var(--kmm-schatten-l);
+	overscroll-behavior: contain;
 }
-.kmm-dialog::backdrop { background: rgba(10, 20, 15, .5); backdrop-filter: blur(2px); }
-.kmm-dialog h3 { margin-top: 0; font-size: 1.1rem; }
+.kmm-dialog::backdrop { background: rgba(10, 20, 5, .5); }
+/* Ein Dialog erscheint selten und bewusst: kurz aus der Mitte einblenden, sofort schließen. */
+.kmm-dialog[open] {
+	opacity: 1; transform: none;
+	transition: opacity 180ms var(--kmm-ease-out), transform 180ms var(--kmm-ease-out);
+}
+.kmm-dialog[open]::backdrop { opacity: 1; transition: opacity 180ms var(--kmm-ease-out); }
+@starting-style {
+	.kmm-dialog[open] { opacity: 0; transform: scale(.97); }
+	.kmm-dialog[open]::backdrop { opacity: 0; }
+}
+.kmm-dialog h3 { margin-top: 0; font-size: 1.15rem; }
 .kmm-dialog-buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
-.kmm-kandidaten { display: grid; gap: 6px; max-height: 50vh; overflow: auto; padding: 2px; }
+.kmm-kandidaten { display: grid; gap: 6px; max-height: 50vh; max-height: 50dvh; overflow: auto; padding: 2px; overscroll-behavior: contain; }
 .kmm-check {
 	display: flex; gap: 10px; align-items: flex-start; padding: 9px 11px;
 	border: 1px solid var(--kmm-border); border-radius: var(--kmm-radius-s);
 	background: var(--kmm-surface); cursor: pointer;
-	transition: background-color var(--kmm-tempo), border-color var(--kmm-tempo);
+	transition: background-color var(--kmm-farbe), border-color var(--kmm-farbe);
 }
-.kmm-check:hover { border-color: var(--kmm-primary); background: var(--kmm-primary-weich); }
 .kmm-check input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--kmm-primary); }
 /* Höhere Spezifität als .kmm-form label, sonst steht das Kästchen über dem Namen. */
 .kmm-form label.kmm-check { display: flex; margin: 0; }
-.kmm-check-text { flex: 1; min-width: 0; }
+.kmm-check-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.kmm-check-text strong { font-weight: 600; }
+.kmm-check-text .kmm-muted { display: block; }
 .kmm-check-grund { display: block; font-size: .82rem; font-style: normal; margin-top: 2px; }
 .kmm-check-grund:empty { display: none; }
 
@@ -399,7 +472,6 @@ a:hover { text-decoration-thickness: 2px; }
 	opacity: .5; cursor: not-allowed; background: var(--kmm-surface-2);
 	border-style: dashed;
 }
-.kmm-check.is-gesperrt:hover { border-color: var(--kmm-border); background: var(--kmm-surface-2); }
 .kmm-check.is-gesperrt .kmm-check-grund { color: var(--kmm-warn); }
 .kmm-kandidaten-status {
 	margin: 0 0 8px; font-weight: 600; color: var(--kmm-primary);
@@ -408,33 +480,45 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .kmm-kandidaten-status[hidden] { display: none; }
 
+/* Übergang statt Keyframes: ein neuer Toast unterbricht den alten, ohne neu anzusetzen. */
 .kmm-toast {
-	position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
-	background: #16201c; color: #f3f7f5; padding: 12px 18px;
-	border-radius: var(--kmm-radius-pill); max-width: 90vw; z-index: 1000;
-	font-size: 14.5px; font-weight: 550;
+	position: fixed; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+	transform: translate(-50%, 10px); opacity: 0; visibility: hidden; pointer-events: none;
+	background: #1f2a1a; color: #f3f7f0; padding: 12px 20px;
+	border-radius: var(--kmm-radius-pill); max-width: min(90vw, 560px); z-index: 1000;
+	font-size: 15px; font-weight: 500; text-align: center;
 	box-shadow: var(--kmm-schatten-l);
-	animation: kmm-toast-auf .2s cubic-bezier(.2, .8, .3, 1);
+	transition: opacity 120ms ease, transform 120ms ease, visibility 0s linear 120ms;
+}
+.kmm-toast.is-da {
+	transform: translate(-50%, 0); opacity: 1; visibility: visible;
+	transition: opacity 200ms var(--kmm-ease-out), transform 200ms var(--kmm-ease-out), visibility 0s;
 }
 .kmm-toast.error { background: var(--kmm-error); color: #fff; }
 .kmm-toast.warn { background: var(--kmm-warn); color: #fff; }
-@keyframes kmm-toast-auf { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@media (prefers-color-scheme: dark) {
+	.kmm-toast { background: #e8eee3; color: #10160d; }
+	.kmm-toast.error { background: #7f1d1d; color: #fff; }
+	.kmm-toast.warn { background: #6b4700; color: #fff; }
+}
 
 /* ----- Fuß der App ----------------------------------------------------------------- */
 
 .kmm-app-fuss {
 	margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--kmm-border);
-	font-size: 14.5px;
+	font-size: 15px;
 }
-.kmm-datenschutz { font-size: 13px; color: var(--kmm-muted); margin-top: 14px; }
-.kmm-datenschutz summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
+.kmm-app-fuss a { display: inline-block; padding: 6px 0; }
+.kmm-datenschutz { font-size: 13.5px; color: var(--kmm-muted); margin-top: 8px; }
+.kmm-datenschutz summary { cursor: pointer; font-weight: 600; padding: 8px 0; }
+.kmm-datenschutz p { max-width: 80ch; }
 
 /* ----- Admin-Modus ------------------------------------------------------------------ */
 
 .kmm-admin-leiste {
-	background: linear-gradient(180deg, #263445, #1b2735); color: #eef3f9;
+	background: #263445; color: #eef3f9;
 	padding: 10px 14px; border-radius: var(--kmm-radius-s); margin-bottom: 14px;
-	font-size: 14px; box-shadow: var(--kmm-schatten-s);
+	font-size: 14px;
 	display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
 }
 .kmm-admin-leiste a { color: #9ec5fe; }
@@ -445,28 +529,29 @@ a:hover { text-decoration-thickness: 2px; }
 @media (min-width: 700px) { .kmm-sp-starter { grid-template-columns: 1fr 1fr; } }
 .kmm-sp-melder {
 	display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
-	text-align: left; padding: 11px 13px;
+	text-align: left; padding: 11px 13px; min-height: 48px;
 	border: 1.5px solid var(--kmm-border); border-radius: var(--kmm-radius);
 	background: var(--kmm-surface); color: var(--kmm-text); font: inherit; cursor: pointer;
-	box-shadow: var(--kmm-schatten-s);
-	transition: border-color var(--kmm-tempo), box-shadow var(--kmm-tempo), background-color var(--kmm-tempo);
+	overflow-wrap: anywhere;
+	transition: transform var(--kmm-druck), border-color var(--kmm-farbe), box-shadow var(--kmm-farbe), background-color var(--kmm-farbe);
 }
-.kmm-sp-melder:hover:not(:disabled) { border-color: var(--kmm-primary); }
+.kmm-sp-melder:active:not(:disabled) { transform: scale(.98); }
 .kmm-sp-melder.no-platz { border-color: #ddbe7c; border-color: color-mix(in srgb, var(--kmm-warn) 45%, transparent); background: var(--kmm-warn-bg); }
-.kmm-sp-melder.has-platz { border-color: #9ccdb1; border-color: color-mix(in srgb, var(--kmm-ok) 40%, transparent); background: var(--kmm-ok-bg); }
+.kmm-sp-melder.has-platz { border-color: #a9c79a; border-color: color-mix(in srgb, var(--kmm-ok) 40%, transparent); background: var(--kmm-ok-bg); }
 .kmm-sp-melder.is-auswahl {
-	border-color: var(--kmm-primary); border-width: 2px; padding: 10px 12px;
+	border-color: var(--kmm-primary); border-width: 2px; padding: 10.5px 12.5px;
 	background: var(--kmm-primary-weich); box-shadow: var(--kmm-ring);
 }
-.kmm-sp-melder span { font-size: 12.5px; color: var(--kmm-muted); }
-.kmm-sp-melder.no-platz span, .kmm-sp-melder.has-platz span { color: inherit; opacity: .8; }
+.kmm-sp-melder span { font-size: 13px; color: var(--kmm-muted); }
+.kmm-sp-melder.no-platz span, .kmm-sp-melder.has-platz span { color: inherit; opacity: .85; }
 .kmm-sp-melder:disabled { opacity: .75; cursor: default; }
+.kmm-sp-melder:focus-visible, .kmm-sp-zelle:focus-visible { outline: none; box-shadow: var(--kmm-ring); }
 
 .kmm-sp-durchgang {
 	border: 1px solid var(--kmm-border); border-radius: var(--kmm-radius);
 	padding: 12px 14px; margin-bottom: 12px; background: var(--kmm-surface);
 	box-shadow: var(--kmm-schatten-s);
-	transition: border-color var(--kmm-tempo), opacity var(--kmm-tempo);
+	transition: border-color var(--kmm-farbe), opacity var(--kmm-farbe);
 }
 .kmm-sp-durchgang.is-passend { border-color: var(--kmm-primary); box-shadow: var(--kmm-schatten-m); }
 .kmm-sp-durchgang.is-unpassend { opacity: .45; }
@@ -481,64 +566,124 @@ a:hover { text-decoration-thickness: 2px; }
 	border-radius: var(--kmm-radius-s); border: 1px solid var(--kmm-border);
 	background: var(--kmm-surface); color: var(--kmm-text); font: inherit; font-size: 13.5px;
 	text-align: left; min-height: 56px; overflow-wrap: anywhere; hyphens: auto;
-	transition: border-color var(--kmm-tempo), background-color var(--kmm-tempo), box-shadow var(--kmm-tempo);
+	transition: transform var(--kmm-druck), border-color var(--kmm-farbe), background-color var(--kmm-farbe), box-shadow var(--kmm-farbe);
 }
-.kmm-sp-zelle .kmm-sp-label { font-size: 10.5px; color: var(--kmm-muted); letter-spacing: .02em; line-height: 1.3; }
-.kmm-sp-zelle strong { font-size: 13px; line-height: 1.25; }
+button.kmm-sp-zelle:active:not(:disabled) { transform: scale(.97); }
+.kmm-sp-zelle .kmm-sp-label { font-size: 11px; color: var(--kmm-muted); letter-spacing: .02em; line-height: 1.3; }
+.kmm-sp-zelle strong { font-size: 13px; line-height: 1.25; font-weight: 600; }
 .kmm-sp-zelle.is-frei { border-style: dashed; cursor: pointer; }
 .kmm-sp-zelle.is-frei:not(:disabled) { border-color: var(--kmm-primary); background: var(--kmm-primary-weich); color: var(--kmm-primary); }
-.kmm-sp-zelle.is-frei:not(:disabled):hover { background: var(--kmm-surface); box-shadow: var(--kmm-ring); }
 .kmm-sp-zelle.is-frei:disabled { color: var(--kmm-muted); cursor: default; }
 .kmm-sp-zelle.is-belegt { background: var(--kmm-surface-2); color: var(--kmm-muted); }
-.kmm-sp-zelle.is-eigen { background: var(--kmm-ok-bg); border-color: #9ccdb1; border-color: color-mix(in srgb, var(--kmm-ok) 40%, transparent); cursor: pointer; }
+.kmm-sp-zelle.is-eigen { background: var(--kmm-ok-bg); border-color: #a9c79a; border-color: color-mix(in srgb, var(--kmm-ok) 40%, transparent); cursor: pointer; }
 .kmm-sp-zelle.is-eigen.is-auswahl { box-shadow: var(--kmm-ring); border-color: var(--kmm-primary); }
 .kmm-sp-stand { margin-top: 8px; }
 
 /* ----- Ab Tablet --------------------------------------------------------------------- */
 
 @media (min-width: 700px) {
-	.kmm-tabs { margin: 0 0 18px; padding: 5px 0; }
+	.kmm-tabs { flex-wrap: nowrap; }
 	.kmm-tabelle-wrap { margin: 0 0 4px; padding: 0; }
-	.kmm-app-kopf { padding: 22px 24px; }
+	.kmm-app-kopf { padding: 20px 24px; }
+	.kmm-melden { padding: 18px 20px 8px; }
+	.kmm-header { padding: 12px 0; }
+	.kmm-brand { font-size: 21px; }
+	.kmm-brand-logo { width: 52px; height: 52px; flex-basis: 52px; }
 }
 
-/* ----- Meldetabelle als Karten auf schmalen Bildschirmen ------------------------------- */
+/* ----- Meldetabelle als kompakte Karten auf schmalen Bildschirmen ------------------------
+   Name oben, darunter Startklasse und Mannschaft, in der letzten Zeile Ergebnis, Startgeld
+   und Entfernen. So bleibt ein Starter bei etwa einem Fünftel der Bildschirmhöhe. */
 
 @media (max-width: 699px) {
 	.kmm-tabelle-wrap { overflow: visible; margin: 0; padding: 0; }
-	.kmm-tabelle { display: block; border: 0; background: transparent; box-shadow: none; overflow: visible; }
-	.kmm-tabelle thead { display: none; }
-	.kmm-tabelle tbody { display: block; }
-	.kmm-tabelle tbody tr {
-		display: block; background: var(--kmm-surface);
+	.kmm-meldetabelle { display: block; border: 0; background: transparent; box-shadow: none; overflow: visible; }
+	.kmm-meldetabelle thead { display: none; }
+	.kmm-meldetabelle tbody { display: block; }
+	.kmm-meldetabelle tbody tr {
+		display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 4px 0; align-items: center;
+		grid-template-areas:
+			"name name name"
+			"klasse team team"
+			"ergebnis geld aktion"
+			"nm nm nm"
+			"status status status";
+		background: var(--kmm-surface);
 		border: 1px solid var(--kmm-border); border-radius: var(--kmm-radius);
-		margin-bottom: 10px; padding: 6px 0; box-shadow: var(--kmm-schatten-s);
+		margin-bottom: 8px; padding: 12px 14px; box-shadow: var(--kmm-schatten-s);
 	}
-	.kmm-tabelle tbody tr:hover td { background: transparent; }
-	.kmm-tabelle tbody tr.kmm-gruppe {
-		background: var(--kmm-primary-weich); border-color: transparent;
-		box-shadow: none; padding: 0; margin: 14px 0 8px;
+	.kmm-app-admin .kmm-meldetabelle tbody tr {
+		grid-template-areas:
+			"name name name"
+			"klasse team team"
+			"ergebnis geld geld"
+			"nm nm nm"
+			"status status status"
+			"aktion aktion aktion";
 	}
-	.kmm-tabelle tr.kmm-gruppe th { display: block; border: 0; border-radius: var(--kmm-radius-s); }
-	.kmm-tabelle td {
-		display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline;
-		gap: 4px 14px; border-bottom: 0; padding: 5px 14px; text-align: right;
+	.kmm-meldetabelle tbody tr.is-konflikt { background: var(--kmm-error-bg); }
+	.kmm-meldetabelle tbody tr.kmm-gruppe {
+		display: block; background: var(--kmm-primary-weich); border-color: transparent;
+		box-shadow: none; padding: 0; margin: 16px 0 8px;
 	}
-	/* Zusatzangaben (Kennzahl, Grund, Hinweis) rutschen unter die Zeile, bündig rechts. */
-	.kmm-tabelle td[data-label] > div,
-	.kmm-tabelle td[data-label] > label { flex: 1 0 100%; text-align: right; }
-	.kmm-tabelle td::before {
-		content: attr(data-label); flex: 0 0 auto; text-align: left;
-		color: var(--kmm-muted); font-size: 11.5px; font-weight: 650;
+	.kmm-meldetabelle tbody tr.kmm-gruppe:first-child { margin-top: 0; }
+	.kmm-meldetabelle tr.kmm-gruppe th { display: block; border: 0; border-radius: var(--kmm-radius-s); }
+	.kmm-meldetabelle td { display: block; border: 0; padding: 0; background: transparent; min-width: 0; }
+	.kmm-meldetabelle td:empty { display: none; }
+	.kmm-z-name { grid-area: name; font-size: 16px; min-width: 0; overflow-wrap: anywhere; }
+	.kmm-z-klasse { grid-area: klasse; color: var(--kmm-text-2); font-size: 14.5px; }
+	.kmm-z-klasse .kmm-muted { display: inline; }
+	.kmm-z-klasse .kmm-muted::before { content: " · "; }
+	.kmm-z-team { grid-area: team; text-align: right; padding-left: 12px; font-size: 14px; font-weight: 600; color: var(--kmm-primary); }
+	.kmm-z-team .kmm-kein { display: none; }
+	.kmm-lang { display: inline; }
+	.kmm-z-ergebnis { grid-area: ergebnis; margin-top: 6px; }
+	.kmm-z-ergebnis::before, .kmm-z-nm::before {
+		content: attr(data-label); margin-right: 8px;
+		color: var(--kmm-muted); font-size: 12px; font-weight: 600;
 		text-transform: uppercase; letter-spacing: .04em;
 	}
-	.kmm-tabelle td:not([data-label]) { display: block; text-align: left; }
-	.kmm-tabelle td:not([data-label])::before { content: none; }
-	.kmm-tabelle td:first-child { font-size: 16px; padding: 8px 14px 6px; }
-	.kmm-tabelle td:empty { display: none; }
-	.kmm-tabelle td.kmm-aktionen { white-space: normal; display: flex; flex-wrap: wrap; gap: 6px; padding-bottom: 10px; }
+	.kmm-z-geld { grid-area: geld; margin-top: 6px; padding-left: 12px; white-space: nowrap; }
+	.kmm-z-nm { grid-area: nm; margin-top: 4px; }
+	.kmm-z-status { grid-area: status; margin-top: 4px; min-width: 0; }
+	.kmm-meldetabelle td.kmm-aktionen { grid-area: aktion; margin-top: 6px; padding-left: 12px; white-space: normal; display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+	.kmm-meldetabelle td.kmm-aktionen:empty { display: none; }
+	.kmm-app-admin .kmm-meldetabelle td.kmm-aktionen { justify-content: flex-start; padding-left: 0; }
+	.kmm-app-status { text-align: left; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+	.kmm-app-kopf > div:first-child { flex-basis: 100%; }
 }
 
+/* ----- Hover nur dort, wo es einen Zeiger gibt – auf dem Handy bliebe der Zustand kleben. -- */
+
+@media (hover: hover) and (pointer: fine) {
+	a:hover { text-decoration-thickness: 2px; }
+	.kmm-leiste a:hover, .kmm-footer a:hover { text-decoration: underline; }
+	.kmm-brand:hover { color: var(--kmm-primary); }
+	.kmm-button:hover { background: var(--kmm-primary-hover); text-decoration: none; }
+	.kmm-button-secondary:hover { background: var(--kmm-primary-weich); border-color: var(--kmm-primary); }
+	.kmm-button-danger:hover { background: var(--kmm-error-bg); border-color: var(--kmm-error); }
+	.kmm-button[disabled]:hover { background: var(--kmm-primary); }
+	.kmm-button-secondary[disabled]:hover, .kmm-button-danger[disabled]:hover { background: var(--kmm-surface); }
+	.kmm-tabs button:hover { border-color: var(--kmm-primary); color: var(--kmm-primary); }
+	.kmm-tabs button.is-active:hover { color: var(--kmm-primary-contrast); }
+	.kmm-gruppe-details summary:hover { background: var(--kmm-surface-2); }
+	.kmm-tabelle tbody tr:not(.kmm-gruppe):hover td { background: var(--kmm-surface-2); }
+	.kmm-tabelle tr.is-konflikt:hover td { background: var(--kmm-error-bg); }
+	.kmm-check:hover { border-color: var(--kmm-primary); background: var(--kmm-primary-weich); }
+	.kmm-check.is-gesperrt:hover { border-color: var(--kmm-border); background: var(--kmm-surface-2); }
+	.kmm-sp-melder:hover:not(:disabled) { border-color: var(--kmm-primary); }
+	.kmm-sp-zelle.is-frei:not(:disabled):hover { background: var(--kmm-surface); box-shadow: var(--kmm-ring); }
+}
+@media (hover: hover) and (pointer: fine) and (max-width: 699px) {
+	.kmm-meldetabelle tbody tr:not(.kmm-gruppe):hover td { background: transparent; }
+}
+
+/* ----- Weniger Bewegung: Farb- und Deckkraftwechsel bleiben, Bewegung entfällt. ----------- */
+
 @media (prefers-reduced-motion: reduce) {
-	* { transition: none !important; animation: none !important; }
+	.kmm-button:active, .kmm-tabs button:active, .kmm-sp-melder:active:not(:disabled), button.kmm-sp-zelle:active:not(:disabled) { transform: none; }
+	.kmm-gruppe-details summary::before { transition: none; }
+	.kmm-toast, .kmm-toast.is-da { transform: translate(-50%, 0); }
+	.kmm-dialog[open] { transition: opacity 180ms ease; }
+	@starting-style { .kmm-dialog[open] { transform: none; } }
 }

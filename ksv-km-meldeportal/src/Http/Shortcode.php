@@ -164,16 +164,18 @@ final class Shortcode {
 			return;
 		}
 		$gesetzt = true;
-		$css = '.kmm-startplan{margin:1.5em 0;--kmm-sp-linie:rgba(128,128,128,.35)}'
+		// Linien und Schrift kommen vom Theme; nur die Akzente tragen das Grün der KSV-Website.
+		$css = '.kmm-startplan{margin:1.5em 0;--kmm-sp-linie:rgba(128,128,128,.35);--kmm-sp-akzent:#2f6806}'
 			. '.kmm-startplan-kopf{font-weight:600;margin:.2em 0 .3em}'
 			. '.kmm-startplan-disziplinen{margin:0 0 .8em;font-size:.9em;opacity:.8}'
-			. '.kmm-startplan-hinweis{padding:.6em .8em;border-left:3px solid currentColor;opacity:.85;margin:0 0 1em}'
+			. '.kmm-startplan-hinweis{padding:.6em .8em;border-left:4px solid var(--kmm-sp-akzent);background:rgba(47,104,6,.06);border-radius:0 6px 6px 0;margin:0 0 1em}'
 			// Der Startplan ist breit; in schmalen Themes wird waagerecht gescrollt.
 			. '.kmm-startplan-tabelle{overflow-x:auto;max-width:100%;scrollbar-width:thin}'
 			. '.kmm-startplan-raster{width:100%;border-collapse:collapse;font-size:13px;line-height:1.25}'
 			. '.kmm-startplan-raster th,.kmm-startplan-raster td{border:1px solid var(--kmm-sp-linie);padding:.35em .45em;text-align:center;vertical-align:middle}'
-			. '.kmm-startplan-raster thead th{font-size:11px;text-transform:uppercase;letter-spacing:.03em;opacity:.8;white-space:nowrap}'
-			. '.kmm-startplan-raster th.kmm-sp-zeit{font-weight:700;font-size:15px;white-space:nowrap;width:1%}'
+			. '.kmm-startplan-raster thead th{font-size:11px;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;background:rgba(47,104,6,.08)}'
+			. '.kmm-startplan-raster th.kmm-sp-zeit{font-weight:700;font-size:15px;white-space:nowrap;width:1%;font-variant-numeric:tabular-nums}'
+			. '.kmm-startplan-raster tbody th.kmm-sp-zeit{color:var(--kmm-sp-akzent);background:rgba(47,104,6,.04)}'
 			. '.kmm-startplan-raster tbody th.kmm-sp-zeit small{display:block;font-weight:400;opacity:.7;font-size:11px}'
 			. '.kmm-startplan-raster td span{display:block}'
 			. '.kmm-sp-verein{font-size:11px;opacity:.75}'
@@ -192,7 +194,7 @@ final class Shortcode {
 			. '.kmm-startplan-raster thead{display:none}'
 			. '.kmm-startplan-raster tr{margin-bottom:1em;border:1px solid var(--kmm-sp-linie);border-radius:6px;overflow:hidden}'
 			. '.kmm-startplan-raster th,.kmm-startplan-raster td{border:0;border-top:1px solid var(--kmm-sp-linie);text-align:left}'
-			. '.kmm-startplan-raster tbody th.kmm-sp-zeit{width:auto;border-top:0;font-size:16px;background:rgba(128,128,128,.12)}'
+			. '.kmm-startplan-raster tbody th.kmm-sp-zeit{width:auto;border-top:0;font-size:16px;background:rgba(47,104,6,.1)}'
 			. '.kmm-startplan-raster tbody th.kmm-sp-zeit small{display:inline;margin-left:.3em}'
 			. '.kmm-startplan-raster tbody th.kmm-sp-zeit small::before{content:"– "}'
 			. '.kmm-startplan-raster td.kmm-sp-leer{display:none}'

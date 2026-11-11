@@ -657,7 +657,7 @@ final class MeldungService {
 			}
 		}
 		if ($konflikte > 0) {
-			$fehler[] = sprintf('%d Meldung(en) mit ungeklärtem Konflikt oder ohne Startrecht.', $konflikte);
+			$fehler[] = sprintf($konflikte === 1 ? '%d Meldung mit ungeklärtem Konflikt oder ohne Startrecht.' : '%d Meldungen mit ungeklärtem Konflikt oder ohne Startrecht.', $konflikte);
 		}
 		foreach ($this->mannschaften->by_meldung((int) $m['id']) as $ma) {
 			$n = $this->einzel->count(['mannschaft_id' => (int) $ma['id']]);
@@ -667,7 +667,7 @@ final class MeldungService {
 			}
 		}
 		if ($ohne_ergebnis > 0) {
-			$warnungen[] = sprintf('%d Meldung(en) ohne Meldeergebnis. Das Ergebnis der Vereinsmeisterschaft wird für die Startplanung dringend benötigt.', $ohne_ergebnis);
+			$warnungen[] = sprintf($ohne_ergebnis === 1 ? '%d Meldung ohne Meldeergebnis. Das Ergebnis der Vereinsmeisterschaft wird für die Startplanung dringend benötigt.' : '%d Meldungen ohne Meldeergebnis. Das Ergebnis der Vereinsmeisterschaft wird für die Startplanung dringend benötigt.', $ohne_ergebnis);
 		}
 		return ['fehler' => $fehler, 'warnungen' => $warnungen];
 	}

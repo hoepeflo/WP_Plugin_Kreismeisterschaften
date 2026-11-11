@@ -10,9 +10,34 @@ Anfangszustand und den REST-Endpunkten. Mobil zuerst; ab 700 px Breite Tabellena
 | Schritt | Inhalt |
 |---|---|
 | 1 Schützen | Schützenliste des Vereins (bleibt über Jahre): Name, Vorname, Geburtsdatum, Geschlecht, Mitgliedsnummer (Pflicht, 9 Ziffern; Warnung ohne Sperre, wenn sie nicht mit der VN-Nummer beginnt), Höhermeldungen je Bereich (nur angebotene Stufen, nur dieses Sportjahr). Löschen nur ohne Meldungen. |
-| 2 Meldung | Schütze wählen → Disziplinen mit Startrecht, gruppiert nach Gewehr/Pistole/Flinte/Vorderlader/Auflage/…; angezeigt werden Klasse, Startklasse, Kennzahl, Mannschaftspool, Startgeld, Hinweise; Para-Klasse wählbar, wenn die Disziplin Para-Regeln hat. Tabelle der gemeldeten Starter mit Meldeergebnis (Format je Disziplin, fehlende Ergebnisse gelb), optional Checkbox „Nicht-Meldung“, Mannschaftsnummer, Konflikte mit Bestätigen/Entfernen. |
+| 2 Meldung | Schütze wählen → Disziplinen mit Startrecht, gruppiert nach Gewehr/Pistole/Flinte/Vorderlader/Auflage/…; angezeigt werden Klasse, Startklasse, Kennzahl, Mannschaftspool, Startgeld, Hinweise; Para-Klasse wählbar, wenn die Disziplin Para-Regeln hat. „Starter melden“ steht über der Liste, damit das Angebot nach „Melden“ ohne Scrollen sichtbar ist. Darunter die Tabelle der gemeldeten Starter mit Startklasse (Altersklasse nur, wenn sie abweicht), Meldeergebnis (Format je Disziplin, fehlende Ergebnisse gelb; das Feld bestätigt das Speichern selbst, ohne Toast), optional Checkbox „Nicht-Meldung“, Mannschaftsnummer, Konflikte mit Bestätigen/Entfernen. Unter 700 px wird jede Zeile zu einer kompakten Karte: Name, Startklasse und Mannschaft, darunter Ergebnis, Startgeld und Entfernen in einer Zeile. |
 | 3 Mannschaften | Je Disziplin mit Mannschaftswertung: Mannschaften anlegen/bearbeiten/auflösen. Wählbar sind nur Schützen derselben Mannschaftsklasse ohne andere Mannschaft; MixTeam genau 1 m + 1 w. Nummern je Verein und Disziplin fortlaufend. Im Auswahldialog sind die drei Zustände auseinanderzuhalten: **gewählt** (grüner Rahmen), **wählbar** und **gesperrt** (gestrichelt, blass, mit Grund – „andere Mannschaftsklasse“, „Mannschaft ist voll“, „MixTeam: eine Schützin ist schon dabei“). Eine Statuszeile über der Liste nennt die festgelegte Mannschaftsklasse und wie viele Plätze noch frei sind. |
 | 4 Prüfen & Einreichen | Ansprechpartner (Pflicht), Startgeldvorschau (vorläufig), Prüfliste (Fehler blockieren, Warnungen nicht), Einreichen mit Bestätigungsmail an Vereinsadressen und Ansprechpartner, Wieder öffnen bis Meldeschluss, PDF. |
+
+## Gestaltung
+
+Die Oberfläche folgt der Website des KSV (ksv-fallingbostel.de), damit Vereine sie als
+Teil derselben Seite erkennen:
+
+- **Farben:** KSV-Grün `#2f6806` (Knöpfe, aktiver Tab, Titelbalken, obere Leiste),
+  Dunkelgrün `#1b3a0a` (Fuß), heller Grund `#f4f6f2`. Alle Werte stehen als
+  `--kmm-*`-Variablen am Anfang von `assets/frontend/app.css`; der Dunkelmodus setzt
+  dieselben Variablen neu.
+- **Schrift:** Roboto wie auf der Website, als eigene Datei
+  `assets/fonts/roboto-latin.woff2` (31 KB, Latin und Latin Extended-A, Stärken 400–700).
+  Es wird nichts von fremden Servern geladen. Lizenz: SIL Open Font License,
+  `assets/fonts/OFL.txt`.
+- **Kopf und Fuß:** grüne Leiste, weißer Kopf mit dem Website-Icon der WordPress-Seite
+  als Logo (fehlt es, steht ein neutrales Zeichen), dunkelgrüner Fuß mit Links auf
+  Website, Impressum (Seite mit dem Slug `impressum`) und Datenschutzerklärung
+  (WordPress-Einstellung) – die beiden letzten nur, wenn es die Seiten gibt.
+- **Bewegung:** Knöpfe geben beim Drücken nach (`scale(.97)`, 140 ms), Dialog und Toast
+  blenden in höchstens 200 ms ein. Tabwechsel und alles, was viele Male hintereinander
+  passiert, bleibt ohne Animation. `prefers-reduced-motion` lässt Farbwechsel stehen und
+  nimmt nur die Bewegung weg.
+- **Handy:** Hover-Zustände gelten nur mit Maus (`hover: hover` und `pointer: fine`),
+  Eingabefelder haben mindestens 16 px Schrift (sonst zoomt iOS beim Antippen), Knöpfe
+  reagieren ohne Tippverzögerung, Abstände berücksichtigen Notch und Home-Leiste.
 
 ## Status und Schreibrecht
 

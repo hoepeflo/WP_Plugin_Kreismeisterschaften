@@ -1,16 +1,16 @@
-/* KM-Portal – Backend. Fügt sich in WordPress ein, setzt aber eigene Akzente. */
+/* KM-Portal – Backend. Fügt sich in WordPress ein, Akzente im Grün der KSV-Website. */
 
 .kmm-admin {
-	--kmm-primary: #1c5d3a;
-	--kmm-primary-hell: #24784b;
-	--kmm-primary-weich: #eaf3ee;
+	--kmm-primary: #2f6806;
+	--kmm-primary-hell: #265605;
+	--kmm-primary-weich: #eaf2e3;
 	--kmm-surface: #fff;
-	--kmm-surface-2: #f6f8f7;
-	--kmm-border: #dce2df;
-	--kmm-border-stark: #c3ccc7;
+	--kmm-surface-2: #f6f8f4;
+	--kmm-border: #dfe5da;
+	--kmm-border-stark: #c3cdbb;
 	--kmm-text-muted: #646970;
-	--kmm-ok: #14653b;
-	--kmm-ok-bg: #e3f4e9;
+	--kmm-ok: #24540a;
+	--kmm-ok-bg: #e6f2dc;
 	--kmm-warn: #8a5a00;
 	--kmm-warn-bg: #fdf3dc;
 	--kmm-error: #9b1c1c;
@@ -45,7 +45,7 @@
 .kmm-admin .button-primary:hover, .kmm-admin .button-primary:focus {
 	background: var(--kmm-primary-hell); border-color: var(--kmm-primary-hell); color: #fff;
 }
-.kmm-admin .button-primary:focus { box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(28, 93, 58, .5); }
+.kmm-admin .button-primary:focus { box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(47, 104, 6, .5); }
 .kmm-admin .button { border-radius: 5px; }
 .kmm-admin .button.small, .kmm-admin .button-small { line-height: 2; }
 .kmm-admin .button.delete, .kmm-admin .kmm-danger { color: var(--kmm-error); }
@@ -161,7 +161,7 @@
 	transition: background-color .15s ease, border-color .15s ease;
 }
 .kmm-admin .kmm-stand:hover { border-color: var(--kmm-primary); }
-.kmm-admin .kmm-stand.is-aktiv { background: var(--kmm-ok-bg); border-color: #86c39a; }
+.kmm-admin .kmm-stand.is-aktiv { background: var(--kmm-ok-bg); border-color: #a9c79a; }
 .kmm-admin .kmm-stand input { margin: 0; }
 .kmm-admin .kmm-alle { color: var(--kmm-primary); }
 
@@ -205,6 +205,7 @@
 
 /* Bearbeitbar: ziehen, anklicken, Ziel hervorheben */
 .kmm-admin table.kmm-matrix.is-bearbeitbar .kmm-matrix-belegt { cursor: grab; }
+.kmm-admin table.kmm-matrix.is-bearbeitbar .kmm-matrix-belegt:active { cursor: grabbing; }
 .kmm-admin table.kmm-matrix.is-bearbeitbar .kmm-matrix-belegt:hover { background: var(--kmm-primary-weich); }
 .kmm-admin table.kmm-matrix .is-zieht { opacity: .4; }
 .kmm-admin table.kmm-matrix .is-auswahl { outline: 2px solid var(--kmm-primary); outline-offset: -2px; background: var(--kmm-primary-weich); }
