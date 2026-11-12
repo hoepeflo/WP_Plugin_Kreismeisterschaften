@@ -13,8 +13,10 @@ on:
 jobs:
   # Derselbe Commit kommt meist zweimal vorbei: erst auf dem Arbeitszweig, dann auf main.
   # Auf main wird deshalb nachgesehen, ob ein früherer Lauf dieses Workflows denselben
-  # Commit schon geprüft hat (erfolgreich) oder gerade prüft. Dann entfällt die Prüfung
-  # hier. Schlägt die Nachfrage fehl, wird sicherheitshalber geprüft.
+  # Commit schon erfolgreich geprüft hat; dann entfällt die Prüfung hier. Läuft der frühere
+  # Lauf noch, wird auf sein Ergebnis gewartet – ein grüner Lauf auf main heißt also immer,
+  # dass der Commit wirklich geprüft und in Ordnung ist. War der frühere Lauf rot oder
+  # schlägt die Nachfrage fehl, wird hier geprüft.
   schon-geprueft:
     name: Schon geprüft?
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -29,19 +31,37 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          laeufe=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/kmm-ci.yml/runs?head_sha=$GITHUB_SHA&per_page=100" 2>/dev/null) || laeufe=''
-          frueher=$(printf '%s' "$laeufe" | jq -r --argjson ich "$GITHUB_RUN_ID" --argjson nr "$GITHUB_RUN_NUMBER" '
-            [.workflow_runs[]?
-              | select(.id != $ich and .run_number < $nr and (.status != "completed" or .conclusion == "success"))]
-            | first
-            | if . then "#\(.run_number) auf \(.head_branch) (\(.conclusion // .status))" else "" end' 2>/dev/null) || frueher=''
-          if [ -n "$frueher" ]; then
-            echo "ueberspringen=true" >> "$GITHUB_OUTPUT"
-            echo "Dieser Commit wird nicht noch einmal geprüft: Lauf $frueher hat ihn schon geprüft oder prüft ihn gerade." | tee -a "$GITHUB_STEP_SUMMARY"
-          else
-            echo "ueberspringen=false" >> "$GITHUB_OUTPUT"
-            echo "Kein früherer Lauf hat diesen Commit erfolgreich geprüft oder prüft ihn gerade – es wird geprüft."
-          fi
+          # Antwortet "gut …", "laeuft …" oder "nichts" für die früheren Läufe dieses Commits.
+          frage() {
+            gh api "repos/$GITHUB_REPOSITORY/actions/workflows/kmm-ci.yml/runs?head_sha=$GITHUB_SHA&per_page=100" 2>/dev/null \
+              | jq -r --argjson ich "$GITHUB_RUN_ID" --argjson nr "$GITHUB_RUN_NUMBER" '
+                [.workflow_runs[]? | select(.id != $ich and .run_number < $nr)] as $frueher
+                | ([$frueher[] | select(.status == "completed" and .conclusion == "success")] | first) as $gut
+                | ([$frueher[] | select(.status != "completed")] | first) as $laeuft
+                | if $gut then "gut #\($gut.run_number) auf \($gut.head_branch)"
+                  elif $laeuft then "laeuft #\($laeuft.run_number) auf \($laeuft.head_branch)"
+                  else "nichts" end' 2>/dev/null || true
+          }
+          stand=nichts
+          # Höchstens sechs Minuten auf einen laufenden früheren Lauf warten.
+          for i in $(seq 1 36); do
+            stand=$(frage)
+            stand=${stand:-nichts}
+            case "$stand" in
+              laeuft*)
+                if [ "$i" = 1 ]; then echo "Warte auf das Ergebnis von Lauf ${stand#laeuft }."; fi
+                sleep 10 ;;
+              *) break ;;
+            esac
+          done
+          case "$stand" in
+            gut*)
+              echo "ueberspringen=true" >> "$GITHUB_OUTPUT"
+              echo "Dieser Commit wird nicht noch einmal geprüft: Lauf ${stand#gut } hat ihn erfolgreich geprüft." | tee -a "$GITHUB_STEP_SUMMARY" ;;
+            *)
+              echo "ueberspringen=false" >> "$GITHUB_OUTPUT"
+              echo "Kein früherer Lauf hat diesen Commit erfolgreich geprüft – es wird geprüft." ;;
+          esac
 
   check:
     name: Lint, PHPStan, PHPUnit
