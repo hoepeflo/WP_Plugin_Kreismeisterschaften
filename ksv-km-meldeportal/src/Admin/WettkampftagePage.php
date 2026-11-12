@@ -260,7 +260,28 @@ final class WettkampftagePage extends AdminPage {
 		echo '<tr><th>' . esc_html__('Schießstand', 'ksv-km-meldeportal') . '</th><td>' . self::select('schiessstand_id', $staende, (string) ($t['schiessstand_id'] ?? '')) . '<p class="description">' . esc_html__('Stände des Schießstands lassen sich dann per Ankreuzen freigeben.', 'ksv-km-meldeportal') . ' <a href="' . esc_url(Menu::url(SchiessstaendePage::SLUG)) . '">' . esc_html__('Schießstände verwalten', 'ksv-km-meldeportal') . '</a></p></td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<tr><th>' . esc_html__('Ort (Anzeige)', 'ksv-km-meldeportal') . '</th><td>' . self::input('ort', $t['ort'] ?? '', 'text', 'class="regular-text"') . '<p class="description">' . esc_html__('Leer lassen, um Bezeichnung und Ort des Schießstands zu übernehmen.', 'ksv-km-meldeportal') . '</p></td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<tr><th>' . esc_html__('Buchungsfrist', 'ksv-km-meldeportal') . '</th><td>' . self::input('buchungsfrist', Clock::utc_to_local_input($t['buchungsfrist'] ?? null), 'datetime-local') . '<p class="description">' . esc_html__('Bis dahin buchen die Vereine selbst (nach Freigabe); danach Restverteilung durch den KSV.', 'ksv-km-meldeportal') . '</p></td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo '<tr><th>' . esc_html__('Kalenderbeitrag (ID)', 'ksv-km-meldeportal') . '</th><td>' . self::input('beitrag_id', $t['beitrag_id'] ?? '', 'number', 'class="kmm-num" min="0"') . '<p class="description">' . esc_html__('Optional: Beitrag, in dem der Shortcode des Startplans steht. Die KSV-App verlinkt ihn nach der Veröffentlichung.', 'ksv-km-meldeportal') . ($t !== null ? ' ' . esc_html__('Shortcode dieses Tages:', 'ksv-km-meldeportal') . ' ' . self::shortcode_html((int) $t['id']) : '') . '</p></td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		// Kalendertermin, Seite oder Beitrag mit dem Shortcode: auswählen statt eine ID abzutippen.
+		$beitrag = isset($t['beitrag_id']) && (int) $t['beitrag_id'] > 0 ? (int) $t['beitrag_id'] : null;
+		echo '<tr><th><label for="kmm-beitrag">' . esc_html__('Kalendertermin oder Beitrag', 'ksv-km-meldeportal') . '</label></th><td><select name="beitrag_id" id="kmm-beitrag" class="kmm-beitrag"><option value="">' . esc_html__('– keiner –', 'ksv-km-meldeportal') . '</option>';
+		foreach (BeitragAuswahl::gruppen(isset($t['datum']) ? (string) $t['datum'] : null, $beitrag) as $gruppe => $liste) {
+			echo '<optgroup label="' . esc_attr($gruppe) . '">';
+			foreach ($liste as $id => $text) {
+				echo '<option value="' . (int) $id . '"' . selected($beitrag, (int) $id, false) . '>' . esc_html($text) . '</option>';
+			}
+			echo '</optgroup>';
+		}
+		echo '</select>';
+		if ($beitrag !== null && get_post($beitrag) instanceof \WP_Post) {
+			$bearbeiten = get_edit_post_link($beitrag, 'raw');
+			$ansehen = get_permalink($beitrag);
+			if (is_string($bearbeiten) && $bearbeiten !== '') {
+				echo ' <a class="button button-small" href="' . esc_url($bearbeiten) . '" target="_blank" rel="noopener">' . esc_html__('Bearbeiten', 'ksv-km-meldeportal') . '</a>';
+			}
+			if (is_string($ansehen) && $ansehen !== '') {
+				echo ' <a class="button button-small" href="' . esc_url($ansehen) . '" target="_blank" rel="noopener">' . esc_html__('Ansehen', 'ksv-km-meldeportal') . '</a>';
+			}
+		}
+		echo '<p class="description">' . esc_html__('Optional: der Termin, die Seite oder der Beitrag, in dem der Shortcode des Startplans steht. Die KSV-App verlinkt ihn nach der Veröffentlichung.', 'ksv-km-meldeportal') . ($t !== null ? ' ' . esc_html__('Shortcode dieses Tages:', 'ksv-km-meldeportal') . ' ' . self::shortcode_html((int) $t['id']) : '') . '</p></td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<tr><th>' . esc_html__('Hinweis', 'ksv-km-meldeportal') . '</th><td><textarea name="hinweis" rows="2" class="large-text">' . esc_textarea((string) ($t['hinweis'] ?? '')) . '</textarea><p class="description">' . esc_html__('Erscheint im Buchungsraster der Vereine und im veröffentlichten Startplan.', 'ksv-km-meldeportal') . '</p></td></tr>';
 		echo '</table>';
 		submit_button($t !== null ? __('Wettkampftag speichern', 'ksv-km-meldeportal') : __('Wettkampftag anlegen', 'ksv-km-meldeportal'), 'primary', 'submit', false);

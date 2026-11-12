@@ -210,6 +210,8 @@
 .kmm-admin ul.kmm-checkliste li.is-offen::before { content: "!"; color: var(--kmm-warn); }
 .kmm-admin ul.kmm-checkliste li.is-offen { color: var(--kmm-warn); }
 
+.kmm-admin select.kmm-beitrag { max-width: min(100%, 32em); }
+.kmm-admin select.kmm-beitrag ~ a.button { vertical-align: middle; }
 .kmm-admin .kmm-shortcode { white-space: nowrap; }
 .kmm-admin .kmm-shortcode code { user-select: all; font-size: 12px; }
 .kmm-admin .kmm-shortcode-zeile { margin: 8px 0 12px; }

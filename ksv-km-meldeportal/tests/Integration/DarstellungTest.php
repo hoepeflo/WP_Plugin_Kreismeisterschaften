@@ -41,6 +41,11 @@ final class DarstellungTest extends IntegrationTestCase {
 		unset($_SERVER['SERVER_NAME']);
 	}
 
+	/** Zahl der Rückrufe an einem Hook. */
+	private function filterzahl(?\WP_Hook $hook): int {
+		return $hook === null ? 0 : array_sum(array_map('count', $hook->callbacks));
+	}
+
 	private function seite(): string {
 		ob_start();
 		View::render('frontend/willkommen', ['title' => 'KM-Portal']);
@@ -55,7 +60,8 @@ final class DarstellungTest extends IntegrationTestCase {
 		$this->assertStringContainsString('class="kmm-footer"', $html);
 		$this->assertStringContainsString('noindex, nofollow', $html);
 		$this->assertStringNotContainsString('kmm-im-theme', $html);
-		$this->assertFalse(has_filter('pre_get_document_title'), 'die eigene Seite hängt sich nicht in das Theme');
+		// Andere Plugins (etwa ein Kalender) dürfen dort hängen – die eigene Seite fügt nichts hinzu.
+		$this->assertSame($this->filterzahl($this->hooks['pre_get_document_title']), $this->filterzahl($GLOBALS['wp_filter']['pre_get_document_title'] ?? null), 'die eigene Seite hängt sich nicht in das Theme');
 		$this->assertFalse(View::wartet_auf_theme(), 'der Router beendet die Anfrage selbst');
 	}
 

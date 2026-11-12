@@ -7,7 +7,7 @@ bearbeiten“, Admin immer).
 
 | Ebene | Tabelle | Inhalt |
 |---|---|---|
-| Wettkampftag | `kmm_wettkampftag` | Datum, Bezeichnung, Schießstand/Ort, Buchungsfrist, Hinweis, optional Kalenderbeitrag (ID), Status `entwurf` → `freigegeben` → `veroeffentlicht` |
+| Wettkampftag | `kmm_wettkampftag` | Datum, Bezeichnung, Schießstand/Ort, Buchungsfrist, Hinweis, optional Kalenderbeitrag (`beitrag_id`; im Admin als Auswahl aus Kalenderterminen, Seiten und Beiträgen: `Admin\BeitragAuswahl`, Typen über den Filter `kmm_beitrag_post_types`), Status `entwurf` → `freigegeben` → `veroeffentlicht` |
 | Einheit | `kmm_einheit` | Stand / Scheibe / Rotte: Bezeichnung, Kapazität (Positionen), optional Beschränkung auf Disziplinen (z. B. Auflagetisch), Reihenfolge |
 | Durchgang | `kmm_durchgang` | Nummer, Bezeichnung, Beginn, Ende (am Datum des Tages) |
 | Zulassung | `kmm_durchgang_zulassung` | Disziplin × Startklasse (NULL = alle Startklassen der Disziplin); mehrere je Durchgang |
