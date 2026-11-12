@@ -35,7 +35,9 @@ final class WettkampftagePage extends AdminPage {
 		$sid = self::post_int('sportjahr_id');
 		$tag_id = self::post_int('tag_id');
 		$service = new StartplanService($sid);
-		$args = array_filter(['sportjahr' => $sid, 'tag' => $tag_id, 'ansicht' => self::ANSICHT_NACH_AKTION[ self::action() ] ?? '']);
+		// Eigene Variable: Im catch-Zweig soll die Aktion ohne Annahmen aus dem switch lesbar sein.
+		$aktion = self::action();
+		$args = array_filter(['sportjahr' => $sid, 'tag' => $tag_id, 'ansicht' => self::ANSICHT_NACH_AKTION[ $aktion ] ?? '']);
 		try {
 			switch (self::action()) {
 				case 'tag_speichern':
@@ -152,11 +154,11 @@ final class WettkampftagePage extends AdminPage {
 			}
 		} catch (\InvalidArgumentException | \RuntimeException $e) {
 			// Nach einem Fehler geht das Feld wieder auf, in dem er passiert ist.
-			$dg = self::post_int('durchgang_id') ?: (self::action() === 'durchgang_speichern' ? self::post_int('id') : 0);
+			$dg = self::post_int('durchgang_id') ?: ($aktion === 'durchgang_speichern' ? self::post_int('id') : 0);
 			if ($dg > 0) {
-				$args += ['durchgang' => $dg] + (self::action() === 'zulassungen_setzen' ? ['zul' => self::post_int('disziplin_id')] : []);
+				$args += ['durchgang' => $dg] + ($aktion === 'zulassungen_setzen' ? ['zul' => self::post_int('disziplin_id')] : []);
 			}
-			self::redirect($e->getMessage(), 'error', $args, $dg > 0 ? 'kmm-dg-' . $dg : (self::action() === 'durchgang_speichern' ? 'kmm-dg-neu' : ''));
+			self::redirect($e->getMessage(), 'error', $args, $dg > 0 ? 'kmm-dg-' . $dg : ($aktion === 'durchgang_speichern' ? 'kmm-dg-neu' : ''));
 		}
 	}
 
