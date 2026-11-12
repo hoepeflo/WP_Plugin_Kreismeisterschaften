@@ -210,6 +210,10 @@
 .kmm-admin ul.kmm-checkliste li.is-offen::before { content: "!"; color: var(--kmm-warn); }
 .kmm-admin ul.kmm-checkliste li.is-offen { color: var(--kmm-warn); }
 
+.kmm-admin .kmm-shortcode { white-space: nowrap; }
+.kmm-admin .kmm-shortcode code { user-select: all; font-size: 12px; }
+.kmm-admin .kmm-shortcode-zeile { margin: 8px 0 12px; }
+
 /* ----- Wettkampftag: Durchgänge als Karten, Bearbeiten in der Karte ------------------------------- */
 
 .kmm-admin .kmm-dg-liste { display: grid; gap: 8px; margin: 10px 0 16px; }

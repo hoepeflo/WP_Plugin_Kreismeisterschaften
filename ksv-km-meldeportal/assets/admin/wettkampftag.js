@@ -1,10 +1,38 @@
 /**
- * Wettkampftag, Reiter „Durchgänge“: Bearbeitungsfelder in der Karte eines Durchgangs
- * öffnen, ohne die Seite neu zu laden. Die Links führen ohne JavaScript zur ganzen Seite
+ * Wettkampftage: Shortcode kopieren. Reiter „Durchgänge“: Bearbeitungsfelder in der Karte
+ * eines Durchgangs öffnen, ohne die Seite neu zu laden. Die Links führen ohne JavaScript zur ganzen Seite
  * mit geöffnetem Feld – hier wird nur dasselbe HTML-Stück nachgeladen.
  */
 (function () {
 	'use strict';
+
+	// Shortcode in die Zwischenablage; der Knopf bestätigt kurz. Ohne Zugriff darauf wird der Text markiert.
+	document.addEventListener('click', function (e) {
+		var knopf = e.target.closest('[data-kmm-kopieren]');
+		if (!knopf) { return; }
+		var text = knopf.getAttribute('data-kmm-kopieren');
+		var fertig = function () {
+			var vorher = knopf.textContent;
+			knopf.textContent = knopf.getAttribute('data-kmm-kopiert');
+			knopf.disabled = true;
+			setTimeout(function () { knopf.textContent = vorher; knopf.disabled = false; }, 1500);
+		};
+		var markieren = function () {
+			var code = knopf.parentNode.querySelector('code');
+			if (!code) { return; }
+			var bereich = document.createRange();
+			bereich.selectNodeContents(code);
+			var auswahl = window.getSelection();
+			auswahl.removeAllRanges();
+			auswahl.addRange(bereich);
+		};
+		if (navigator.clipboard && navigator.clipboard.writeText) {
+			navigator.clipboard.writeText(text).then(fertig, markieren);
+		} else {
+			markieren();
+		}
+	});
+
 	var liste = document.querySelector('.kmm-dg-liste');
 	var cfg = window.kmmStartplan;
 	if (!liste || !cfg) { return; }

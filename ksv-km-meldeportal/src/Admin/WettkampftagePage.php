@@ -219,24 +219,25 @@ final class WettkampftagePage extends AdminPage {
 		$service = new StartplanService($sid);
 		$tage = (new WettkampftagRepository())->by_sportjahr($sid);
 		echo '<p class="description">' . esc_html__('Ein Wettkampftag besteht aus Einheiten (Stände, Scheiben, Rotten mit Kapazität) und Durchgängen (Beginn, Ende, zugelassene Disziplinen und Startklassen). Platz = Durchgang × Einheit × Position. Im Status „Entwurf“ sehen Vereine nichts; erst die Freigabe öffnet die Buchung.', 'ksv-km-meldeportal') . '</p>';
-		echo '<table class="widefat striped"><thead><tr><th>' . esc_html__('Datum', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Bezeichnung / Ort', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Status', 'ksv-km-meldeportal') . '</th><th class="r">' . esc_html__('Einheiten', 'ksv-km-meldeportal') . '</th><th class="r">' . esc_html__('Durchgänge', 'ksv-km-meldeportal') . '</th><th class="r">' . esc_html__('Plätze', 'ksv-km-meldeportal') . '</th><th class="r">' . esc_html__('Bedarf', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Buchungsfrist', 'ksv-km-meldeportal') . '</th><th></th></tr></thead><tbody>';
+		echo '<table class="widefat striped"><thead><tr><th>' . esc_html__('Datum', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Bezeichnung / Ort', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Status', 'ksv-km-meldeportal') . '</th><th class="r">' . esc_html__('Einheiten', 'ksv-km-meldeportal') . '</th><th class="r">' . esc_html__('Durchgänge', 'ksv-km-meldeportal') . '</th><th class="r">' . esc_html__('Plätze', 'ksv-km-meldeportal') . '</th><th class="r">' . esc_html__('Bedarf', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Buchungsfrist', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Shortcode', 'ksv-km-meldeportal') . '</th><th></th></tr></thead><tbody>';
 		foreach ($tage as $t) {
 			$u = $service->uebersicht((int) $t['id']);
 			$bedarf = array_sum(array_column($u['durchgaenge'], 'bedarf'));
 			$datum = \DateTimeImmutable::createFromFormat('!Y-m-d', (string) $t['datum']);
 			echo '<tr><td><strong>' . esc_html($datum !== false ? $datum->format('d.m.Y') : (string) $t['datum']) . '</strong></td>';
 			echo '<td>' . esc_html((string) $t['bezeichnung']) . '<br><small>' . esc_html((string) $t['ort']) . '</small></td>';
-			echo '<td>' . self::status_badge((string) $t['status']) . '</td>';
+			echo '<td class="kmm-nowrap">' . self::status_badge((string) $t['status']) . '</td>';
 			echo '<td class="r">' . count($u['einheiten']) . '</td><td class="r">' . count($u['durchgaenge']) . '</td><td class="r">' . (int) $u['plaetze'] . '</td>';
 			echo '<td class="r">' . ($bedarf > $u['plaetze'] ? '<span class="kmm-fail">' . $bedarf . '</span>' : $bedarf) . '</td>';
 			echo '<td>' . esc_html($t['buchungsfrist'] !== null ? Clock::format_local($t['buchungsfrist']) : '–') . '</td>';
+			echo '<td class="kmm-nowrap">' . self::shortcode_html((int) $t['id']) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo '<td><a class="button button-small" href="' . esc_url(self::url(['sportjahr' => $sid, 'tag' => (int) $t['id']])) . '">' . esc_html($schreiben ? __('Bearbeiten', 'ksv-km-meldeportal') : __('Ansehen', 'ksv-km-meldeportal')) . '</a></td></tr>';
 		}
 		if ($tage === []) {
-			echo '<tr><td colspan="9">' . esc_html__('Noch kein Wettkampftag.', 'ksv-km-meldeportal') . '</td></tr>';
+			echo '<tr><td colspan="10">' . esc_html__('Noch kein Wettkampftag.', 'ksv-km-meldeportal') . '</td></tr>';
 		}
 		echo '</tbody></table>';
-		echo '<p class="description">' . esc_html__('Bedarf = buchbare Meldungen (eingereicht, Startrecht, nicht abgemeldet, nicht „nicht startberechtigt“), die zu einer Zulassung des Tages passen; rot, wenn mehr Bedarf als Plätze.', 'ksv-km-meldeportal') . '</p>';
+		echo '<p class="description">' . esc_html__('Bedarf = buchbare Meldungen (eingereicht, Startrecht, nicht abgemeldet, nicht „nicht startberechtigt“), die zu einer Zulassung des Tages passen; rot, wenn mehr Bedarf als Plätze.', 'ksv-km-meldeportal') . ' ' . esc_html__('Der Shortcode zeigt den Startplan des Tages in einem Beitrag, einer Seite oder einem Kalendertermin – Inhalt erscheint erst nach der Veröffentlichung.', 'ksv-km-meldeportal') . '</p>';
 		if ($schreiben) {
 			echo '<h2>' . esc_html__('Neuer Wettkampftag', 'ksv-km-meldeportal') . '</h2>';
 			self::tag_form($sid, null);
@@ -259,7 +260,7 @@ final class WettkampftagePage extends AdminPage {
 		echo '<tr><th>' . esc_html__('Schießstand', 'ksv-km-meldeportal') . '</th><td>' . self::select('schiessstand_id', $staende, (string) ($t['schiessstand_id'] ?? '')) . '<p class="description">' . esc_html__('Stände des Schießstands lassen sich dann per Ankreuzen freigeben.', 'ksv-km-meldeportal') . ' <a href="' . esc_url(Menu::url(SchiessstaendePage::SLUG)) . '">' . esc_html__('Schießstände verwalten', 'ksv-km-meldeportal') . '</a></p></td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<tr><th>' . esc_html__('Ort (Anzeige)', 'ksv-km-meldeportal') . '</th><td>' . self::input('ort', $t['ort'] ?? '', 'text', 'class="regular-text"') . '<p class="description">' . esc_html__('Leer lassen, um Bezeichnung und Ort des Schießstands zu übernehmen.', 'ksv-km-meldeportal') . '</p></td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<tr><th>' . esc_html__('Buchungsfrist', 'ksv-km-meldeportal') . '</th><td>' . self::input('buchungsfrist', Clock::utc_to_local_input($t['buchungsfrist'] ?? null), 'datetime-local') . '<p class="description">' . esc_html__('Bis dahin buchen die Vereine selbst (nach Freigabe); danach Restverteilung durch den KSV.', 'ksv-km-meldeportal') . '</p></td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo '<tr><th>' . esc_html__('Kalenderbeitrag (ID)', 'ksv-km-meldeportal') . '</th><td>' . self::input('beitrag_id', $t['beitrag_id'] ?? '', 'number', 'class="kmm-num" min="0"') . '<p class="description">' . esc_html__('Optional: Beitrag, in dem der Shortcode des Startplans steht.', 'ksv-km-meldeportal') . '</p></td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<tr><th>' . esc_html__('Kalenderbeitrag (ID)', 'ksv-km-meldeportal') . '</th><td>' . self::input('beitrag_id', $t['beitrag_id'] ?? '', 'number', 'class="kmm-num" min="0"') . '<p class="description">' . esc_html__('Optional: Beitrag, in dem der Shortcode des Startplans steht. Die KSV-App verlinkt ihn nach der Veröffentlichung.', 'ksv-km-meldeportal') . ($t !== null ? ' ' . esc_html__('Shortcode dieses Tages:', 'ksv-km-meldeportal') . ' ' . self::shortcode_html((int) $t['id']) : '') . '</p></td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<tr><th>' . esc_html__('Hinweis', 'ksv-km-meldeportal') . '</th><td><textarea name="hinweis" rows="2" class="large-text">' . esc_textarea((string) ($t['hinweis'] ?? '')) . '</textarea><p class="description">' . esc_html__('Erscheint im Buchungsraster der Vereine und im veröffentlichten Startplan.', 'ksv-km-meldeportal') . '</p></td></tr>';
 		echo '</table>';
 		submit_button($t !== null ? __('Wettkampftag speichern', 'ksv-km-meldeportal') : __('Wettkampftag anlegen', 'ksv-km-meldeportal'), 'primary', 'submit', false);
@@ -816,6 +817,7 @@ final class WettkampftagePage extends AdminPage {
 		if ($status === WettkampftagStatus::ENTWURF) {
 			echo '<p class="description">' . esc_html__('Entwurf: So sieht das Raster aus, in dem die Vereine nach der Freigabe buchen.', 'ksv-km-meldeportal') . '</p>';
 		}
+		echo '<p class="kmm-shortcode-zeile">' . esc_html__('Shortcode für Beitrag, Seite oder Kalendertermin:', 'ksv-km-meldeportal') . ' ' . self::shortcode_html($tag_id) . ' <span class="description">' . esc_html($status === WettkampftagStatus::VEROEFFENTLICHT ? __('Mit disziplin="1.10" zeigt er nur eine Disziplin.', 'ksv-km-meldeportal') : __('Er lässt sich schon jetzt einsetzen und zeigt den Plan, sobald er veröffentlicht ist. Mit disziplin="1.10" zeigt er nur eine Disziplin.', 'ksv-km-meldeportal')) . '</span></p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		self::render_matrix($sid, $tag_id, $schreiben);
 		self::render_buchungen($sid, $tag_id, $u, $schreiben);
 	}
@@ -1012,9 +1014,6 @@ zeigen();
 		echo '<input type="hidden" name="sportjahr_id" value="' . $sid . '"><input type="hidden" name="tag_id" value="' . $tag_id . '">';
 		submit_button(__('Startplan als PDF', 'ksv-km-meldeportal'), 'secondary', 'submit', false);
 		echo '</form> ';
-		if ($veroeffentlicht) {
-			echo '<p class="description">' . esc_html__('Shortcode für einen Beitrag (auch im Kalendertermin):', 'ksv-km-meldeportal') . ' <code>[kmm_startplan tag="' . $tag_id . '"]</code> ' . esc_html__('– optional mit', 'ksv-km-meldeportal') . ' <code>disziplin="1.10"</code>.</p>';
-		}
 		if (!$veroeffentlicht) {
 			self::form_open('veroeffentlichen', 'class="kmm-inline-form" onsubmit="return confirm(\'' . esc_js(__('Startplan veröffentlichen? Er ist dann über den Shortcode öffentlich sichtbar.', 'ksv-km-meldeportal')) . '\')"');
 			echo '<input type="hidden" name="sportjahr_id" value="' . $sid . '"><input type="hidden" name="tag_id" value="' . $tag_id . '">';
@@ -1156,6 +1155,15 @@ zeigen();
 			echo '</tr>';
 		}
 		echo '</tbody></table></details>';
+	}
+
+	/**
+	 * Shortcode des Startplans zum Kopieren. Er lässt sich jederzeit in einen Beitrag setzen;
+	 * Inhalt zeigt er erst nach der Veröffentlichung.
+	 */
+	private static function shortcode_html(int $tag_id): string {
+		$code = '[kmm_startplan tag="' . $tag_id . '"]';
+		return '<span class="kmm-shortcode"><code>' . esc_html($code) . '</code> <button type="button" class="button button-small" data-kmm-kopieren="' . esc_attr($code) . '" data-kmm-kopiert="' . esc_attr__('Kopiert', 'ksv-km-meldeportal') . '">' . esc_html__('Kopieren', 'ksv-km-meldeportal') . '</button></span>';
 	}
 
 	private static function status_badge(string $status): string {
