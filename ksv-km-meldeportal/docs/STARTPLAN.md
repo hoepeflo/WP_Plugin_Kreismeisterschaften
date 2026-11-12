@@ -23,14 +23,26 @@ bearbeiten“, Admin immer).
   weiteren im Anschluss mit der Pause (0–600 Minuten). Beginnt einer nicht mehr am
   Wettkampftag, entsteht keiner. Zulassungen haben die neuen Durchgänge noch keine
   (anders als bei `durchgang_duplizieren()`, das sie mitkopiert).
-- `zulassungen_setzen(durchgang, disziplin, startklassen[])` setzt die Zulassung **einer**
-  Disziplin in einem Schritt: leere Liste oder alle Klassen der Disziplin = eine Zeile mit
+- `zulassungen_setzen(durchgang, disziplin, startklassen[], weitere_durchgaenge[])` setzt die
+  Zulassung **einer** Disziplin in einem Schritt, auf Wunsch zugleich für weitere Durchgänge
+  desselben Tages (alle oder keiner, eine Transaktion): leere Liste oder alle Klassen der Disziplin = eine Zeile mit
   `startklasse_id NULL` („alle“), sonst je Klasse eine Zeile. Geprüft wird vor dem
   Schreiben, geschrieben in einer Transaktion (fehlende Zeilen anlegen, überzählige
   löschen); Zulassungen anderer Disziplinen bleiben unberührt. Am Datenmodell ändert sich
   nichts. Die Admin-Oberfläche benutzt nur diesen Weg: Disziplin wählen, Startklassen
   ankreuzen. `zulassungen_lesbar()` fasst die Zeilen für Anzeigen je Disziplin zusammen
   („2.10 10m Luftpistole (Schüler m, Schüler w)“).
+- `zulassungen_entfernen(durchgang, disziplin)` nimmt eine Disziplin ganz aus einem Durchgang.
+
+**Admin-Oberfläche des Wettkampftags** (`Admin\WettkampftagePage`): fünf Reiter über den
+Parameter `ansicht` – `tag`, `staende`, `durchgaenge`, `freigabe`, `startplan`. Ohne Angabe
+öffnet sich im Entwurf der erste Schritt, in dem etwas fehlt, danach der Startplan. Jede
+Aktion leitet in ihren Reiter zurück (`ANSICHT_NACH_AKTION`), bei Durchgängen mit Sprungmarke
+`#kmm-dg-<id>` auf die Karte. Die Bearbeitungsfelder einer Karte (Zeit, Zulassung) rendert
+`render_panel()`; `assets/admin/wettkampftag.js` lädt dasselbe HTML-Stück über
+`admin-ajax.php?action=kmm_dg_panel` nach, damit die Seite beim Aufklappen nicht neu lädt.
+Ohne JavaScript führen dieselben Links zur ganzen Seite mit geöffnetem Feld
+(`durchgang=<id>` und `zul=<disziplin|0>`).
 - Überlappende Durchgänge sind erlaubt (parallele Einheiten); der Konflikt „ein Schütze
   nicht in zwei überlappenden Durchgängen“ wird bei der Buchung je Schütze geprüft
   (Meilenstein 8).

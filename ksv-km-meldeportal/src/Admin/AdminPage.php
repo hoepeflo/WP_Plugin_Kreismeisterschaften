@@ -62,13 +62,14 @@ abstract class AdminPage {
 	 * Hinweis für die nächste Seitenansicht merken und umleiten.
 	 *
 	 * @param array<string, string|int> $args
+	 * @param string                    $anker Sprungmarke (ohne #), an der die Seite wieder aufgeht
 	 */
-	protected static function redirect(string $message, string $type = 'success', array $args = []): never {
+	protected static function redirect(string $message, string $type = 'success', array $args = [], string $anker = ''): never {
 		$notices = get_transient(self::notice_key());
 		$notices = is_array($notices) ? $notices : [];
 		$notices[] = ['type' => $type, 'text' => $message];
 		set_transient(self::notice_key(), $notices, 60);
-		wp_safe_redirect(static::url($args));
+		wp_safe_redirect(static::url($args) . ($anker !== '' ? '#' . rawurlencode($anker) : ''));
 		exit;
 	}
 

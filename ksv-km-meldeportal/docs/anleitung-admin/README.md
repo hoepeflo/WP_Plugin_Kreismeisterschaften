@@ -1,7 +1,7 @@
 # Anleitung für Administratoren und Referenten
 
 `../KM-Portal-Anleitung-Administratoren.pdf` ist die fertige Anleitung für den KSV
-(22 Seiten). Quelle ist `anleitung-admin.html` in diesem Ordner, die Screenshots liegen
+(23 Seiten). Quelle ist `anleitung-admin.html` in diesem Ordner, die Screenshots liegen
 daneben. Alle abgebildeten Vereine, Namen und Ergebnisse sind Musterdaten.
 
 Das Gegenstück für die Vereine liegt unter `../anleitung/`.

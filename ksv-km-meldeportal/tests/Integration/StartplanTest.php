@@ -305,19 +305,19 @@ final class StartplanTest extends IntegrationTestCase {
 		};
 
 		// Mehrere Klassen auf einmal
-		$this->assertSame(['neu' => 2, 'entfernt' => 0, 'behalten' => 0], $s->zulassungen_setzen($dg, $this->lp, [$k1, $k2]));
+		$this->assertSame(['neu' => 2, 'entfernt' => 0, 'behalten' => 0, 'durchgaenge' => 1], $s->zulassungen_setzen($dg, $this->lp, [$k1, $k2]));
 		$this->assertEqualsCanonicalizing([$k1, $k2], $stand()[ $this->lp ]);
 		// Ändern: eine Klasse raus, eine dazu – die übrige bleibt, wie sie ist
-		$this->assertSame(['neu' => 1, 'entfernt' => 1, 'behalten' => 1], $s->zulassungen_setzen($dg, $this->lp, [$k2, $k3, $k3]));
+		$this->assertSame(['neu' => 1, 'entfernt' => 1, 'behalten' => 1, 'durchgaenge' => 1], $s->zulassungen_setzen($dg, $this->lp, [$k2, $k3, $k3]));
 		$this->assertEqualsCanonicalizing([$k2, $k3], $stand()[ $this->lp ]);
 		// Unverändert speichern ändert nichts
-		$this->assertSame(['neu' => 0, 'entfernt' => 0, 'behalten' => 2], $s->zulassungen_setzen($dg, $this->lp, [$k3, $k2]));
+		$this->assertSame(['neu' => 0, 'entfernt' => 0, 'behalten' => 2, 'durchgaenge' => 1], $s->zulassungen_setzen($dg, $this->lp, [$k3, $k2]));
 		// Eine andere Disziplin bleibt unberührt
 		$s->zulassungen_setzen($dg, $this->lg, []);
 		$this->assertSame([null], $stand()[ $this->lg ]);
 		$this->assertEqualsCanonicalizing([$k2, $k3], $stand()[ $this->lp ]);
 		// Leere Liste = alle Startklassen; die einzelnen entfallen
-		$this->assertSame(['neu' => 1, 'entfernt' => 2, 'behalten' => 0], $s->zulassungen_setzen($dg, $this->lp, []));
+		$this->assertSame(['neu' => 1, 'entfernt' => 2, 'behalten' => 0, 'durchgaenge' => 1], $s->zulassungen_setzen($dg, $this->lp, []));
 		$this->assertSame([null], $stand()[ $this->lp ]);
 		// Einzelne Klassen ersetzen „alle“ – sonst bliebe die Einschränkung wirkungslos
 		$s->zulassungen_setzen($dg, $this->lp, [$k1]);
@@ -346,5 +346,56 @@ final class StartplanTest extends IntegrationTestCase {
 			], true)
 		);
 		$this->assertSame(['1.10 Luftgewehr'], StartplanService::zulassungen_lesbar([['disziplin' => '1.10 Luftgewehr', 'startklasse' => null]]));
+	}
+
+	/** Dieselbe Zulassung für mehrere Durchgänge in einem Schritt; eine Disziplin ganz herausnehmen. */
+	public function test_zulassung_fuer_mehrere_durchgaenge_und_entfernen(): void {
+		$s = new StartplanService($this->sid);
+		$tag = $s->tag_speichern(0, ['datum' => '2027-03-06', 'bezeichnung' => 'KM Luftdruck', 'ort' => 'X', 'buchungsfrist' => '2099-02-20 22:59:00']);
+		$anderer_tag = $s->tag_speichern(0, ['datum' => '2027-03-07', 'bezeichnung' => 'KM Bogen', 'ort' => 'X', 'buchungsfrist' => '2099-02-20 22:59:00']);
+		[$dg1, $dg2, $dg3] = $s->durchgaenge_anlegen($tag, 1, '', Clock::local_to_utc('2027-03-06 09:00'), Clock::local_to_utc('2027-03-06 10:00'), 3, 15);
+		$fremd = $s->durchgang_speichern(0, $anderer_tag, 1, '', Clock::local_to_utc('2027-03-07 09:00'), Clock::local_to_utc('2027-03-07 10:00'));
+		$klassen = $s->startklassen(RegelwerkLader::engine($this->sid)->regelwerk()->disziplin($this->lp));
+		[$k1, $k2, $k3] = [$klassen[0]->id, $klassen[1]->id, $klassen[2]->id];
+		$repo = new DurchgangZulassungRepository();
+		$stand = static function (int $dg) use ($repo): array {
+			$out = [];
+			foreach ($repo->by_durchgang($dg) as $z) {
+				$out[ (int) $z['disziplin_id'] ][] = $z['startklasse_id'] === null ? null : (int) $z['startklasse_id'];
+			}
+			ksort($out);
+			return array_map(static function (array $k): array { sort($k); return $k; }, $out);
+		};
+
+		// Durchgang 2 hat schon etwas anderes: Luftgewehr bleibt, Luftpistole wird ersetzt.
+		$s->zulassungen_setzen($dg2, $this->lg, []);
+		$s->zulassungen_setzen($dg2, $this->lp, [$k3]);
+
+		$r = $s->zulassungen_setzen($dg1, $this->lp, [$k1, $k2], [$dg2, $dg3, $dg1, $dg3]);
+		$this->assertSame(['neu' => 6, 'entfernt' => 1, 'behalten' => 0, 'durchgaenge' => 3], $r);
+		$soll = [$k1, $k2];
+		sort($soll);
+		$this->assertSame([$this->lp => $soll], $stand($dg1));
+		$this->assertSame([$this->lp => $soll], $stand($dg3));
+		$erwartet = [$this->lg => [null], $this->lp => $soll];
+		ksort($erwartet);
+		$this->assertSame($erwartet, $stand($dg2));
+
+		// Ein Durchgang eines anderen Tages: Fehler, und kein Durchgang ändert sich.
+		try {
+			$s->zulassungen_setzen($dg1, $this->lp, [], [$dg3, $fremd]);
+			$this->fail('fremder Durchgang');
+		} catch (\InvalidArgumentException $e) {
+			$this->assertStringContainsString('Wettkampftag', $e->getMessage());
+		}
+		$this->assertSame([$this->lp => $soll], $stand($dg1));
+		$this->assertSame([$this->lp => $soll], $stand($dg3));
+		$this->assertSame([], $stand($fremd));
+
+		// Eine Disziplin ganz herausnehmen: nur diese, nur in diesem Durchgang.
+		$this->assertSame(2, $s->zulassungen_entfernen($dg2, $this->lp));
+		$this->assertSame([$this->lg => [null]], $stand($dg2));
+		$this->assertSame([$this->lp => $soll], $stand($dg1));
+		$this->assertSame(0, $s->zulassungen_entfernen($dg2, $this->lp));
 	}
 }

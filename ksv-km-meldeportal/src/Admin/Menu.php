@@ -37,6 +37,7 @@ final class Menu {
 		add_action('admin_enqueue_scripts', [self::class, 'enqueue_assets']);
 		add_action('admin_init', [self::class, 'handle_posts']);
 		add_action('wp_ajax_kmm_startplan_verschieben', [WettkampftagePage::class, 'ajax_verschieben']);
+		add_action('wp_ajax_kmm_dg_panel', [WettkampftagePage::class, 'ajax_panel']);
 	}
 
 	/** POST-Aktionen der Seiten vor der Ausgabe verarbeiten (Redirect danach). */
@@ -82,6 +83,8 @@ final class Menu {
 					'frei'    => __('frei', 'ksv-km-meldeportal'),
 				],
 			]);
+			// Nutzt Adresse und Nonce aus kmmStartplan.
+			wp_enqueue_script('kmm-wettkampftag', KMM_PLUGIN_URL . 'assets/admin/wettkampftag.js', ['kmm-startplan-matrix'], KMM_VERSION, true);
 		}
 	}
 

@@ -165,22 +165,112 @@
 .kmm-admin .kmm-stand input { margin: 0; }
 .kmm-admin .kmm-alle { color: var(--kmm-primary); }
 
-/* ----- Wettkampftage: Zulassungen je Durchgang -------------------------------------------------------- */
+/* ----- Wettkampftag: Reiter (Schritte) ------------------------------------------------------------ */
 
-.kmm-admin ul.kmm-zulassungen { margin: 6px 0 12px; }
-.kmm-admin ul.kmm-zulassungen li { margin: 0 0 6px; line-height: 2.3; }
-.kmm-admin ul.kmm-zulassungen .kmm-stand { cursor: default; padding: 3px 6px 3px 10px; line-height: 1.5; }
-.kmm-admin ul.kmm-zulassungen .kmm-inline-form { margin: 0; }
-.kmm-admin .kmm-zul-weg { color: var(--kmm-error); text-decoration: none; padding: 0 4px; line-height: 1; }
+.kmm-admin .kmm-schritte {
+	display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 18px; padding: 0;
+	position: sticky; top: 32px; z-index: 20; background: #f0f0f1; padding: 8px 0;
+}
+.kmm-admin .kmm-schritt {
+	flex: 1 1 150px; display: flex; align-items: center; gap: 10px; min-width: 0;
+	padding: 9px 12px; border: 1px solid var(--kmm-border); border-radius: var(--kmm-radius);
+	background: var(--kmm-surface); color: inherit; text-decoration: none;
+	transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+.kmm-admin .kmm-schritt:focus { box-shadow: 0 0 0 2px var(--kmm-primary); outline: none; }
+.kmm-admin .kmm-schritt.is-aktiv { border-color: var(--kmm-primary); box-shadow: inset 0 -3px 0 var(--kmm-primary); background: var(--kmm-primary-weich); }
+.kmm-admin .kmm-schritt-nr {
+	flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+	font-size: 12px; font-weight: 600; background: #e7ebe4; color: var(--kmm-text-muted);
+}
+.kmm-admin .kmm-schritt.is-ok .kmm-schritt-nr { background: var(--kmm-ok-bg); color: var(--kmm-ok); }
+.kmm-admin .kmm-schritt.is-offen .kmm-schritt-nr { background: var(--kmm-warn-bg); color: var(--kmm-warn); }
+.kmm-admin .kmm-schritt-text { min-width: 0; display: grid; line-height: 1.3; }
+.kmm-admin .kmm-schritt-text strong { font-size: 14px; }
+.kmm-admin .kmm-schritt-text span { font-size: 12px; color: var(--kmm-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kmm-admin .kmm-schritt.is-offen .kmm-schritt-text span { color: var(--kmm-warn); }
+.kmm-admin .kmm-weiter { margin: 18px 0 0; }
+@media (hover: hover) and (pointer: fine) {
+	.kmm-admin .kmm-schritt:hover { border-color: var(--kmm-primary); }
+}
+@media (max-width: 782px) {
+	.kmm-admin .kmm-schritte { top: 46px; }
+	.kmm-admin .kmm-schritt { flex-basis: 45%; }
+}
+
+.kmm-admin details.kmm-einzeln { margin-top: 16px; }
+.kmm-admin details.kmm-einzeln > summary { cursor: pointer; color: var(--kmm-primary); font-weight: 600; padding: 6px 0; }
+.kmm-admin details.kmm-einzeln[open] > summary { margin-bottom: 8px; }
+.kmm-admin table.kmm-kompakt td, .kmm-admin table.kmm-kompakt th { padding-top: 5px; padding-bottom: 5px; vertical-align: middle; }
+
+.kmm-admin ul.kmm-checkliste { margin: 0 0 14px; }
+.kmm-admin ul.kmm-checkliste li { margin: 0 0 4px; padding-left: 24px; position: relative; }
+.kmm-admin ul.kmm-checkliste li::before { position: absolute; left: 0; top: 0; width: 18px; text-align: center; font-weight: 700; }
+.kmm-admin ul.kmm-checkliste li.is-ok::before { content: "✓"; color: var(--kmm-ok); }
+.kmm-admin ul.kmm-checkliste li.is-offen::before { content: "!"; color: var(--kmm-warn); }
+.kmm-admin ul.kmm-checkliste li.is-offen { color: var(--kmm-warn); }
+
+/* ----- Wettkampftag: Durchgänge als Karten, Bearbeiten in der Karte ------------------------------- */
+
+.kmm-admin .kmm-dg-liste { display: grid; gap: 8px; margin: 10px 0 16px; }
+.kmm-admin .kmm-dg {
+	background: var(--kmm-surface); border: 1px solid var(--kmm-border); border-radius: var(--kmm-radius);
+	padding: 10px 14px; scroll-margin-top: 120px;
+	transition: border-color .15s ease, box-shadow .15s ease;
+}
+.kmm-admin .kmm-dg.is-warn { border-left: 4px solid #e0b252; background: #fffdf6; }
+.kmm-admin .kmm-dg.is-offen { border-color: var(--kmm-primary); box-shadow: var(--kmm-schatten-m); }
+.kmm-admin .kmm-dg.is-laedt { opacity: .7; }
+.kmm-admin .kmm-dg:target { border-color: var(--kmm-primary); }
+.kmm-admin .kmm-dg-kopf { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+.kmm-admin .kmm-dg-nr {
+	flex: 0 0 auto; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 999px; display: inline-grid; place-items: center;
+	background: var(--kmm-primary); color: #fff; font-weight: 600; font-size: 13px; font-variant-numeric: tabular-nums;
+}
+.kmm-admin .kmm-dg-zeit { font-size: 15px; font-variant-numeric: tabular-nums; }
+.kmm-admin .kmm-dg-name { color: var(--kmm-text-muted); }
+.kmm-admin .kmm-dg-zahlen { color: var(--kmm-text-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.kmm-admin .kmm-dg-aktionen { margin-left: auto; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4px; }
+.kmm-admin .kmm-dg-aktionen .kmm-inline-form { margin: 0; }
+.kmm-admin .kmm-dg-dup { position: relative; }
+.kmm-admin .kmm-dg-dup > summary { list-style: none; cursor: pointer; }
+.kmm-admin .kmm-dg-dup > summary::-webkit-details-marker { display: none; }
+.kmm-admin .kmm-dg-dup-form {
+	position: absolute; right: 0; top: calc(100% + 4px); z-index: 10; white-space: nowrap;
+	background: var(--kmm-surface); border: 1px solid var(--kmm-border-stark); border-radius: var(--kmm-radius);
+	box-shadow: var(--kmm-schatten-m); padding: 10px 12px;
+}
+.kmm-admin .kmm-dg-dup-form input[type=number] { width: 4.2em; }
+.kmm-admin .kmm-dg-dup-form .description { margin: 6px 0 0; }
+
+.kmm-admin .kmm-dg-zul { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+.kmm-admin .kmm-zul-marke {
+	display: inline-flex; align-items: center; gap: 2px; max-width: 100%; padding: 2px 4px 2px 10px;
+	border: 1px solid #a9c79a; border-radius: 999px; background: var(--kmm-ok-bg); font-size: 13px; line-height: 1.6;
+}
+.kmm-admin .kmm-zul-marke a { color: inherit; text-decoration: none; }
+.kmm-admin .kmm-zul-marke a:focus { box-shadow: none; outline: 2px solid var(--kmm-primary); outline-offset: 2px; border-radius: 4px; }
+.kmm-admin .kmm-zul-marke span { color: var(--kmm-ok); }
+.kmm-admin .kmm-zul-marke .kmm-inline-form { margin: 0; }
+.kmm-admin .kmm-zul-weg { color: var(--kmm-error); text-decoration: none; padding: 0 5px; line-height: 1.4; }
 .kmm-admin .kmm-zul-weg:hover, .kmm-admin .kmm-zul-weg:focus { color: var(--kmm-error); background: var(--kmm-error-bg); border-radius: 999px; }
-.kmm-admin .kmm-zul-klassen .kmm-staende { margin-bottom: 8px; }
-.kmm-admin .kmm-zul-klassen .kmm-zul-alle { border-color: var(--kmm-primary); }
-.kmm-admin .kmm-zul-klassen .kmm-zul-gruppe { flex: 0 0 100%; color: var(--kmm-text-muted); font-size: 12px; font-weight: 600; }
+@media (hover: hover) and (pointer: fine) {
+	.kmm-admin .kmm-zul-marke a:hover strong { text-decoration: underline; }
+}
 
-/* ----- Wettkampftage: Durchgänge duplizieren ------------------------------------------------------- */
-
-.kmm-admin .kmm-duplizieren { white-space: nowrap; }
-.kmm-admin .kmm-duplizieren input[type=number] { width: 3.6em; margin-right: 2px; }
+.kmm-admin .kmm-dg-panel:empty { display: none; }
+.kmm-admin .kmm-dg-panel { margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--kmm-border); }
+.kmm-admin .kmm-dg-panel form + form { margin-top: 10px; }
+.kmm-admin .kmm-dg-panel p { margin: 0 0 10px; }
+.kmm-admin .kmm-dg-panel .kmm-staende { margin-bottom: 8px; align-items: center; }
+.kmm-admin .kmm-dg-panel .kmm-stand { padding: 4px 10px; }
+.kmm-admin .kmm-zul-form .kmm-zul-alle { border-color: var(--kmm-primary); }
+.kmm-admin .kmm-zul-form .kmm-zul-gruppe { flex: 0 0 100%; color: var(--kmm-text-muted); font-size: 12px; font-weight: 600; }
+.kmm-admin .kmm-zul-weitere { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--kmm-border); }
+.kmm-admin .kmm-dg-neu label, .kmm-admin .kmm-dg-zeitform label { white-space: nowrap; margin-right: 8px; }
+@media (prefers-reduced-motion: reduce) {
+	.kmm-admin .kmm-dg, .kmm-admin .kmm-schritt { transition: none; }
+}
 
 /* ----- Startplan-Matrix: Zeilen = Durchgänge, Spalten = Plätze ------------------------------------ */
 

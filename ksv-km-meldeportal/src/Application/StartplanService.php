@@ -495,21 +495,27 @@ final class StartplanService {
 	 * Zulassungen: „alle“ und einzelne Klassen nie nebeneinander, nicht mehr gewählte
 	 * Klassen entfallen. Bestehende Buchungen bleiben unberührt.
 	 *
+	 * Mit $weitere_durchgang_ids gilt dieselbe Auswahl zugleich für weitere Durchgänge
+	 * desselben Wettkampftags. Geprüft wird alles vorab, geschrieben in einer Transaktion:
+	 * entweder alle Durchgänge oder keiner.
+	 *
 	 * @param list<int> $startklasse_ids
-	 * @return array{neu: int, entfernt: int, behalten: int}
+	 * @param list<int> $weitere_durchgang_ids
+	 * @return array{neu: int, entfernt: int, behalten: int, durchgaenge: int}
 	 */
-	public function zulassungen_setzen(int $durchgang_id, int $disziplin_id, array $startklasse_ids): array {
+	public function zulassungen_setzen(int $durchgang_id, int $disziplin_id, array $startklasse_ids, array $weitere_durchgang_ids = []): array {
 		$this->schreibrecht();
 		$dg = $this->durchgaenge->find($durchgang_id);
 		if ($dg === null) {
 			throw new \RuntimeException('Durchgang nicht gefunden.');
 		}
-		$this->tag((int) $dg['wettkampftag_id']);
+		$tag_id = (int) $dg['wettkampftag_id'];
+		$this->tag($tag_id);
 		$d = RegelwerkLader::laden($this->sportjahr_id)->disziplin($disziplin_id);
 		if ($d === null) {
 			throw new \InvalidArgumentException('Disziplin nicht gefunden.');
 		}
-		if (!Rechte::zustaendig($d) || !$this->durchgang_zustaendig($durchgang_id)) {
+		if (!Rechte::zustaendig($d)) {
 			throw new \RuntimeException('Keine Berechtigung: Die Disziplin liegt außerhalb Ihrer Zuständigkeit.');
 		}
 		$startklasse_ids = array_values(array_unique(array_map('intval', $startklasse_ids)));
@@ -521,23 +527,80 @@ final class StartplanService {
 		}
 		// Wer alle Startklassen einzeln ankreuzt, meint „alle“ – auch für Klassen, die später dazukommen.
 		$soll = $startklasse_ids === [] || count($startklasse_ids) === count($erlaubt) ? [null] : $startklasse_ids;
-		$vorhanden = [];
-		foreach ($this->zulassungen->by_durchgang($durchgang_id) as $z) {
-			if ((int) $z['disziplin_id'] === $disziplin_id) {
-				$vorhanden[ (int) $z['id'] ] = $z['startklasse_id'] === null ? null : (int) $z['startklasse_id'];
+
+		$ids = array_values(array_unique(array_merge([$durchgang_id], array_map('intval', $weitere_durchgang_ids))));
+		$weg = [];
+		$neu = [];
+		$behalten = 0;
+		foreach ($ids as $id) {
+			if ($id !== $durchgang_id) {
+				$weiterer = $this->durchgaenge->find($id);
+				if ($weiterer === null || (int) $weiterer['wettkampftag_id'] !== $tag_id) {
+					throw new \InvalidArgumentException('Ein gewählter Durchgang gehört nicht zu diesem Wettkampftag.');
+				}
+			}
+			if (!$this->durchgang_zustaendig($id)) {
+				throw new \RuntimeException('Keine Berechtigung: Ein Durchgang enthält Disziplinen außerhalb Ihrer Zuständigkeit.');
+			}
+			$vorhanden = [];
+			foreach ($this->zulassungen->by_durchgang($id) as $z) {
+				if ((int) $z['disziplin_id'] === $disziplin_id) {
+					$vorhanden[ (int) $z['id'] ] = $z['startklasse_id'] === null ? null : (int) $z['startklasse_id'];
+				}
+			}
+			foreach ($vorhanden as $zid => $k) {
+				if (in_array($k, $soll, true)) {
+					$behalten++;
+				} else {
+					$weg[] = $zid;
+				}
+			}
+			foreach ($soll as $k) {
+				if (!in_array($k, $vorhanden, true)) {
+					$neu[] = ['durchgang_id' => $id, 'disziplin_id' => $disziplin_id, 'startklasse_id' => $k];
+				}
 			}
 		}
-		$weg = array_keys(array_filter($vorhanden, static fn(?int $k): bool => !in_array($k, $soll, true)));
-		$neu = array_values(array_filter($soll, static fn(?int $k): bool => !in_array($k, $vorhanden, true)));
-		$this->zulassungen->transaktion(function () use ($weg, $neu, $durchgang_id, $disziplin_id): void {
+		$this->zulassungen->transaktion(function () use ($weg, $neu): void {
 			foreach ($weg as $id) {
 				$this->zulassungen->delete($id);
 			}
-			foreach ($neu as $klasse_id) {
-				$this->zulassungen->insert(['durchgang_id' => $durchgang_id, 'disziplin_id' => $disziplin_id, 'startklasse_id' => $klasse_id]);
+			foreach ($neu as $satz) {
+				$this->zulassungen->insert($satz);
 			}
 		});
-		return ['neu' => count($neu), 'entfernt' => count($weg), 'behalten' => count($vorhanden) - count($weg)];
+		return ['neu' => count($neu), 'entfernt' => count($weg), 'behalten' => $behalten, 'durchgaenge' => count($ids)];
+	}
+
+	/**
+	 * Nimmt eine Disziplin ganz aus einem Durchgang heraus (alle ihre Startklassen).
+	 * Bestehende Buchungen bleiben unberührt.
+	 *
+	 * @return int Zahl der entfernten Zulassungen
+	 */
+	public function zulassungen_entfernen(int $durchgang_id, int $disziplin_id): int {
+		$this->schreibrecht();
+		$dg = $this->durchgaenge->find($durchgang_id);
+		if ($dg === null) {
+			throw new \RuntimeException('Durchgang nicht gefunden.');
+		}
+		$this->tag((int) $dg['wettkampftag_id']);
+		$d = RegelwerkLader::laden($this->sportjahr_id)->disziplin($disziplin_id);
+		if ($d !== null && !Rechte::zustaendig($d)) {
+			throw new \RuntimeException('Keine Berechtigung: Die Disziplin liegt außerhalb Ihrer Zuständigkeit.');
+		}
+		$ids = [];
+		foreach ($this->zulassungen->by_durchgang($durchgang_id) as $z) {
+			if ((int) $z['disziplin_id'] === $disziplin_id) {
+				$ids[] = (int) $z['id'];
+			}
+		}
+		$this->zulassungen->transaktion(function () use ($ids): void {
+			foreach ($ids as $id) {
+				$this->zulassungen->delete($id);
+			}
+		});
+		return count($ids);
 	}
 
 	/**
