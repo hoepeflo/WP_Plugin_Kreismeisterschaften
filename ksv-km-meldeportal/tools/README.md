@@ -57,6 +57,7 @@ Was das Skript weiß und tut:
 - Gemeinsame Mannschaftsspalte bei Schüler/Jugend: die w-Klasse verweist auf den Pool der m-Klasse.
 - `ab 18 Jahre` (Vorderlader Junioren II) = Regel von Junioren I gleichen Geschlechts plus Mindestalter 18.
 - `Team Junioren`, `Team Damen/Herren`, `bei Junioren`, `bei Team …` = MixTeam; Teamklassen `40x` und `10x`.
+  „Damen“ wird auch mit Tippfehler erkannt (`Team Damee/Herren`).
 - Verbundene Zellen, Klassennummern als Text, Lichtschießen-Nummern auf zwei Zellen, Blasrohr `1.12` → `12.10`
   und vertauschte Zeilen „Alter“/„Klasse“ im Blasrohr-Jugendblock.
 - Ein Verweis auf die eigene Klasse (verrutschte Zeile im Plan) wird als unklar gemeldet.

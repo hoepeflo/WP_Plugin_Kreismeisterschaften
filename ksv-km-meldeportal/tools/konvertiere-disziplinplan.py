@@ -244,6 +244,7 @@ class Blatt:
 RE_VERWEIS = re.compile(r"^b\s*\.?\s*(\d{2})\s*\*{0,2}\s*$", re.I)
 RE_GESCHLECHT_VERWEIS = re.compile(r"^m\s*b?\s*\.?\s*(\d{2})\s*/\s*w\s*b?\s*\.?\s*(\d{2})\s*$", re.I)
 RE_EIGEN = re.compile(r"^(E|M)(\s*\*+)?$")
+RE_TEAM_DH = re.compile(r"^team(dam[a-zäöü]*/herren|herren/dam[a-zäöü]*)$")
 
 
 def interpretiere(z: Zelle) -> tuple[str, Any, str]:
@@ -270,11 +271,12 @@ def interpretiere(z: Zelle) -> tuple[str, Any, str]:
         return "ab18", 18, w
     if lw in ("teamjunioren",):
         return "team", "40x", ""
-    if lw in ("teamdamen/herren", "teamherren/damen"):
+    # „Damen“ auch mit Tippfehler („Team Damee/Herren“ im Entwurf 2027).
+    if RE_TEAM_DH.match(lw):
         return "team", "10x", ""
     if lw in ("beijunioren", "beiteamjunioren"):
         return "bei_team", "40x", ""
-    if lw in ("beiteamdamen/herren", "beiteamherren/damen"):
+    if RE_TEAM_DH.match(lw.removeprefix("bei")) and lw.startswith("bei"):
         return "bei_team", "10x", ""
     return "unklar", w, ""
 
