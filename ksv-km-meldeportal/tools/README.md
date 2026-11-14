@@ -35,6 +35,22 @@ python3 tools/konvertiere-disziplinplan.py \
     --bogen-csv docs/quellen/bogen-2026.csv       # optional, siehe unten
 ```
 
+Für 2027 liegt bisher der Entwurf vor (`docs/quellen/Disziplinenplan_2027-Entwurf.xlsx`);
+die Ergebnisse tragen deshalb „entwurf“ im Namen:
+
+```bash
+python3 tools/konvertiere-disziplinplan.py \
+    docs/quellen/Disziplinenplan_2027-Entwurf.xlsx \
+    --sportjahr 2027 \
+    --json docs/regeltabelle-2027-entwurf.json \
+    --bericht docs/pruefbericht-2027-entwurf.md \
+    --uebersicht docs/regeltabelle-2027-entwurf-uebersicht.md
+```
+
+Beim Import in ein bestehendes Sportjahr beachten: Der Import überschreibt je Disziplin
+auch „angeboten“, Ergebnisformat und Startgeld mit den Werten der Datei, und eine geänderte
+Kennzahl (2027: `2.03 F` → `2.03`) legt eine neue Disziplin an; die alte bleibt stehen.
+
 Ausgaben:
 
 | Datei | Inhalt |

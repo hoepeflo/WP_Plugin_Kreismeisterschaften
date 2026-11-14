@@ -9,6 +9,7 @@ Sie gehören nicht in das ausgelieferte Plugin.
 | `01A1_Disziplinenplan_2026-Aktuell_17-02.pdf` | dasselbe als PDF zur visuellen Kontrolle |
 | `01A2_Jahrgangsklassen_nach_DSB_.pdf` | Jahrgangstabellen |
 | `06A1_Disziplinenplan_Bogen_2026_Stand_12_03_2026.pdf` | Bogen-Disziplinplan |
+| `Disziplinenplan_2027-Entwurf.xlsx` | NSSV-Disziplinplan 2027, **Entwurf** mit Stand 14.10.2026 – vorläufig, die endgültige Fassung ersetzt ihn |
 | `david21_muster.png` | Aufbau des DAVID21-Imports |
 
 `bogen-2026-vorlage.csv` ist die leere Vorlage für die Bogen-Regeln (siehe `tools/README.md`);
