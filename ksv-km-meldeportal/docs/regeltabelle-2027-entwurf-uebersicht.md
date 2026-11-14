@@ -1356,7 +1356,7 @@ _keine DM_
 | 21w Schüler I w | E | – |  |
 | 30m Jugend m | E | – |  |
 | 31w Jugend w | E | – |  |
-| 42m Junioren II m | E | – |  |
-| 43w Junioren II w | E | – |  |
+| 42m Junioren II m | → 40m | – |  |
+| 43w Junioren II w | → 41w | – |  |
 | 40m Junioren I m | E | – |  |
 | 41w Junioren I w | E | – |  |

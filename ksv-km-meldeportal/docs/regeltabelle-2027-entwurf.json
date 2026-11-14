@@ -2,7 +2,7 @@
   "format": "kmm-regeltabelle",
   "version": 1,
   "sportjahr": 2027,
-  "stand": "NSSV 01A1 Stand: 14.10.2026, konvertiert am 2026-11-14",
+  "stand": "NSSV 01A1 Stand: 14.10.2026; Blasrohr Stand: 03.11.2026, konvertiert am 2026-11-14",
   "disziplinen": [
     {
       "kennzahl": "1.10",
@@ -7096,13 +7096,15 @@
         },
         {
           "klasse": "42m",
-          "einzel": "eigen",
-          "mannschaft": "keine"
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "40m"
         },
         {
           "klasse": "43w",
-          "einzel": "eigen",
-          "mannschaft": "keine"
+          "einzel": "verweis",
+          "mannschaft": "keine",
+          "einzel_ziel": "41w"
         },
         {
           "klasse": "40m",

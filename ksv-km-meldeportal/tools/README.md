@@ -35,21 +35,46 @@ python3 tools/konvertiere-disziplinplan.py \
     --bogen-csv docs/quellen/bogen-2026.csv       # optional, siehe unten
 ```
 
-Für 2027 liegt bisher der Entwurf vor (`docs/quellen/Disziplinenplan_2027-Entwurf.xlsx`);
-die Ergebnisse tragen deshalb „entwurf“ im Namen:
+Für 2027 liegt bisher der Entwurf vor (`docs/quellen/Disziplinenplan_2027-Entwurf.xlsx`),
+dazu ein eigener Plan für Blasrohr; die Ergebnisse tragen deshalb „entwurf“ im Namen:
 
 ```bash
 python3 tools/konvertiere-disziplinplan.py \
     docs/quellen/Disziplinenplan_2027-Entwurf.xlsx \
     --sportjahr 2027 \
+    --blasrohr docs/quellen/01A1_Disziplinenplan_2027-Blasrohr.xlsx \
     --json docs/regeltabelle-2027-entwurf.json \
     --bericht docs/pruefbericht-2027-entwurf.md \
     --uebersicht docs/regeltabelle-2027-entwurf-uebersicht.md
 ```
 
-Beim Import in ein bestehendes Sportjahr beachten: Der Import überschreibt je Disziplin
-auch „angeboten“, Ergebnisformat und Startgeld mit den Werten der Datei, und eine geänderte
-Kennzahl (2027: `2.03 F` → `2.03`) legt eine neue Disziplin an; die alte bleibt stehen.
+### Eigener Blasrohr-Plan (`--blasrohr`)
+
+Der Blasrohr-Plan enthält denselben Block wie der Hauptplan, nur weiter oben im Blatt, und
+ersetzt dessen Blasrohr-Block. Er füllt zusätzlich die Mannschaftsspalten. Die werden ohne
+weitere Angabe **nicht** übernommen: Laut Plan erfolgt die Meldung nur als Einzelstart, und
+eine Mannschaftsgröße nennt er nicht. Der Prüfbericht führt auf, was der Plan je Klasse
+vorsieht. Mit `--blasrohr-mannschaft 3` werden die Regeln mit Mannschaftsgröße 3 übernommen.
+
+### Import in ein bestehendes Sportjahr (`--bestand`)
+
+Der Import überschreibt je Disziplin auch „angeboten“, Ergebnisformat und Startgeld mit den
+Werten der Datei. Damit das, was im Portal von Hand eingestellt wurde, erhalten bleibt:
+im Portal unter „Import / Export“ die Regeltabelle exportieren und beim Konvertieren angeben.
+
+```bash
+python3 tools/konvertiere-disziplinplan.py … \
+    --bestand kmm-regeltabelle-2027.json \
+    --umbenannt "2.03 F=2.03"
+```
+
+- Übernommen werden `angeboten`, `ergebnis_format`, `tarif_override` und
+  `mannschaft_startgeld`. Regeln, Bezeichnung, Hinweis und Mannschaftsgröße kommen aus dem Plan.
+- `--umbenannt ALT=NEU` (mehrfach möglich) überträgt die Einstellungen einer Disziplin, deren
+  Kennzahl sich geändert hat. Der Import legt die neue Kennzahl an; die alte bleibt im Portal
+  stehen und ist dort von Hand zu löschen.
+- Der Prüfbericht nennt jede übernommene Abweichung, neue Disziplinen und solche, die nur im
+  Bestand stehen. Im Modus „Ergänzen“ importieren.
 
 Ausgaben:
 

@@ -1,14 +1,14 @@
 # Prüfbericht Disziplinplan 2027
 
-Quelle: `docs/quellen/Disziplinenplan_2027-Entwurf.xlsx`, konvertiert am 2026-11-14.
+Quelle: `docs/quellen/Disziplinenplan_2027-Entwurf.xlsx`, `docs/quellen/01A1_Disziplinenplan_2027-Blasrohr.xlsx`, konvertiert am 2026-11-14.
 
 ## Übersicht
 
 - Disziplinen: 71 (auflage: 13, blasrohr: 1, fitasc: 3, freihand: 49, lichtschiessen: 5)
 - Regeln (Disziplin × Klasse mit Startrecht): 954
 - **Unklare Zellen (bitte von Hand prüfen): 2**
-- Hinweise (Annahmen des Skripts): 38
-- Informationen: 568
+- Hinweise (Annahmen des Skripts): 60
+- Informationen: 576
 - Übersprungene Zeilen: 10
 
 Legende Füllung: rot = kein Startrecht, gruen = Startmöglichkeit nach SpO 0.7.1.1, gelb = olympisch, blau = Änderung gegenüber Vorjahr, orange = Meldung DSB anders.
@@ -53,8 +53,30 @@ Legende Füllung: rot = kein Startrecht, gruen = Startmöglichkeit nach SpO 0.7.
 | J63 | 7.72 | 42m | `ab 18 Jahre` | gruen | 'ab 18 Jahre' → wie Junioren I (verweis → 10m) mit Mindestalter 18. |
 | L63 | 7.72 | 43w | `ab 18 Jahre` | gruen | 'ab 18 Jahre' → wie Junioren I (verweis → 10m) mit Mindestalter 18. |
 | Y75 | 1.18 |  | `1.18` | keine | Para-Disziplin LG liegend kommt im Hauptblock nicht vor; Disziplin nur mit Para-Regeln angelegt. |
-| B130 | 12.10 |  | `1.12` | keine | Blasrohr steht im Plan unter 1.12; korrigiert auf 12.10. |
-| A134 | 12.10 |  | `Alter` | theme:4 | Blasrohr-Jugendblock: Zeilen 'Alter' und 'Klasse' sind vertauscht; Klassennummern aus Zeile 134 verwendet. |
+| B13 | 12.10 |  | `1.12` | keine | Blasrohr steht im Plan unter 1.12; korrigiert auf 12.10. |
+| A17 | 12.10 |  | `Alter` | theme:4 | Blasrohr-Jugendblock: Zeilen 'Alter' und 'Klasse' sind vertauscht; Klassennummern aus Zeile 17 verwendet. |
+|  | 12.10 | 10m | `` |  | Blasrohr: eigene Mannschaft laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 11w | `` |  | Blasrohr: Mannschaft bei 10m laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 12m | `` |  | Blasrohr: Mannschaft bei 10m laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 13w | `` |  | Blasrohr: Mannschaft bei 10m laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 14m | `` |  | Blasrohr: eigene Mannschaft laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 15w | `` |  | Blasrohr: Mannschaft bei 14m laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 16m | `` |  | Blasrohr: Mannschaft bei 14m laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 17w | `` |  | Blasrohr: Mannschaft bei 14m laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 18m | `` |  | Blasrohr: Mannschaft bei 14m laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 19w | `` |  | Blasrohr: Mannschaft bei 14m laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 24m | `` |  | Blasrohr: eigene Mannschaft laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 25w | `` |  | Blasrohr: Mannschaft bei 24m laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 22m | `` |  | Blasrohr: Mannschaft bei 20m laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 23w | `` |  | Blasrohr: Mannschaft bei 20m laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 20m | `` |  | Blasrohr: eigene Mannschaft laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 21w | `` |  | Blasrohr: Mannschaft bei 20m laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 30m | `` |  | Blasrohr: eigene Mannschaft laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 31w | `` |  | Blasrohr: Mannschaft bei 30m laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 42m | `` |  | Blasrohr: Mannschaft bei 10m laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 43w | `` |  | Blasrohr: Mannschaft bei 10m laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 40m | `` |  | Blasrohr: Mannschaft bei 10m laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
+|  | 12.10 | 41w | `` |  | Blasrohr: Mannschaft bei 10m laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen). |
 | C143 | 11.x |  | `2` | theme:4 | Lichtschießen: Klassennummern 26/24/22/20 stehen auf je zwei Zellen verteilt; zusammengesetzt. |
 |  | 1.22 | 13w | `` |  | Einzel: Verweis auf 12m, aber 12m hat dort keine eigene Wertung (Kette oder Lücke). Die Engine löst Ketten auf; bitte gegen das PDF prüfen. |
 |  | 1.30 | 42m | `` |  | Mannschaft: Verweis auf 40m, aber 40m hat dort keine eigene Wertung (Kette oder Lücke). Die Engine löst Ketten auf; bitte gegen das PDF prüfen. |
@@ -641,6 +663,14 @@ Legende Füllung: rot = kein Startrecht, gruen = Startmöglichkeit nach SpO 0.7.
 | N122 | 3.40 | 62x | `b.60` | gruen | Mannschaft: Verweis auf 60 führt in Klasse 60m (anderes Geschlecht, im Plan üblich). |
 | R122 | 3.40 | 64x | `b.60` | gruen | Mannschaft: Verweis auf 60 führt in Klasse 60m (anderes Geschlecht, im Plan üblich). |
 | V122 | 3.40 | 66x | `b.60` | gruen | Mannschaft: Verweis auf 60 führt in Klasse 60m (anderes Geschlecht, im Plan üblich). |
+| F13 | 12.10 | 11w | `b. 10` | blau | Mannschaft: Verweis auf 10 führt in Klasse 10m (anderes Geschlecht, im Plan üblich). |
+| J13 | 12.10 | 13w | `b. 10` | blau | Mannschaft: Verweis auf 10 führt in Klasse 10m (anderes Geschlecht, im Plan üblich). |
+| N13 | 12.10 | 15w | `b. 14` | blau | Mannschaft: Verweis auf 14 führt in Klasse 14m (anderes Geschlecht, im Plan üblich). |
+| R13 | 12.10 | 17w | `b. 14` | blau | Mannschaft: Verweis auf 14 führt in Klasse 14m (anderes Geschlecht, im Plan üblich). |
+| V13 | 12.10 | 19w | `b. 14` | blau | Mannschaft: Verweis auf 14 führt in Klasse 14m (anderes Geschlecht, im Plan üblich). |
+| G19 | 12.10 | 23w | `b. 20` | blau | Mannschaft: Verweis auf 20 führt in Klasse 20m (anderes Geschlecht, im Plan üblich). |
+| P19 | 12.10 | 43w | `b. 10` | blau | Mannschaft: Verweis auf 10 führt in Klasse 10m (anderes Geschlecht, im Plan üblich). |
+| S19 | 12.10 | 41w | `b. 10` | blau | Mannschaft: Verweis auf 10 führt in Klasse 10m (anderes Geschlecht, im Plan üblich). |
 | D144 | 11.11 | 27w | `b.24` | keine | Mannschaft: Verweis auf 24 führt in Klasse 24m (anderes Geschlecht, im Plan üblich). |
 | D147 | 11.51 | 27w | `b.24` | keine | Mannschaft: Verweis auf 24 führt in Klasse 24m (anderes Geschlecht, im Plan üblich). |
 |  | 2.17 |  | `` |  | Keine Mannschaftswertung in dieser Disziplin (Mannschaftsgröße 0). |

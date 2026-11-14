@@ -156,6 +156,8 @@ class Disziplin:
     quelle: str = ""
     regeln: dict[str, Regel] = field(default_factory=dict)
     hat_mannschaft: bool = False
+    groesse_fest: int | None = None  # Mannschaftsgröße, wenn sie nicht der Standard (3) ist
+    einstellungen: dict[str, Any] = field(default_factory=dict)  # aus einem Export übernommen (--bestand)
 
     def regel(self, klasse: str) -> Regel:
         if klasse not in self.regeln:
@@ -164,6 +166,8 @@ class Disziplin:
 
     def to_dict(self) -> dict[str, Any]:
         groesse = 2 if self.typ == "mixteam" else (0 if self.typ == "bogen" or not self.hat_mannschaft else 3)
+        if self.groesse_fest is not None and self.hat_mannschaft:
+            groesse = self.groesse_fest
         tarif = None
         for prefix, betrag in TARIF_OVERRIDE.items():
             if self.kennzahl.startswith(prefix):
@@ -183,6 +187,7 @@ class Disziplin:
             "sortierung": self.sortierung,
             "regeln": [r.to_dict() for r in self.regeln.values() if not r.leer()],
         }
+        d.update(self.einstellungen)
         return d
 
 
@@ -594,17 +599,75 @@ class Konverter:
                 continue
             self.zeile_verarbeiten(row, self.kennzahl_norm(kennzahl), name, "fitasc", spalten, self.b.text(row, "X"), f"FITASC Zeile {row}")
 
-    def blasrohr_block(self) -> None:
-        self.pruefe_header(128, "C", "10", "Blasrohr Erwachsene")
-        self.pruefe_header(134, "C", "24", "Blasrohr Jugend (Zeile 'Alter' enthält die Klassennummern)")
-        for row in (130,):
-            kennzahl = self.b.text(row, "B")
-            if kennzahl == "1.12":
-                self.befund("hinweis", self.b.zelle(row, "B"), "12.10", "", "Blasrohr steht im Plan unter 1.12; korrigiert auf 12.10.")
-            self.zeile_verarbeiten(row, "12.10", "Blasrohrsport", "blasrohr", spalten_blasrohr_erwachsene(), "", f"Blasrohr Zeile {row}")
-        for row in (136,):
-            self.befund("hinweis", self.b.zelle(134, "A"), "12.10", "", "Blasrohr-Jugendblock: Zeilen 'Alter' und 'Klasse' sind vertauscht; Klassennummern aus Zeile 134 verwendet.")
-            self.zeile_verarbeiten(row, "12.10", "Blasrohrsport", "blasrohr", spalten_blasrohr_jugend(), "", f"Blasrohr Zeile {row}")
+    def blasrohr_block(self, blatt: Blatt | None = None, versatz: int = 0) -> None:
+        """Blasrohr aus dem Hauptplan – oder aus dem eigenen Blasrohr-Plan (--blasrohr), der
+        denselben Block weiter oben im Blatt hat (versatz) und zusätzlich Mannschaftsspalten füllt."""
+        haupt = self.b
+        if blatt is not None:
+            self.b = blatt
+        try:
+            kopf_e, zeile_e, kopf_j, zeile_j = 128 + versatz, 130 + versatz, 134 + versatz, 136 + versatz
+            self.pruefe_header(kopf_e, "C", "10", "Blasrohr Erwachsene")
+            self.pruefe_header(kopf_j, "C", "24", "Blasrohr Jugend (Zeile 'Alter' enthält die Klassennummern)")
+            if self.b.text(zeile_e, "B") == "1.12":
+                self.befund("hinweis", self.b.zelle(zeile_e, "B"), "12.10", "", "Blasrohr steht im Plan unter 1.12; korrigiert auf 12.10.")
+            self.zeile_verarbeiten(zeile_e, "12.10", "Blasrohrsport", "blasrohr", spalten_blasrohr_erwachsene(), "", f"Blasrohr Zeile {zeile_e}")
+            self.befund("hinweis", self.b.zelle(kopf_j, "A"), "12.10", "", f"Blasrohr-Jugendblock: Zeilen 'Alter' und 'Klasse' sind vertauscht; Klassennummern aus Zeile {kopf_j} verwendet.")
+            self.zeile_verarbeiten(zeile_j, "12.10", "Blasrohrsport", "blasrohr", spalten_blasrohr_jugend(), "", f"Blasrohr Zeile {zeile_j}")
+        finally:
+            self.b = haupt
+
+    def blasrohr_mannschaft(self, groesse: int) -> None:
+        """Mannschaftsregeln des Blasrohr-Plans: mit Größe übernehmen oder (groesse 0) weglassen.
+        Der Plan nennt keine Mannschaftsgröße; die Meldung zur LM erfolgt nur als Einzelstart."""
+        d = self.disziplinen.get("12.10")
+        if d is None or not d.hat_mannschaft:
+            return
+        if groesse > 0:
+            d.groesse_fest = groesse
+            self.befund("hinweis", None, "12.10", "", f"Blasrohr: Mannschaftsregeln aus dem Plan übernommen, Mannschaftsgröße {groesse} (Vorgabe beim Aufruf; der Plan nennt keine).")
+            return
+        for r in d.regeln.values():
+            if r.mannschaft == "keine":
+                continue
+            laut_plan = "eigene Mannschaft" if r.mannschaft == "eigen" else f"Mannschaft bei {r.mannschaft_ziel}"
+            self.befund("hinweis", None, "12.10", r.klasse, f"Blasrohr: {laut_plan} laut Plan – nicht übernommen (Meldung nur als Einzelstart; mit --blasrohr-mannschaft N übernehmen).")
+            r.mannschaft = "keine"
+            r.mannschaft_ziel = None
+        d.hat_mannschaft = False
+
+    # ----- Einstellungen aus einem Export des Portals ---------------------------------
+
+    BESTAND_FELDER = ("angeboten", "ergebnis_format", "tarif_override", "mannschaft_startgeld")
+
+    def bestand_uebernehmen(self, pfad: str, umbenannt: dict[str, str]) -> None:
+        """Übernimmt je Disziplin, was im Portal von Hand eingestellt wurde (angeboten,
+        Ergebnisformat, Startgeld), aus einem Export. Regeln, Bezeichnung und Hinweis kommen
+        weiter aus dem Plan. umbenannt: alte Kennzahl → neue Kennzahl."""
+        with open(pfad, encoding="utf-8") as fh:
+            bestand = {str(d["kennzahl"]): d for d in json.load(fh).get("disziplinen", [])}
+        alt_zu = {neu: alt for alt, neu in umbenannt.items()}
+        gefunden = set()
+        for kennzahl, d in self.disziplinen.items():
+            quelle = kennzahl if kennzahl in bestand else alt_zu.get(kennzahl)
+            if quelle is None or quelle not in bestand:
+                self.befund("hinweis", None, kennzahl, "", "Nicht im Bestand: neue Disziplin, Einstellungen des Skripts (angeboten, Standardwerte).")
+                continue
+            gefunden.add(quelle)
+            vorgabe = Disziplin.to_dict(d)
+            for feld in self.BESTAND_FELDER:
+                if feld not in bestand[quelle]:
+                    continue
+                wert = bestand[quelle][feld]
+                d.einstellungen[feld] = wert
+                gleich = wert == vorgabe.get(feld) or (isinstance(wert, (int, float)) and not isinstance(wert, bool) and isinstance(vorgabe.get(feld), (int, float)) and float(wert) == float(vorgabe[feld]))
+                if not gleich:
+                    self.befund("info", None, kennzahl, "", f"Aus dem Bestand übernommen: {feld} = {json.dumps(wert, ensure_ascii=False)} (Skript: {json.dumps(vorgabe.get(feld), ensure_ascii=False)}).")
+            if quelle != kennzahl:
+                self.befund("hinweis", None, kennzahl, "", f"Kennzahl geändert: im Bestand {quelle}. Einstellungen übernommen; der Import legt {kennzahl} neu an, {quelle} bleibt bestehen und ist von Hand zu löschen.")
+        for kennzahl in bestand:
+            if kennzahl not in gefunden and kennzahl not in self.disziplinen:
+                self.befund("hinweis", None, kennzahl, "", "Im Bestand, aber nicht im Plan: fehlt in der Importdatei und bleibt beim Import im Modus „Ergänzen“ unverändert.")
 
     def lichtschiessen_block(self) -> None:
         # Klassennummern stehen geteilt in zwei Zellen (C143=2, D143=6 → 26).
@@ -820,6 +883,10 @@ def main() -> int:
     p.add_argument("--uebersicht", default=None)
     p.add_argument("--bogen-csv", default=None, help="Ausgefüllte Bogen-CSV (aus der Vorlage) einmischen")
     p.add_argument("--bogen-vorlage", default=None, help="Nur die leere Bogen-CSV-Vorlage schreiben und beenden")
+    p.add_argument("--blasrohr", default=None, help="Eigener Blasrohr-Plan (xlsx); ersetzt den Blasrohr-Block des Hauptplans")
+    p.add_argument("--blasrohr-mannschaft", type=int, default=0, metavar="N", help="Mannschaftsregeln des Blasrohr-Plans mit Mannschaftsgröße N übernehmen (Standard 0 = nur Einzel)")
+    p.add_argument("--bestand", default=None, help="Export aus dem Portal (JSON): angeboten, Ergebnisformat und Startgeld je Disziplin übernehmen")
+    p.add_argument("--umbenannt", action="append", default=[], metavar="ALT=NEU", help="Geänderte Kennzahl für --bestand, z. B. '2.03 F=2.03' (mehrfach möglich)")
     args = p.parse_args()
 
     if args.bogen_vorlage:
@@ -835,17 +902,30 @@ def main() -> int:
     k.para_block()
     k.auflage_block()
     k.fitasc_block()
-    k.blasrohr_block()
+    quellen = args.xlsx
+    if args.blasrohr:
+        # Der eigene Blasrohr-Plan hat denselben Block wie der Hauptplan, nur 117 Zeilen weiter oben.
+        ws_b = openpyxl.load_workbook(args.blasrohr, data_only=True).worksheets[0]
+        k.blasrohr_block(Blatt(ws_b), -117)
+        k.blasrohr_mannschaft(args.blasrohr_mannschaft)
+        stand = f"{stand}; Blasrohr {ws_b['AH1'].value or ''}".strip("; ")
+        quellen += f"`, `{args.blasrohr}"
+    else:
+        k.blasrohr_block()
     k.lichtschiessen_block()
     if args.bogen_csv:
         k.bogen_csv(args.bogen_csv)
     k.nachbearbeiten()
     k.validiere()
+    if args.bestand:
+        umbenannt = dict(u.split("=", 1) for u in args.umbenannt if "=" in u)
+        k.bestand_uebernehmen(args.bestand, umbenannt)
+        quellen += f"`, Einstellungen aus `{args.bestand}"
 
     doc = k.dokument(f"NSSV 01A1 {stand}, konvertiert am {date.today().isoformat()}")
     with open(args.json, "w", encoding="utf-8") as fh:
         json.dump(doc, fh, ensure_ascii=False, indent=2)
-    schreibe_bericht(args.bericht, k, args.xlsx)
+    schreibe_bericht(args.bericht, k, quellen)
     if args.uebersicht:
         schreibe_uebersicht(args.uebersicht, k)
 
