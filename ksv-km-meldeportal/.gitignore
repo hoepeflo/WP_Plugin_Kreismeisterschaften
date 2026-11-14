@@ -7,3 +7,4 @@
 *.zip
 /composer.local.json
 /composer.local.lock
+__pycache__/
