@@ -173,7 +173,7 @@
 		const el = $('#kmm-tab-schuetzen');
 		const rw = schreibbar();
 		let html = `<div class="kmm-toolbar"><h2>Schützenliste</h2>${rw ? '<button type="button" class="kmm-button" data-action="schuetze-neu">Neuer Schütze</button>' : ''}</div>`;
-		html += '<p class="kmm-muted">Die Schützenliste bleibt über die Jahre erhalten. Höhermeldungen gelten nur für dieses Sportjahr.</p>';
+		html += `<p class="kmm-muted">Die Schützenliste bleibt über die Jahre erhalten. Höhermeldungen gelten nur für dieses Sportjahr. ${h(hmHinweis())}</p>`;
 		if (state.schuetzen.length === 0) {
 			html += `<div class="kmm-leer"><strong>Noch keine Schützen angelegt.</strong>${rw ? 'Mit „Neuer Schütze“ beginnen – die Liste bleibt für die nächsten Jahre erhalten.' : ''}</div>`;
 		} else {
@@ -196,6 +196,13 @@
 		el.innerHTML = html;
 	}
 
+	// Eine Höhermeldung wird nicht im Portal beantragt: Frist ist der 30.09. vor dem Sportjahr. Hier steht nur der technische Eintrag.
+	function hmHinweis() {
+		const jahr = Number((state.meldung.sportjahr || {}).jahr) || 0;
+		const frist = jahr > 0 ? `30.09.${jahr - 1}` : '30.09. des Vorjahres';
+		return `Eine Höhermeldung ist bis zum ${frist} zu beantragen; hier wird lediglich die technische Höhermeldung erfasst.`;
+	}
+
 	function schuetzeFormular(s) {
 		const angebot = s ? s.hoehermeldung_angebot || {} : {};
 		const hm = s ? s.hoehermeldungen || {} : {};
@@ -203,6 +210,9 @@
 		Object.keys(angebot).forEach((b) => {
 			hmHtml += `<label for="kmm-s-hm-${b}">Höhermeldung ${h(BEREICHE[b] || b)}</label><select id="kmm-s-hm-${b}" name="hm_${b}"><option value="">– keine –</option>${Object.entries(angebot[b]).map(([st, name]) => `<option value="${h(st)}" ${hm[b] === st ? 'selected' : ''}>${h(name)}</option>`).join('')}</select>`;
 		});
+		if (hmHtml) {
+			hmHtml += `<p class="kmm-muted">${h(hmHinweis())}</p>`;
+		}
 		if (!s) {
 			hmHtml = '<p class="kmm-muted">Höhermeldungen können nach dem Anlegen über „Bearbeiten“ gesetzt werden.</p>';
 		} else if (!hmHtml) {
