@@ -29,6 +29,7 @@ final class Menu {
 		['Export', ExportPage::class, Capabilities::VIEW],
 		['Belege', BelegePage::class, Capabilities::MANAGE],
 		['Protokoll', ProtokollPage::class, Capabilities::VIEW],
+		['Sicherung', SicherungPage::class, Capabilities::MANAGE],
 		['Einstellungen', SettingsPage::class, Capabilities::MANAGE],
 	];
 

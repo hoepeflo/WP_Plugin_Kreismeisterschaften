@@ -57,6 +57,16 @@ final class Settings {
 			'buchung_erinnerung_tage'        => 3,
 			// Phase 2: Aktualisierungsintervall des Buchungsrasters in Sekunden.
 			'buchung_raster_intervall'       => 10,
+			// Externe Sicherung (docs/SICHERUNG.md): Zeitraum (Y-m-d, leer = offen), Uhrzeit der
+			// täglichen Sicherung, Briefkasten auf dem zweiten Webspace, öffentlicher Schlüssel.
+			'sicherung_aktiv'                => false,
+			'sicherung_von'                  => '',
+			'sicherung_bis'                  => '',
+			'sicherung_uhrzeit'              => '03:00',
+			'sicherung_ziel_url'             => '',
+			'sicherung_ziel_token'           => '',
+			'sicherung_schluessel'           => '',
+			'sicherung_lokal_tage'           => 14,
 			// Deinstallation: Tabellen und Optionen löschen.
 			'daten_bei_deinstallation_loeschen' => false,
 		];

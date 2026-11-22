@@ -13,6 +13,7 @@ use KSV\KMM\Admin\Menu;
 use KSV\KMM\Application\App\KmApp;
 use KSV\KMM\Application\Erinnerung;
 use KSV\KMM\Application\Sammelmail;
+use KSV\KMM\Application\Sicherung\Sicherung;
 use KSV\KMM\Application\StartplanService;
 use KSV\KMM\Application\Revalidierung;
 use KSV\KMM\Auth\Capabilities;
@@ -56,6 +57,7 @@ final class Plugin {
 		Sammelmail::register();
 		StartplanService::register();
 		KmApp::register();
+		Sicherung::register();
 		Shortcode::register();
 
 		if (is_admin()) {
