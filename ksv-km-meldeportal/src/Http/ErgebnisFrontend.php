@@ -24,6 +24,7 @@ use KSV\KMM\Infrastructure\Ergebnisablage;
 use KSV\KMM\Infrastructure\Repository\DokumentRepository;
 use KSV\KMM\Infrastructure\Repository\ErgebnisRepository;
 use KSV\KMM\Infrastructure\Repository\SportjahrRepository;
+use KSV\KMM\Support\Clock;
 use KSV\KMM\Support\ErgebnisEinstellungen;
 
 final class ErgebnisFrontend {
@@ -289,100 +290,97 @@ final class ErgebnisFrontend {
 			$jahr = $jahre[0] ?? (int) gmdate('Y');
 		}
 		$einzeln = self::ergebnis_anfrage();
-		ob_start();
-		echo '<div class="kmm-erg-front">';
 		if ($einzeln !== null && $einzeln['format'] !== 'pdf') {
-			self::einzelansicht($einzeln);
-		} else {
-			self::jahresansicht($jahr, $jahre, self::sparte_anfrage());
+			$titel = trim(implode(' · ', array_filter([trim((string) $einzeln['kennzahl'] . ' ' . (string) $einzeln['disziplin_text']), (string) $einzeln['klasse_text'], $einzeln['art'] === 'm' ? __('Mannschaft', 'ksv-km-meldeportal') : __('Einzel', 'ksv-km-meldeportal')])));
+			return ErgebnisAnsicht::einzeln(
+				$titel,
+				self::url((int) $einzeln['jahr']),
+				sprintf(__('Alle Ergebnisse %d', 'ksv-km-meldeportal'), (int) $einzeln['jahr']),
+				self::ergebnis_url($einzeln, new Ergebnisablage(), true)
+			);
 		}
-		echo '</div>';
-		return (string) ob_get_clean();
+		return ErgebnisAnsicht::jahr(self::modell($jahr, $jahre, self::sparte_anfrage()));
 	}
 
 	/**
-	 * @param array<string, mixed> $r
-	 */
-	private static function einzelansicht(array $r): void {
-		$ablage = new Ergebnisablage();
-		$titel = trim(implode(' · ', array_filter([(string) $r['kennzahl'] . ' ' . (string) $r['disziplin_text'], (string) $r['klasse_text'], $r['art'] === 'm' ? __('Mannschaft', 'ksv-km-meldeportal') : __('Einzel', 'ksv-km-meldeportal')])));
-		echo '<p class="kmm-erg-zurueck"><a href="' . esc_url(self::url((int) $r['jahr'])) . '">← ' . esc_html(sprintf(__('Alle Ergebnisse %d', 'ksv-km-meldeportal'), (int) $r['jahr'])) . '</a></p>';
-		echo '<h2>' . esc_html($titel) . '</h2>';
-		echo '<iframe class="kmm-erg-iframe" src="' . esc_url(self::ergebnis_url($r, $ablage, true)) . '" title="' . esc_attr($titel) . '" loading="lazy" sandbox referrerpolicy="no-referrer"></iframe>';
-	}
-
-	/**
+	 * Aufbereitete Daten für ErgebnisAnsicht::jahr().
+	 *
 	 * @param list<int> $jahre
+	 * @return array<string, mixed>
 	 */
-	private static function jahresansicht(int $jahr, array $jahre, int $sparte): void {
+	private static function modell(int $jahr, array $jahre, int $sparte): array {
 		$ablage = new Ergebnisablage();
-		echo '<div class="kmm-erg-kopf"><h2>' . esc_html(sprintf(__('Kreismeisterschaften %d', 'ksv-km-meldeportal'), $jahr)) . '</h2>';
-		if (count($jahre) > 1) {
-			echo '<label class="kmm-erg-jahrwahl">' . esc_html__('Jahr', 'ksv-km-meldeportal') . ' <select onchange="if(this.value){location.href=this.value;}">';
-			foreach ($jahre as $j) {
-				echo '<option value="' . esc_url(self::url($j, $sparte)) . '"' . selected($j, $jahr, false) . '>' . (int) $j . '</option>';
-			}
-			echo '</select></label>';
-		}
-		echo '</div>';
+		$datum = static fn(string $stand): string => $stand === '' ? '' : (string) wp_date('d.m.Y', (int) strtotime($stand . ' UTC'));
+		$verweis = static fn(array $r): array => ['url' => self::ergebnis_url($r, $ablage), 'format' => (string) $r['format']];
 
-		self::unterlagen($jahr);
-
-		$zeilen = (new ErgebnisRepository())->by_jahr($jahr, ErgebnisRepository::STATUS_SICHTBAR);
-		if ($zeilen === []) {
-			echo '<p class="kmm-erg-leer">' . esc_html__('Für dieses Jahr sind noch keine Ergebnisse veröffentlicht.', 'ksv-km-meldeportal') . '</p>';
-			return;
+		$gruppen = [];
+		$sparten = [];
+		$anzahl = 0;
+		foreach (self::gruppieren((new ErgebnisRepository())->by_jahr($jahr, ErgebnisRepository::STATUS_SICHTBAR)) as $g) {
+			$klassen = [];
+			foreach ($g['klassen'] as $klasse => $arten) {
+				$erste = $arten['e'] ?? $arten['m'];
+				$stand = max(array_map(static fn(array $r): string => (string) ($r['datei_stand'] ?? ''), $arten));
+				$klassen[] = [
+					'klasse' => (string) $klasse,
+					'spo'    => str_replace('_', '.', (string) $erste['schluessel']),
+					'stand'  => $datum($stand),
+					'e'      => isset($arten['e']) ? $verweis($arten['e']) : null,
+					'm'      => isset($arten['m']) ? $verweis($arten['m']) : null,
+				];
+			}
+			$sammel = [];
+			foreach ($g['sammel'] as $art => $r) {
+				$sammel[] = ['art' => (string) $art] + $verweis($r);
+			}
+			$gruppen[] = [
+				'sparte'       => $g['sparte'],
+				'sparte_label' => Kategorie::label($g['sparte']),
+				'kennzahl'     => $g['kennzahl'],
+				'text'         => $g['text'],
+				'sammel'       => $sammel,
+				'klassen'      => $klassen,
+			];
+			if (!isset($sparten[ $g['sparte'] ])) {
+				$sparten[ $g['sparte'] ] = ['label' => Kategorie::label($g['sparte']), 'url' => self::url($jahr, $g['sparte']), 'anzahl' => 0];
+			}
+			$sparten[ $g['sparte'] ]['anzahl']++;
+			$anzahl++;
 		}
-		$gruppen = self::gruppieren($zeilen);
-		$sparten = array_values(array_unique(array_map(static fn(array $g): int => $g['sparte'], $gruppen)));
-		sort($sparten);
+		ksort($sparten);
 
-		echo '<nav class="kmm-erg-sparten" aria-label="' . esc_attr__('Sparten', 'ksv-km-meldeportal') . '">';
-		echo '<a href="' . esc_url(self::url($jahr)) . '"' . ($sparte === 0 ? ' aria-current="page"' : '') . '>' . esc_html__('Alle', 'ksv-km-meldeportal') . '</a>';
-		foreach ($sparten as $k) {
-			echo '<a href="' . esc_url(self::url($jahr, $k)) . '"' . ($sparte === $k ? ' aria-current="page"' : '') . '>' . esc_html(Kategorie::label($k)) . '</a>';
+		$jahr_urls = [];
+		foreach ($jahre as $j) {
+			$jahr_urls[ $j ] = self::url($j);
 		}
-		echo '</nav>';
-		echo '<p class="kmm-erg-suchzeile"><input type="search" class="kmm-erg-suche" placeholder="' . esc_attr__('Disziplin oder Klasse suchen', 'ksv-km-meldeportal') . '" aria-label="' . esc_attr__('Ergebnisse durchsuchen', 'ksv-km-meldeportal') . '"></p>';
 
-		$aktuelle = null;
-		foreach ($gruppen as $g) {
-			if ($sparte > 0 && $g['sparte'] !== $sparte) {
-				continue;
-			}
-			if ($aktuelle !== $g['sparte']) {
-				$aktuelle = $g['sparte'];
-				echo '<h3 class="kmm-erg-sparte">' . esc_html(Kategorie::label($aktuelle)) . '</h3>';
-			}
-			echo '<section class="kmm-erg-disziplin" data-suche="' . esc_attr(mb_strtolower($g['titel'] . ' ' . implode(' ', array_keys($g['klassen'])))) . '">';
-			echo '<header><h4><span class="kmm-erg-kz">' . esc_html($g['kennzahl']) . '</span> ' . esc_html($g['text']) . '</h4>';
-			if ($g['sammel'] !== []) {
-				echo '<span class="kmm-erg-gesamt">';
-				foreach ($g['sammel'] as $art => $r) {
-					echo '<a class="kmm-erg-btn is-gesamt" href="' . esc_url(self::ergebnis_url($r, $ablage)) . '">' . esc_html($art === 'm' ? __('Gesamtergebnis Mannschaft', 'ksv-km-meldeportal') : __('Gesamtergebnis', 'ksv-km-meldeportal')) . '</a>';
-				}
-				echo '</span>';
-			}
-			echo '</header>';
-			if ($g['klassen'] !== []) {
-				echo '<ul class="kmm-erg-klassen">';
-				foreach ($g['klassen'] as $klasse => $arten) {
-					echo '<li data-suche="' . esc_attr(mb_strtolower((string) $klasse)) . '"><span class="kmm-erg-klasse">' . esc_html((string) $klasse) . '</span><span class="kmm-erg-btns">';
-					foreach (['e' => __('Einzel', 'ksv-km-meldeportal'), 'm' => __('Mannschaft', 'ksv-km-meldeportal')] as $art => $label) {
-						if (isset($arten[ $art ])) {
-							echo '<a class="kmm-erg-btn" href="' . esc_url(self::ergebnis_url($arten[ $art ], $ablage)) . '">' . esc_html($label) . '</a>';
-						}
-					}
-					echo '</span></li>';
-				}
-				echo '</ul>';
-			}
-			if ($g['stand'] !== '') {
-				echo '<p class="kmm-erg-datum">' . esc_html(sprintf(__('Stand: %s', 'ksv-km-meldeportal'), wp_date(get_option('date_format', 'd.m.Y'), (int) strtotime($g['stand'] . ' UTC')))) . '</p>';
-			}
-			echo '</section>';
-		}
-		self::suchskript();
+		return [
+			'jahr'       => $jahr,
+			'jahre'      => $jahr_urls,
+			'sparte'     => isset($sparten[ $sparte ]) ? $sparte : 0,
+			'sparten'    => $sparten,
+			'alle_url'   => self::url($jahr),
+			'anzahl'     => $anzahl,
+			'unterlagen' => self::unterlagen($jahr),
+			'portal'     => self::portal(),
+			'gruppen'    => $gruppen,
+		];
+	}
+
+	/**
+	 * Einstieg ins Meldeportal: dessen Startseite bietet ohne Anmeldung nur „Link zusenden“.
+	 *
+	 * @return array{url: string, meldeschluss: string, bezeichnung: string}
+	 */
+	private static function portal(): array {
+		$sj = (new SportjahrRepository())->aktiv();
+		$offen = $sj !== null && !Testjahr::ist_testjahr($sj) && $sj['meldeschluss'] !== null && $sj['abgeschlossen_am'] === null
+			&& strtotime((string) $sj['meldeschluss'] . ' UTC') > time();
+		return [
+			'url'          => Router::url(),
+			'meldeschluss' => $offen ? Clock::format_local((string) $sj['meldeschluss']) : '',
+			'bezeichnung'  => $offen ? (string) $sj['bezeichnung'] : '',
+		];
 	}
 
 	/**
@@ -421,55 +419,55 @@ final class ErgebnisFrontend {
 		return array_values($gruppen);
 	}
 
-	private static function unterlagen(int $jahr): void {
-		$dokumente = (new Dokumente())->oeffentlich($jahr);
-		$tage = [];
+	/**
+	 * Unterlagen eines Jahres als Kacheln: Ausschreibungen, Pläne, Startpläne, Lichtschießen.
+	 *
+	 * @return list<array{titel: string, url: string, icon: string, hinweis: string, extern: bool}>
+	 */
+	private static function unterlagen(int $jahr): array {
+		$icons = [
+			Dokumente::TYP_DISZIPLINENPLAN  => 'tabelle',
+			Dokumente::TYP_JAHRGANGSTABELLE => 'tabelle',
+			Dokumente::TYP_TERMINPLAN       => 'kalender',
+			Dokumente::TYP_LICHT            => 'licht',
+		];
+		$typen = Dokumente::typen();
+		$vorne = [];
+		$licht = [];
+		foreach ((new Dokumente())->oeffentlich($jahr) as $d) {
+			$typ = (string) $d['typ'];
+			if ($typ === Dokumente::TYP_LICHT) {
+				$titel = trim((string) $d['titel']) !== '' ? (string) $d['titel'] : (string) preg_replace('/\.[a-z0-9]+$/i', '', basename((string) $d['url']));
+				$hinweis = $typen[ $typ ];
+			} else {
+				$titel = (string) $d['anzeige'];
+				$hinweis = $typ === Dokumente::TYP_KATEGORIE && !empty($d['kategorie']) ? Kategorie::label((int) $d['kategorie']) : ($typen[ $typ ] ?? '');
+				if ($hinweis === $titel) {
+					$hinweis = __('PDF', 'ksv-km-meldeportal');
+				}
+			}
+			$kachel = ['titel' => $titel, 'url' => (string) $d['link'], 'icon' => $icons[ $typ ] ?? 'dokument', 'hinweis' => $hinweis, 'extern' => true];
+			if ($typ === Dokumente::TYP_LICHT) {
+				$licht[] = $kachel;
+			} else {
+				$vorne[] = $kachel;
+			}
+		}
 		$sj = (new SportjahrRepository())->by_jahr($jahr);
 		if ($sj !== null && !Testjahr::ist_testjahr($sj)) {
 			foreach (StartplanAnsicht::tage((int) $sj['id']) as $tag) {
 				$url = !empty($tag['beitrag_id']) && get_post_status((int) $tag['beitrag_id']) === 'publish' ? get_permalink((int) $tag['beitrag_id']) : false;
 				if (is_string($url)) {
-					$tage[] = ['url' => $url, 'text' => trim(wp_date('d.m.Y', (int) strtotime((string) $tag['datum'] . ' 12:00 UTC')) . ' ' . (string) $tag['bezeichnung'])];
+					$vorne[] = [
+						'titel'   => trim((string) wp_date('d.m.Y', (int) strtotime((string) $tag['datum'] . ' 12:00 UTC')) . ' ' . (string) $tag['bezeichnung']),
+						'url'     => $url,
+						'icon'    => 'kalender',
+						'hinweis' => __('Startplan', 'ksv-km-meldeportal'),
+						'extern'  => false,
+					];
 				}
 			}
 		}
-		if ($dokumente === [] && $tage === []) {
-			return;
-		}
-		echo '<div class="kmm-erg-unterlagen">';
-		$allgemein = array_filter($dokumente, static fn(array $d): bool => $d['typ'] !== Dokumente::TYP_LICHT);
-		$licht = array_filter($dokumente, static fn(array $d): bool => $d['typ'] === Dokumente::TYP_LICHT);
-		if ($allgemein !== []) {
-			echo '<h3>' . esc_html__('Ausschreibungen und Unterlagen', 'ksv-km-meldeportal') . '</h3><ul>';
-			foreach ($allgemein as $d) {
-				echo '<li><a href="' . esc_url((string) $d['link']) . '" target="_blank" rel="noopener">' . esc_html((string) $d['anzeige']) . '</a></li>';
-			}
-			echo '</ul>';
-		}
-		if ($tage !== []) {
-			echo '<h3>' . esc_html__('Startpläne', 'ksv-km-meldeportal') . '</h3><ul>';
-			foreach ($tage as $t) {
-				echo '<li><a href="' . esc_url($t['url']) . '">' . esc_html($t['text']) . '</a></li>';
-			}
-			echo '</ul>';
-		}
-		if ($licht !== []) {
-			echo '<h3>' . esc_html__('Lichtschießen', 'ksv-km-meldeportal') . '</h3><ul>';
-			foreach ($licht as $d) {
-				echo '<li><a href="' . esc_url((string) $d['link']) . '" target="_blank" rel="noopener">' . esc_html(basename((string) $d['url'])) . '</a></li>';
-			}
-			echo '</ul>';
-		}
-		echo '</div>';
-	}
-
-	private static function suchskript(): void {
-		echo '<script>(function(){var s=document.querySelector(".kmm-erg-front .kmm-erg-suche");if(!s){return;}
-s.addEventListener("input",function(){var q=s.value.toLowerCase().trim();
-document.querySelectorAll(".kmm-erg-front .kmm-erg-disziplin").forEach(function(d){
-var kopf=!q||d.querySelector("h4").textContent.toLowerCase().indexOf(q)!==-1,n=0;
-d.querySelectorAll("li").forEach(function(li){var an=kopf||li.dataset.suche.indexOf(q)!==-1;li.hidden=!an;if(an){n++;}});
-d.hidden=!kopf&&n===0;});
-});})();</script>';
+		return array_merge($vorne, $licht);
 	}
 }
