@@ -101,4 +101,37 @@
 			b.form.requestSubmit(b);
 		}
 	}, true);
+
+	// Reiter innerhalb eines Formulars ([data-kmm-reiter]): alle Felder bleiben im Formular,
+	// es wird nur einer der Bereiche gezeigt. Ohne JavaScript sind alle Bereiche sichtbar.
+	document.querySelectorAll('[data-kmm-reiter]').forEach((box) => {
+		const links = Array.from(box.querySelectorAll('.kmm-reiter-nav a[href^="#"]'));
+		const bereiche = links.map((a) => box.querySelector(a.getAttribute('href'))).filter(Boolean);
+		if (!links.length || bereiche.length !== links.length) {
+			return;
+		}
+		const zeigen = (id, fokus) => {
+			links.forEach((a) => {
+				const aktiv = a.getAttribute('href') === '#' + id;
+				a.classList.toggle('nav-tab-active', aktiv);
+				if (aktiv) { a.setAttribute('aria-current', 'page'); } else { a.removeAttribute('aria-current'); }
+			});
+			bereiche.forEach((b) => { b.hidden = b.id !== id; });
+			const merker = box.querySelector('input[name=kmm_reiter]');
+			if (merker) { merker.value = id; }
+			if (fokus) { history.replaceState(null, '', '#' + id); }
+		};
+		links.forEach((a) => a.addEventListener('click', (ev) => {
+			ev.preventDefault();
+			zeigen(a.getAttribute('href').slice(1), true);
+		}));
+		// Ungültige Eingabe in einem versteckten Bereich: dorthin wechseln, damit der Hinweis sichtbar wird.
+		box.addEventListener('invalid', (ev) => {
+			const b = ev.target.closest('.kmm-reiter-inhalt');
+			if (b && b.hidden) { zeigen(b.id, true); }
+		}, true);
+		const start = location.hash.slice(1);
+		zeigen(bereiche.some((b) => b.id === start) ? start : bereiche[0].id, false);
+		box.classList.add('kmm-reiter-aktiv');
+	});
 })();

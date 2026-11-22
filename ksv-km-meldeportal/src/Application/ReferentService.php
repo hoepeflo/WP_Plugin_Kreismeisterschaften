@@ -62,7 +62,7 @@ final class ReferentService {
 	/**
 	 * Referenten anlegen oder ändern.
 	 *
-	 * @param array{darf_status?: bool, darf_meldungen?: bool, darf_startplan?: bool} $rechte
+	 * @param array{darf_status?: bool, darf_meldungen?: bool, darf_startplan?: bool, darf_ergebnisse?: bool} $rechte
 	 * @param list<string> $gruppen     Codes der Wettbewerbsgruppen
 	 * @param list<string> $disziplinen Kennzahlen
 	 * @return int Referenten-ID
@@ -86,6 +86,7 @@ final class ReferentService {
 			'darf_status'    => !empty($rechte['darf_status']),
 			'darf_meldungen' => !empty($rechte['darf_meldungen']),
 			'darf_startplan' => !empty($rechte['darf_startplan']),
+			'darf_ergebnisse' => !empty($rechte['darf_ergebnisse']),
 			'notiz'          => mb_substr(trim($notiz), 0, 255),
 			'updated_at'     => Clock::now_utc(),
 		];
@@ -112,7 +113,7 @@ final class ReferentService {
 		$user->add_cap(Capabilities::VIEW);
 		$user->add_cap(Capabilities::REFERENT);
 		Rechte::cache_leeren();
-		$rechte_text = implode(', ', array_keys(array_filter(['Status' => $satz['darf_status'], 'Meldungen' => $satz['darf_meldungen'], 'Startplan' => $satz['darf_startplan']])));
+		$rechte_text = implode(', ', array_keys(array_filter(['Status' => $satz['darf_status'], 'Meldungen' => $satz['darf_meldungen'], 'Startplan' => $satz['darf_startplan'], 'Ergebnisse' => $satz['darf_ergebnisse']])));
 		Protokoll::admin($aktion, sprintf('%s: Gruppen [%s], Disziplinen [%s], Rechte [%s]', $user->display_name, implode(', ', $gruppen), implode(', ', $disziplinen), $rechte_text !== '' ? $rechte_text : 'nur lesen'), null, null, 'referent', $id, ['user_id' => $user_id]);
 		return $id;
 	}

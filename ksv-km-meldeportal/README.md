@@ -32,7 +32,7 @@ Verbindliche Grundlage ist das Konzept unter `docs/KM-Meldeportal_Konzept.md`.
 | Query-Var / Route | `kmm_route`, Standard `/km-meldung/` |
 | Text-Domain | `ksv-km-meldeportal` |
 | Cookie | `kmm_sitzung` |
-| Shortcode | `kmm_startplan` |
+| Shortcode | `kmm_startplan`, `kmm_ergebnisse` (mit Schalter „Anzeige übernehmen“ auch `srd_km`, siehe `docs/ERGEBNISSE-INTEGRATION.md`) |
 
 ## Entwicklung
 

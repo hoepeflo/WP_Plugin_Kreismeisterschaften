@@ -748,3 +748,58 @@ button.kmm-sp-zelle:active:not(:disabled) { transform: scale(.97); }
 	.kmm-dialog[open] { transition: opacity 180ms ease; }
 	@starting-style { .kmm-dialog[open] { transform: none; } }
 }
+
+/* ----- Suche und Filter für große Vereine (UX-Review F4) ---------------------------------- */
+.kmm [hidden] { display: none !important; }
+.kmm .kmm-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.kmm .kmm-suchleiste { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 4px 0 14px; }
+.kmm .kmm-suche { flex: 1 1 260px; max-width: 420px; margin: 0; }
+.kmm .kmm-suche input, .kmm .kmm-form input.kmm-melden-suche {
+	width: 100%; padding: 10px 12px 10px 38px; font: inherit; font-size: 16px; min-height: 44px; box-sizing: border-box;
+	color: var(--kmm-text); border: 1px solid var(--kmm-border-stark); border-radius: var(--kmm-radius-s);
+	background: var(--kmm-surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='none' stroke='%235f6b5a' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='8' cy='8' r='6'/%3E%3Cpath d='m13 13 4 4'/%3E%3C/svg%3E") no-repeat 12px center;
+}
+.kmm .kmm-suche input:focus, .kmm .kmm-melden-suche:focus { outline: none; border-color: var(--kmm-primary); box-shadow: 0 0 0 3px var(--kmm-primary-weich); }
+.kmm .kmm-melden-suche { max-width: 440px; margin: 0 0 8px; display: block; }
+.kmm .kmm-filter-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.kmm .kmm-chip {
+	font: inherit; font-size: 13px; font-weight: 600; padding: 7px 12px; min-height: 36px; border-radius: 999px; cursor: pointer;
+	border: 1px solid var(--kmm-border-stark); background: var(--kmm-surface); color: var(--kmm-text-2);
+}
+.kmm .kmm-chip:hover { border-color: var(--kmm-primary); color: var(--kmm-primary); }
+.kmm .kmm-chip[aria-pressed="true"] { background: var(--kmm-primary); border-color: var(--kmm-primary); color: var(--kmm-primary-contrast); }
+.kmm .kmm-suche-treffer { font-size: 13px; }
+.kmm .kmm-check-klein { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--kmm-text-2); cursor: pointer; }
+.kmm .kmm-check-klein input { width: 18px; height: 18px; accent-color: var(--kmm-primary); }
+
+/* Para-Klasse: zugeklappt, solange sie nicht gebraucht wird */
+.kmm details.kmm-para { margin-top: 6px; }
+.kmm details.kmm-para > summary { font-size: 13px; color: var(--kmm-muted); cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: 4px; min-height: 32px; }
+.kmm details.kmm-para > summary::-webkit-details-marker { display: none; }
+.kmm details.kmm-para > summary::before { content: "+"; font-weight: 700; width: 14px; text-align: center; }
+.kmm details.kmm-para[open] > summary::before { content: "–"; }
+.kmm details.kmm-para > summary:hover { color: var(--kmm-primary); }
+
+/* Ansprechpartner: speichert beim Verlassen eines Feldes (F5) */
+.kmm .kmm-autosave { font-size: 13px; color: var(--kmm-muted); margin: 2px 0 0; min-height: 20px; }
+.kmm .kmm-autosave.is-ok { color: var(--kmm-ok); font-weight: 600; }
+.kmm .kmm-autosave.is-offen { color: var(--kmm-warn); }
+.kmm .kmm-autosave.is-fehler { color: var(--kmm-error); }
+.kmm .kmm-countdown strong { font-weight: 700; }
+
+/* ----- Startseite ohne Sitzung (UX-Review F6) ------------------------------------------- */
+.kmm .kmm-willkommen { max-width: 720px; }
+.kmm .kmm-willkommen-intro { font-size: 17px; }
+.kmm .kmm-ablauf { list-style: none; counter-reset: schritt; padding: 0; margin: 20px 0; display: grid; gap: 12px; }
+.kmm .kmm-ablauf li { counter-increment: schritt; display: grid; grid-template-columns: 34px 1fr; column-gap: 12px; align-items: start; }
+.kmm .kmm-ablauf li::before {
+	content: counter(schritt); grid-row: span 2; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+	background: var(--kmm-primary-weich); color: var(--kmm-primary); font-weight: 700;
+}
+.kmm .kmm-ablauf strong { display: block; color: var(--kmm-titel); }
+.kmm .kmm-ablauf span { color: var(--kmm-muted); font-size: 14px; }
+.kmm .kmm-link-box { border-top: 1px solid var(--kmm-border); margin-top: 22px; padding-top: 18px; }
+.kmm .kmm-link-box h2 { font-size: 18px; margin: 0 0 6px; }
+.kmm .kmm-link-zeile { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.kmm .kmm-link-form .kmm-link-zeile input { flex: 1 1 240px; margin-bottom: 0; }
+.kmm .kmm-link-zeile .kmm-button { flex: 0 0 auto; }

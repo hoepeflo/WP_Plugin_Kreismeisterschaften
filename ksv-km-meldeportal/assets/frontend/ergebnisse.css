@@ -1,0 +1,30 @@
+/* KM-Portal: öffentliche Ergebnisanzeige ([kmm_ergebnisse] / [srd_km]) */
+.kmm-erg-front { --kmm-gruen: #2f6806; --kmm-rand: #d9dfd4; --kmm-hell: #f3f7ef; max-width: 1100px; }
+.kmm-erg-front .kmm-erg-kopf { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.kmm-erg-front .kmm-erg-kopf h2 { margin: 0; }
+.kmm-erg-front .kmm-erg-jahrwahl select { min-width: 6em; padding: 4px 8px; }
+.kmm-erg-front .kmm-erg-unterlagen { background: var(--kmm-hell); border-left: 4px solid var(--kmm-gruen); padding: 8px 16px; margin: 16px 0; }
+.kmm-erg-front .kmm-erg-unterlagen h3 { font-size: 1.05em; margin: 8px 0 4px; }
+.kmm-erg-front .kmm-erg-unterlagen ul { margin: 0 0 8px 1.2em; }
+.kmm-erg-front .kmm-erg-sparten { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 8px; }
+.kmm-erg-front .kmm-erg-sparten a { padding: 4px 12px; border: 1px solid var(--kmm-gruen); border-radius: 999px; color: var(--kmm-gruen); text-decoration: none; }
+.kmm-erg-front .kmm-erg-sparten a[aria-current] { background: var(--kmm-gruen); color: #fff; }
+.kmm-erg-front .kmm-erg-suche { width: 100%; max-width: 360px; padding: 6px 10px; }
+.kmm-erg-front .kmm-erg-sparte { margin: 28px 0 8px; color: var(--kmm-gruen); }
+.kmm-erg-front .kmm-erg-disziplin { border: 1px solid var(--kmm-rand); border-radius: 6px; margin: 0 0 10px; overflow: hidden; }
+.kmm-erg-front .kmm-erg-disziplin > header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; background: var(--kmm-hell); padding: 8px 12px; }
+.kmm-erg-front .kmm-erg-disziplin h4 { margin: 0; font-size: 1em; }
+.kmm-erg-front .kmm-erg-kz { font-variant-numeric: tabular-nums; color: var(--kmm-gruen); margin-right: 6px; }
+.kmm-erg-front .kmm-erg-klassen { list-style: none; margin: 0; padding: 0; }
+.kmm-erg-front .kmm-erg-klassen li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 12px; border-top: 1px solid var(--kmm-rand); }
+.kmm-erg-front .kmm-erg-btns, .kmm-erg-front .kmm-erg-gesamt { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.kmm-erg-front .kmm-erg-btn { display: inline-block; padding: 3px 12px; border: 1px solid var(--kmm-gruen); border-radius: 4px; color: var(--kmm-gruen); text-decoration: none; font-size: .92em; }
+.kmm-erg-front .kmm-erg-btn:hover, .kmm-erg-front .kmm-erg-btn:focus { background: var(--kmm-gruen); color: #fff; }
+.kmm-erg-front .kmm-erg-btn.is-gesamt { background: var(--kmm-gruen); color: #fff; }
+.kmm-erg-front .kmm-erg-datum { margin: 0; padding: 4px 12px 8px; font-size: .85em; color: #555; }
+.kmm-erg-front .kmm-erg-iframe { width: 100%; min-height: 75vh; border: 1px solid var(--kmm-rand); }
+.kmm-erg-front [hidden] { display: none !important; }
+@media (max-width: 600px) {
+	.kmm-erg-front .kmm-erg-klassen li { flex-direction: column; align-items: flex-start; }
+	.kmm-erg-front .kmm-erg-btn { padding: 6px 14px; }
+}

@@ -56,7 +56,8 @@ final class StammdatenPage extends AdminPage {
 					self::redirect(__('Disziplin gelöscht.', 'ksv-km-meldeportal'), 'success', $args);
 				case 'disziplinen_schnell':
 					$n = self::save_disziplinen_schnell($sportjahr_id);
-					self::redirect($n > 0 ? sprintf(__('%d Disziplinen geändert. Bestehende Meldungen werden neu geprüft.', 'ksv-km-meldeportal'), $n) : __('Keine Änderungen.', 'ksv-km-meldeportal'), 'success', $args);
+					$anker = sanitize_key(self::post_str('anker', 30));
+					self::redirect($n > 0 ? sprintf(_n('%d Disziplin geändert. Bestehende Meldungen werden neu geprüft.', '%d Disziplinen geändert. Bestehende Meldungen werden neu geprüft.', $n, 'ksv-km-meldeportal'), $n) : __('Keine Änderungen.', 'ksv-km-meldeportal'), 'success', $args, str_starts_with($anker, 'kmm-d-') ? $anker : '');
 				case 'regeln_speichern':
 					$n = self::save_regeln($sportjahr_id, self::post_int('disziplin_id'));
 					self::redirect(sprintf(__('%d Regeln gespeichert. Bestehende Meldungen werden neu geprüft.', 'ksv-km-meldeportal'), $n), 'success', $args + ['disziplin' => self::post_int('disziplin_id')]);
@@ -271,8 +272,13 @@ final class StammdatenPage extends AdminPage {
 		$schnell_id = 'kmm-disziplinen-schnell';
 		self::form_open('disziplinen_schnell', 'id="' . $schnell_id . '" class="kmm-inline-form"');
 		echo '<input type="hidden" name="sportjahr_id" value="' . $sid . '"><input type="hidden" name="tab" value="disziplinen">';
-		submit_button(__('Änderungen an Angeboten / Ergebnis speichern', 'ksv-km-meldeportal'), 'secondary', 'submit', false, ['id' => 'kmm-schnell-speichern']);
-		echo ' <span class="description" id="kmm-schnell-hinweis">' . esc_html__('Änderungen in den Spalten „Angeboten“ und „Ergebnis“ werden direkt gespeichert.', 'ksv-km-meldeportal') . '</span></form>';
+		echo '<input type="hidden" name="anker" value="">';
+		// Ein Bearbeitungsweg: Häkchen und Ergebnisart speichern sofort, alles andere über „Bearbeiten“.
+		// Ohne JavaScript bleibt ein Speichern-Button.
+		echo '<noscript>';
+		submit_button(__('Änderungen an Angeboten / Ergebnis speichern', 'ksv-km-meldeportal'), 'secondary', 'submit', false);
+		echo '</noscript>';
+		echo '<p class="description kmm-schnell-hinweis" id="kmm-schnell-hinweis" role="status">' . esc_html__('„Angeboten“ und „Ergebnis“ lassen sich direkt in der Tabelle ändern und werden sofort gespeichert. Alles andere über „Bearbeiten“.', 'ksv-km-meldeportal') . '</p></form>';
 		$format_options = [];
 		foreach (ErgebnisFormat::ALLE as $f) {
 			$format_options[ $f ] = ErgebnisFormat::label($f);
@@ -280,7 +286,7 @@ final class StammdatenPage extends AdminPage {
 		echo '<table class="widefat striped"><thead><tr><th>Kennzahl</th><th>Bezeichnung</th><th>Gruppe</th><th>Typ</th><th>Angeboten</th><th>Mannsch.</th><th>Ergebnis</th><th>Tarif</th><th>M.-Startgeld</th><th>Regeln</th><th></th></tr></thead><tbody>';
 		foreach ($list as $d) {
 			$id = (int) $d['id'];
-			echo '<tr' . ($d['angeboten'] ? '' : ' class="kmm-muted"') . '>';
+			echo '<tr id="kmm-d-' . $id . '"' . ($d['angeboten'] ? '' : ' class="kmm-muted"') . '>';
 			echo '<td><strong>' . esc_html((string) $d['kennzahl']) . '</strong></td>';
 			echo '<td>' . esc_html((string) $d['bezeichnung']) . '</td>';
 			echo '<td>' . esc_html($gruppen[ (int) $d['gruppe_id'] ] ?? '?') . '</td>';
@@ -298,8 +304,8 @@ final class StammdatenPage extends AdminPage {
 			echo '</form></td></tr>';
 		}
 		echo '</tbody></table>';
-		// Direkt speichern, sobald ein Feld geändert wird (ohne JavaScript bleibt der Button).
-		echo '<script>(function(){var f=document.getElementById("' . $schnell_id . '");if(!f)return;document.querySelectorAll("[form=\'' . $schnell_id . '\']").forEach(function(el){el.addEventListener("change",function(){document.getElementById("kmm-schnell-hinweis").textContent="' . esc_js(__('Speichern …', 'ksv-km-meldeportal')) . '";f.requestSubmit?f.requestSubmit():f.submit();});});})();</script>';
+		// Direkt speichern, sobald ein Feld geändert wird; danach springt die Seite zur geänderten Zeile.
+		echo '<script>(function(){var f=document.getElementById("' . $schnell_id . '");if(!f)return;document.querySelectorAll("[form=\'' . $schnell_id . '\']").forEach(function(el){el.addEventListener("change",function(){var tr=el.closest("tr");f.querySelector("[name=anker]").value=tr?tr.id:"";document.getElementById("kmm-schnell-hinweis").textContent="' . esc_js(__('Wird gespeichert …', 'ksv-km-meldeportal')) . '";document.querySelectorAll("[form=\'' . $schnell_id . '\']").forEach(function(x){if(x!==el&&x.type!=="hidden"){x.style.pointerEvents="none";}});f.requestSubmit?f.requestSubmit():f.submit();});});})();</script>';
 	}
 
 	/**

@@ -22,6 +22,9 @@ final class Rechte {
 	public const RECHT_MELDUNGEN = 'darf_meldungen';
 	public const RECHT_STARTPLAN = 'darf_startplan';
 
+	/** Ergebnisse hochladen und verwalten – gilt für alle Disziplinen (Entscheidung vom 22.11.2026). */
+	public const RECHT_ERGEBNISSE = 'darf_ergebnisse';
+
 	/** @var array<int, array<string, mixed>|null> */
 	private static array $cache = [];
 

@@ -1,0 +1,38 @@
+/* KM-Portal: Backend-Seite Ergebnisse */
+.kmm-erg .kmm-inline { display: inline-block; margin: 0 4px 2px 0; vertical-align: middle; }
+.kmm-erg .kmm-link-danger { color: #b32d2e; }
+.kmm-erg .kmm-erg-jahr { margin: 12px 0; }
+.kmm-erg .kmm-erg-ablage { background: #fff; border: 1px solid #c3c4c7; border-radius: 4px; padding: 4px 16px 16px; margin: 16px 0; }
+.kmm-erg .kmm-erg-dropzone { display: inline-flex; align-items: center; gap: 8px; border: 2px dashed #8c8f94; border-radius: 6px; padding: 16px; margin-right: 8px; background: #f6f7f7; }
+.kmm-erg .kmm-erg-stand progress { width: 220px; vertical-align: middle; accent-color: #2f6806; }
+.kmm-erg .kmm-erg-filter input[type=search] { width: 280px; }
+.kmm-erg .kmm-erg-sparte { margin: 24px 0 6px; }
+.kmm-erg .kmm-erg-disziplin { background: #fff; border: 1px solid #dcdcde; margin: 0 0 4px; }
+.kmm-erg .kmm-erg-disziplin > summary { cursor: pointer; padding: 8px 12px; font-weight: 600; }
+.kmm-erg .kmm-erg-kz { display: inline-block; min-width: 4.5em; font-variant-numeric: tabular-nums; color: #2f6806; }
+.kmm-erg .kmm-erg-zahl { float: right; font-weight: 400; color: #8a2424; }
+.kmm-erg .kmm-erg-zahl.is-voll { color: #2f6806; }
+.kmm-erg .kmm-erg-plaetze { border: 0; border-top: 1px solid #dcdcde; }
+.kmm-erg .kmm-erg-plaetze td { vertical-align: middle; }
+.kmm-erg .kmm-erg-klasse { width: 28%; }
+.kmm-erg .kmm-erg-aktion { text-align: right; white-space: nowrap; }
+.kmm-erg .kmm-erg-platz.is-sammel .kmm-erg-klasse { font-style: italic; }
+.kmm-erg .kmm-erg-platz.is-ziel { outline: 2px solid #2f6806; }
+.kmm-erg .kmm-erg-status { display: inline-block; padding: 0 6px; border-radius: 3px; font-size: 12px; background: #f0f0f1; }
+.kmm-erg .kmm-erg-status.is-entwurf { background: #fcf9e8; color: #8a6d00; }
+.kmm-erg .kmm-erg-status.is-ausgeblendet { background: #f0f0f1; color: #50575e; }
+.kmm-erg .kmm-erg-status.is-ungeklaert { background: #fcf0f1; color: #8a2424; }
+.kmm-erg .kmm-ampel { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
+.kmm-erg .kmm-ampel-gruen .kmm-ampel { background: #2f6806; }
+.kmm-erg .kmm-ampel-gelb .kmm-ampel { background: #dba617; }
+.kmm-erg .kmm-ampel-rot .kmm-ampel { background: #d63638; }
+.kmm-erg .kmm-ampel-rot { background: #fcf0f1; }
+.kmm-erg .kmm-erg-vorschau select { max-width: 420px; }
+.kmm-erg .kmm-erg-klaeren input[type=text] { margin-right: 4px; }
+.kmm-erg .kmm-erg-bericht { background: #fff; border-left: 4px solid #2f6806; padding: 4px 12px 12px; margin: 12px 0; }
+.kmm-erg .kmm-erg-testjahr { background: #fff; border-left: 4px solid #d63638; padding: 4px 12px 12px; margin: 24px 0; }
+@media (max-width: 782px) {
+	.kmm-erg .kmm-erg-plaetze td { display: block; width: auto; text-align: left; }
+	.kmm-erg .kmm-erg-aktion { white-space: normal; }
+	.kmm-erg .kmm-erg-filter input[type=search], .kmm-erg .kmm-erg-stand progress { width: 100%; }
+}
