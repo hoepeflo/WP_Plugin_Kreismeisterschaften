@@ -761,7 +761,7 @@ final class MeldungService {
 		usort($einzel, static fn(array $a, array $b): int => [$a['sortierung'], $a['nachname'], $a['vorname']] <=> [$b['sortierung'], $b['nachname'], $b['vorname']]);
 		return [
 			'verein'          => ['id' => $this->verein_id(), 'name' => (string) $this->verein['name'], 'vn_nummer' => (string) $this->verein['vn_nummer']],
-			'sportjahr'       => ['id' => $this->sportjahr_id(), 'jahr' => (int) $this->sportjahr['jahr'], 'meldeschluss' => Clock::format_local($this->sportjahr['meldeschluss']), 'meldung_beginn' => Clock::format_local($this->sportjahr['meldung_beginn'])],
+			'sportjahr'       => ['id' => $this->sportjahr_id(), 'jahr' => (int) $this->sportjahr['jahr'], 'meldeschluss' => Clock::format_local($this->sportjahr['meldeschluss']), 'meldeschluss_iso' => $this->sportjahr['meldeschluss'] !== null ? str_replace(' ', 'T', (string) $this->sportjahr['meldeschluss']) . 'Z' : null, 'meldung_beginn' => Clock::format_local($this->sportjahr['meldung_beginn'])],
 			'status'          => VerarbeitungService::vereinsstatus($m !== null ? (string) $m['status'] : MeldungRepository::STATUS_OFFEN, $roh),
 			'eingereicht_am'  => $m !== null ? Clock::format_local($m['eingereicht_am']) : '',
 			'phase'           => $this->phase(),

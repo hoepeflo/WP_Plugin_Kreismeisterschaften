@@ -26,6 +26,10 @@
 	// „1 Meldung“, „2 Meldungen“ – statt „Meldung(en)“.
 	const mehrzahl = new Intl.PluralRules('de');
 	const mz = (n, eins, viele) => `${n} ${mehrzahl.select(n) === 'one' ? eins : viele}`;
+	// Suche ohne Rücksicht auf Groß-/Kleinschreibung und Umlaute/Akzente („muller“ findet „Müller“).
+	const norm = (t) => String(t || '').toLocaleLowerCase('de').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ß/g, 'ss').trim();
+	// Ab so vielen Schützen erscheinen Suche und Filter.
+	const SUCHE_AB = 8;
 	const $ = (sel, el) => (el || document).querySelector(sel);
 	const $$ = (sel, el) => Array.from((el || document).querySelectorAll(sel));
 
@@ -129,6 +133,19 @@
 
 	// ----- Kopf, Banner, Tabs ------------------------------------------------------------------
 
+	// Restzeit bis zu einem Zeitpunkt (ISO, UTC) in Worten: „noch 12 Tage“, „noch 5 Stunden“.
+	function restzeit(iso) {
+		const ziel = iso ? Date.parse(iso) : NaN;
+		if (Number.isNaN(ziel)) { return null; }
+		const ms = ziel - Date.now();
+		if (ms <= 0) { return null; }
+		const stunden = Math.floor(ms / 3600000);
+		const tage = Math.floor(stunden / 24);
+		let text;
+		if (tage >= 2) { text = `noch ${tage} Tage`; } else if (stunden >= 24) { text = `noch 1 Tag und ${mz(stunden - 24, 'Stunde', 'Stunden')}`; } else if (stunden >= 1) { text = `noch ${mz(stunden, 'Stunde', 'Stunden')}`; } else { text = `noch ${mz(Math.max(1, Math.ceil(ms / 60000)), 'Minute', 'Minuten')}`; }
+		return { ms, text };
+	}
+
 	function renderKopf() {
 		const m = state.meldung;
 		const label = { offen: 'Offen', entwurf: 'Entwurf', eingereicht: 'Eingereicht', verarbeitet: 'Verarbeitet' }[m.status] || m.status;
@@ -147,7 +164,9 @@
 		} else if (m.status === 'eingereicht') {
 			banner = `<div class="kmm-alert kmm-alert-ok">Ihre Meldung ist eingereicht. Änderungen sind bis zum Meldeschluss (${h(m.sportjahr.meldeschluss)} Uhr) möglich: unter „Prüfen &amp; Einreichen“ die Meldung wieder öffnen.</div>`;
 		} else if (m.sportjahr.meldeschluss) {
-			banner = `<div class="kmm-hinweis">Meldeschluss: ${h(m.sportjahr.meldeschluss)} Uhr</div>`;
+			const rest = restzeit(m.sportjahr.meldeschluss_iso);
+			const knapp = rest && rest.ms < 3 * 86400000;
+			banner = `<div class="${knapp ? 'kmm-alert kmm-alert-warn' : 'kmm-hinweis'} kmm-countdown">Meldeschluss: ${h(m.sportjahr.meldeschluss)} Uhr${rest ? ` · <strong>${h(rest.text)}</strong>` : ''}${knapp && m.status !== 'eingereicht' ? '. Bitte rechtzeitig einreichen.' : ''}</div>`;
 		}
 		if (m.konflikte > 0) {
 			banner += `<div class="kmm-alert kmm-alert-error">${mz(m.konflikte, 'Meldung hat', 'Meldungen haben')} einen Konflikt nach einer Regeländerung oder kein Startrecht mehr. Bitte unter „Meldung“ prüfen.</div>`;
@@ -279,11 +298,22 @@
 		const rw = schreibbar();
 		let html = `<div class="kmm-toolbar"><h2>Schützenliste</h2>${rw ? '<button type="button" class="kmm-button" data-action="schuetze-neu">Neuer Schütze</button>' : ''}</div>`;
 		html += '<p class="kmm-muted">Die Schützenliste bleibt über die Jahre erhalten. Höhermeldungen gelten nur für dieses Sportjahr.</p>';
+		if (state.schuetzen.length >= SUCHE_AB) {
+			const f = state.schuetzenFilter || 'alle';
+			const ohne = state.schuetzen.filter((s) => !s.meldungen).length;
+			html += `<div class="kmm-suchleiste" role="search">
+				<label class="kmm-suche"><span class="kmm-sr">Schützen suchen</span><input type="search" id="kmm-suche-schuetzen" placeholder="Name oder Mitgliedsnummer suchen" autocomplete="off" value="${h(state.schuetzenSuche || '')}"></label>
+				<div class="kmm-filter-chips" role="group" aria-label="Schützen filtern">
+					${[['alle', `Alle (${state.schuetzen.length})`], ['ohne', `Noch nicht gemeldet (${ohne})`], ['mit', `Gemeldet (${state.schuetzen.length - ohne})`]].map(([k, l]) => `<button type="button" class="kmm-chip" data-schuetzen-filter="${k}" aria-pressed="${f === k}">${h(l)}</button>`).join('')}
+				</div>
+				<span class="kmm-muted kmm-suche-treffer" aria-live="polite"></span>
+			</div>`;
+		}
 		if (state.schuetzen.length === 0) {
 			html += `<div class="kmm-leer"><strong>Noch keine Schützen angelegt.</strong>${rw ? 'Mit „Neuer Schütze“ beginnen – die Liste bleibt für die nächsten Jahre erhalten.' : ''}</div>`;
 		} else {
-			html += '<div class="kmm-liste">' + state.schuetzen.map((s) => `
-				<div class="kmm-karte">
+			html += '<div class="kmm-liste" id="kmm-schuetzenliste">' + state.schuetzen.map((s) => `
+				<div class="kmm-karte" data-suche="${h(norm(s.nachname + ' ' + s.vorname + ' ' + s.vorname + ' ' + s.nachname + ' ' + (s.mitgliedsnummer || '')))}" data-gemeldet="${s.meldungen ? 1 : 0}">
 					<div class="kmm-karte-haupt">
 						<strong>${h(s.nachname)}, ${h(s.vorname)}</strong>
 						<span class="kmm-muted">${h(datum(s.geburtsdatum))} (${s.alter} J.) · ${s.geschlecht === 'm' ? 'männlich' : 'weiblich'} · Nr. ${h(s.mitgliedsnummer)}</span>
@@ -298,8 +328,35 @@
 					</div>
 				</div>`).join('') + '</div>';
 		}
+		html += '<div class="kmm-leer kmm-suche-leer" hidden><strong>Kein Schütze gefunden.</strong>Suchbegriff ändern oder Filter auf „Alle“ stellen.</div>';
 		el.innerHTML = html;
+		schuetzenFiltern();
 	}
+
+	function schuetzenFiltern() {
+		const liste = $('#kmm-schuetzenliste');
+		if (!liste) { return; }
+		const q = norm(state.schuetzenSuche);
+		const f = state.schuetzen.length >= SUCHE_AB ? (state.schuetzenFilter || 'alle') : 'alle';
+		let n = 0;
+		$$('.kmm-karte', liste).forEach((k) => {
+			const passt = (!q || k.dataset.suche.includes(q)) && (f === 'alle' || (f === 'mit') === (k.dataset.gemeldet === '1'));
+			k.hidden = !passt;
+			if (passt) { n++; }
+		});
+		const aktiv = q !== '' || f !== 'alle';
+		const t = $('.kmm-suche-treffer');
+		if (t) { t.textContent = aktiv ? mz(n, 'Treffer', 'Treffer') : ''; }
+		const leer = $('#kmm-tab-schuetzen .kmm-suche-leer');
+		if (leer) { leer.hidden = n > 0; }
+	}
+
+	$('#kmm-tab-schuetzen').addEventListener('input', (ev) => {
+		if (ev.target.id === 'kmm-suche-schuetzen') {
+			state.schuetzenSuche = ev.target.value;
+			schuetzenFiltern();
+		}
+	});
 
 	function schuetzeFormular(s) {
 		const angebot = s ? s.hoehermeldung_angebot || {} : {};
@@ -335,6 +392,14 @@
 		renderAll();
 		toast(r.warnungen && r.warnungen.length ? 'Gespeichert. ' + r.warnungen.join(' ') : 'Schütze gespeichert.', r.warnungen && r.warnungen.length ? 'warn' : 'ok');
 	}
+
+	$('#kmm-tab-schuetzen').addEventListener('click', (ev) => {
+		const chip = ev.target.closest('[data-schuetzen-filter]');
+		if (!chip) { return; }
+		state.schuetzenFilter = chip.dataset.schuetzenFilter;
+		$$('#kmm-tab-schuetzen [data-schuetzen-filter]').forEach((b) => b.setAttribute('aria-pressed', String(b === chip)));
+		schuetzenFiltern();
+	});
 
 	$('#kmm-tab-schuetzen').addEventListener('click', async (ev) => {
 		const b = ev.target.closest('button[data-action]');
@@ -385,8 +450,17 @@
 			let teil = '';
 		if (rw) {
 			teil += '<div class="kmm-melden"><h2>Starter melden</h2>';
-			teil += `<div class="kmm-form kmm-inline"><label for="kmm-melden-schuetze">Schütze wählen, um Disziplinen zu melden</label>
-				<select id="kmm-melden-schuetze"><option value="">– Schütze –</option>${state.schuetzen.map((s) => `<option value="${s.id}" ${state.angebotFuer === s.id ? 'selected' : ''}>${h(s.nachname)}, ${h(s.vorname)}</option>`).join('')}</select></div>`;
+			const gross = state.schuetzen.length >= SUCHE_AB;
+			const option = (s) => `<option value="${s.id}" ${state.angebotFuer === s.id ? 'selected' : ''}>${h(s.nachname)}, ${h(s.vorname)}${s.meldungen ? ` · ${mz(s.meldungen, 'Meldung', 'Meldungen')}` : ''}</option>`;
+			const ohne = state.schuetzen.filter((s) => !s.meldungen);
+			const mit = state.schuetzen.filter((s) => s.meldungen);
+			// Bei großen Vereinen: noch nicht gemeldete Schützen zuerst, damit man die Liste abarbeiten kann.
+			const optionen = gross && ohne.length && mit.length
+				? `<optgroup label="Noch nicht gemeldet (${ohne.length})">${ohne.map(option).join('')}</optgroup><optgroup label="Schon gemeldet (${mit.length})">${mit.map(option).join('')}</optgroup>`
+				: state.schuetzen.map(option).join('');
+			teil += `<div class="kmm-form kmm-inline kmm-schuetze-wahl"><label for="kmm-melden-schuetze">Schütze wählen, um Disziplinen zu melden</label>
+				${gross ? '<input type="search" id="kmm-melden-suche" class="kmm-melden-suche" placeholder="Namen tippen, um die Liste zu kürzen" autocomplete="off" aria-controls="kmm-melden-schuetze">' : ''}
+				<select id="kmm-melden-schuetze"><option value="">– Schütze –</option>${optionen}</select></div>`;
 			if (state.angebotFuer && state.angebot === null) {
 				teil += '<p class="kmm-muted">Lade Disziplinen …</p>';
 			} else if (state.angebot) {
@@ -411,7 +485,13 @@
 							<strong>${h(a.kennzahl)} ${h(a.bezeichnung)}</strong>
 							<span class="kmm-muted">${a.startrecht ? `${h(a.klasse)}${a.startklasse !== a.klasse ? ' → ' + h(a.startklasse) : ''} (${h(a.kennzahl_voll)})${a.mannschaftspool ? ' · Mannschaft: ' + h(a.mannschaftspool) : ''}${a.typ === 'mixteam' ? '' : ' · ' + geld(a.startgeld)}` : 'nur als Para-Klasse'}</span>
 							${(a.hinweise || []).map((x) => `<div class="kmm-hinweis-klein">${h(x)}</div>`).join('')}
-							${a.para_optionen.length ? `<label class="kmm-muted" for="kmm-para-${a.disziplin_id}">Para-Klasse (nur wenn zutreffend)</label><select class="kmm-select" id="kmm-para-${a.disziplin_id}" data-para-for="${a.disziplin_id}"><option value="">${a.startrecht ? '– keine (reguläre Klasse) –' : '– bitte wählen –'}</option>${a.para_optionen.map((p) => `<option value="${p.id}">${h(p.bezeichnung)}</option>`).join('')}</select>` : ''}
+							${a.para_optionen.length ? (() => {
+								const sel = `<select class="kmm-select" id="kmm-para-${a.disziplin_id}" data-para-for="${a.disziplin_id}"><option value="">${a.startrecht ? '– keine (reguläre Klasse) –' : '– bitte wählen –'}</option>${a.para_optionen.map((p) => `<option value="${p.id}">${h(p.bezeichnung)}</option>`).join('')}</select>`;
+								// Mit regulärem Startrecht ist Para die Ausnahme: zugeklappt, damit die Liste ruhig bleibt.
+								return a.startrecht
+									? `<details class="kmm-para"><summary>Para-Klasse angeben (nur wenn zutreffend)</summary><label class="kmm-sr" for="kmm-para-${a.disziplin_id}">Para-Klasse</label>${sel}</details>`
+									: `<label class="kmm-muted" for="kmm-para-${a.disziplin_id}">Para-Klasse</label>${sel}`;
+							})() : ''}
 						</div>
 						<div class="kmm-karte-aktionen">${a.gemeldet_id ? '<span class="kmm-badge kmm-badge-ok">gemeldet</span>' : `<button type="button" class="kmm-button kmm-button-small" data-action="einzel-anlegen" data-disziplin="${a.disziplin_id}">Melden</button>`}</div>
 					</div>`).join('');
@@ -424,6 +504,11 @@
 			angebotHtml = teil;
 		}
 		html += `<h2>Gemeldete Starter (${m.einzelmeldungen.length})</h2>`;
+		if (m.einzelmeldungen.length >= 15) {
+			html += `<div class="kmm-suchleiste" role="search"><label class="kmm-suche"><span class="kmm-sr">Gemeldete Starter durchsuchen</span><input type="search" id="kmm-suche-meldungen" placeholder="Name oder Disziplin suchen" autocomplete="off" value="${h(state.meldungenSuche || '')}"></label>
+				<label class="kmm-check-klein"><input type="checkbox" id="kmm-nur-ohne-ergebnis" ${state.nurOhneErgebnis ? 'checked' : ''}> nur ohne Ergebnis</label>
+				<span class="kmm-muted kmm-suche-treffer" aria-live="polite"></span></div>`;
+		}
 		if (m.ohne_ergebnis > 0) {
 			html += `<div class="kmm-alert kmm-alert-warn" id="kmm-ohne-ergebnis">${ohneErgebnisText(m.ohne_ergebnis)}</div>`;
 		}
@@ -442,7 +527,7 @@
 				const ergebnisPh = e.ergebnis_format === 'zehntel' ? 'z. B. 389,4' : 'z. B. 375';
 				const abg = !!e.abgemeldet_am;
 				const rwZ = rw && e.zustaendig !== false; // Referent: fremde Disziplin nur lesen
-				html += `<tr class="${e.konflikt || !e.startrecht ? 'is-konflikt' : ''} ${abg ? 'is-abgemeldet' : ''}" data-id="${e.id}">
+				html += `<tr class="${e.konflikt || !e.startrecht ? 'is-konflikt' : ''} ${abg ? 'is-abgemeldet' : ''}" data-id="${e.id}" data-suche="${h(norm(e.nachname + ' ' + e.vorname + ' ' + e.vorname + ' ' + e.nachname + ' ' + e.kennzahl + ' ' + e.disziplin))}" data-ohne="${e.typ !== 'mixteam' && e.meldeergebnis === '' ? 1 : 0}">
 					<td class="kmm-z-name"><strong>${h(e.nachname)}, ${h(e.vorname)}</strong>${e.para ? `<div class="kmm-muted">${h(e.para)}</div>` : ''}${e.konflikt ? `<div class="kmm-fehler">${h(e.konflikt_text)}</div>` : ''}${(e.hinweise || []).filter((x) => !/^Höhermeldung/.test(x) || true).map((x) => `<div class="kmm-hinweis-klein">${h(x)}</div>`).join('')}</td>
 					<td class="kmm-z-klasse" data-label="Startklasse">${h(e.startklasse)}${e.hoehermeldung ? ' <span class="kmm-badge kmm-badge-hm" title="Höhermeldung">HM</span>' : ''} <span class="kmm-muted">${h(e.kennzahl_voll)}</span>${e.klasse !== e.startklasse ? `<div class="kmm-hinweis-klein">Altersklasse ${h(e.klasse)}</div>` : ''}</td>
 					<td class="kmm-z-ergebnis" data-label="Ergebnis">${e.typ === 'mixteam' ? '–' : `<input type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" class="kmm-ergebnis ${e.meldeergebnis === '' ? 'is-leer' : ''}" data-action="ergebnis" data-id="${e.id}" value="${h(e.meldeergebnis)}" placeholder="${ergebnisPh}" aria-label="Meldeergebnis ${h(e.nachname)}, ${h(e.vorname)}, ${h(e.kennzahl)}" ${rwZ ? '' : 'disabled'}>`}</td>
@@ -456,12 +541,85 @@
 			html += '</tbody></table></div>';
 		}
 		el.innerHTML = angebotHtml + html;
+		meldungenFiltern();
+		const such = $('#kmm-melden-suche');
+		if (such && state.meldenSuche) { such.value = state.meldenSuche; schuetzenAuswahlKuerzen(); }
 	}
+
+	function meldungenFiltern() {
+		const tab = $('#kmm-tab-meldung .kmm-meldetabelle');
+		if (!tab) { return; }
+		const q = norm(state.meldungenSuche);
+		const nurOhne = !!state.nurOhneErgebnis;
+		let n = 0;
+		let kopf = null;
+		let kopfSichtbar = false;
+		const kopfSetzen = () => { if (kopf) { kopf.hidden = !kopfSichtbar; } };
+		$$('tbody tr', tab).forEach((tr) => {
+			if (tr.classList.contains('kmm-gruppe')) {
+				kopfSetzen();
+				kopf = tr;
+				kopfSichtbar = false;
+				return;
+			}
+			const passt = (!q || tr.dataset.suche.includes(q)) && (!nurOhne || tr.dataset.ohne === '1');
+			tr.hidden = !passt;
+			if (passt) { n++; kopfSichtbar = true; }
+		});
+		kopfSetzen();
+		const t = $('#kmm-tab-meldung .kmm-suche-treffer');
+		if (t) { t.textContent = q || nurOhne ? mz(n, 'Treffer', 'Treffer') : ''; }
+	}
+
+	// Auswahlliste im Meldeschritt auf passende Namen kürzen; bei genau einem Treffer direkt wählen.
+	function schuetzenAuswahlKuerzen() {
+		const sel = $('#kmm-melden-schuetze');
+		const q = norm(state.meldenSuche);
+		if (!sel) { return null; }
+		const treffer = [];
+		$$('option', sel).forEach((o) => {
+			if (!o.value) { return; }
+			const s = state.schuetzen.find((x) => String(x.id) === o.value);
+			const passt = !q || (s && norm(s.nachname + ' ' + s.vorname + ' ' + s.vorname + ' ' + s.nachname).includes(q));
+			o.hidden = !passt;
+			o.disabled = !passt;
+			if (passt) { treffer.push(o.value); }
+		});
+		$$('optgroup', sel).forEach((g) => { g.hidden = !$$('option', g).some((o) => !o.hidden); });
+		return treffer;
+	}
+
+	$('#kmm-tab-meldung').addEventListener('input', async (ev) => {
+		const t = ev.target;
+		if (t.id === 'kmm-suche-meldungen') {
+			state.meldungenSuche = t.value;
+			meldungenFiltern();
+		} else if (t.id === 'kmm-melden-suche') {
+			state.meldenSuche = t.value;
+			const treffer = schuetzenAuswahlKuerzen();
+			// Bleibt genau ein Name übrig, wird er nach einer kurzen Tipppause gewählt
+			// (sonst gingen beim Neuzeichnen getippte Buchstaben verloren).
+			clearTimeout(meldenSucheTimer);
+			if (treffer && treffer.length === 1 && Number(treffer[0]) !== state.angebotFuer) {
+				meldenSucheTimer = setTimeout(async () => {
+					await angebotLaden(Number(treffer[0]));
+					const neu = $('#kmm-melden-suche');
+					if (neu) { neu.focus(); neu.setSelectionRange(neu.value.length, neu.value.length); }
+				}, 700);
+			}
+		}
+	});
+	let meldenSucheTimer = 0;
 
 	const ohneErgebnisText = (n) => `${mz(n, 'Meldung', 'Meldungen')} ohne Meldeergebnis. Bitte das Ergebnis der Vereinsmeisterschaft eintragen – es wird für die Startplanung benötigt.`;
 
 	$('#kmm-tab-meldung').addEventListener('change', async (ev) => {
 		const t = ev.target;
+		if (t.id === 'kmm-nur-ohne-ergebnis') {
+			state.nurOhneErgebnis = t.checked;
+			meldungenFiltern();
+			return;
+		}
 		if (t.id === 'kmm-melden-schuetze') {
 			if (t.value) { await angebotLaden(Number(t.value)); } else { state.angebotFuer = null; state.angebot = null; renderMeldung(); }
 			return;
@@ -705,9 +863,18 @@
 			<form class="kmm-form" id="kmm-ansprechpartner"><label for="kmm-ap-name">Name</label><input id="kmm-ap-name" name="name" required autocomplete="name" value="${h(m.ansprechpartner.name)}" ${rw ? '' : 'disabled'}>
 			<label for="kmm-ap-email">E-Mail</label><input id="kmm-ap-email" type="email" name="email" required autocomplete="email" autocapitalize="none" spellcheck="false" value="${h(m.ansprechpartner.email)}" ${rw ? '' : 'disabled'}>
 			<label for="kmm-ap-telefon">Telefon (optional)</label><input id="kmm-ap-telefon" type="tel" name="telefon" autocomplete="tel" value="${h(m.ansprechpartner.telefon)}" ${rw ? '' : 'disabled'}>
-			${rw ? '<button type="submit" class="kmm-button kmm-button-secondary">Ansprechpartner speichern</button>' : ''}</form>`;
+			${rw ? '<p class="kmm-autosave" id="kmm-ap-status" role="status" aria-live="polite">Wird automatisch gespeichert, sobald ein Feld verlassen wird.</p><button type="submit" class="kmm-sr">Ansprechpartner speichern</button>' : ''}</form>`;
 		html += `<h3>Startgeldvorschau (vorläufig)</h3><table class="kmm-tabelle kmm-summe"><tbody><tr><td>Einzelmeldungen (${m.einzelmeldungen.length})</td><td class="r">${geld(m.startgeld.einzel)}</td></tr><tr><td>Mannschaften (${m.mannschaften.length})</td><td class="r">${geld(m.startgeld.mannschaften)}</td></tr><tr><th scope="row">Summe</th><th class="r">${geld(m.startgeld.summe)}</th></tr></tbody></table><p class="kmm-muted">Maßgeblich ist die Abrechnung des KSV nach der Startrechtsprüfung.</p>`;
-		html += '<h3>Prüfung</h3>';
+		html += `<div id="kmm-pruefung">${pruefungHtml()}</div>`;
+		html += `<p class="kmm-muted" style="margin-top:16px"><a href="${h(cfg.pdfUrl)}">Meldung als PDF herunterladen</a></p>`;
+		el.innerHTML = html;
+	}
+
+	function pruefungHtml() {
+		const m = state.meldung;
+		const rw = schreibbar();
+		const p = m.pruefung;
+		let html = '<h3>Prüfung</h3>';
 		if (p.fehler.length) {
 			html += '<div class="kmm-alert kmm-alert-error"><strong>Einreichen noch nicht möglich:</strong><ul>' + p.fehler.map((f) => `<li>${h(f)}</li>`).join('') + '</ul></div>';
 		}
@@ -734,9 +901,43 @@
 		} else if (rw) {
 			html += `<button type="button" class="kmm-button" data-action="einreichen" ${p.fehler.length ? 'disabled' : ''}>Meldung verbindlich einreichen</button>`;
 		}
-		html += `<p class="kmm-muted" style="margin-top:16px"><a href="${h(cfg.pdfUrl)}">Meldung als PDF herunterladen</a></p>`;
-		el.innerHTML = html;
+		return html;
 	}
+
+	// Ansprechpartner speichern, ohne das Formular neu zu zeichnen (der Fokus bleibt, wo er ist).
+	let apGespeichert = null;
+	async function ansprechpartnerSpeichern(form, ausdruecklich) {
+		const fd = new FormData(form);
+		const daten = { name: String(fd.get('name') || '').trim(), email: String(fd.get('email') || '').trim(), telefon: String(fd.get('telefon') || '').trim() };
+		const schluessel = JSON.stringify(daten);
+		const a = state.meldung.ansprechpartner;
+		apGespeichert = apGespeichert || JSON.stringify({ name: a.name || '', email: a.email || '', telefon: a.telefon || '' });
+		const status = $('#kmm-ap-status');
+		if (schluessel === apGespeichert && !ausdruecklich) { return; }
+		if (!daten.name || !daten.email || !form.checkValidity()) {
+			if (ausdruecklich) { form.reportValidity(); }
+			if (status) { status.textContent = 'Noch nicht gespeichert: Name und gültige E-Mail-Adresse fehlen.'; status.className = 'kmm-autosave is-offen'; }
+			return;
+		}
+		if (status) { status.textContent = 'Wird gespeichert …'; status.className = 'kmm-autosave'; }
+		try {
+			const r = await api('PUT', 'meldung/ansprechpartner', daten);
+			state.meldung = r.meldung;
+			apGespeichert = schluessel;
+			renderKopf();
+			const pr = $('#kmm-pruefung');
+			if (pr) { pr.innerHTML = pruefungHtml(); }
+			if (status) { status.textContent = '✓ Gespeichert'; status.className = 'kmm-autosave is-ok'; }
+		} catch (e) {
+			if (status) { status.textContent = e.message; status.className = 'kmm-autosave is-fehler'; }
+			toast(e.message, 'error');
+		}
+	}
+
+	$('#kmm-tab-einreichen').addEventListener('focusout', (ev) => {
+		const form = ev.target.closest && ev.target.closest('#kmm-ansprechpartner');
+		if (form && schreibbar()) { ansprechpartnerSpeichern(form, false); }
+	});
 
 	$('#kmm-tab-einreichen').addEventListener('submit', async (ev) => {
 		if (ev.target.id === 'kmm-nachmeldung') {
@@ -751,13 +952,8 @@
 		}
 		if (ev.target.id !== 'kmm-ansprechpartner') { return; }
 		ev.preventDefault();
-		const fd = new FormData(ev.target);
-		try {
-			const r = await api('PUT', 'meldung/ansprechpartner', { name: fd.get('name'), email: fd.get('email'), telefon: fd.get('telefon') });
-			state.meldung = r.meldung;
-			renderAll();
-			toast('Ansprechpartner gespeichert.');
-		} catch (e) { toast(e.message, 'error'); }
+		// Enter im Feld: sofort speichern.
+		await ansprechpartnerSpeichern(ev.target, true);
 	});
 
 	$('#kmm-tab-einreichen').addEventListener('click', async (ev) => {

@@ -87,7 +87,13 @@ final class FrontController {
 		$verein = Zugang::aktueller_verein();
 		status_header(200);
 		if ($verein === null) {
-			View::render('frontend/willkommen', ['title' => __('KM-Portal', 'ksv-km-meldeportal')]);
+			$sportjahr = (new \KSV\KMM\Infrastructure\Repository\SportjahrRepository())->aktiv();
+			View::render('frontend/willkommen', [
+				'title'        => __('KM-Portal', 'ksv-km-meldeportal'),
+				'nonce'        => wp_create_nonce('kmm_link_anfordern'),
+				'bezeichnung'  => $sportjahr !== null ? (string) $sportjahr['bezeichnung'] : '',
+				'meldeschluss' => $sportjahr !== null && $sportjahr['meldeschluss'] !== null && $sportjahr['abgeschlossen_am'] === null ? \KSV\KMM\Support\Clock::format_local((string) $sportjahr['meldeschluss']) : '',
+			]);
 			return;
 		}
 		$this->app($verein, false);
