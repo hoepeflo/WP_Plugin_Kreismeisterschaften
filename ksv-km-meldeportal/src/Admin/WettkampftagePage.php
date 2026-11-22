@@ -1099,6 +1099,10 @@ zeigen();
 			echo ' ' . esc_html__('Starter mit der Maus auf einen anderen Platz ziehen – oder den Starter anklicken und dann den Zielplatz. Ist der Zielplatz belegt, tauschen beide.', 'ksv-km-meldeportal');
 		}
 		echo '</p>';
+		// Filter: Starter eines Vereins oder per Name hervorheben (assets/admin/startplan-filter.js).
+		echo '<div class="kmm-matrix-filter" hidden><label>' . esc_html__('Verein hervorheben', 'ksv-km-meldeportal') . ' <select data-kmm-matrix-verein><option value="">' . esc_html__('alle', 'ksv-km-meldeportal') . '</option></select></label> ';
+		echo '<label>' . esc_html__('Name suchen', 'ksv-km-meldeportal') . ' <input type="search" data-kmm-matrix-suche class="regular-text kmm-short" autocomplete="off"></label> ';
+		echo '<span class="kmm-matrix-treffer" aria-live="polite"></span></div>';
 		echo '<div class="kmm-matrix-huelle"><table class="kmm-matrix' . ($schreiben ? ' is-bearbeitbar' : '') . '" data-sportjahr="' . $sid . '"><thead><tr><th class="kmm-matrix-zeit">' . esc_html__('Zeit', 'ksv-km-meldeportal') . '</th>';
 		foreach ($m['spalten'] as $sp) {
 			echo '<th>' . esc_html((string) $sp['label']) . '</th>';

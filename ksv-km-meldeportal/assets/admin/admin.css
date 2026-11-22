@@ -538,3 +538,26 @@
 	.kmm-admin .kmm-phasen { grid-template-columns: 1fr 1fr; }
 	.kmm-admin .kmm-punkt { flex-wrap: wrap; }
 }
+
+/* ----- Reiter in Formularen (Einstellungen, UX-Review B7) -------------------------------- */
+.kmm-admin .kmm-reiter-nav { margin: 14px 0 6px; }
+.kmm-admin .kmm-reiter-inhalt > h2 { margin-top: 18px; }
+.kmm-admin .kmm-reiter-aktiv .kmm-reiter-inhalt > h2 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.kmm-admin .kmm-reiter-aktiv .kmm-reiter-inhalt > .description { margin-top: 12px; }
+.kmm-admin .kmm-speicherleiste {
+	position: sticky; bottom: 0; z-index: 5; background: rgba(240, 240, 241, .94); backdrop-filter: blur(2px);
+	padding: 12px 0; margin-top: 8px; border-top: 1px solid var(--kmm-border); display: flex; align-items: center; gap: 10px;
+}
+.kmm-admin .kmm-schnell-hinweis { margin: 4px 0 10px; }
+.kmm-admin table tr[id^="kmm-d-"]:target td { background: var(--kmm-primary-weich); transition: background 1.5s; }
+.kmm-admin tr[id^="kmm-d-"] { scroll-margin-top: 80px; }
+
+/* ----- Startplan-Matrix: Kopf bleibt stehen, Filter (UX-Review B9) ----------------------- */
+.kmm-admin .kmm-matrix-huelle { max-height: 78vh; overflow: auto; }
+.kmm-admin table.kmm-matrix thead th.kmm-matrix-zeit { z-index: 4; }
+.kmm-admin .kmm-matrix-filter { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin: 10px 0 0; }
+.kmm-admin .kmm-matrix-filter label { font-size: 13px; color: #2c3628; }
+.kmm-admin .kmm-matrix-filter select, .kmm-admin .kmm-matrix-filter input { margin-left: 4px; }
+.kmm-admin .kmm-matrix-treffer { font-size: 12px; color: var(--kmm-primary); font-weight: 600; }
+.kmm-admin table.kmm-matrix.is-gefiltert td.kmm-matrix-belegt:not(.is-treffer) { opacity: .35; }
+.kmm-admin table.kmm-matrix td.is-treffer { background: var(--kmm-primary-weich); box-shadow: inset 0 0 0 2px var(--kmm-primary); }

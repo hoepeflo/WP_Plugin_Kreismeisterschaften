@@ -150,6 +150,7 @@ final class Menu {
 			]);
 			// Nutzt Adresse und Nonce aus kmmStartplan.
 			wp_enqueue_script('kmm-wettkampftag', KMM_PLUGIN_URL . 'assets/admin/wettkampftag.js', ['kmm-startplan-matrix'], KMM_VERSION, true);
+			wp_enqueue_script('kmm-startplan-filter', KMM_PLUGIN_URL . 'assets/admin/startplan-filter.js', [], KMM_VERSION, true);
 		}
 	}
 
