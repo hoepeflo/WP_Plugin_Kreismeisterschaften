@@ -155,9 +155,23 @@ final class Sicherung {
 	public static function daten(string $anlass): array {
 		global $wpdb;
 		$tabellen = [];
-		foreach (Schema::TABLES as $tabelle) {
-			$rows = $wpdb->get_results('SELECT * FROM ' . Tables::name($tabelle), ARRAY_A); // phpcs:ignore WordPress.DB.PreparedSQL
-			$tabellen[ $tabelle ] = is_array($rows) ? $rows : [];
+		// Alle Tabellen aus demselben Stand lesen (InnoDB-Snapshot), damit keine Meldung auf
+		// einen Schützen zeigt, der erst nach dem Lesen der Schützentabelle angelegt wurde.
+		$wpdb->query('START TRANSACTION WITH CONSISTENT SNAPSHOT');
+		try {
+			foreach (Schema::TABLES as $tabelle) {
+				$wpdb->last_error = '';
+				$rows = $wpdb->get_results('SELECT * FROM ' . Tables::name($tabelle), ARRAY_A); // phpcs:ignore WordPress.DB.PreparedSQL
+				// Ein Lesefehler darf nie als leere Tabelle in der Sicherung landen: Beim
+				// Einspielen würde die Tabelle sonst geleert.
+				$fehler = self::db_fehler();
+				if (!is_array($rows) || $fehler !== '') {
+					throw new \RuntimeException(sprintf('Tabelle %s konnte nicht gelesen werden: %s', $tabelle, $fehler !== '' ? $fehler : 'unbekannter Fehler'));
+				}
+				$tabellen[ $tabelle ] = $rows;
+			}
+		} finally {
+			$wpdb->query('COMMIT');
 		}
 		return [
 			'format'      => self::FORMAT,
@@ -169,6 +183,12 @@ final class Sicherung {
 			'schema'      => (int) get_option(Schema::OPTION_VERSION, 0),
 			'tabellen'    => $tabellen,
 		];
+	}
+
+	/** Letzter Datenbankfehler (eigene Methode, damit er nach jeder Abfrage frisch gelesen wird). */
+	private static function db_fehler(): string {
+		global $wpdb;
+		return (string) $wpdb->last_error;
 	}
 
 	/** Datei an den Briefkasten schicken; leer bei Erfolg, sonst die Fehlermeldung. */
