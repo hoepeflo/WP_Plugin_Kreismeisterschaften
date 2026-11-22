@@ -360,3 +360,14 @@
 .kmm-admin .kmm-dis-sparte .kmm-stand[hidden] { display: none; }
 .kmm-admin .kmm-dis-kz { font-variant-numeric: tabular-nums; color: var(--kmm-text-muted); }
 .kmm-admin .kmm-dis-sparte .kmm-stand.is-aktiv .kmm-dis-kz { color: var(--kmm-ok); }
+
+/* ----- Vereine: Zugangslink-Status ---------------------------------------------------- */
+
+.kmm-admin .kmm-link-kein { background: var(--kmm-error-bg); color: var(--kmm-error); }
+.kmm-admin .kmm-link-gesendet { background: var(--kmm-warn-bg); color: var(--kmm-warn); }
+.kmm-admin .kmm-link-verwendet { background: var(--kmm-ok-bg); color: var(--kmm-ok); }
+.kmm-admin table.kmm-vereine tr.kmm-zeile-konflikt td:first-child { box-shadow: inset 4px 0 0 var(--kmm-error); }
+.kmm-admin table.kmm-vereine tr.kmm-zeile-warn td:first-child { box-shadow: inset 4px 0 0 #d98a00; }
+.kmm-admin table.kmm-vereine tr.kmm-zeile-ok td:first-child { box-shadow: inset 4px 0 0 var(--kmm-primary); }
+.kmm-admin table.kmm-vereine .kmm-badge { margin-bottom: 3px; }
+.kmm-admin .kmm-link-legende .kmm-badge { margin-right: 4px; }
