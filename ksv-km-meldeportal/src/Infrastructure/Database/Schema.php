@@ -24,7 +24,7 @@ final class Schema {
 	 * Schema-Version. Bei jeder Änderung an definitions() erhöhen; der Migrator
 	 * führt dbDelta() erneut aus, sobald die gespeicherte Version abweicht.
 	 */
-	public const VERSION = 5;
+	public const VERSION = 6;
 
 	public const OPTION_VERSION = 'kmm_schema_version';
 
@@ -61,6 +61,10 @@ final class Schema {
 		// Phase 2 (Schema 4): Schießstände als Stammdaten
 		'schiessstand',
 		'standgruppe',
+		// Schema 6: Ergebnisse und Ausschreibungen (Übernahme des Ergebnis-Plugins)
+		'ergebnis',
+		'ergebnis_katalog',
+		'dokument',
 	];
 
 	/**
@@ -451,6 +455,7 @@ final class Schema {
   darf_status tinyint(1) unsigned NOT NULL DEFAULT 0,
   darf_meldungen tinyint(1) unsigned NOT NULL DEFAULT 0,
   darf_startplan tinyint(1) unsigned NOT NULL DEFAULT 0,
+  darf_ergebnisse tinyint(1) unsigned NOT NULL DEFAULT 0,
   notiz varchar(255) NOT NULL DEFAULT '',
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
@@ -571,6 +576,68 @@ final class Schema {
   sortierung smallint(5) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY  (id),
   KEY schiessstand_id (schiessstand_id)
+) {$charset_collate};";
+
+		// --- Ergebnisse und Ausschreibungen (Schema 6) -------------------------------
+		// Die Dateien bleiben im Ergebnisordner (uploads/results/km_JJJJ/); diese Tabelle
+		// ist nur das Verzeichnis darüber. jahr statt sportjahr_id, weil die Archivjahre
+		// (2008–2026) bewusst kein Sportjahr haben. Texte werden mitgespeichert, damit ein
+		// altes Ergebnis lesbar bleibt, wenn sich Katalog oder Disziplinplan ändern.
+
+		$defs['ergebnis'] = "CREATE TABLE {$t('ergebnis')} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  jahr smallint(5) unsigned NOT NULL,
+  art char(1) NOT NULL,
+  schluessel varchar(32) NOT NULL,
+  sportjahr_id bigint(20) unsigned DEFAULT NULL,
+  disziplin_id bigint(20) unsigned DEFAULT NULL,
+  klasse_id bigint(20) unsigned DEFAULT NULL,
+  kennzahl varchar(32) NOT NULL DEFAULT '',
+  disziplin_text varchar(150) NOT NULL DEFAULT '',
+  klasse_text varchar(150) NOT NULL DEFAULT '',
+  datei varchar(190) NOT NULL,
+  format varchar(8) NOT NULL DEFAULT 'pdf',
+  groesse bigint(20) unsigned NOT NULL DEFAULT 0,
+  status varchar(16) NOT NULL DEFAULT 'sichtbar',
+  quelle varchar(16) NOT NULL DEFAULT 'archiv',
+  datei_stand datetime DEFAULT NULL,
+  hochgeladen_von bigint(20) unsigned DEFAULT NULL,
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY jahr_art_schluessel (jahr,art,schluessel),
+  KEY jahr_status (jahr,status),
+  KEY sportjahr_id (sportjahr_id)
+) {$charset_collate};";
+
+		$defs['ergebnis_katalog'] = "CREATE TABLE {$t('ergebnis_katalog')} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  schluessel varchar(32) NOT NULL,
+  spo varchar(32) NOT NULL DEFAULT '',
+  disziplin_text varchar(150) NOT NULL DEFAULT '',
+  klasse_text varchar(150) NOT NULL DEFAULT '',
+  quelle varchar(16) NOT NULL DEFAULT 'srd',
+  created_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY schluessel (schluessel)
+) {$charset_collate};";
+
+		$defs['dokument'] = "CREATE TABLE {$t('dokument')} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  jahr smallint(5) unsigned NOT NULL,
+  typ varchar(32) NOT NULL,
+  kategorie smallint(5) unsigned DEFAULT NULL,
+  titel varchar(190) NOT NULL DEFAULT '',
+  quelle varchar(8) NOT NULL,
+  attachment_id bigint(20) unsigned DEFAULT NULL,
+  page_id bigint(20) unsigned DEFAULT NULL,
+  url varchar(255) NOT NULL DEFAULT '',
+  sortierung smallint(5) unsigned NOT NULL DEFAULT 0,
+  herkunft varchar(64) NOT NULL DEFAULT '',
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  KEY jahr_typ (jahr,typ)
 ) {$charset_collate};";
 
 		return $defs;

@@ -49,6 +49,7 @@ final class Installer {
 			Migrator::drop_all();
 			delete_option(Settings::OPTION);
 			delete_option(KmApp::OPTION_PHASE);
+			delete_option(\KSV\KMM\Support\ErgebnisEinstellungen::OPTION);
 		}
 	}
 }

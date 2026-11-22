@@ -12,7 +12,7 @@ namespace KSV\KMM\Infrastructure\Repository;
 final class ReferentRepository extends Repository {
 
 	protected const TABLE = 'referent';
-	protected const BOOL_COLUMNS = ['darf_status', 'darf_meldungen', 'darf_startplan'];
+	protected const BOOL_COLUMNS = ['darf_status', 'darf_meldungen', 'darf_startplan', 'darf_ergebnisse'];
 
 	/**
 	 * @return array<string, mixed>|null

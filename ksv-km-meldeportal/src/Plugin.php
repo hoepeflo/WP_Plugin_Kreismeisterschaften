@@ -19,6 +19,7 @@ use KSV\KMM\Auth\Capabilities;
 use KSV\KMM\Http\AppApi;
 use KSV\KMM\Http\RestApi;
 use KSV\KMM\Http\Router;
+use KSV\KMM\Http\ErgebnisFrontend;
 use KSV\KMM\Http\Shortcode;
 use KSV\KMM\Infrastructure\Database\Migrator;
 
@@ -57,6 +58,7 @@ final class Plugin {
 		StartplanService::register();
 		KmApp::register();
 		Shortcode::register();
+		ErgebnisFrontend::register();
 
 		if (is_admin()) {
 			Migrator::maybe_migrate();
