@@ -34,7 +34,7 @@ final class ReferentenPage extends AdminPage {
 				$id = $service->speichern(
 					self::post_int('id'),
 					self::post_int('user_id'),
-					['darf_status' => self::post_bool('darf_status'), 'darf_meldungen' => self::post_bool('darf_meldungen'), 'darf_startplan' => self::post_bool('darf_startplan')],
+					['darf_status' => self::post_bool('darf_status'), 'darf_meldungen' => self::post_bool('darf_meldungen'), 'darf_startplan' => self::post_bool('darf_startplan'), 'darf_ergebnisse' => self::post_bool('darf_ergebnisse')],
 					$gruppen,
 					$disziplinen,
 					self::post_str('notiz')
@@ -68,7 +68,7 @@ final class ReferentenPage extends AdminPage {
 			foreach ($r['zustaendigkeiten'] as $e) {
 				$z[ $e['typ'] === ReferentZustaendigkeitRepository::TYP_GRUPPE ? 'gruppen' : 'disziplinen' ][] = (string) $e['schluessel'];
 			}
-			$rechte = array_keys(array_filter(['Status setzen' => $r['darf_status'], 'Meldungen bearbeiten' => $r['darf_meldungen'], 'Startplan bearbeiten' => $r['darf_startplan']]));
+			$rechte = array_keys(array_filter(['Status setzen' => $r['darf_status'], 'Meldungen bearbeiten' => $r['darf_meldungen'], 'Startplan bearbeiten' => $r['darf_startplan'], 'Ergebnisse hochladen' => !empty($r['darf_ergebnisse'])]));
 			echo '<tr><td><strong>' . esc_html((string) $r['name']) . '</strong>' . ($r['benutzer'] instanceof \WP_User ? '<br><small>' . esc_html($r['benutzer']->user_email) . '</small>' : '') . (!$r['rolle_ok'] ? '<br><span class="kmm-fail">' . esc_html__('Benutzer fehlt oder hat keinen Zugriff – bitte erneut speichern', 'ksv-km-meldeportal') . '</span>' : '') . '</td>';
 			echo '<td>' . ($z['gruppen'] !== [] ? esc_html__('Gruppen:', 'ksv-km-meldeportal') . ' ' . esc_html(implode(', ', $z['gruppen'])) : '') . ($z['gruppen'] !== [] && $z['disziplinen'] !== [] ? '<br>' : '') . ($z['disziplinen'] !== [] ? esc_html__('Disziplinen:', 'ksv-km-meldeportal') . ' ' . esc_html(implode(', ', $z['disziplinen'])) : '') . '</td>';
 			echo '<td>' . esc_html($rechte !== [] ? implode(', ', $rechte) : __('nur lesen und PDF-Listen', 'ksv-km-meldeportal')) . '</td>';
@@ -163,6 +163,7 @@ final class ReferentenPage extends AdminPage {
 		echo self::checkbox('darf_status', $r !== null && $r['darf_status'], __('Verarbeitungsstatus setzen (Startrechtsprüfung, Sammelaktionen)', 'ksv-km-meldeportal')) . '<br>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo self::checkbox('darf_meldungen', $r !== null && $r['darf_meldungen'], __('Meldungen bearbeiten (Admin-Modus der Vereinsoberfläche: Nachmeldung, Abmeldung, Korrektur)', 'ksv-km-meldeportal')) . '<br>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo self::checkbox('darf_startplan', $r !== null && $r['darf_startplan'], __('Startplan bearbeiten (Wettkampftage, Durchgänge, Restverteilung)', 'ksv-km-meldeportal')); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo self::checkbox('darf_ergebnisse', $r !== null && !empty($r['darf_ergebnisse']), __('Ergebnisse hochladen und verwalten (alle Disziplinen)', 'ksv-km-meldeportal')); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<p class="description">' . esc_html__('Lesen und PDF-Listen im eigenen Bereich sind immer erlaubt.', 'ksv-km-meldeportal') . '</p></td></tr>';
 		echo '<tr><th>' . esc_html__('Notiz', 'ksv-km-meldeportal') . '</th><td>' . self::input('notiz', $r['notiz'] ?? '', 'text', 'class="regular-text"') . '</td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</table>';

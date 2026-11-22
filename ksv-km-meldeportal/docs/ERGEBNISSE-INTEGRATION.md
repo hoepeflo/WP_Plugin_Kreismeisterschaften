@@ -69,3 +69,66 @@ Shortcode für den Startplan, PDF-Startplan, Abschluss mit Anonymisierung. Ein L
 Startplan zu den Ergebnissen wird **nicht** gebaut. Das Feld `kmm_wettkampftag.ergebnis_url`
 und `kmm_einzelmeldung.ergebnis_ref` bleiben im Schema erhalten (Migrationen sind
 rückwärtskompatibel), werden aber bis zur Übernahme nicht befüllt.
+
+## Umsetzung Schritt 1–3 (Stand 22.11.2026, Schema 6)
+
+Entscheidungen von Florian Höper vom 22.11.2026:
+
+- **Ein Ablageort** für alle Ergebnisse, alte wie künftige: `uploads/results/km_JJJJ/`.
+  Es wird nichts verschoben. Pfad und Adresse kommen aus `srd_km_settings`.
+- Ab 2027 kommen die Ergebnisplätze aus dem **Disziplinplan** des Sportjahres. Archivjahre
+  (bis 2026) nutzen den Katalog aus `srd_kreis_v3` (`kmm_ergebnis_katalog`); ein Archivjahr
+  hängt nie an einem Sportjahr (auch nicht am Testjahr 2026).
+- Dateinamen: `e1_10_10.pdf` (Einzel), `m1_10_10.pdf` (Mannschaft), Sammel-PDF ohne Klasse
+  `e6_20.pdf`. Erkannt werden auch `E1-10-10.pdf` und `E6-20.pdf`. Ab 2027 nur PDF.
+- Geteilte Klassen 2008/2016 (`e1_10_10a`) erscheinen als „… Gruppe A/B/C“.
+- Lichtschießen nur als PDF-Links je Jahr (`km-licht/JJJJ/`, `km_JJJJ/licht/`, `*licht*`).
+- Uploads sind sofort öffentlich; „Entwurf“ ist optional.
+- Recht „Ergebnisse hochladen“ (`darf_ergebnisse`) gilt für alle Disziplinen.
+- Kein Staging: Test live mit ausgeschaltetem Schalter, vor jedem echten Lauf Probelauf und
+  Duplicator-Sicherung.
+
+### Bausteine
+
+| Baustein | Datei |
+|---|---|
+| Schlüssel, Dateinamen, Sparten | `src/Domain/Ergebnis/Schluessel.php`, `Kategorie.php` |
+| Plätze aus Disziplinplan / Katalog | `src/Domain/Ergebnis/Platz.php`, `Platzliste.php` |
+| Zuordnung beim Sammel-Upload (Ampel) | `src/Domain/Ergebnis/UploadZuordnung.php` |
+| Auswertung eines Archivordners | `src/Domain/Ergebnis/ArchivAuswertung.php` |
+| Dateizugriff, Sicherung statt Löschen | `src/Infrastructure/Ergebnisablage.php` |
+| Hochladen, Status, Klärung | `src/Application/Ergebnisse/ErgebnisService.php` |
+| Archiv einlesen (Katalog, Jahre, Licht, Ausschreibungen) | `src/Application/Ergebnisse/ErgebnisArchiv.php` |
+| Ausschreibungen und Unterlagen | `src/Application/Ergebnisse/Dokumente.php` |
+| Testjahr entfernen | `src/Application/Ergebnisse/Testjahr.php` |
+| Backend „KM-Portal → Ergebnisse“ | `src/Admin/ErgebnissePage.php`, `assets/admin/ergebnisse.css` |
+| Öffentliche Anzeige | `src/Http/ErgebnisFrontend.php`, `assets/frontend/ergebnisse.css` |
+| Einstellungen (Option `kmm_ergebnisse`) | `src/Support/ErgebnisEinstellungen.php` |
+
+Tabellen (Schema 6): `kmm_ergebnis` (ein Eintrag je Jahr/Art/Schlüssel, Status
+sichtbar/Entwurf/ungeklärt/ausgeblendet), `kmm_ergebnis_katalog`, `kmm_dokument`.
+
+Eine ersetzte oder entfernte Datei wird nie gelöscht, sondern mit Zeitstempel nach
+`uploads/kmm-archiv/ergebnisse/` verschoben (kein Webzugriff).
+
+### Anzeige und alte Adressen
+
+- `[kmm_ergebnisse]` funktioniert immer.
+- Schalter **„Anzeige übernehmen“** (Ergebnisse → Einstellungen): Das KM-Portal bedient
+  dann auch `[srd_km]`, `/kreismeisterschaften/JJJJ/`, `/JJJJ/e|m/ID/`, `…/raw/`,
+  `/JJJJ/bogen/`, `/JJJJ/blasrohr/` und die Parameter `km_year`, `km_id`, `km_art`,
+  `km_view=raw`, `km_category`, `km_discipline`.
+- Solange das bisherige Plugin aktiv ist, übernimmt das KM-Portal **nichts**, auch bei
+  eingeschaltetem Schalter. Beim Deaktivieren des alten Plugins werden die Adressregeln
+  neu geschrieben.
+
+### Reihenfolge auf der Live-Seite
+
+1. Duplicator-Sicherung.
+2. Plugin-Update einspielen (Schema 6 legt die neuen Tabellen an; nichts Bestehendes ändert sich).
+3. Ergebnisse → Archiv & Klärung → **Probelauf**, Bericht prüfen.
+4. **Einlesen** (EINLESEN eintippen). Mehrfaches Einlesen ist unschädlich.
+5. Klärungsliste abarbeiten; Seite mit `[kmm_ergebnisse]` als Entwurf ansehen.
+6. Testjahr 2026 entfernen (Jahr eintippen; JSON-Sicherung im Archivordner).
+7. Schalter „Anzeige übernehmen“ an, altes Plugin deaktivieren, alte Adressen stichprobenartig aufrufen.
+8. Das alte Plugin erst löschen, wenn alles passt. `srd_kreis_v3` und `srd_km_*` bleiben stehen.
