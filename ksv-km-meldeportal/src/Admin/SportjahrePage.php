@@ -145,7 +145,7 @@ final class SportjahrePage extends AdminPage {
 				submit_button(__('Kopieren nach', 'ksv-km-meldeportal'), 'small', 'submit', false);
 				echo '</form> ';
 				echo '<a class="button button-small" href="' . esc_url(self::url(['abschluss' => $id])) . '">' . esc_html($row['abgeschlossen_am'] !== null ? __('Abschluss', 'ksv-km-meldeportal') : __('Abschließen', 'ksv-km-meldeportal')) . '</a> ';
-				self::form_open('loeschen', 'class="kmm-inline-form" onsubmit="return confirm(\'' . esc_js(__('Sportjahr mit allen Stammdaten löschen?', 'ksv-km-meldeportal')) . '\')"');
+				self::form_open('loeschen', 'class="kmm-inline-form" data-kmm-confirm="' . esc_attr(__('Sportjahr mit allen Stammdaten löschen?', 'ksv-km-meldeportal')) . '" data-kmm-gefahr="1"');
 				echo '<input type="hidden" name="id" value="' . $id . '">';
 				submit_button(__('Löschen', 'ksv-km-meldeportal'), 'small kmm-danger', 'submit', false);
 				echo '</form>';
@@ -194,7 +194,7 @@ final class SportjahrePage extends AdminPage {
 			echo '</ul></div>';
 		}
 		if ($row['abgeschlossen_am'] === null) {
-			self::form_open('abschliessen', 'onsubmit="return confirm(\'' . esc_js(__('Sportjahr wirklich abschließen? Die Anonymisierung lässt sich nicht rückgängig machen.', 'ksv-km-meldeportal')) . '\')"');
+			self::form_open('abschliessen', 'data-kmm-confirm="' . esc_attr(__('Sportjahr wirklich abschließen? Die Anonymisierung lässt sich nicht rückgängig machen.', 'ksv-km-meldeportal')) . '" data-kmm-gefahr="1" data-kmm-eingabe="' . (int) $row['jahr'] . '"');
 			echo '<input type="hidden" name="id" value="' . $id . '">';
 			echo '<p>' . self::checkbox('anonymisieren', true, __('Meldungen sofort anonymisieren (empfohlen)', 'ksv-km-meldeportal')) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			submit_button(__('Sportjahr abschließen', 'ksv-km-meldeportal'), 'primary', 'submit', false);
@@ -209,7 +209,7 @@ final class SportjahrePage extends AdminPage {
 			}
 			echo '</p>';
 			if ($row['anonymisiert_am'] === null) {
-				self::form_open('anonymisieren', 'class="kmm-inline-form" onsubmit="return confirm(\'' . esc_js(__('Meldungen jetzt anonymisieren? Das lässt sich nicht rückgängig machen.', 'ksv-km-meldeportal')) . '\')"');
+				self::form_open('anonymisieren', 'class="kmm-inline-form" data-kmm-confirm="' . esc_attr(__('Meldungen jetzt anonymisieren? Das lässt sich nicht rückgängig machen.', 'ksv-km-meldeportal')) . '" data-kmm-gefahr="1" data-kmm-eingabe="' . (int) $row['jahr'] . '"');
 				echo '<input type="hidden" name="id" value="' . $id . '">';
 				submit_button(__('Jetzt anonymisieren', 'ksv-km-meldeportal'), 'primary', 'submit', false);
 				echo '</form> ';

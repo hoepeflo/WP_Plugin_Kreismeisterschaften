@@ -103,7 +103,7 @@ final class VereinePage extends AdminPage {
 
 		echo '<p><a class="button button-primary" href="' . esc_url(self::url(['edit' => 'neu'])) . '">' . esc_html__('Neuer Verein', 'ksv-km-meldeportal') . '</a> ';
 		if ($sportjahr !== null) {
-			self::form_open('link_alle', 'class="kmm-inline-form" onsubmit="return confirm(\'' . esc_js(__('Zugangslinks an alle aktiven Vereine senden? Bestehende Links werden ungültig.', 'ksv-km-meldeportal')) . '\')"');
+			self::form_open('link_alle', 'class="kmm-inline-form" data-kmm-confirm="' . esc_attr(__('Zugangslinks an alle aktiven Vereine senden? Bestehende Links werden ungültig.', 'ksv-km-meldeportal')) . '"');
 			submit_button(sprintf(__('Links an alle aktiven Vereine senden (Sportjahr %d)', 'ksv-km-meldeportal'), (int) $sportjahr['jahr']), 'secondary', 'submit', false);
 			echo '</form>';
 		} else {
@@ -143,7 +143,7 @@ final class VereinePage extends AdminPage {
 				submit_button($link !== null ? __('Link neu senden', 'ksv-km-meldeportal') : __('Link senden', 'ksv-km-meldeportal'), 'small', 'submit', false);
 				echo '</form> ';
 			}
-			self::form_open('loeschen', 'class="kmm-inline-form" onsubmit="return confirm(\'' . esc_js(__('Verein löschen?', 'ksv-km-meldeportal')) . '\')"');
+			self::form_open('loeschen', 'class="kmm-inline-form" data-kmm-confirm="' . esc_attr(__('Verein löschen?', 'ksv-km-meldeportal')) . '" data-kmm-gefahr="1"');
 			echo '<input type="hidden" name="id" value="' . $id . '">';
 			submit_button(__('Löschen', 'ksv-km-meldeportal'), 'small kmm-danger', 'submit', false);
 			echo '</form></td></tr>';

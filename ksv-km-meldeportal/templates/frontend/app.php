@@ -46,17 +46,30 @@ $config = [
 	</div>
 	<div id="kmm-banner"></div>
 	<nav class="kmm-tabs" id="kmm-tabs" aria-label="<?php esc_attr_e('Schritte', 'ksv-km-meldeportal'); ?>">
-		<button type="button" data-tab="schuetzen" class="is-active">1 <?php esc_html_e('Schützen', 'ksv-km-meldeportal'); ?></button>
-		<button type="button" data-tab="meldung">2 <?php esc_html_e('Meldung', 'ksv-km-meldeportal'); ?></button>
-		<button type="button" data-tab="mannschaften">3 <?php esc_html_e('Mannschaften', 'ksv-km-meldeportal'); ?></button>
-		<button type="button" data-tab="einreichen">4 <?php esc_html_e('Prüfen & Einreichen', 'ksv-km-meldeportal'); ?></button>
-		<button type="button" data-tab="startplan" id="kmm-tab-button-startplan" <?php echo $startplan === [] ? 'hidden' : ''; ?>>5 <?php esc_html_e('Startplätze', 'ksv-km-meldeportal'); ?></button>
+		<?php
+		$schritte = [
+			'schuetzen'    => __('Schützen', 'ksv-km-meldeportal'),
+			'meldung'      => __('Meldung', 'ksv-km-meldeportal'),
+			'mannschaften' => __('Mannschaften', 'ksv-km-meldeportal'),
+			'einreichen'   => $admin !== null ? __('Ansprechpartner & Nachmeldung', 'ksv-km-meldeportal') : __('Prüfen & Einreichen', 'ksv-km-meldeportal'),
+			'startplan'    => __('Startplätze', 'ksv-km-meldeportal'),
+		];
+		$nr = 0;
+		foreach ($schritte as $key => $label) :
+			++$nr;
+			?>
+		<button type="button" data-tab="<?php echo esc_attr($key); ?>" class="kmm-schritt<?php echo $key === 'schuetzen' ? ' is-active' : ''; ?>"<?php echo $key === 'startplan' ? ' id="kmm-tab-button-startplan"' . ($startplan === [] ? ' hidden' : '') : ''; ?> aria-controls="kmm-tab-<?php echo esc_attr($key); ?>">
+			<span class="kmm-schritt-nr" aria-hidden="true"><?php echo (int) $nr; ?></span>
+			<span class="kmm-schritt-text"><span class="kmm-schritt-name"><?php echo esc_html($label); ?></span><small class="kmm-schritt-info" data-info="<?php echo esc_attr($key); ?>"></small></span>
+		</button>
+		<?php endforeach; ?>
 	</nav>
 	<section id="kmm-tab-schuetzen" class="kmm-tab"></section>
 	<section id="kmm-tab-meldung" class="kmm-tab" hidden></section>
 	<section id="kmm-tab-mannschaften" class="kmm-tab" hidden></section>
 	<section id="kmm-tab-einreichen" class="kmm-tab" hidden></section>
 	<section id="kmm-tab-startplan" class="kmm-tab" hidden></section>
+	<div class="kmm-schritt-nav" id="kmm-schritt-nav"></div>
 	<dialog id="kmm-dialog" class="kmm-dialog"></dialog>
 	<div id="kmm-toast" class="kmm-toast" role="status" aria-live="polite"></div>
 	<p class="kmm-app-fuss">
