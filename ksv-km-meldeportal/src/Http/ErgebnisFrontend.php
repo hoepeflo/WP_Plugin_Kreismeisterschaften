@@ -64,8 +64,9 @@ final class ErgebnisFrontend {
 			}
 			add_filter('query_vars', [self::class, 'query_vars']);
 			self::rewrites();
-			add_action('template_redirect', [self::class, 'template_redirect'], 0);
 		}
+		// Immer: auch [kmm_ergebnisse] allein braucht die Roh-Ausgabe für HTML-Ergebnisse.
+		add_action('template_redirect', [self::class, 'template_redirect'], 0);
 		if (get_option('kmm_ergebnisse_rewrite_flush')) {
 			delete_option('kmm_ergebnisse_rewrite_flush');
 			add_action('wp_loaded', static function (): void {
@@ -151,14 +152,21 @@ final class ErgebnisFrontend {
 		return $r !== null && $r['status'] === ErgebnisRepository::STATUS_SICHTBAR ? $r : null;
 	}
 
-	/** Seite mit dem Ergebnis-Shortcode? */
+	/**
+	 * Seite mit dem Ergebnis-Shortcode? Ohne Übernahme nur Seiten mit [kmm_ergebnisse],
+	 * damit die Seite des bisherigen Plugins unberührt bleibt.
+	 */
 	private static function ist_ergebnisseite(): bool {
-		$pid = (int) ErgebnisEinstellungen::get('seite_id');
-		if ($pid > 0) {
-			return is_page($pid);
-		}
 		$post = get_queried_object();
-		return $post instanceof \WP_Post && (has_shortcode($post->post_content, self::SRD_TAG) || has_shortcode($post->post_content, self::TAG));
+		$eigen = $post instanceof \WP_Post && has_shortcode($post->post_content, self::TAG);
+		if (!self::$aktiv) {
+			return $eigen;
+		}
+		$pid = (int) ErgebnisEinstellungen::get('seite_id');
+		if ($pid > 0 && is_page($pid)) {
+			return true;
+		}
+		return $eigen || ($post instanceof \WP_Post && has_shortcode($post->post_content, self::SRD_TAG));
 	}
 
 	/**
@@ -195,6 +203,9 @@ final class ErgebnisFrontend {
 				nocache_headers();
 				header('Content-Type: text/html; charset=utf-8');
 				header('X-Robots-Tag: noindex');
+				// Eigener, abgeschotteter Ursprung: Skripte in alten HTML-Listen laufen nicht.
+				header('Content-Security-Policy: sandbox; default-src \'none\'; style-src \'unsafe-inline\'; img-src * data:');
+				header('X-Content-Type-Options: nosniff');
 				readfile($datei);
 				exit;
 			}
@@ -297,7 +308,7 @@ final class ErgebnisFrontend {
 		$titel = trim(implode(' · ', array_filter([(string) $r['kennzahl'] . ' ' . (string) $r['disziplin_text'], (string) $r['klasse_text'], $r['art'] === 'm' ? __('Mannschaft', 'ksv-km-meldeportal') : __('Einzel', 'ksv-km-meldeportal')])));
 		echo '<p class="kmm-erg-zurueck"><a href="' . esc_url(self::url((int) $r['jahr'])) . '">← ' . esc_html(sprintf(__('Alle Ergebnisse %d', 'ksv-km-meldeportal'), (int) $r['jahr'])) . '</a></p>';
 		echo '<h2>' . esc_html($titel) . '</h2>';
-		echo '<iframe class="kmm-erg-iframe" src="' . esc_url(self::ergebnis_url($r, $ablage, true)) . '" title="' . esc_attr($titel) . '" loading="lazy"></iframe>';
+		echo '<iframe class="kmm-erg-iframe" src="' . esc_url(self::ergebnis_url($r, $ablage, true)) . '" title="' . esc_attr($titel) . '" loading="lazy" sandbox referrerpolicy="no-referrer"></iframe>';
 	}
 
 	/**

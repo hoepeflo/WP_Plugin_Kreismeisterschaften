@@ -145,7 +145,10 @@ final class Ergebnisablage {
 		if (!is_dir($ziel_dir) && !wp_mkdir_p($ziel_dir)) {
 			throw new \RuntimeException('Der Sicherungsordner kann nicht angelegt werden.');
 		}
-		$ziel = $ziel_dir . '/' . basename($relativ) . '.' . gmdate('Y-m-d-His') . '.bak';
+		// Zeitstempel plus Zufallsteil; vorhandene Sicherungen werden nie überschrieben.
+		do {
+			$ziel = $ziel_dir . '/' . basename($relativ) . '.' . gmdate('Y-m-d-His') . '-' . bin2hex(random_bytes(4)) . '.bak';
+		} while (file_exists($ziel));
 		if (!@rename($quelle, $ziel)) {
 			throw new \RuntimeException('Die bisherige Datei konnte nicht gesichert werden; es wurde nichts ersetzt.');
 		}

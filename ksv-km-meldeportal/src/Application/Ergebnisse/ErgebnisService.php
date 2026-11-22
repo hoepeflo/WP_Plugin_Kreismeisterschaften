@@ -77,12 +77,13 @@ final class ErgebnisService {
 	}
 
 	/**
-	 * Archivjahre dürfen auch HTML bekommen, Planjahre nur PDF.
+	 * Archivjahre dürfen auch HTML bekommen, Planjahre nur PDF. HTML kann Skripte enthalten,
+	 * deshalb nur für Benutzer mit dem WordPress-Recht unfiltered_html (Administratoren).
 	 *
 	 * @return list<string>
 	 */
 	public static function erlaubte_endungen(int $jahr): array {
-		return $jahr >= self::ERSTES_PLANJAHR ? ['pdf'] : ['pdf', 'html'];
+		return $jahr < self::ERSTES_PLANJAHR && current_user_can('unfiltered_html') ? ['pdf', 'html'] : ['pdf'];
 	}
 
 	/**

@@ -312,7 +312,7 @@ final class ErgebnissePage extends AdminPage {
 		echo '<p class="description">' . esc_html__('PDFs mit Namen wie e1_10_10.pdf, E1-10-10.pdf oder m1_10_10.pdf werden ihrem Platz zugeordnet; Sammel-PDFs ohne Klasse heißen z. B. e6_20.pdf. Auch eine ZIP-Datei geht. Vor dem Speichern kommt eine Vorschau.', 'ksv-km-meldeportal') . '</p>';
 		self::form_open('eingang', 'enctype="multipart/form-data" class="kmm-erg-drop"');
 		echo '<input type="hidden" name="jahr" value="' . (int) $jahr . '"><input type="hidden" name="tab" value="hochladen">';
-		echo '<label class="kmm-erg-dropzone"><input type="file" name="dateien[]" multiple accept=".pdf,.zip' . ($jahr < ErgebnisService::ERSTES_PLANJAHR ? ',.html,.htm' : '') . '" required> <span>' . esc_html__('Dateien hierher ziehen oder auswählen', 'ksv-km-meldeportal') . '</span></label> ';
+		echo '<label class="kmm-erg-dropzone"><input type="file" name="dateien[]" multiple accept=".pdf,.zip' . (in_array('html', ErgebnisService::erlaubte_endungen($jahr), true) ? ',.html,.htm' : '') . '" required> <span>' . esc_html__('Dateien hierher ziehen oder auswählen', 'ksv-km-meldeportal') . '</span></label> ';
 		submit_button(__('Weiter zur Vorschau', 'ksv-km-meldeportal'), 'primary', '', false);
 		echo '</form></div>';
 	}
@@ -373,7 +373,7 @@ final class ErgebnissePage extends AdminPage {
 		if ($darf) {
 			self::form_open('platz', 'enctype="multipart/form-data" class="kmm-inline"');
 			echo '<input type="hidden" name="jahr" value="' . (int) $jahr . '"><input type="hidden" name="tab" value="hochladen"><input type="hidden" name="platz" value="' . esc_attr($p->id()) . '">';
-			echo '<input type="file" name="datei" accept=".pdf' . ($jahr < ErgebnisService::ERSTES_PLANJAHR ? ',.html,.htm' : '') . '" required aria-label="' . esc_attr($p->beschriftung()) . '"> ';
+			echo '<input type="file" name="datei" accept=".pdf' . (in_array('html', ErgebnisService::erlaubte_endungen($jahr), true) ? ',.html,.htm' : '') . '" required aria-label="' . esc_attr($p->beschriftung()) . '"> ';
 			echo '<button class="button button-small">' . esc_html($r === null ? __('Hochladen', 'ksv-km-meldeportal') : __('Ersetzen', 'ksv-km-meldeportal')) . '</button>';
 			echo '</form>';
 			if ($r !== null) {
