@@ -104,6 +104,29 @@
 
 	const dialogButtons = (label) => `<div class="kmm-dialog-fehler kmm-fehler" aria-live="polite"></div><div class="kmm-dialog-buttons"><button type="submit" value="abbrechen" class="kmm-button kmm-button-secondary" formnovalidate>Abbrechen</button><button type="submit" value="ok" class="kmm-button">${h(label)}</button></div>`;
 
+	// Rückfrage im Stil des Portals statt des Browser-Dialogs: Frage, Folge, zwei klare Buttons.
+	// Liefert ein Promise<boolean>.
+	function bestaetigen(opt) {
+		const o = typeof opt === 'string' ? { titel: opt } : opt;
+		let d = document.getElementById('kmm-rueckfrage');
+		if (!d) {
+			d = document.createElement('dialog');
+			d.id = 'kmm-rueckfrage';
+			d.className = 'kmm-dialog kmm-rueckfrage';
+			d.setAttribute('aria-labelledby', 'kmm-rueckfrage-titel');
+			root.appendChild(d);
+		}
+		const liste = (o.liste || []).length ? `<ul class="kmm-rueckfrage-liste">${o.liste.map((x) => `<li>${h(x)}</li>`).join('')}</ul>` : '';
+		d.innerHTML = `<form method="dialog"><h3 id="kmm-rueckfrage-titel">${h(o.titel)}</h3>${o.text ? `<p>${h(o.text)}</p>` : ''}${liste}
+			<div class="kmm-dialog-buttons"><button type="submit" value="nein" class="kmm-button kmm-button-secondary">${h(o.abbrechen || 'Abbrechen')}</button><button type="submit" value="ja" class="kmm-button ${o.gefahr ? 'kmm-button-gefahr' : ''}">${h(o.ok || 'OK')}</button></div></form>`;
+		return new Promise((resolve) => {
+			d.addEventListener('close', () => resolve(d.returnValue === 'ja'), { once: true });
+			d.returnValue = '';
+			d.showModal();
+			$('button[value=ja]', d).focus();
+		});
+	}
+
 	// ----- Kopf, Banner, Tabs ------------------------------------------------------------------
 
 	function renderKopf() {
@@ -130,9 +153,91 @@
 			banner += `<div class="kmm-alert kmm-alert-error">${mz(m.konflikte, 'Meldung hat', 'Meldungen haben')} einen Konflikt nach einer Regeländerung oder kein Startrecht mehr. Bitte unter „Meldung“ prüfen.</div>`;
 		}
 		$('#kmm-banner').innerHTML = banner;
-		$$('#kmm-tabs button').forEach((b) => b.classList.toggle('is-active', b.dataset.tab === state.tab));
+		renderSchritte();
 		$$('.kmm-tab').forEach((s) => { s.hidden = s.id !== 'kmm-tab-' + state.tab; });
 	}
+
+	// Schritt-Anzeiger: je Schritt Zustand (erledigt / Hinweis) und eine kurze Statuszeile.
+	const SCHRITTE = ['schuetzen', 'meldung', 'mannschaften', 'einreichen', 'startplan'];
+	function schrittStatus() {
+		const m = state.meldung;
+		const n = m.einzelmeldungen.length;
+		const teams = m.mannschaften || [];
+		const offeneTeams = teams.filter((t) => !t.vollstaendig).length;
+		const eingereicht = m.status === 'eingereicht' || m.status === 'verarbeitet';
+		const fehler = (m.pruefung && m.pruefung.fehler) || [];
+		return {
+			schuetzen: { info: state.schuetzen.length ? mz(state.schuetzen.length, 'Schütze', 'Schützen') : 'noch keine', fertig: state.schuetzen.length > 0 },
+			meldung: { info: n ? mz(n, 'Meldung', 'Meldungen') + (m.ohne_ergebnis ? ` · ${m.ohne_ergebnis} ohne Ergebnis` : '') : 'noch keine', fertig: n > 0 && !m.ohne_ergebnis && !m.konflikte, achtung: n > 0 && (m.ohne_ergebnis > 0 || m.konflikte > 0) },
+			mannschaften: { info: teams.length ? mz(teams.length, 'Mannschaft', 'Mannschaften') + (offeneTeams ? ` · ${offeneTeams} unvollständig` : '') : 'optional', fertig: teams.length > 0 && !offeneTeams, achtung: offeneTeams > 0 },
+			einreichen: admin
+				? { info: eingereicht ? 'eingereicht' : 'nicht eingereicht', fertig: eingereicht }
+				: { info: eingereicht ? 'eingereicht' : (fehler.length ? 'noch nicht bereit' : 'bereit zum Einreichen'), fertig: eingereicht },
+			startplan: { info: 'Plätze buchen', fertig: false },
+		};
+	}
+
+	function renderSchritte() {
+		const st = schrittStatus();
+		$$('#kmm-tabs button[data-tab]').forEach((b) => {
+			const key = b.dataset.tab;
+			const s = st[key] || {};
+			const aktiv = key === state.tab;
+			b.classList.toggle('is-active', aktiv);
+			b.classList.toggle('is-fertig', !!s.fertig && !aktiv);
+			b.classList.toggle('is-achtung', !!s.achtung);
+			if (aktiv) {
+				b.setAttribute('aria-current', 'step');
+				// Auf dem Handy ist die Leiste wischbar: aktiven Schritt ins Bild holen.
+				const leiste = b.parentElement;
+				if (leiste.scrollWidth > leiste.clientWidth) { leiste.scrollLeft = b.offsetLeft - 16; }
+			} else { b.removeAttribute('aria-current'); }
+			const info = $('.kmm-schritt-info', b);
+			if (info) { info.textContent = s.info || ''; }
+			const nr = $('.kmm-schritt-nr', b);
+			if (nr) { nr.textContent = s.fertig && !aktiv ? '✓' : String(SCHRITTE.indexOf(key) + 1); }
+		});
+		renderSchrittNav();
+	}
+
+	// Leiste unter jedem Schritt: zurück, weiter – im letzten Schritt der Weg zum Einreichen.
+	function sichtbareSchritte() {
+		return SCHRITTE.filter((k) => { const b = $(`#kmm-tabs button[data-tab=${k}]`); return b && !b.hidden; });
+	}
+	function renderSchrittNav() {
+		const nav = $('#kmm-schritt-nav');
+		if (!nav) { return; }
+		const liste = sichtbareSchritte();
+		const i = liste.indexOf(state.tab);
+		const name = (k) => { const b = $(`#kmm-tabs button[data-tab=${k}] .kmm-schritt-name`); return b ? b.textContent : k; };
+		const zurueck = i > 0 ? `<button type="button" class="kmm-button kmm-button-secondary" data-schritt="${liste[i - 1]}"><span aria-hidden="true">←</span> ${h(name(liste[i - 1]))}</button>` : '<span></span>';
+		let weiter = '';
+		if (i >= 0 && i < liste.length - 1) {
+			weiter = `<button type="button" class="kmm-button" data-schritt="${liste[i + 1]}">Weiter zu ${h(name(liste[i + 1]))} <span aria-hidden="true">→</span></button>`;
+		}
+		let hinweis = '';
+		if (state.tab === 'meldung' && state.angebotFuer && schreibbar()) {
+			const idx = state.schuetzen.findIndex((x) => x.id === state.angebotFuer);
+			const naechster = idx >= 0 ? state.schuetzen[idx + 1] : null;
+			if (naechster) {
+				hinweis = `<button type="button" class="kmm-link" data-naechster="${naechster.id}">Nächster Schütze: ${h(naechster.nachname)}, ${h(naechster.vorname)}</button>`;
+			}
+		}
+		nav.innerHTML = `${zurueck}<div class="kmm-schritt-nav-mitte">${hinweis}</div>${weiter}`;
+	}
+
+	$('#kmm-schritt-nav').addEventListener('click', async (ev) => {
+		const b = ev.target.closest('button');
+		if (!b) { return; }
+		if (b.dataset.schritt) {
+			tabWechsel(b.dataset.schritt);
+			$('#kmm-tabs').scrollIntoView({ block: 'start', behavior: 'smooth' });
+		} else if (b.dataset.naechster) {
+			await angebotLaden(Number(b.dataset.naechster));
+			const sel = $('#kmm-tab-meldung select');
+			if (sel) { sel.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+		}
+	});
 
 	function renderAll() {
 		renderKopf();
@@ -241,7 +346,7 @@
 		} else if (b.dataset.action === 'schuetze-bearbeiten') {
 			dialog(schuetzeFormular(s), (form) => schuetzeSpeichern(form, id));
 		} else if (b.dataset.action === 'schuetze-loeschen') {
-			if (!window.confirm(`${s.nachname}, ${s.vorname} löschen?`)) { return; }
+			if (!await bestaetigen({ titel: `${s.nachname}, ${s.vorname} löschen?`, text: 'Der Schütze wird aus der Schützenliste des Vereins entfernt.', ok: 'Löschen', gefahr: true })) { return; }
 			try {
 				const r = await api('DELETE', `schuetzen/${id}`);
 				state.schuetzen = r.schuetzen;
@@ -267,6 +372,7 @@
 			state.angebotFuer = null;
 		}
 		renderMeldung();
+		renderSchrittNav();
 	}
 
 	function renderMeldung() {
@@ -422,7 +528,7 @@
 				toast(`${r.einzelmeldung.kennzahl} gemeldet (${r.einzelmeldung.kennzahl_voll}).`);
 				api('GET', 'schuetzen').then((liste) => { state.schuetzen = liste; renderSchuetzen(); }).catch(() => {});
 			} else if (b.dataset.action === 'einzel-loeschen') {
-				if (!window.confirm('Meldung entfernen?')) { return; }
+				if (!await bestaetigen({ titel: 'Meldung entfernen?', text: 'Der Starter wird aus dieser Disziplin entfernt.', ok: 'Entfernen', gefahr: true })) { return; }
 				b.disabled = true;
 				const alt = state.meldung.einzelmeldungen.find((x) => x.id === id);
 				const r = await api('DELETE', `meldung/einzel/${id}`);
@@ -454,7 +560,7 @@
 					toast(`Abgemeldet. Startgeld ${r.einzelmeldung.startgeld_berechnen ? 'wird berechnet' : 'entfällt'}.`);
 				});
 			} else if (b.dataset.action === 'abmeldung-aufheben') {
-				if (!window.confirm('Abmeldung aufheben? Die Meldung gilt danach wieder als aktiv (ein freigegebener Startplatz wird nicht automatisch neu gebucht).')) { return; }
+				if (!await bestaetigen({ titel: 'Abmeldung aufheben?', text: 'Die Meldung gilt danach wieder als aktiv. Ein freigegebener Startplatz wird nicht automatisch neu gebucht.', ok: 'Abmeldung aufheben' })) { return; }
 				const r = await api('POST', `meldung/einzel/${id}/abmeldung-aufheben`);
 				state.meldung = r.meldung;
 				renderAll();
@@ -579,7 +685,7 @@
 			} else if (b.dataset.action === 'mannschaft-bearbeiten') {
 				await mannschaftDialog(Number(b.dataset.disziplin), Number(b.dataset.id));
 			} else if (b.dataset.action === 'mannschaft-loeschen') {
-				if (!window.confirm('Mannschaft auflösen? Die Einzelmeldungen bleiben erhalten.')) { return; }
+				if (!await bestaetigen({ titel: 'Mannschaft auflösen?', text: 'Die Einzelmeldungen bleiben erhalten.', ok: 'Auflösen', gefahr: true })) { return; }
 				const r = await api('DELETE', `meldung/mannschaften/${b.dataset.id}`);
 				state.meldung = r.meldung;
 				renderAll();
@@ -660,14 +766,14 @@
 		try {
 			if (b.dataset.action === 'einreichen') {
 				const w = state.meldung.pruefung.warnungen;
-				if (!window.confirm((w.length ? w.join('\n') + '\n\n' : '') + 'Meldung jetzt verbindlich einreichen?')) { return; }
+				if (!await bestaetigen({ titel: 'Meldung jetzt verbindlich einreichen?', text: w.length ? 'Bitte vorher diese Hinweise prüfen:' : 'Der Ansprechpartner erhält eine Bestätigung per E-Mail. Bis zum Meldeschluss lässt sich die Meldung wieder öffnen.', liste: w, ok: 'Verbindlich einreichen' })) { return; }
 				b.disabled = true;
 				const r = await api('POST', 'meldung/einreichen');
 				state.meldung = r.meldung;
 				renderAll();
 				toast('Meldung eingereicht. Bestätigung per E-Mail versandt.');
 			} else if (b.dataset.action === 'oeffnen') {
-				if (!window.confirm('Meldung wieder öffnen? Sie muss danach erneut eingereicht werden.')) { return; }
+				if (!await bestaetigen({ titel: 'Meldung wieder öffnen?', text: 'Sie muss danach erneut eingereicht werden.', ok: 'Wieder öffnen' })) { return; }
 				const r = await api('POST', 'meldung/oeffnen');
 				state.meldung = r.meldung;
 				renderAll();
@@ -799,7 +905,7 @@
 				state.startplan.tage = await api('GET', 'startplan');
 				renderStartplan();
 			} else if (b.dataset.action === 'platz-freigeben') {
-				if (!window.confirm('Platz freigeben? Ein anderer Verein kann ihn dann buchen.')) { return; }
+				if (!await bestaetigen({ titel: 'Platz freigeben?', text: 'Ein anderer Verein kann ihn dann buchen.', ok: 'Platz freigeben', gefahr: true })) { return; }
 				const r = await api('DELETE', `startplan/buchung/${Number(b.dataset.buchung)}?tag=${sp.tagId}`);
 				sp.raster = r.raster;
 				sp.auswahl = null;
@@ -814,9 +920,6 @@
 		}
 	});
 
-	if (admin) {
-		$('#kmm-tabs button[data-tab=einreichen]').textContent = '4 Ansprechpartner & Nachmeldung';
-	}
 	renderAll();
 	if (admin || (state.meldung.einzelmeldungen.length > 0 && state.meldung.status !== 'eingereicht')) {
 		state.tab = 'meldung';

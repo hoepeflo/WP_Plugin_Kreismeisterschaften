@@ -327,21 +327,55 @@ select.kmm-select { margin: 4px 0 0; }
 .kmm-status-nicht_startberechtigt { background: var(--kmm-error-bg); color: var(--kmm-error); border-color: transparent; }
 .kmm-app-kopf .kmm-badge { font-size: 13px; padding: 4px 13px; border-color: transparent; }
 
-/* Alle Schritte bleiben sichtbar: auf dem Handy brechen die Tabs um, statt seitlich zu verschwinden. */
-.kmm-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 20px; }
-.kmm-tabs button {
-	flex: 1 1 auto; min-height: 42px; padding: 7px 14px;
+.kmm-tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin: 0 0 20px; }
+/* Schritt-Kachel: Nummer bzw. Häkchen, Name, darunter der Stand („7 Meldungen · 1 ohne Ergebnis“). */
+.kmm-tabs button.kmm-schritt {
+	display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 9px 12px;
 	border: 1.5px solid var(--kmm-border); background: var(--kmm-surface);
-	color: var(--kmm-text-2); border-radius: var(--kmm-radius-pill);
-	font: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer; white-space: nowrap;
-	transition: transform var(--kmm-druck), background-color var(--kmm-farbe), color var(--kmm-farbe), border-color var(--kmm-farbe);
+	color: var(--kmm-text); border-radius: var(--kmm-radius); text-align: left;
+	font: inherit; cursor: pointer;
+	transition: transform var(--kmm-druck), background-color var(--kmm-farbe), border-color var(--kmm-farbe), box-shadow var(--kmm-farbe);
 }
 .kmm-tabs button[hidden] { display: none; }
-.kmm-tabs button:active { transform: scale(.97); }
+.kmm-tabs button:active { transform: scale(.98); }
 .kmm-tabs button:focus-visible { outline: none; box-shadow: var(--kmm-ring); }
-.kmm-tabs button.is-active {
-	background: var(--kmm-primary); color: var(--kmm-primary-contrast);
-	border-color: var(--kmm-primary);
+.kmm-schritt-nr {
+	flex: 0 0 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+	background: var(--kmm-surface-2); color: var(--kmm-muted); font-weight: 700; font-size: 14px;
+}
+.kmm-schritt-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.kmm-schritt-name { font-weight: 600; font-size: 14.5px; }
+.kmm-schritt-info { color: var(--kmm-muted); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kmm-tabs button.is-fertig .kmm-schritt-nr { background: var(--kmm-ok-bg); color: var(--kmm-ok); }
+.kmm-tabs button.is-achtung .kmm-schritt-info { color: var(--kmm-warn); }
+.kmm-tabs button.is-active { border-color: var(--kmm-primary); box-shadow: 0 0 0 1px var(--kmm-primary); background: var(--kmm-surface); }
+.kmm-tabs button.is-active .kmm-schritt-nr { background: var(--kmm-primary); color: var(--kmm-primary-contrast); }
+
+/* Leiste unter dem Schritt: zurück · (nächster Schütze) · weiter */
+.kmm-schritt-nav {
+	display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+	margin: 24px 0 8px; padding: 12px 14px;
+	background: var(--kmm-surface); border: 1px solid var(--kmm-border); border-radius: var(--kmm-radius);
+}
+.kmm-schritt-nav:empty { display: none; }
+.kmm-schritt-nav-mitte { flex: 1 1 auto; color: var(--kmm-muted); font-size: 14px; }
+.kmm-schritt-nav > .kmm-button:last-child { margin-left: auto; }
+
+/* Rückfragen */
+.kmm-rueckfrage { max-width: 460px; }
+.kmm-rueckfrage p { color: var(--kmm-text-2); }
+.kmm-rueckfrage-liste { margin: 0 0 8px; padding-left: 20px; color: var(--kmm-warn); }
+.kmm-button.kmm-button-gefahr { background: var(--kmm-error); border-color: var(--kmm-error); color: #fff; }
+
+/* Handy: Schritte als wischbare Leiste in einer Zeile statt umbrechender Knöpfe. */
+@media (max-width: 699px) {
+	.kmm-tabs { display: flex; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; margin-left: -16px; margin-right: -16px; padding: 2px 16px; }
+	.kmm-tabs::-webkit-scrollbar { display: none; }
+	.kmm-tabs button.kmm-schritt { flex: 0 0 auto; min-width: 150px; scroll-snap-align: start; min-height: 52px; }
+	.kmm-schritt-nav { padding: 10px; gap: 8px; }
+	.kmm-schritt-nav > .kmm-button { flex: 1 1 auto; justify-content: center; }
+	.kmm-schritt-nav-mitte { order: 3; flex-basis: 100%; text-align: center; }
+	.kmm-schritt-nav-mitte:empty { display: none; }
 }
 
 .kmm-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -610,7 +644,6 @@ button.kmm-sp-zelle:active:not(:disabled) { transform: scale(.97); }
 /* ----- Ab Tablet --------------------------------------------------------------------- */
 
 @media (min-width: 700px) {
-	.kmm-tabs { flex-wrap: nowrap; }
 	.kmm-tabelle-wrap { margin: 0 0 4px; padding: 0; }
 	.kmm-app-kopf { padding: 20px 24px; }
 	.kmm-melden { padding: 18px 20px 8px; }
@@ -692,8 +725,8 @@ button.kmm-sp-zelle:active:not(:disabled) { transform: scale(.97); }
 	.kmm-button-danger:hover { background: var(--kmm-error-bg); border-color: var(--kmm-error); }
 	.kmm-button[disabled]:hover { background: var(--kmm-primary); }
 	.kmm-button-secondary[disabled]:hover, .kmm-button-danger[disabled]:hover { background: var(--kmm-surface); }
-	.kmm-tabs button:hover { border-color: var(--kmm-primary); color: var(--kmm-primary); }
-	.kmm-tabs button.is-active:hover { color: var(--kmm-primary-contrast); }
+	.kmm-tabs button:hover { border-color: var(--kmm-primary); }
+	.kmm-tabs button.is-active:hover { color: var(--kmm-text); }
 	.kmm-gruppe-details summary:hover { background: var(--kmm-surface-2); }
 	.kmm-tabelle tbody tr:not(.kmm-gruppe):hover td { background: var(--kmm-surface-2); }
 	.kmm-tabelle tr.is-konflikt:hover td { background: var(--kmm-error-bg); }

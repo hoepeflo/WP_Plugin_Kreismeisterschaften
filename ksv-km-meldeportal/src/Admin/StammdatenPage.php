@@ -142,7 +142,7 @@ final class StammdatenPage extends AdminPage {
 				echo '<td>' . self::checkbox($p . '[ist_teamklasse]', (bool) $k['ist_teamklasse']) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo '<td>' . self::input($p . '[hinweis]', $k['hinweis']) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo '<td>' . self::input($p . '[sortierung]', $k['sortierung'], 'number', 'class="kmm-num"') . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo '<td><button type="submit" class="button-link kmm-danger" name="kmm_delete_klasse" value="' . (int) $k['id'] . '" formaction="' . esc_url(self::url()) . '" onclick="return confirm(\'' . esc_js(__('Klasse löschen?', 'ksv-km-meldeportal')) . '\')">✕</button></td>';
+				echo '<td><button type="submit" class="button-link kmm-danger" name="kmm_delete_klasse" value="' . (int) $k['id'] . '" formaction="' . esc_url(self::url()) . '" data-kmm-confirm="' . esc_attr(__('Klasse löschen?', 'ksv-km-meldeportal')) . '" data-kmm-gefahr="1">✕</button></td>';
 				echo '</tr>';
 			}
 			// Neue Klasse
@@ -292,7 +292,7 @@ final class StammdatenPage extends AdminPage {
 			echo '<td>' . esc_html(self::geld($d['mannschaft_startgeld'])) . '</td>';
 			echo '<td><a href="' . esc_url(self::url(['sportjahr' => $sid, 'tab' => 'regeln', 'disziplin' => $id])) . '">' . (int) ($regel_counts[ $id ] ?? 0) . '</a></td>';
 			echo '<td class="kmm-actions"><a class="button button-small" href="' . esc_url(self::url(['sportjahr' => $sid, 'tab' => 'disziplinen', 'disziplin' => $id])) . '">' . esc_html__('Bearbeiten', 'ksv-km-meldeportal') . '</a> ';
-			self::form_open('disziplin_loeschen', 'class="kmm-inline-form" onsubmit="return confirm(\'' . esc_js(__('Disziplin mit allen Regeln löschen?', 'ksv-km-meldeportal')) . '\')"');
+			self::form_open('disziplin_loeschen', 'class="kmm-inline-form" data-kmm-confirm="' . esc_attr(__('Disziplin mit allen Regeln löschen?', 'ksv-km-meldeportal')) . '" data-kmm-gefahr="1"');
 			echo '<input type="hidden" name="sportjahr_id" value="' . $sid . '"><input type="hidden" name="tab" value="disziplinen"><input type="hidden" name="id" value="' . $id . '">';
 			submit_button(__('Löschen', 'ksv-km-meldeportal'), 'small kmm-danger', 'submit', false);
 			echo '</form></td></tr>';

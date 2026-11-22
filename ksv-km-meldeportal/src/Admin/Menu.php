@@ -37,6 +37,7 @@ final class Menu {
 		add_action('admin_menu', [self::class, 'add_pages']);
 		add_action('admin_enqueue_scripts', [self::class, 'enqueue_assets']);
 		add_action('admin_init', [self::class, 'handle_posts']);
+		add_filter('admin_footer_text', [self::class, 'footer_text'], 20);
 		add_action('wp_ajax_kmm_startplan_verschieben', [WettkampftagePage::class, 'ajax_verschieben']);
 		add_action('wp_ajax_kmm_dg_panel', [WettkampftagePage::class, 'ajax_panel']);
 	}
@@ -72,6 +73,18 @@ final class Menu {
 			return;
 		}
 		wp_enqueue_style('kmm-admin', KMM_PLUGIN_URL . 'assets/admin/admin.css', [], KMM_VERSION);
+		// Dieselbe Schrift wie die Vereinsoberfläche (liegt im Plugin, kein externer Abruf).
+		$font = KMM_PLUGIN_URL . 'assets/fonts/roboto-latin.woff2?v=' . rawurlencode(KMM_VERSION);
+		wp_add_inline_style('kmm-admin', '@font-face{font-family:"Roboto";font-style:normal;font-weight:400 700;font-display:swap;src:url("' . esc_url_raw($font) . '") format("woff2")}');
+		wp_enqueue_script('kmm-admin', KMM_PLUGIN_URL . 'assets/admin/admin.js', [], KMM_VERSION, true);
+		wp_localize_script('kmm-admin', 'kmmAdmin', [
+			'texte' => [
+				'abbrechen' => __('Abbrechen', 'ksv-km-meldeportal'),
+				'ok'        => __('Ja, fortfahren', 'ksv-km-meldeportal'),
+				/* translators: %s: Text, der zur Bestätigung eingetippt werden muss */
+				'eingabe'   => __('Zur Bestätigung bitte %s eintippen:', 'ksv-km-meldeportal'),
+			],
+		]);
 		if (strpos($hook, WettkampftagePage::SLUG) !== false) {
 			wp_enqueue_script('kmm-startplan-matrix', KMM_PLUGIN_URL . 'assets/admin/startplan.js', [], KMM_VERSION, true);
 			wp_localize_script('kmm-startplan-matrix', 'kmmStartplan', [
@@ -97,15 +110,23 @@ final class Menu {
 		return add_query_arg($args, admin_url('admin.php'));
 	}
 
-	/** Seitenkopf mit Autorenhinweis wie im Ergebnis-Plugin. */
+	/** Seitenkopf; der Autorenhinweis steht in der Fußzeile (footer_text). */
 	public static function page_header(string $title): void {
 		echo '<h1 class="wp-heading-inline">' . esc_html($title) . '</h1>';
-		echo '<span class="kmm-plugin-credit description">';
-		printf(
-			/* translators: %s: verlinkter Autorenname */
-			esc_html__('Plugin: %s', 'ksv-km-meldeportal'),
+		echo '<hr class="wp-header-end">';
+	}
+
+	/** Fußzeile auf den Seiten des KM-Portals: Version und Autor statt „Danke für dein Vertrauen …“. */
+	public static function footer_text(mixed $text): string {
+		$screen = function_exists('get_current_screen') ? get_current_screen() : null;
+		if ($screen === null || strpos((string) $screen->id, self::SLUG) === false) {
+			return is_string($text) ? $text : '';
+		}
+		return sprintf(
+			/* translators: 1: Versionsnummer, 2: verlinkter Autorenname */
+			esc_html__('KM-Portal %1$s · Plugin von %2$s', 'ksv-km-meldeportal'),
+			esc_html(KMM_VERSION),
 			'<a href="https://github.com/hoepeflo" target="_blank" rel="noopener noreferrer">' . esc_html__('Florian Höper', 'ksv-km-meldeportal') . '</a>'
 		);
-		echo '</span><hr class="wp-header-end">';
 	}
 }

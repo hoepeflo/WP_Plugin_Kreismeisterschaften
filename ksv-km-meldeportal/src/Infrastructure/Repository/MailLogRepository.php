@@ -31,4 +31,24 @@ final class MailLogRepository extends Repository {
 		}
 		return $out;
 	}
+
+	/**
+	 * Zeitpunkt der letzten erfolgreichen Mail je Verein unter den angegebenen Typen.
+	 *
+	 * @param array<int, string> $typen
+	 * @return array<int, string> verein_id => gesendet_am (UTC)
+	 */
+	public function letzte_erfolgreiche_je_verein(int $sportjahr_id, array $typen): array {
+		$out = [];
+		foreach ($this->where(['sportjahr_id' => $sportjahr_id, 'erfolgreich' => 1]) as $row) {
+			if ($row['verein_id'] === null || !in_array((string) $row['typ'], $typen, true)) {
+				continue;
+			}
+			$vid = (int) $row['verein_id'];
+			if (!isset($out[ $vid ]) || strcmp((string) $row['gesendet_am'], $out[ $vid ]) > 0) {
+				$out[ $vid ] = (string) $row['gesendet_am'];
+			}
+		}
+		return $out;
+	}
 }
