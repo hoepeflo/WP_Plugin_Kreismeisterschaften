@@ -30,23 +30,33 @@ final class VereinePage extends AdminPage {
 		'verwendet' => ['Link benutzt', 'kmm-zeile-ok'],
 	];
 
+	/** Mailtypen, die einen Zugangslink enthalten (Zugang, Erinnerung, Sammelmail, Startplan-Mails). */
+	private const LINK_MAILTYPEN = [
+		Mailer::TYP_MAGIC_LINK,
+		Mailer::TYP_ERINNERUNG,
+		Mailer::TYP_SAMMELMAIL,
+		Mailer::TYP_FREIGABE,
+		Mailer::TYP_STARTPLAN,
+		Mailer::TYP_BUCHUNG_ERINNERUNG,
+	];
+
 	/**
-	 * Zugangsstatus eines Vereins im Sportjahr: rot = kein Link angekommen (keiner erzeugt
-	 * oder letzte Mail fehlgeschlagen), orange = Link verschickt, aber nie geklickt,
-	 * grün = ein Link des Sportjahres wurde schon benutzt.
+	 * Zugangsstatus eines Vereins im Sportjahr: grün = ein Link des Sportjahres wurde schon
+	 * benutzt; orange = nach dem ältesten noch gültigen Link ging mindestens eine Mail mit
+	 * Link erfolgreich raus; rot = kein gültiger Link oder keine solche Mail angekommen.
 	 *
-	 * @param array<string, mixed>|null $link Aktueller Link des Vereins
-	 * @param array<string, mixed>|null $mail Letzte Link-Mail
+	 * @param string|null $gueltig_seit         Erstellzeit des ältesten gültigen Links (UTC)
+	 * @param string|null $letzte_linkmail_am   Letzte erfolgreiche Mail mit Link (UTC)
 	 * @return 'kein'|'gesendet'|'verwendet'
 	 */
-	public static function link_status(?array $link, ?array $mail, bool $schon_verwendet): string {
-		if ($schon_verwendet || ($link !== null && (int) $link['verwendungen'] > 0)) {
+	public static function link_status(?string $gueltig_seit, ?string $letzte_linkmail_am, bool $schon_verwendet): string {
+		if ($schon_verwendet) {
 			return 'verwendet';
 		}
-		if ($link === null || ($mail !== null && !$mail['erfolgreich'])) {
-			return 'kein';
+		if ($gueltig_seit !== null && $letzte_linkmail_am !== null && strcmp($letzte_linkmail_am, $gueltig_seit) >= 0) {
+			return 'gesendet';
 		}
-		return 'gesendet';
+		return 'kein';
 	}
 
 	public static function handle_post(): void {
@@ -127,6 +137,8 @@ final class VereinePage extends AdminPage {
 		$links = $sportjahr !== null ? (new MagicLinkRepository())->aktuelle_je_verein((int) $sportjahr['id']) : [];
 		$mails = $sportjahr !== null ? (new MailLogRepository())->letzte_je_verein((int) $sportjahr['id'], Mailer::TYP_MAGIC_LINK) : [];
 		$verwendet = $sportjahr !== null ? (new MagicLinkRepository())->verwendet_je_verein((int) $sportjahr['id']) : [];
+		$gueltig_seit = $sportjahr !== null ? (new MagicLinkRepository())->gueltig_seit_je_verein((int) $sportjahr['id']) : [];
+		$linkmails = $sportjahr !== null ? (new MailLogRepository())->letzte_erfolgreiche_je_verein((int) $sportjahr['id'], self::LINK_MAILTYPEN) : [];
 
 		echo '<p><a class="button button-primary" href="' . esc_url(self::url(['edit' => 'neu'])) . '">' . esc_html__('Neuer Verein', 'ksv-km-meldeportal') . '</a> ';
 		if ($sportjahr !== null) {
@@ -155,7 +167,7 @@ final class VereinePage extends AdminPage {
 			$id = (int) $v['id'];
 			$link = $links[ $id ] ?? null;
 			$mail = $mails[ $id ] ?? null;
-			$status = $sportjahr !== null ? self::link_status($link, $mail, isset($verwendet[ $id ])) : null;
+			$status = $sportjahr !== null ? self::link_status($gueltig_seit[ $id ] ?? null, $linkmails[ $id ] ?? null, isset($verwendet[ $id ])) : null;
 			if (!$v['ist_aktiv']) {
 				$zeile = 'kmm-muted';
 			} else {

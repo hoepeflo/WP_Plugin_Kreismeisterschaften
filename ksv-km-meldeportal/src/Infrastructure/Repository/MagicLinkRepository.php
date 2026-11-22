@@ -54,6 +54,22 @@ final class MagicLinkRepository extends Repository {
 		return $out;
 	}
 
+	/**
+	 * Erstellzeitpunkt des ältesten noch gültigen (nicht widerrufenen) Links je Verein.
+	 *
+	 * @return array<int, string> verein_id => erstellt_am (UTC)
+	 */
+	public function gueltig_seit_je_verein(int $sportjahr_id): array {
+		$out = [];
+		foreach ($this->where(['sportjahr_id' => $sportjahr_id, 'widerrufen_am' => null], 'id ASC') as $row) {
+			$vid = (int) $row['verein_id'];
+			if (!isset($out[ $vid ])) {
+				$out[ $vid ] = (string) $row['erstellt_am'];
+			}
+		}
+		return $out;
+	}
+
 	/** Widerruft alle Links eines Vereins im Sportjahr; liefert die IDs. */
 	public function widerrufen(int $verein_id, int $sportjahr_id, string $zeitpunkt): void {
 		$this->db->query($this->db->prepare(
