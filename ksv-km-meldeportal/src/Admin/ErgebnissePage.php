@@ -193,7 +193,7 @@ final class ErgebnissePage extends AdminPage {
 		}
 		$tab = isset($tabs[ $tab ]) ? $tab : 'hochladen';
 
-		echo '<div class="wrap kmm-wrap kmm-erg">';
+		echo '<div class="wrap kmm-admin kmm-erg">';
 		Menu::page_header(__('Ergebnisse', 'ksv-km-meldeportal'));
 		self::show_notices();
 		self::hinweis_umstellung();
@@ -394,7 +394,7 @@ final class ErgebnissePage extends AdminPage {
 			echo '<input type="hidden" name="jahr" value="' . (int) $jahr . '"><input type="hidden" name="tab" value="' . esc_attr($tab) . '"><input type="hidden" name="anker" value="' . esc_attr($anker) . '"><input type="hidden" name="id" value="' . (int) $r['id'] . '"><input type="hidden" name="status" value="' . esc_attr($ziel) . '">';
 			echo '<button class="button-link">' . esc_html($ziel === ErgebnisRepository::STATUS_SICHTBAR ? __('veröffentlichen', 'ksv-km-meldeportal') : __('ausblenden', 'ksv-km-meldeportal')) . '</button></form> · ';
 		}
-		self::form_open('entfernen', 'class="kmm-inline" onsubmit="return confirm(\'' . esc_js(__('Ergebnis entfernen? Die Datei wird gesichert, nicht gelöscht.', 'ksv-km-meldeportal')) . '\')"');
+		self::form_open('entfernen', 'class="kmm-inline" data-kmm-gefahr="1" data-kmm-confirm="' . esc_attr__('Ergebnis entfernen? Die Datei wird gesichert, nicht gelöscht.', 'ksv-km-meldeportal') . '"');
 		echo '<input type="hidden" name="jahr" value="' . (int) $jahr . '"><input type="hidden" name="tab" value="' . esc_attr($tab) . '"><input type="hidden" name="anker" value="' . esc_attr($anker) . '"><input type="hidden" name="id" value="' . (int) $r['id'] . '">';
 		echo '<button class="button-link kmm-link-danger">' . esc_html__('entfernen', 'ksv-km-meldeportal') . '</button></form>';
 	}
@@ -570,7 +570,7 @@ final class ErgebnissePage extends AdminPage {
 						echo '<input type="hidden" name="jahr" value="' . (int) $jahr . '"><input type="hidden" name="tab" value="dokumente"><input type="hidden" name="id" value="' . (int) $d['id'] . '"><input type="hidden" name="richtung" value="' . (int) $richtung . '">';
 						echo '<button class="button button-small" aria-label="' . esc_attr($richtung < 0 ? __('nach oben', 'ksv-km-meldeportal') : __('nach unten', 'ksv-km-meldeportal')) . '">' . esc_html($pfeil) . '</button></form> ';
 					}
-					self::form_open('dokument_loeschen', 'class="kmm-inline" onsubmit="return confirm(\'' . esc_js(__('Verweis entfernen?', 'ksv-km-meldeportal')) . '\')"');
+					self::form_open('dokument_loeschen', 'class="kmm-inline" data-kmm-gefahr="1" data-kmm-confirm="' . esc_attr__('Verweis entfernen? Das PDF bleibt in der Mediathek.', 'ksv-km-meldeportal') . '"');
 					echo '<input type="hidden" name="jahr" value="' . (int) $jahr . '"><input type="hidden" name="tab" value="dokumente"><input type="hidden" name="id" value="' . (int) $d['id'] . '">';
 					echo '<button class="button-link kmm-link-danger">' . esc_html__('entfernen', 'ksv-km-meldeportal') . '</button></form>';
 				}
