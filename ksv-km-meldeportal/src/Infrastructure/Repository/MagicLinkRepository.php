@@ -38,6 +38,22 @@ final class MagicLinkRepository extends Repository {
 		return $out;
 	}
 
+	/**
+	 * Vereine, die im Sportjahr schon einmal einen Zugangslink benutzt haben – auch einen
+	 * inzwischen ersetzten oder widerrufenen.
+	 *
+	 * @return array<int, true> verein_id => true
+	 */
+	public function verwendet_je_verein(int $sportjahr_id): array {
+		$out = [];
+		foreach ($this->where(['sportjahr_id' => $sportjahr_id]) as $row) {
+			if ((int) $row['verwendungen'] > 0) {
+				$out[ (int) $row['verein_id'] ] = true;
+			}
+		}
+		return $out;
+	}
+
 	/** Widerruft alle Links eines Vereins im Sportjahr; liefert die IDs. */
 	public function widerrufen(int $verein_id, int $sportjahr_id, string $zeitpunkt): void {
 		$this->db->query($this->db->prepare(

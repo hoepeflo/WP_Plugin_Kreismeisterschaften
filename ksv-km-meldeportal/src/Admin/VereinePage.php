@@ -23,6 +23,32 @@ final class VereinePage extends AdminPage {
 
 	public const SLUG = 'kmm-vereine';
 
+	/** Link-Status => [Beschriftung, Zeilenklasse] für die Vereinsliste. */
+	public const LINK_STATUS = [
+		'kein'      => ['Kein Link erhalten', 'kmm-zeile-konflikt'],
+		'gesendet'  => ['Link erhalten, noch nicht benutzt', 'kmm-zeile-warn'],
+		'verwendet' => ['Link benutzt', 'kmm-zeile-ok'],
+	];
+
+	/**
+	 * Zugangsstatus eines Vereins im Sportjahr: rot = kein Link angekommen (keiner erzeugt
+	 * oder letzte Mail fehlgeschlagen), orange = Link verschickt, aber nie geklickt,
+	 * grün = ein Link des Sportjahres wurde schon benutzt.
+	 *
+	 * @param array<string, mixed>|null $link Aktueller Link des Vereins
+	 * @param array<string, mixed>|null $mail Letzte Link-Mail
+	 * @return 'kein'|'gesendet'|'verwendet'
+	 */
+	public static function link_status(?array $link, ?array $mail, bool $schon_verwendet): string {
+		if ($schon_verwendet || ($link !== null && (int) $link['verwendungen'] > 0)) {
+			return 'verwendet';
+		}
+		if ($link === null || ($mail !== null && !$mail['erfolgreich'])) {
+			return 'kein';
+		}
+		return 'gesendet';
+	}
+
 	public static function handle_post(): void {
 		if (!self::is_own_post()) {
 			return;
@@ -96,10 +122,11 @@ final class VereinePage extends AdminPage {
 			self::render_form($edit);
 		}
 
-		$alle = $vereine->all();
+		$alle = $vereine->all_nach_vn();
 		$adressen = (new VereinEmailRepository())->alle();
 		$links = $sportjahr !== null ? (new MagicLinkRepository())->aktuelle_je_verein((int) $sportjahr['id']) : [];
 		$mails = $sportjahr !== null ? (new MailLogRepository())->letzte_je_verein((int) $sportjahr['id'], Mailer::TYP_MAGIC_LINK) : [];
+		$verwendet = $sportjahr !== null ? (new MagicLinkRepository())->verwendet_je_verein((int) $sportjahr['id']) : [];
 
 		echo '<p><a class="button button-primary" href="' . esc_url(self::url(['edit' => 'neu'])) . '">' . esc_html__('Neuer Verein', 'ksv-km-meldeportal') . '</a> ';
 		if ($sportjahr !== null) {
@@ -116,17 +143,33 @@ final class VereinePage extends AdminPage {
 			echo '<p>' . esc_html__('Noch keine Vereine angelegt.', 'ksv-km-meldeportal') . '</p></div>';
 			return;
 		}
-		echo '<table class="widefat striped"><thead><tr><th>' . esc_html__('Verein', 'ksv-km-meldeportal') . '</th><th>VN</th><th>' . esc_html__('E-Mail', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Aktiv', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Zugangslink', 'ksv-km-meldeportal') . '</th><th></th></tr></thead><tbody>';
+		if ($sportjahr !== null) {
+			echo '<p class="kmm-link-legende">' . esc_html__('Zeilenfarbe nach Zugangslink:', 'ksv-km-meldeportal') . ' ';
+			foreach (self::LINK_STATUS as $status => [$text]) {
+				echo '<span class="kmm-badge kmm-link-' . esc_attr($status) . '">' . esc_html__($text, 'ksv-km-meldeportal') . '</span> '; // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
+			}
+			echo '<span class="description">' . esc_html__('Inaktive Vereine bleiben grau.', 'ksv-km-meldeportal') . '</span></p>';
+		}
+		echo '<table class="widefat striped kmm-vereine"><thead><tr><th>' . esc_html__('Verein', 'ksv-km-meldeportal') . '</th><th>VN</th><th>' . esc_html__('E-Mail', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Aktiv', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Zugangslink', 'ksv-km-meldeportal') . '</th><th></th></tr></thead><tbody>';
 		foreach ($alle as $v) {
 			$id = (int) $v['id'];
 			$link = $links[ $id ] ?? null;
 			$mail = $mails[ $id ] ?? null;
-			echo '<tr' . ($v['ist_aktiv'] ? '' : ' class="kmm-muted"') . '>';
+			$status = $sportjahr !== null ? self::link_status($link, $mail, isset($verwendet[ $id ])) : null;
+			if (!$v['ist_aktiv']) {
+				$zeile = 'kmm-muted';
+			} else {
+				$zeile = $status !== null ? self::LINK_STATUS[ $status ][1] : '';
+			}
+			echo '<tr' . ($zeile !== '' ? ' class="' . esc_attr($zeile) . '"' : '') . '>';
 			echo '<td><strong>' . esc_html((string) $v['name']) . '</strong></td>';
 			echo '<td>' . esc_html((string) $v['vn_nummer']) . '</td>';
 			echo '<td>' . esc_html(implode(', ', $adressen[ $id ] ?? [])) . '</td>';
 			echo '<td>' . ($v['ist_aktiv'] ? '✔' : '–') . '</td>';
 			echo '<td>';
+			if ($status !== null && $v['ist_aktiv']) {
+				echo '<span class="kmm-badge kmm-link-' . esc_attr($status) . '">' . esc_html__(self::LINK_STATUS[ $status ][0], 'ksv-km-meldeportal') . '</span><br>'; // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
+			}
 			if ($link !== null) {
 				echo esc_html(sprintf(__('erstellt %s, %d× verwendet', 'ksv-km-meldeportal'), Clock::format_local($link['erstellt_am']), (int) $link['verwendungen']));
 				if ($mail !== null) {
