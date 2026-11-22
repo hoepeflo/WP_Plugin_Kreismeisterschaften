@@ -34,6 +34,7 @@ final class Menu {
 		['Import / Export', ImportExportPage::class, Capabilities::MANAGE, 'saison'],
 		['Referenten', ReferentenPage::class, Capabilities::MANAGE, 'verwaltung'],
 		['Protokoll', ProtokollPage::class, Capabilities::VIEW, 'verwaltung'],
+		['Sicherung', SicherungPage::class, Capabilities::MANAGE, 'verwaltung'],
 		['Einstellungen', SettingsPage::class, Capabilities::MANAGE, 'verwaltung'],
 	];
 

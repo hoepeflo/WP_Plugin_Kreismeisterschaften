@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace KSV\KMM\Admin;
 
 use KSV\KMM\Auth\Capabilities;
+use KSV\KMM\Application\Sicherung\Sicherung;
 use KSV\KMM\Cron;
 use KSV\KMM\Http\Router;
 use KSV\KMM\Infrastructure\Database\Migrator;
@@ -64,6 +65,12 @@ final class SystemPage {
 			(defined('DISABLE_WP_CRON') && DISABLE_WP_CRON)
 				? __('deaktiviert (Server-Cronjob erwartet)', 'ksv-km-meldeportal')
 				: __('läuft bei Seitenaufrufen (Server-Cronjob empfohlen, siehe docs/INSTALLATION.md)', 'ksv-km-meldeportal')
+		);
+		$sicherung = Sicherung::status();
+		self::row(
+			__('Letzte externe Sicherung', 'ksv-km-meldeportal'),
+			'<a href="' . esc_url(Menu::url(SicherungPage::SLUG)) . '">' . esc_html($sicherung['letzte_gesendet'] !== '' ? Clock::format_local($sicherung['letzte_gesendet']) : __('noch keine', 'ksv-km-meldeportal')) . '</a>',
+			false
 		);
 		echo '</tbody></table>';
 

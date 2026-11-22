@@ -57,6 +57,7 @@ Route `/km-meldung/` nach Anmeldung per Zugangslink: vier Schritte Schützen, Me
 | Verarbeitung | Verarbeitungsstatus je Einzelmeldung (ungeprüft / verarbeitet / nicht startberechtigt mit Grund), Filter nach Verein, Gruppe, Disziplin, Status; Sammelaktion; Referenten nur im Zuständigkeitsbereich |
 | Export | DAVID21-CSV (gesamt / je Disziplin, Format einstellbar) und PDF-Meldelisten (Umfang, Gruppierung), Export-Protokoll |
 | Protokoll | Änderungsprotokoll (wer, wann, was) mit Filtern nach Sportjahr, Verein, Akteur und Text |
+| Sicherung | Verschlüsselte externe Sicherung aller Daten (täglich im Zeitraum, nach Meldungen und Startplan-Freigaben), Schlüsselpaar, Wiederherstellung (`docs/SICHERUNG.md`) |
 | System | Schema-Version, Tabellen, Cron, Migration erneut ausführen |
 | Sportjahre | anlegen (mit Klassensatz nach Konzept 4.1), Meldebeginn/-schluss/Erinnerung, aktivieren, ins Folgejahr kopieren, löschen |
 | Vereine | Name, VN-Nummer, mehrere Adressen, aktiv; Zugangslink senden (einzeln / alle), Linkstatus, Mailstatus |
@@ -114,6 +115,6 @@ Konvertierungsskript und Bogen-Vorlage: `tools/README.md`. Ergebnis für 2026: `
 Installation, Caching-Ausschluss und Server-Cronjob: `docs/INSTALLATION.md`.
 Datenmodell: `docs/DATENMODELL.md`. Regel-Engine: `docs/REGEL-ENGINE.md`. Zugang der Vereine: `docs/ZUGANG.md`. Vereinsoberfläche: `docs/VEREINSOBERFLAECHE.md`. Ausgaben: `docs/EXPORT.md`. Testlauf: `docs/CHECKLISTE-TESTLAUF.md`. Austauschformat der Regeltabelle: `docs/REGELTABELLE-FORMAT.md`.
 
-Phase 2: Änderungen nach Meldeschluss `docs/AENDERUNGEN-NACH-MELDESCHLUSS.md`, Sammelmail `docs/SAMMELMAIL.md`, Belege `docs/BELEGE.md`, Referenten `docs/REFERENTEN.md`, Startplan `docs/STARTPLAN.md`, Abschluss und Anonymisierung `docs/ABSCHLUSS.md`, Ergebnisdienst `docs/ERGEBNISSE-INTEGRATION.md`.
+Phase 2: Änderungen nach Meldeschluss `docs/AENDERUNGEN-NACH-MELDESCHLUSS.md`, Sammelmail `docs/SAMMELMAIL.md`, Belege `docs/BELEGE.md`, Referenten `docs/REFERENTEN.md`, Startplan `docs/STARTPLAN.md`, Abschluss und Anonymisierung `docs/ABSCHLUSS.md`, externe Sicherung `docs/SICHERUNG.md`, Ergebnisdienst `docs/ERGEBNISSE-INTEGRATION.md`.
 
 Anleitungen zum Weitergeben: `docs/KM-Portal-Anleitung-Vereine.pdf` (für die Vereine) und `docs/KM-Portal-Anleitung-Administratoren.pdf` (für Administratoren und Referenten des KSV).

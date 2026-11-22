@@ -1,0 +1,9 @@
+# Nur index.php ist von außen erreichbar.
+<FilesMatch "^(?!index\.php$).+$">
+	Require all denied
+</FilesMatch>
+Options -Indexes
+# Authorization-Kopf an PHP weitergeben (bei CGI/FastCGI sonst leer).
+RewriteEngine On
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
