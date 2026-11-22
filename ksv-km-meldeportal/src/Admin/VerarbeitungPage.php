@@ -92,6 +92,7 @@ final class VerarbeitungPage extends AdminPage {
 			return;
 		}
 		$sid = (int) $sportjahr['id'];
+		self::sportjahr_selector($sportjahr);
 		$filter = self::filter_aus_get();
 		$darf = Rechte::hat_recht(Rechte::RECHT_STATUS);
 		$rw = RegelwerkLader::laden($sid);
