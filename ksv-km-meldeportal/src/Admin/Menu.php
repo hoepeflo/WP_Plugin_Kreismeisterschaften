@@ -27,6 +27,7 @@ final class Menu {
 		['Wettkampftage', WettkampftagePage::class, Capabilities::VIEW],
 		['Schießstände', SchiessstaendePage::class, Capabilities::MANAGE],
 		['Export', ExportPage::class, Capabilities::VIEW],
+		['Ergebnisse', ErgebnissePage::class, Capabilities::VIEW],
 		['Belege', BelegePage::class, Capabilities::MANAGE],
 		['Protokoll', ProtokollPage::class, Capabilities::VIEW],
 		['Einstellungen', SettingsPage::class, Capabilities::MANAGE],
@@ -84,6 +85,9 @@ final class Menu {
 				'eingabe'   => __('Zur Bestätigung bitte %s eintippen:', 'ksv-km-meldeportal'),
 			],
 		]);
+		if (strpos($hook, ErgebnissePage::SLUG) !== false) {
+			wp_enqueue_style('kmm-ergebnisse-admin', KMM_PLUGIN_URL . 'assets/admin/ergebnisse.css', ['kmm-admin'], KMM_VERSION);
+		}
 		if (strpos($hook, WettkampftagePage::SLUG) !== false) {
 			wp_enqueue_script('kmm-startplan-matrix', KMM_PLUGIN_URL . 'assets/admin/startplan.js', [], KMM_VERSION, true);
 			wp_localize_script('kmm-startplan-matrix', 'kmmStartplan', [
