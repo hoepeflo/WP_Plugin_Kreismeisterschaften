@@ -460,3 +460,81 @@
 /* Fristen: unplausible Werte markieren (B4) */
 .kmm-admin .kmm-frist-warn { color: var(--kmm-error); font-weight: 600; }
 .kmm-admin .kmm-frist-warn small { display: block; font-weight: 400; }
+
+/* ----- Sportjahr-Auswahl (gilt seitenübergreifend, UX-Review B6) ------------------------- */
+.kmm-admin.wrap { position: relative; }
+.kmm-admin .kmm-sportjahr-wahl { position: absolute; top: 9px; right: 0; margin: 0; }
+.kmm-admin .kmm-sportjahr-wahl label { color: var(--kmm-text-muted); font-size: 13px; }
+.kmm-admin .kmm-sportjahr-wahl select { margin-left: 6px; font-weight: 600; border-radius: 6px; border-color: var(--kmm-border-stark); }
+.kmm-admin .kmm-sportjahr-hinweis { margin: 12px 0; }
+@media (max-width: 960px) {
+	.kmm-admin .kmm-sportjahr-wahl { position: static; margin: 4px 0 10px; }
+}
+
+/* ----- Saison-Cockpit (Übersicht, UX-Review B5) ------------------------------------------ */
+.kmm-admin .kmm-phasen {
+	display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); list-style: none; margin: 16px 0 14px; padding: 0;
+	background: var(--kmm-surface); border: 1px solid var(--kmm-border); border-radius: var(--kmm-radius); box-shadow: var(--kmm-schatten); overflow: hidden;
+}
+.kmm-admin .kmm-phasen li { margin: 0; border-left: 1px solid var(--kmm-border); }
+.kmm-admin .kmm-phasen li:first-child { border-left: 0; }
+.kmm-admin .kmm-phasen a, .kmm-admin .kmm-phasen .kmm-phase-box {
+	display: flex; flex-direction: column; gap: 2px; height: 100%; box-sizing: border-box;
+	padding: 12px 14px 14px; color: inherit; text-decoration: none; border-bottom: 3px solid transparent;
+}
+.kmm-admin .kmm-phasen a:hover { background: var(--kmm-surface-2); }
+.kmm-admin .kmm-phasen a:focus { box-shadow: inset 0 0 0 2px var(--kmm-primary); outline: 0; }
+.kmm-admin .kmm-phase-nr {
+	width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center; margin-bottom: 6px;
+	font-size: 12px; font-weight: 600; background: #eceff0; color: #50575e;
+}
+.kmm-admin .kmm-phase-titel { font-weight: 600; font-size: 14px; color: #1d2327; }
+.kmm-admin .kmm-phase-info { font-size: 12px; color: var(--kmm-text-muted); }
+.kmm-admin .kmm-phasen .is-fertig .kmm-phase-nr { background: var(--kmm-ok-bg); color: var(--kmm-ok); }
+.kmm-admin .kmm-phasen .is-aktiv a, .kmm-admin .kmm-phasen .is-aktiv .kmm-phase-box { background: var(--kmm-primary-weich); border-bottom-color: var(--kmm-primary); }
+.kmm-admin .kmm-phasen .is-aktiv .kmm-phase-nr { background: var(--kmm-primary); color: #fff; }
+.kmm-admin .kmm-phasen .is-aktiv .kmm-phase-info { color: #2c3628; }
+
+.kmm-admin .kmm-kennzahlen { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.kmm-admin .kmm-kennzahlen .kmm-kachel { padding: 14px 18px; }
+.kmm-admin .kmm-kennzahlen .kmm-kachel-wert small { font-size: 15px; font-weight: 400; color: var(--kmm-text-muted); letter-spacing: 0; }
+.kmm-admin .kmm-fortschritt { height: 6px; border-radius: 3px; background: #eceff0; margin-top: 10px; overflow: hidden; }
+.kmm-admin .kmm-fortschritt span { display: block; height: 100%; background: var(--kmm-primary); border-radius: 3px; }
+
+.kmm-admin .kmm-cockpit-raster { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 14px; margin-bottom: 18px; align-items: start; }
+.kmm-admin .kmm-karte {
+	background: var(--kmm-surface); border: 1px solid var(--kmm-border); border-radius: var(--kmm-radius);
+	box-shadow: var(--kmm-schatten); padding: 14px 18px;
+}
+.kmm-admin .kmm-karte h2 { margin: 0 0 6px; font-size: 15px; }
+.kmm-admin .kmm-naechstes ul { margin: 0; }
+.kmm-admin .kmm-punkt { display: flex; align-items: center; gap: 12px; padding: 10px 0 10px 18px; margin: 0; border-top: 1px solid #eef1ea; position: relative; }
+.kmm-admin .kmm-punkt:first-child { border-top: 0; }
+.kmm-admin .kmm-punkt::before { content: ""; position: absolute; left: 2px; top: 16px; width: 8px; height: 8px; border-radius: 50%; background: #a3a99e; }
+.kmm-admin .kmm-punkt-warn::before { background: #d98b00; }
+.kmm-admin .kmm-punkt-fail::before { background: var(--kmm-error); }
+.kmm-admin .kmm-punkt-info::before { background: var(--kmm-primary); }
+.kmm-admin .kmm-punkt-text { flex: 1; min-width: 0; }
+.kmm-admin .kmm-punkt-text strong { display: block; font-size: 13px; }
+.kmm-admin .kmm-punkt-text small { display: block; color: var(--kmm-text-muted); margin-top: 1px; }
+.kmm-admin .kmm-punkt-aktion { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.kmm-admin .kmm-punkt-aktion form { margin: 0; }
+.kmm-admin .kmm-klein-link { font-size: 12px; }
+.kmm-admin .kmm-alles-gut { color: var(--kmm-ok); font-weight: 600; }
+.kmm-admin .kmm-tage-liste { width: 100%; border-collapse: collapse; }
+.kmm-admin .kmm-tage-liste td { padding: 8px 6px; border-top: 1px solid #eef1ea; vertical-align: top; }
+.kmm-admin .kmm-tage-liste tr:first-child td { border-top: 0; }
+.kmm-admin .kmm-tage-liste .r { text-align: right; }
+.kmm-admin h2.kmm-abschnitt { font-size: 15px; margin: 22px 0 8px; }
+
+@media (max-width: 1100px) {
+	.kmm-admin .kmm-phasen { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+	.kmm-admin .kmm-phasen li:nth-child(4) { border-left: 0; }
+	.kmm-admin .kmm-phasen li:nth-child(n+4) { border-top: 1px solid var(--kmm-border); }
+	.kmm-admin .kmm-kennzahlen { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.kmm-admin .kmm-cockpit-raster { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+	.kmm-admin .kmm-phasen { grid-template-columns: 1fr 1fr; }
+	.kmm-admin .kmm-punkt { flex-wrap: wrap; }
+}

@@ -254,16 +254,32 @@ document.querySelectorAll(".kmm-dis-auswahl").forEach(function(box){
 })();</script>';
 	}
 
+	/** Benutzer-Option: zuletzt gewähltes Sportjahr, gilt seitenübergreifend. */
+	public const USER_META_SPORTJAHR = 'kmm_sportjahr';
+
 	/**
-	 * Sportjahr aus GET (sportjahr=ID) oder das aktive Sportjahr.
+	 * Sportjahr aus GET (sportjahr=ID), sonst das zuletzt gewählte, sonst das aktive.
+	 * Eine Auswahl per GET wird für den Benutzer gemerkt, damit alle Seiten dasselbe
+	 * Sportjahr zeigen.
 	 *
 	 * @return array<string, mixed>|null
 	 */
 	protected static function current_sportjahr(): ?array {
 		$repo = new SportjahrRepository();
+		$user = get_current_user_id();
 		$id = isset($_GET['sportjahr']) ? (int) $_GET['sportjahr'] : 0;
 		if ($id > 0) {
 			$row = $repo->find($id);
+			if ($row !== null) {
+				if ($user > 0 && (int) get_user_meta($user, self::USER_META_SPORTJAHR, true) !== $id) {
+					update_user_meta($user, self::USER_META_SPORTJAHR, $id);
+				}
+				return $row;
+			}
+		}
+		$gemerkt = $user > 0 ? (int) get_user_meta($user, self::USER_META_SPORTJAHR, true) : 0;
+		if ($gemerkt > 0) {
+			$row = $repo->find($gemerkt);
 			if ($row !== null) {
 				return $row;
 			}
@@ -272,7 +288,8 @@ document.querySelectorAll(".kmm-dis-auswahl").forEach(function(box){
 	}
 
 	/**
-	 * Auswahlliste der Sportjahre als GET-Formular.
+	 * Auswahl des Sportjahrs als kompakter Schalter oben rechts. Die Wahl gilt für alle
+	 * Seiten; ist nicht das aktive Sportjahr gewählt, erscheint ein deutlicher Hinweis.
 	 *
 	 * @param array<string, mixed>|null $current
 	 * @param array<string, string>     $keep Weitere GET-Parameter, die erhalten bleiben.
@@ -280,7 +297,7 @@ document.querySelectorAll(".kmm-dis-auswahl").forEach(function(box){
 	protected static function sportjahr_selector(?array $current, array $keep = []): void {
 		$repo = new SportjahrRepository();
 		$all = $repo->all();
-		echo '<form method="get" action="' . esc_url(admin_url('admin.php')) . '" class="kmm-inline-form">';
+		echo '<form method="get" action="' . esc_url(admin_url('admin.php')) . '" class="kmm-inline-form kmm-sportjahr-wahl">';
 		echo '<input type="hidden" name="page" value="' . esc_attr(static::SLUG) . '">';
 		foreach ($keep as $k => $v) {
 			echo '<input type="hidden" name="' . esc_attr($k) . '" value="' . esc_attr($v) . '">';
@@ -292,6 +309,18 @@ document.querySelectorAll(".kmm-dis-auswahl").forEach(function(box){
 		echo '<label>' . esc_html__('Sportjahr', 'ksv-km-meldeportal') . ' ' . self::select('sportjahr', $options, $current['id'] ?? 0, 'onchange="this.form.submit()"') . '</label>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<noscript><button class="button">' . esc_html__('Wechseln', 'ksv-km-meldeportal') . '</button></noscript>';
 		echo '</form>';
+		if ($current !== null && !$current['ist_aktiv'] && count($all) > 1) {
+			$aktiv = $repo->aktiv();
+			echo '<div class="notice notice-info inline kmm-sportjahr-hinweis"><p>' . esc_html(sprintf(
+				/* translators: %s: Bezeichnung des gewählten Sportjahrs */
+				__('Sie sehen gerade %s, nicht das aktive Sportjahr. Die Auswahl gilt für alle Seiten des KM-Portals.', 'ksv-km-meldeportal'),
+				(string) $current['bezeichnung']
+			));
+			if ($aktiv !== null) {
+				echo ' <a href="' . esc_url(add_query_arg(array_merge($keep, ['page' => static::SLUG, 'sportjahr' => (int) $aktiv['id']]), admin_url('admin.php'))) . '">' . esc_html(sprintf(__('Zu %s wechseln', 'ksv-km-meldeportal'), (string) $aktiv['bezeichnung'])) . '</a>';
+			}
+			echo '</p></div>';
+		}
 	}
 
 	protected static function no_sportjahr_notice(): void {
