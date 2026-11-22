@@ -549,6 +549,8 @@
 	function meldungenFiltern() {
 		const tab = $('#kmm-tab-meldung .kmm-meldetabelle');
 		if (!tab) { return; }
+		// Ohne sichtbare Suchfelder (weniger Meldungen) darf kein alter Filter mehr greifen.
+		if (!$('#kmm-suche-meldungen')) { state.meldungenSuche = ''; state.nurOhneErgebnis = false; }
 		const q = norm(state.meldungenSuche);
 		const nurOhne = !!state.nurOhneErgebnis;
 		let n = 0;
@@ -906,7 +908,13 @@
 
 	// Ansprechpartner speichern, ohne das Formular neu zu zeichnen (der Fokus bleibt, wo er ist).
 	let apGespeichert = null;
-	async function ansprechpartnerSpeichern(form, ausdruecklich) {
+	let apLaeuft = Promise.resolve();
+	// Speichervorgänge laufen nacheinander, damit eine ältere Antwort keinen neueren Stand überschreibt.
+	function ansprechpartnerSpeichern(form, ausdruecklich) {
+		apLaeuft = apLaeuft.then(() => ansprechpartnerSpeichernJetzt(form, ausdruecklich));
+		return apLaeuft;
+	}
+	async function ansprechpartnerSpeichernJetzt(form, ausdruecklich) {
 		const fd = new FormData(form);
 		const daten = { name: String(fd.get('name') || '').trim(), email: String(fd.get('email') || '').trim(), telefon: String(fd.get('telefon') || '').trim() };
 		const schluessel = JSON.stringify(daten);
