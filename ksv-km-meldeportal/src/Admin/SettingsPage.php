@@ -49,7 +49,9 @@ final class SettingsPage extends AdminPage {
 		];
 		Settings::update($werte);
 		Protokoll::admin('einstellungen.speichern', 'Einstellungen gespeichert', null, null, '', null, $werte);
-		self::redirect(__('Einstellungen gespeichert.', 'ksv-km-meldeportal'));
+		// Nach dem Speichern im zuletzt offenen Reiter bleiben.
+		$reiter = sanitize_key(self::post_str('kmm_reiter', 40));
+		self::redirect(__('Einstellungen gespeichert.', 'ksv-km-meldeportal'), 'success', [], str_starts_with($reiter, 'kmm-einst-') ? $reiter : '');
 	}
 
 	public static function render(): void {
@@ -58,46 +60,57 @@ final class SettingsPage extends AdminPage {
 		echo '<div class="wrap kmm-admin">';
 		Menu::page_header(__('Einstellungen', 'ksv-km-meldeportal'));
 		self::show_notices();
-		self::form_open('speichern');
+		self::form_open('speichern', 'class="kmm-einstellungen" data-kmm-reiter');
+		echo '<input type="hidden" name="kmm_reiter" value="">';
 		$row = static function (string $label, string $field, string $desc = ''): void {
 			echo '<tr><th>' . esc_html($label) . '</th><td>' . $field . ($desc !== '' ? '<p class="description">' . esc_html($desc) . '</p>' : '') . '</td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		};
 
-		echo '<h2>' . esc_html__('Vereinsoberfläche', 'ksv-km-meldeportal') . '</h2><table class="form-table">';
-		$row(__('Route', 'ksv-km-meldeportal'), esc_html(home_url('/')) . self::input('route_slug', $s['route_slug'], 'text', 'class="kmm-short"') . '/', __('Nach einer Änderung die Ausschlussregel im Caching-Plugin anpassen.', 'ksv-km-meldeportal'));
+		echo '<nav class="nav-tab-wrapper kmm-reiter-nav" aria-label="' . esc_attr__('Bereiche der Einstellungen', 'ksv-km-meldeportal') . '">';
+		echo '<a class="nav-tab" href="#kmm-einst-portal">' . esc_html__('Vereinsportal', 'ksv-km-meldeportal') . '</a>';
+		echo '<a class="nav-tab" href="#kmm-einst-regeln">' . esc_html__('Regeln & Startgeld', 'ksv-km-meldeportal') . '</a>';
+		echo '<a class="nav-tab" href="#kmm-einst-mails">' . esc_html__('Mails & Erinnerungen', 'ksv-km-meldeportal') . '</a>';
+		echo '<a class="nav-tab" href="#kmm-einst-david">' . esc_html__('Export für DAVID21', 'ksv-km-meldeportal') . '</a>';
+		echo '<a class="nav-tab" href="#kmm-einst-technik">' . esc_html__('Technik & Sicherheit', 'ksv-km-meldeportal') . '</a>';
+		echo '</nav>';
+
+		echo '<section class="kmm-reiter-inhalt" id="kmm-einst-portal"><h2>' . esc_html__('Vereinsportal', 'ksv-km-meldeportal') . '</h2><p class="description">' . esc_html__('So sehen und benutzen die Vereine das Meldeportal.', 'ksv-km-meldeportal') . '</p><table class="form-table">';
 		$row(__('Darstellung', 'ksv-km-meldeportal'), self::checkbox('portal_im_theme', (bool) $s['portal_im_theme'], __('Portal im Rahmen der Website anzeigen (Kopf, Menü und Fuß des Themes)', 'ksv-km-meldeportal')), __('Ohne Haken läuft das Portal als eigene Seite im Erscheinungsbild der Website – dann lädt nur das Plugin selbst Code. Mit Haken stehen Kopf und Fuß der Website darum; dabei laufen auch die Skripte des Themes und anderer Plugins auf der Meldeseite. Nach dem Umschalten die Meldeseite einmal am PC und am Handy ansehen. Adresse, Zugangslinks und Cache-Ausschluss bleiben gleich.', 'ksv-km-meldeportal'));
 		$row(__('Checkbox „Nicht-Meldung“', 'ksv-km-meldeportal'), self::checkbox('nicht_meldung_sichtbar', (bool) $s['nicht_meldung_sichtbar'], __('in der Vereinsoberfläche anzeigen', 'ksv-km-meldeportal')), __('Bedeutung der DAVID-Spalte ist noch offen; das Feld wird immer exportiert.', 'ksv-km-meldeportal'));
-		$row(__('Sitzungsdauer (Tage)', 'ksv-km-meldeportal'), self::input('sitzung_dauer_tage', $s['sitzung_dauer_tage'], 'number', 'min="1" max="365" class="kmm-num"'), __('Gültigkeit des Cookies nach dem Klick auf den Magic Link.', 'ksv-km-meldeportal'));
-		$row(__('„Link anfordern“ – Limit pro Stunde', 'ksv-km-meldeportal'), self::input('link_anfordern_limit', $s['link_anfordern_limit'], 'number', 'min="1" max="100" class="kmm-num"'), __('je IP-Adresse und je E-Mail-Adresse', 'ksv-km-meldeportal'));
 		$row(__('Löschfrist Schützenliste (Jahre)', 'ksv-km-meldeportal'), self::input('schuetzen_loeschfrist_jahre', $s['schuetzen_loeschfrist_jahre'], 'number', 'min="0" max="20" class="kmm-num"'), __('Schützen ohne Meldung seit so vielen Sportjahren werden beim Abschluss eines Sportjahres aus den Vereinslisten gelöscht (0 = nie). Wer noch an einer Meldung hängt, bleibt erhalten – ein nicht abgeschlossenes Jahr hält seine Schützen fest.', 'ksv-km-meldeportal'));
-		echo '</table>';
+		echo '</table></section>';
 
-		echo '<h2>' . esc_html__('Regeln und Startgeld', 'ksv-km-meldeportal') . '</h2><table class="form-table">';
+		echo '<section class="kmm-reiter-inhalt" id="kmm-einst-regeln"><h2>' . esc_html__('Regeln & Startgeld', 'ksv-km-meldeportal') . '</h2><p class="description">' . esc_html__('Sonderfälle bei Klassen und Startgeld.', 'ksv-km-meldeportal') . '</p><table class="form-table">';
 		$row(__('FITASC: Schützinnen ab 56', 'ksv-km-meldeportal'), self::select('fitasc_damen_ab_56', ['damen' => __('starten in Damen (61)', 'ksv-km-meldeportal'), 'senioren' => __('starten in Senioren/Veteranen/Master (62/64/66)', 'ksv-km-meldeportal')], $s['fitasc_damen_ab_56']));
 		$row(__('Tarif-Überschreibungen ignorieren', 'ksv-km-meldeportal'), self::checkbox('tarif_override_ignorieren', (bool) $s['tarif_override_ignorieren'], __('alle Disziplinen nach Tarifstufe abrechnen (z. B. Lichtschießen nicht mehr 2,50 €)', 'ksv-km-meldeportal')));
-		$row(__('Erinnerung: Tage vor Meldeschluss', 'ksv-km-meldeportal'), self::input('erinnerung_tage_vor_schluss', $s['erinnerung_tage_vor_schluss'], 'number', 'min="0" max="60" class="kmm-num"'), __('Wird beim Speichern eines Sportjahres als Erinnerungszeitpunkt vorgeschlagen, solange dort keiner eingetragen ist (0 = kein Vorschlag).', 'ksv-km-meldeportal'));
-		echo '</table>';
+		echo '</table></section>';
 
-		echo '<h2>' . esc_html__('DAVID21-Export (bis der Testimport das Format klärt)', 'ksv-km-meldeportal') . '</h2><table class="form-table">';
+		echo '<section class="kmm-reiter-inhalt" id="kmm-einst-mails"><h2>' . esc_html__('Mails & Erinnerungen', 'ksv-km-meldeportal') . '</h2><p class="description">' . esc_html__('Absender und automatische Mails an die Vereine.', 'ksv-km-meldeportal') . '</p><table class="form-table">';
+		$row(__('Absendername', 'ksv-km-meldeportal'), self::input('mail_absender_name', $s['mail_absender_name'], 'text', 'class="regular-text"'), __('leer = WordPress-Standard bzw. Einstellung von WP Mail SMTP', 'ksv-km-meldeportal'));
+		$row(__('Absenderadresse', 'ksv-km-meldeportal'), self::input('mail_absender_adresse', $s['mail_absender_adresse'], 'email', 'class="regular-text"'));
+		$row(__('Tägliche Sammelmail', 'ksv-km-meldeportal'), self::checkbox('sammelmail_aktiv', (bool) ($s['sammelmail_aktiv'] ?? true), __('Vereine einmal täglich über Änderungen nach Meldeschluss informieren (Status, Nach-/Abmeldungen, Korrekturen, Startplan)', 'ksv-km-meldeportal')), __('Abgeschaltet werden Änderungen weiter gesammelt, aber nicht versendet; manueller Versand über die Übersicht bleibt möglich.', 'ksv-km-meldeportal'));
+		$row(__('Sammelmail: Uhrzeit', 'ksv-km-meldeportal'), self::input('sammelmail_uhrzeit', $s['sammelmail_uhrzeit'] ?? '18:00', 'time', 'class="kmm-short"'), __('Ortszeit der WordPress-Einstellungen. Versand über WP-Cron; auf dem Server sollte ein echter Cronjob wp-cron.php anstoßen (docs/INSTALLATION.md).', 'ksv-km-meldeportal'));
+		$row(__('Erinnerung: Tage vor Meldeschluss', 'ksv-km-meldeportal'), self::input('erinnerung_tage_vor_schluss', $s['erinnerung_tage_vor_schluss'], 'number', 'min="0" max="60" class="kmm-num"'), __('Wird beim Speichern eines Sportjahres als Erinnerungszeitpunkt vorgeschlagen, solange dort keiner eingetragen ist (0 = kein Vorschlag).', 'ksv-km-meldeportal'));
+		echo '</table></section>';
+
+		echo '<section class="kmm-reiter-inhalt" id="kmm-einst-david"><h2>' . esc_html__('Export für DAVID21', 'ksv-km-meldeportal') . '</h2><p class="description">' . esc_html__('Format der CSV-Datei für den Import in DAVID21. Nur ändern, wenn der Import in DAVID21 nicht klappt.', 'ksv-km-meldeportal') . '</p><table class="form-table">';
 		$row(__('Trennzeichen', 'ksv-km-meldeportal'), self::select('csv_trennzeichen', [';' => __('Semikolon (;)', 'ksv-km-meldeportal'), ',' => __('Komma (,)', 'ksv-km-meldeportal'), 'tab' => __('Tabulator', 'ksv-km-meldeportal')], $s['csv_trennzeichen']));
 		$row(__('Zeichensatz', 'ksv-km-meldeportal'), self::select('csv_zeichensatz', ['windows-1252' => 'Windows-1252', 'utf-8' => 'UTF-8 ohne BOM', 'utf-8-bom' => 'UTF-8 mit BOM'], $s['csv_zeichensatz']));
 		$row(__('Ganze Ringe schreiben als', 'ksv-km-meldeportal'), self::select('csv_ganze_ringe_format', ['ganz' => '375', 'komma_null' => '375,0'], $s['csv_ganze_ringe_format']));
 		$row(__('Kopfzeile', 'ksv-km-meldeportal'), self::checkbox('csv_kopfzeile', (bool) ($s['csv_kopfzeile'] ?? true), __('erste Zeile mit Spaltennamen (wie im DAVID-Muster)', 'ksv-km-meldeportal')));
 		$row(__('Spalte „Verband“', 'ksv-km-meldeportal'), self::select('csv_verband_modus', ['vn_nummer' => __('= VN-Nummer (laut Muster)', 'ksv-km-meldeportal'), 'leer' => __('leer', 'ksv-km-meldeportal'), 'fest' => __('fester Wert:', 'ksv-km-meldeportal')], $s['csv_verband_modus']) . ' ' . self::input('csv_verband_fest', $s['csv_verband_fest'] ?? '', 'text', 'class="kmm-short"'));
-		echo '</table>';
+		echo '</table></section>';
 
-		echo '<h2>' . esc_html__('Mail', 'ksv-km-meldeportal') . '</h2><table class="form-table">';
-		$row(__('Absendername', 'ksv-km-meldeportal'), self::input('mail_absender_name', $s['mail_absender_name'], 'text', 'class="regular-text"'), __('leer = WordPress-Standard bzw. Einstellung von WP Mail SMTP', 'ksv-km-meldeportal'));
-		$row(__('Absenderadresse', 'ksv-km-meldeportal'), self::input('mail_absender_adresse', $s['mail_absender_adresse'], 'email', 'class="regular-text"'));
-		$row(__('Tägliche Sammelmail', 'ksv-km-meldeportal'), self::checkbox('sammelmail_aktiv', (bool) ($s['sammelmail_aktiv'] ?? true), __('Vereine einmal täglich über Änderungen nach Meldeschluss informieren (Status, Nach-/Abmeldungen, Korrekturen, Startplan)', 'ksv-km-meldeportal')), __('Abgeschaltet werden Änderungen weiter gesammelt, aber nicht versendet; manueller Versand über die Übersicht bleibt möglich.', 'ksv-km-meldeportal'));
-		$row(__('Sammelmail: Uhrzeit', 'ksv-km-meldeportal'), self::input('sammelmail_uhrzeit', $s['sammelmail_uhrzeit'] ?? '18:00', 'time', 'class="kmm-short"'), __('Ortszeit der WordPress-Einstellungen. Versand über WP-Cron; auf dem Server sollte ein echter Cronjob wp-cron.php anstoßen (docs/INSTALLATION.md).', 'ksv-km-meldeportal'));
-		echo '</table>';
-
-		echo '<h2>' . esc_html__('Deinstallation', 'ksv-km-meldeportal') . '</h2><table class="form-table">';
+		echo '<section class="kmm-reiter-inhalt" id="kmm-einst-technik"><h2>' . esc_html__('Technik & Sicherheit', 'ksv-km-meldeportal') . '</h2><p class="description">' . esc_html__('Adresse des Portals, Anmeldung per Link und Verhalten beim Deinstallieren.', 'ksv-km-meldeportal') . '</p><table class="form-table">';
+		$row(__('Route', 'ksv-km-meldeportal'), esc_html(home_url('/')) . self::input('route_slug', $s['route_slug'], 'text', 'class="kmm-short"') . '/', __('Nach einer Änderung die Ausschlussregel im Caching-Plugin anpassen.', 'ksv-km-meldeportal'));
+		$row(__('Sitzungsdauer (Tage)', 'ksv-km-meldeportal'), self::input('sitzung_dauer_tage', $s['sitzung_dauer_tage'], 'number', 'min="1" max="365" class="kmm-num"'), __('Gültigkeit des Cookies nach dem Klick auf den Magic Link.', 'ksv-km-meldeportal'));
+		$row(__('„Link anfordern“ – Limit pro Stunde', 'ksv-km-meldeportal'), self::input('link_anfordern_limit', $s['link_anfordern_limit'], 'number', 'min="1" max="100" class="kmm-num"'), __('je IP-Adresse und je E-Mail-Adresse', 'ksv-km-meldeportal'));
 		$row(__('Daten löschen', 'ksv-km-meldeportal'), self::checkbox('daten_bei_deinstallation_loeschen', (bool) $s['daten_bei_deinstallation_loeschen'], __('Beim Löschen des Plugins alle kmm_-Tabellen und Optionen entfernen', 'ksv-km-meldeportal')));
-		echo '</table>';
+		echo '</table></section>';
 
-		submit_button(__('Einstellungen speichern', 'ksv-km-meldeportal'));
+		echo '<div class="kmm-speicherleiste">';
+		submit_button(__('Einstellungen speichern', 'ksv-km-meldeportal'), 'primary', 'submit', false);
+		echo ' <span class="description">' . esc_html__('Speichert alle Bereiche auf einmal.', 'ksv-km-meldeportal') . '</span></div>';
 		echo '</form></div>';
 	}
 }

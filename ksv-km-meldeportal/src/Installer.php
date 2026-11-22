@@ -43,6 +43,8 @@ final class Installer {
 		$delete_data = is_array($settings) && !empty($settings['daten_bei_deinstallation_loeschen']);
 
 		Capabilities::remove_from_roles();
+		// Gemerkte Sportjahr-Auswahl der Benutzer (reine Bedienhilfe).
+		delete_metadata('user', 0, \KSV\KMM\Admin\AdminPage::USER_META_SPORTJAHR, '', true);
 		if ($delete_data) {
 			Migrator::drop_all();
 			delete_option(Settings::OPTION);

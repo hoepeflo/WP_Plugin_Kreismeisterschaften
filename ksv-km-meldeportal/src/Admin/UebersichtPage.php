@@ -24,6 +24,8 @@ use KSV\KMM\Infrastructure\Repository\MannschaftRepository;
 use KSV\KMM\Infrastructure\Repository\MeldungRepository;
 use KSV\KMM\Infrastructure\Repository\SportjahrRepository;
 use KSV\KMM\Infrastructure\Repository\VereinRepository;
+use KSV\KMM\Infrastructure\Repository\WettkampftagRepository;
+use KSV\KMM\Domain\WettkampftagStatus;
 use KSV\KMM\Support\Clock;
 use KSV\KMM\Support\Settings;
 
@@ -78,7 +80,6 @@ final class UebersichtPage extends AdminPage {
 		}
 		$sid = (int) $sportjahr['id'];
 		self::sportjahr_selector($sportjahr);
-		self::render_phase($sportjahr);
 
 		$vereine = (new VereinRepository())->all();
 		$meldungen = (new MeldungRepository())->by_sportjahr($sid);
@@ -151,21 +152,19 @@ final class UebersichtPage extends AdminPage {
 			$zeilen[] = ['verein' => $v, 'meldung' => $m, 'status' => $status, 'zahlen' => $z, 'link' => $links[ $vid ] ?? null, 'mail' => $mails[ $vid ] ?? null];
 		}
 
-		echo '<div class="kmm-kacheln">';
-		self::kachel(__('Offen', 'ksv-km-meldeportal'), (string) $summe['offen']);
-		self::kachel(__('Entwurf', 'ksv-km-meldeportal'), (string) $summe['entwurf']);
-		self::kachel(__('Eingereicht', 'ksv-km-meldeportal'), (string) $summe['eingereicht']);
-		self::kachel(__('Verarbeitet', 'ksv-km-meldeportal'), (string) $summe['verarbeitet']);
-		self::kachel(__('Einzelmeldungen', 'ksv-km-meldeportal'), (string) $summe['einzel']);
-		self::kachel(__('Mannschaften', 'ksv-km-meldeportal'), (string) $summe['mannschaften']);
-		self::kachel(__('Ohne Ergebnis', 'ksv-km-meldeportal'), (string) $summe['ohne_ergebnis'], $summe['ohne_ergebnis'] > 0 ? 'warn' : '');
-		self::kachel(__('Konflikte', 'ksv-km-meldeportal'), (string) $summe['konflikte'], $summe['konflikte'] > 0 ? 'fail' : '');
-		self::kachel(__('Startgeld (vorläufig)', 'ksv-km-meldeportal'), self::geld($summe['startgeld']));
+		$tage = (new WettkampftagRepository())->by_sportjahr($sid);
+		$aktive = count(array_filter($vereine, static fn(array $v): bool => (bool) $v['ist_aktiv']));
+		self::render_phasen($sportjahr, $tage, $summe['eingereicht'] + $summe['verarbeitet'], $summe['verarbeitet']);
+		self::render_kennzahlen($summe, $aktive);
+		echo '<div class="kmm-cockpit-raster">';
+		self::render_naechstes($sportjahr, $summe, $zeilen, $referent);
+		self::render_tage($tage, $sid);
 		echo '</div>';
 
 		$detail = isset($_GET['verein']) ? (int) $_GET['verein'] : 0;
 		$darf_bearbeiten = Rechte::hat_recht(Rechte::RECHT_MELDUNGEN) && $sportjahr['abgeschlossen_am'] === null;
 
+		echo '<h2 id="kmm-vereinsliste" class="kmm-abschnitt">' . esc_html__('Vereine', 'ksv-km-meldeportal') . '</h2>';
 		echo '<table class="widefat striped kmm-uebersicht"><thead><tr><th>' . esc_html__('Verein', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Status', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Ansprechpartner', 'ksv-km-meldeportal') . '</th><th class="r">' . esc_html__('Einzel', 'ksv-km-meldeportal') . '</th><th class="r">' . esc_html__('Mannsch.', 'ksv-km-meldeportal') . '</th><th class="r">' . esc_html__('Ohne Erg.', 'ksv-km-meldeportal') . '</th><th class="r">' . esc_html__('Konflikte', 'ksv-km-meldeportal') . '</th><th class="r">' . esc_html__('Startgeld', 'ksv-km-meldeportal') . '</th><th>' . esc_html__('Zugang', 'ksv-km-meldeportal') . '</th><th></th></tr></thead><tbody>';
 		foreach ($zeilen as $z) {
 			$v = $z['verein'];
@@ -194,74 +193,214 @@ final class UebersichtPage extends AdminPage {
 		echo '</div>';
 	}
 
-	/**
-	 * @param array<string, mixed> $sportjahr
-	 */
-	private static function render_phase(array $sportjahr): void {
-		$sid = (int) $sportjahr['id'];
-		$phase = \KSV\KMM\Application\Meldephase::pruefen($sportjahr);
-		echo '<div class="kmm-phase">';
-		echo '<p><strong>' . esc_html__('Meldephase:', 'ksv-km-meldeportal') . '</strong> ' . esc_html(Clock::format_local($sportjahr['meldung_beginn']) ?: '–') . ' – ' . esc_html(Clock::format_local($sportjahr['meldeschluss']) ?: '–');
-		echo ' <span class="kmm-badge">' . esc_html(match ($phase['status']) {
-			'vor_beginn' => __('noch nicht begonnen', 'ksv-km-meldeportal'),
-			'offen' => __('läuft', 'ksv-km-meldeportal'),
-			'geschlossen' => __('Meldeschluss vorbei', 'ksv-km-meldeportal'),
-			'abgeschlossen' => __('Sportjahr abgeschlossen', 'ksv-km-meldeportal'),
-			default => $phase['status'],
-		}) . '</span>';
-		echo ' · <a href="' . esc_url(Menu::url(SportjahrePage::SLUG, ['edit' => $sid])) . '">' . esc_html__('bearbeiten', 'ksv-km-meldeportal') . '</a></p>';
+	/** Phasen der Saison, in der Reihenfolge des Ablaufs. */
+	public const PHASEN = ['vorbereitung', 'meldephase', 'verarbeitung', 'startplan', 'ergebnisse', 'abschluss'];
 
-		echo '<p><strong>' . esc_html__('Erinnerungsmail:', 'ksv-km-meldeportal') . '</strong> ';
-		if ($sportjahr['erinnerung_am'] === null) {
-			echo esc_html__('kein Zeitpunkt eingestellt', 'ksv-km-meldeportal');
-		} else {
-			echo esc_html(sprintf(__('geplant für %s', 'ksv-km-meldeportal'), Clock::format_local($sportjahr['erinnerung_am'])));
+	/**
+	 * Aktuelle Phase der Saison (Index in PHASEN).
+	 *
+	 * @param string                           $meldestatus Status aus Meldephase::pruefen()
+	 * @param array<int, array<string, mixed>> $tage        Wettkampftage
+	 * @param string                           $heute       lokales Datum Y-m-d
+	 */
+	public static function phase_index(string $meldestatus, bool $abgeschlossen, array $tage, string $heute): int {
+		if ($abgeschlossen || $meldestatus === 'abgeschlossen') {
+			return 5;
 		}
-		if ($sportjahr['erinnerung_gesendet_am'] !== null) {
-			echo ' · ' . esc_html(sprintf(__('gesendet am %s', 'ksv-km-meldeportal'), Clock::format_local($sportjahr['erinnerung_gesendet_am'])));
-		} elseif ($sportjahr['erinnerung_am'] !== null) {
-			echo ' · ' . esc_html__('noch nicht gesendet (Versand über WP-Cron, stündlich)', 'ksv-km-meldeportal');
+		if ($meldestatus === 'vor_beginn') {
+			return 0;
 		}
-		$anzahl = count(Erinnerung::empfaenger($sid));
-		echo ' · ' . esc_html(sprintf(__('%d Vereine mit Status Offen/Entwurf und Adresse', 'ksv-km-meldeportal'), $anzahl));
-		echo '</p>';
-		if (current_user_can(\KSV\KMM\Auth\Capabilities::MANAGE)) {
-			self::form_open('erinnerung_senden', 'class="kmm-inline-form" data-kmm-confirm="' . esc_attr(sprintf(__('Erinnerung jetzt an %d Vereine senden?', 'ksv-km-meldeportal'), $anzahl)) . '"');
-			echo '<input type="hidden" name="sportjahr_id" value="' . $sid . '">';
-			submit_button(__('Erinnerung jetzt senden', 'ksv-km-meldeportal'), 'secondary', 'submit', false, $anzahl === 0 ? ['disabled' => 'disabled'] : []);
-			echo '</form> ';
-			if ($sportjahr['erinnerung_gesendet_am'] !== null) {
-				self::form_open('erinnerung_zuruecksetzen', 'class="kmm-inline-form"');
-				echo '<input type="hidden" name="sportjahr_id" value="' . $sid . '">';
-				submit_button(__('Versandvermerk zurücksetzen', 'ksv-km-meldeportal'), 'secondary', 'submit', false);
-				echo '</form>';
+		if ($meldestatus !== 'geschlossen') {
+			return 1;
+		}
+		$freigegeben = false;
+		foreach ($tage as $t) {
+			if ((string) $t['datum'] !== '' && strcmp((string) $t['datum'], $heute) <= 0) {
+				return 4;
+			}
+			if ((string) $t['status'] !== WettkampftagStatus::ENTWURF) {
+				$freigegeben = true;
 			}
 		}
-		self::render_sammelmail($sid);
+		return $freigegeben ? 3 : 2;
+	}
+
+	/**
+	 * Phasenleiste: wo steht die Saison, was kommt als Nächstes.
+	 *
+	 * @param array<string, mixed>             $sportjahr
+	 * @param array<int, array<string, mixed>> $tage
+	 */
+	private static function render_phasen(array $sportjahr, array $tage, int $eingereicht, int $verarbeitet): void {
+		$sid = (int) $sportjahr['id'];
+		$meldung = \KSV\KMM\Application\Meldephase::pruefen($sportjahr);
+		$heute = Clock::format_local(Clock::now_utc(), 'Y-m-d');
+		$aktuell = self::phase_index($meldung['status'], $sportjahr['abgeschlossen_am'] !== null, $tage, $heute);
+		$erster_tag = $tage !== [] ? (string) array_values($tage)[0]['datum'] : '';
+		$freigegeben = count(array_filter($tage, static fn(array $t): bool => (string) $t['status'] !== WettkampftagStatus::ENTWURF));
+
+		$schluss = $sportjahr['meldeschluss'];
+		$melde_info = __('Meldeschluss fehlt', 'ksv-km-meldeportal');
+		if ($schluss !== null) {
+			$melde_info = sprintf(__('bis %s', 'ksv-km-meldeportal'), Clock::format_local((string) $schluss, 'd.m.Y'));
+			if ($aktuell === 1) {
+				$rest = (int) ceil((strtotime((string) $schluss . ' UTC') - time()) / DAY_IN_SECONDS);
+				$melde_info .= ' · ' . ($rest <= 1 ? __('endet heute', 'ksv-km-meldeportal') : sprintf(__('noch %d Tage', 'ksv-km-meldeportal'), $rest));
+			} elseif ($aktuell > 1) {
+				$melde_info = sprintf(__('beendet am %s', 'ksv-km-meldeportal'), Clock::format_local((string) $schluss, 'd.m.Y'));
+			}
+		}
+		$phasen = [
+			['Vorbereitung', $aktuell > 0 ? __('erledigt', 'ksv-km-meldeportal') : ($sportjahr['meldung_beginn'] !== null ? sprintf(__('Meldestart %s', 'ksv-km-meldeportal'), Clock::format_local((string) $sportjahr['meldung_beginn'], 'd.m.Y')) : __('Stammdaten und Termine', 'ksv-km-meldeportal')), Menu::url(StammdatenPage::SLUG, ['sportjahr' => $sid])],
+			['Meldephase', $melde_info, Menu::url(SportjahrePage::SLUG, ['edit' => $sid])],
+			['Verarbeitung', $aktuell >= 2 ? sprintf(__('%1$d von %2$d verarbeitet', 'ksv-km-meldeportal'), $verarbeitet, $eingereicht) : __('nach Meldeschluss', 'ksv-km-meldeportal'), Menu::url(VerarbeitungPage::SLUG, ['sportjahr' => $sid])],
+			['Startplan', $tage === [] ? __('noch keine Wettkampftage', 'ksv-km-meldeportal') : ($freigegeben > 0 ? sprintf(_n('%1$d Wettkampftag, %2$d freigegeben', '%1$d Wettkampftage, %2$d freigegeben', count($tage), 'ksv-km-meldeportal'), count($tage), $freigegeben) : sprintf(_n('%d Wettkampftag', '%d Wettkampftage', count($tage), 'ksv-km-meldeportal'), count($tage))), Menu::url(WettkampftagePage::SLUG, ['sportjahr' => $sid])],
+			['Ergebnisse', $erster_tag !== '' ? sprintf(__('ab %s', 'ksv-km-meldeportal'), date_i18n('d.m.Y', (int) strtotime($erster_tag))) : '–', ''],
+			['Abschluss', $sportjahr['abgeschlossen_am'] !== null ? sprintf(__('am %s', 'ksv-km-meldeportal'), Clock::format_local((string) $sportjahr['abgeschlossen_am'], 'd.m.Y')) : '–', Menu::url(SportjahrePage::SLUG)],
+		];
+		echo '<ol class="kmm-phasen" aria-label="' . esc_attr__('Ablauf der Saison', 'ksv-km-meldeportal') . '">';
+		foreach ($phasen as $i => [$titel, $info, $url]) {
+			$klasse = $i < $aktuell || ($i === 5 && $aktuell === 5) ? 'is-fertig' : ($i === $aktuell ? 'is-aktiv' : '');
+			$inhalt = '<span class="kmm-phase-nr" aria-hidden="true">' . ($klasse === 'is-fertig' ? '✓' : (string) ($i + 1)) . '</span><span class="kmm-phase-titel">' . esc_html(__($titel, 'ksv-km-meldeportal')) . '</span><span class="kmm-phase-info">' . esc_html($info) . '</span>'; // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
+			echo '<li class="' . esc_attr($klasse) . '"' . ($i === $aktuell ? ' aria-current="step"' : '') . '>';
+			echo $url !== '' && current_user_can(\KSV\KMM\Auth\Capabilities::MANAGE) ? '<a href="' . esc_url($url) . '">' . $inhalt . '</a>' : '<span class="kmm-phase-box">' . $inhalt . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo '</li>';
+		}
+		echo '</ol>';
+	}
+
+	/**
+	 * @param array<string, int|float> $summe
+	 */
+	private static function render_kennzahlen(array $summe, int $aktive): void {
+		$fertig = (int) $summe['eingereicht'] + (int) $summe['verarbeitet'];
+		$quote = $aktive > 0 ? (int) round(100 * $fertig / $aktive) : 0;
+		echo '<div class="kmm-kacheln kmm-kennzahlen">';
+		echo '<div class="kmm-kachel haupt"><div class="kmm-kachel-wert">' . (int) $fertig . ' <small>' . esc_html(sprintf(__('von %d', 'ksv-km-meldeportal'), $aktive)) . '</small></div><div class="kmm-kachel-label">' . esc_html__('Vereine eingereicht', 'ksv-km-meldeportal') . '</div>';
+		echo '<div class="kmm-fortschritt" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' . $quote . '" aria-label="' . esc_attr__('Anteil eingereichter Vereine', 'ksv-km-meldeportal') . '"><span style="width:' . $quote . '%"></span></div></div>';
+		self::kachel(__('Einzelmeldungen', 'ksv-km-meldeportal'), (string) $summe['einzel']);
+		self::kachel(__('Mannschaften', 'ksv-km-meldeportal'), (string) $summe['mannschaften']);
+		self::kachel(__('Startgeld (vorläufig)', 'ksv-km-meldeportal'), self::geld((float) $summe['startgeld']));
 		echo '</div>';
 	}
 
-	private static function render_sammelmail(int $sid): void {
-		$offen = (new \KSV\KMM\Infrastructure\Repository\AenderungRepository())->offen_je_sportjahr($sid);
-		$anzahl = array_sum(array_map('count', $offen));
-		$lauf = Sammelmail::letzter_lauf();
-		$naechster = wp_next_scheduled(\KSV\KMM\Cron::DAILY_HOOK);
-		echo '<p><strong>' . esc_html__('Sammelmail:', 'ksv-km-meldeportal') . '</strong> ';
-		echo esc_html(Settings::get('sammelmail_aktiv') ? sprintf(__('täglich um %s Uhr', 'ksv-km-meldeportal'), (string) Settings::get('sammelmail_uhrzeit')) : __('abgeschaltet', 'ksv-km-meldeportal'));
-		if ($naechster !== false && Settings::get('sammelmail_aktiv')) {
-			echo ' · ' . esc_html(sprintf(__('nächster Lauf %s', 'ksv-km-meldeportal'), Clock::format_local(gmdate(Clock::DB_FORMAT, (int) $naechster))));
+	/**
+	 * „Als Nächstes“: offene Punkte mit der passenden Aktion daneben.
+	 *
+	 * @param array<string, mixed>             $sportjahr
+	 * @param array<string, int|float>         $summe
+	 * @param array<int, array<string, mixed>> $zeilen
+	 */
+	private static function render_naechstes(array $sportjahr, array $summe, array $zeilen, bool $referent): void {
+		$sid = (int) $sportjahr['id'];
+		$darf = current_user_can(\KSV\KMM\Auth\Capabilities::MANAGE);
+		$meldephase = \KSV\KMM\Application\Meldephase::pruefen($sportjahr)['status'];
+		$punkte = [];
+		$liste = '#kmm-vereinsliste';
+
+		$namen = static function (string $feld) use ($zeilen): string {
+			$n = [];
+			foreach ($zeilen as $z) {
+				if ((int) ($z['zahlen'][ $feld ] ?? 0) > 0) {
+					$n[] = (string) $z['verein']['name'];
+				}
+			}
+			return count($n) > 3 ? implode(', ', array_slice($n, 0, 3)) . ' ' . sprintf(__('und %d weitere', 'ksv-km-meldeportal'), count($n) - 3) : implode(', ', $n);
+		};
+
+		if (!$referent) {
+			$offen = (int) $summe['offen'] + (int) $summe['entwurf'];
+			if ($offen > 0 && $meldephase !== 'abgeschlossen') {
+				$anzahl = count(Erinnerung::empfaenger($sid));
+				$aktion = '';
+				if ($darf && $meldephase === 'offen') {
+					$aktion = self::aktion_button('erinnerung_senden', $sid, __('Erinnerung senden', 'ksv-km-meldeportal'), sprintf(__('Erinnerung jetzt an %d Vereine senden?', 'ksv-km-meldeportal'), $anzahl), $anzahl === 0, true);
+				}
+				$erinnerung = $sportjahr['erinnerung_gesendet_am'] !== null
+					? sprintf(__('Erinnerung gesendet am %s', 'ksv-km-meldeportal'), Clock::format_local((string) $sportjahr['erinnerung_gesendet_am']))
+					: ($sportjahr['erinnerung_am'] !== null ? sprintf(__('automatische Erinnerung am %s', 'ksv-km-meldeportal'), Clock::format_local((string) $sportjahr['erinnerung_am'])) : __('keine automatische Erinnerung eingestellt', 'ksv-km-meldeportal'));
+				if ($darf && $sportjahr['erinnerung_gesendet_am'] !== null) {
+					$aktion .= self::aktion_button('erinnerung_zuruecksetzen', $sid, __('Versandvermerk zurücksetzen', 'ksv-km-meldeportal'), '', false, false);
+				}
+				$punkte[] = [
+					'warn',
+					sprintf(_n('%d Verein hat noch nicht eingereicht', '%d Vereine haben noch nicht eingereicht', $offen, 'ksv-km-meldeportal'), $offen),
+					sprintf(__('%1$d im Entwurf, %2$d noch nicht angefangen', 'ksv-km-meldeportal'), (int) $summe['entwurf'], (int) $summe['offen']) . ' · ' . $erinnerung,
+					$aktion,
+				];
+			}
 		}
-		if ($lauf !== null) {
-			echo ' · ' . esc_html(sprintf(__('letzter Lauf %s', 'ksv-km-meldeportal'), Clock::format_local($lauf['am'])));
+		if ((int) $summe['konflikte'] > 0) {
+			$punkte[] = ['fail', sprintf(_n('%d Meldung mit Konflikt', '%d Meldungen mit Konflikt', (int) $summe['konflikte'], 'ksv-km-meldeportal'), (int) $summe['konflikte']), $namen('konflikte'), self::link_button($liste, __('Anzeigen', 'ksv-km-meldeportal'))];
 		}
-		echo ' · ' . esc_html(sprintf(__('%1$d offene Änderungen bei %2$d Vereinen', 'ksv-km-meldeportal'), $anzahl, count($offen)));
-		echo ' · <a href="' . esc_url(Menu::url(SettingsPage::SLUG)) . '">' . esc_html__('Einstellungen', 'ksv-km-meldeportal') . '</a></p>';
-		if (current_user_can(\KSV\KMM\Auth\Capabilities::MANAGE)) {
-			self::form_open('sammelmail_senden', 'class="kmm-inline-form" data-kmm-confirm="' . esc_attr(sprintf(__('Sammelmail jetzt an %d Vereine senden?', 'ksv-km-meldeportal'), count($offen))) . '"');
-			echo '<input type="hidden" name="sportjahr_id" value="' . $sid . '">';
-			submit_button(__('Sammelmail jetzt senden', 'ksv-km-meldeportal'), 'secondary', 'submit', false, $anzahl === 0 ? ['disabled' => 'disabled'] : []);
-			echo '</form>';
+		if ((int) $summe['ohne_ergebnis'] > 0) {
+			$punkte[] = ['warn', sprintf(_n('%d Meldung ohne Ergebnis', '%d Meldungen ohne Ergebnis', (int) $summe['ohne_ergebnis'], 'ksv-km-meldeportal'), (int) $summe['ohne_ergebnis']), $namen('ohne_ergebnis'), self::link_button($liste, __('Anzeigen', 'ksv-km-meldeportal'))];
 		}
+		if ($meldephase === 'geschlossen' && (int) $summe['eingereicht'] > 0 && !$referent) {
+			$punkte[] = ['info', sprintf(_n('%d Meldung wartet auf Verarbeitung', '%d Meldungen warten auf Verarbeitung', (int) $summe['eingereicht'], 'ksv-km-meldeportal'), (int) $summe['eingereicht']), __('Prüfen und für den Startplan übernehmen', 'ksv-km-meldeportal'), self::link_button(Menu::url(VerarbeitungPage::SLUG, ['sportjahr' => $sid]), __('Zur Verarbeitung', 'ksv-km-meldeportal'), true)];
+		}
+		if (!$referent) {
+			$offen_aend = (new \KSV\KMM\Infrastructure\Repository\AenderungRepository())->offen_je_sportjahr($sid);
+			$anzahl_aend = array_sum(array_map('count', $offen_aend));
+			$naechster = wp_next_scheduled(\KSV\KMM\Cron::DAILY_HOOK);
+			$aktiv = (bool) Settings::get('sammelmail_aktiv');
+			$text = $aktiv ? sprintf(__('Sammelmail täglich um %s Uhr', 'ksv-km-meldeportal'), (string) Settings::get('sammelmail_uhrzeit')) : __('Sammelmail ist abgeschaltet', 'ksv-km-meldeportal');
+			$info = sprintf(__('%1$d Änderungen bei %2$d Vereinen', 'ksv-km-meldeportal'), $anzahl_aend, count($offen_aend));
+			if ($aktiv && $naechster !== false) {
+				$info .= ' · ' . sprintf(__('nächster Lauf %s', 'ksv-km-meldeportal'), Clock::format_local(gmdate(Clock::DB_FORMAT, (int) $naechster)));
+			}
+			$lauf = Sammelmail::letzter_lauf();
+			if ($lauf !== null) {
+				$info .= ' · ' . sprintf(__('letzter Lauf %s', 'ksv-km-meldeportal'), Clock::format_local($lauf['am']));
+			}
+			$aktion = $darf ? self::aktion_button('sammelmail_senden', $sid, __('Jetzt senden', 'ksv-km-meldeportal'), sprintf(__('Sammelmail jetzt an %d Vereine senden?', 'ksv-km-meldeportal'), count($offen_aend)), $anzahl_aend === 0, false) : '';
+			$aktion .= $darf ? ' <a class="kmm-klein-link" href="' . esc_url(Menu::url(SettingsPage::SLUG)) . '">' . esc_html__('Einstellungen', 'ksv-km-meldeportal') . '</a>' : '';
+			$punkte[] = [$anzahl_aend > 0 ? 'info' : 'ruhig', $text, $info, $aktion];
+		}
+
+		echo '<section class="kmm-karte kmm-naechstes"><h2>' . esc_html__('Als Nächstes', 'ksv-km-meldeportal') . '</h2>';
+		$wichtig = array_filter($punkte, static fn(array $p): bool => $p[0] !== 'ruhig');
+		if ($wichtig === []) {
+			echo '<p class="kmm-alles-gut">' . esc_html__('Gerade ist nichts zu tun.', 'ksv-km-meldeportal') . '</p>';
+		}
+		echo '<ul>';
+		foreach ($punkte as [$art, $titel, $info, $aktion]) {
+			echo '<li class="kmm-punkt kmm-punkt-' . esc_attr($art) . '"><span class="kmm-punkt-text"><strong>' . esc_html($titel) . '</strong>' . ($info !== '' ? '<small>' . esc_html($info) . '</small>' : '') . '</span><span class="kmm-punkt-aktion">' . $aktion . '</span></li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
+		echo '</ul></section>';
+	}
+
+	/**
+	 * @param array<int, array<string, mixed>> $tage
+	 */
+	private static function render_tage(array $tage, int $sid): void {
+		echo '<section class="kmm-karte kmm-tage"><h2>' . esc_html__('Wettkampftage', 'ksv-km-meldeportal') . '</h2>';
+		if ($tage === []) {
+			echo '<p class="description">' . esc_html__('Noch keine Wettkampftage angelegt.', 'ksv-km-meldeportal') . '</p>';
+		} else {
+			echo '<table class="kmm-tage-liste"><tbody>';
+			foreach ($tage as $t) {
+				$status = (string) $t['status'];
+				$badge = $status === WettkampftagStatus::ENTWURF ? '' : ($status === WettkampftagStatus::VEROEFFENTLICHT ? ' kmm-badge-verarbeitet' : ' kmm-badge-eingereicht');
+				echo '<tr><td class="kmm-nowrap"><strong>' . esc_html(date_i18n('D, d.m.', (int) strtotime((string) $t['datum']))) . '</strong></td><td>' . esc_html((string) $t['bezeichnung']) . ($t['ort'] ? '<br><small>' . esc_html((string) $t['ort']) . '</small>' : '') . '</td><td class="r"><span class="kmm-badge' . esc_attr($badge) . '">' . esc_html(WettkampftagStatus::label($status)) . '</span></td></tr>';
+			}
+			echo '</tbody></table>';
+		}
+		echo '<p><a href="' . esc_url(Menu::url(WettkampftagePage::SLUG, ['sportjahr' => $sid])) . '">' . esc_html__('Wettkampftage verwalten', 'ksv-km-meldeportal') . ' →</a></p>';
+		echo '</section>';
+	}
+
+	private static function aktion_button(string $aktion, int $sid, string $label, string $frage, bool $gesperrt, bool $primaer): string {
+		ob_start();
+		self::form_open($aktion, 'class="kmm-inline-form"' . ($frage !== '' ? ' data-kmm-confirm="' . esc_attr($frage) . '"' : ''));
+		echo '<input type="hidden" name="sportjahr_id" value="' . (int) $sid . '">';
+		echo '<button type="submit" class="button' . ($primaer ? ' button-primary' : '') . '"' . ($gesperrt ? ' disabled' : '') . '>' . esc_html($label) . '</button>';
+		echo '</form>';
+		return (string) ob_get_clean();
+	}
+
+	private static function link_button(string $url, string $label, bool $primaer = false): string {
+		return '<a class="button' . ($primaer ? ' button-primary' : '') . '" href="' . esc_url($url) . '">' . esc_html($label) . '</a>';
 	}
 
 	/**
