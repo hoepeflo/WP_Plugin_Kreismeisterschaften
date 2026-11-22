@@ -103,6 +103,16 @@ final class ErgebnissePage extends AdminPage {
 					$typ = self::post_str('typ', 20);
 					$kategorie = self::post_int_or_null('kategorie');
 					$titel = self::post_str('titel', 190);
+					$dok_id = self::post_int('id');
+					if ($dok_id > 0) {
+						$hat_datei = isset($_FILES['pdf']['error']) && (int) $_FILES['pdf']['error'] !== UPLOAD_ERR_NO_FILE;
+						if ($quelle === Dokumente::QUELLE_PDF && !$hat_datei) {
+							throw new \InvalidArgumentException(__('Bitte ein PDF auswählen oder „unverändert“ wählen.', 'ksv-km-meldeportal'));
+						}
+						$ziel_jahr = self::post_int('dok_jahr') ?: $jahr;
+						$dok->bearbeiten($dok_id, $ziel_jahr, $typ, $kategorie, $titel, $quelle, $quelle === Dokumente::QUELLE_SEITE ? (string) self::post_int('page_id') : self::post_str('url', 500), $quelle === Dokumente::QUELLE_PDF ? self::datei('pdf') : null);
+						self::redirect(__('Dokument gespeichert.', 'ksv-km-meldeportal'), 'success', ['tab' => 'dokumente', 'jahr' => $ziel_jahr]);
+					}
 					if ($quelle === Dokumente::QUELLE_PDF) {
 						$dok->hochladen($jahr, $typ, $kategorie, $titel, self::datei('pdf'));
 					} else {
@@ -570,6 +580,7 @@ final class ErgebnissePage extends AdminPage {
 						echo '<input type="hidden" name="jahr" value="' . (int) $jahr . '"><input type="hidden" name="tab" value="dokumente"><input type="hidden" name="id" value="' . (int) $d['id'] . '"><input type="hidden" name="richtung" value="' . (int) $richtung . '">';
 						echo '<button class="button button-small" aria-label="' . esc_attr($richtung < 0 ? __('nach oben', 'ksv-km-meldeportal') : __('nach unten', 'ksv-km-meldeportal')) . '">' . esc_html($pfeil) . '</button></form> ';
 					}
+					echo '<a class="button button-small" href="' . esc_url(self::url(['tab' => 'dokumente', 'jahr' => $jahr, 'bearbeiten' => (int) $d['id']])) . '#dokform">' . esc_html__('bearbeiten', 'ksv-km-meldeportal') . '</a> ';
 					self::form_open('dokument_loeschen', 'class="kmm-inline" data-kmm-gefahr="1" data-kmm-confirm="' . esc_attr__('Verweis entfernen? Das PDF bleibt in der Mediathek.', 'ksv-km-meldeportal') . '"');
 					echo '<input type="hidden" name="jahr" value="' . (int) $jahr . '"><input type="hidden" name="tab" value="dokumente"><input type="hidden" name="id" value="' . (int) $d['id'] . '">';
 					echo '<button class="button-link kmm-link-danger">' . esc_html__('entfernen', 'ksv-km-meldeportal') . '</button></form>';
@@ -581,25 +592,55 @@ final class ErgebnissePage extends AdminPage {
 		if (!$darf) {
 			return;
 		}
+		$bearbeiten = isset($_GET['bearbeiten']) ? $dok->finde((int) $_GET['bearbeiten']) : null; // phpcs:ignore WordPress.Security.NonceVerification
+		self::dokument_formular($jahr, $jahre, $bearbeiten);
+	}
+
+	/**
+	 * Formular zum Hinzufügen oder Bearbeiten einer Unterlage.
+	 *
+	 * @param list<int>                 $jahre
+	 * @param array<string, mixed>|null $d     vorhandenes Dokument oder null für neu
+	 */
+	private static function dokument_formular(int $jahr, array $jahre, ?array $d): void {
 		$typen = Dokumente::typen();
-		unset($typen[ Dokumente::TYP_LICHT ]);
+		if ($d === null || $d['typ'] !== Dokumente::TYP_LICHT) {
+			unset($typen[ Dokumente::TYP_LICHT ]);
+		}
 		$sparten = ['' => '—'];
 		foreach (Kategorie::ALLE as $nr => $label) {
 			$sparten[ $nr ] = $nr . ' ' . $label;
 		}
-		echo '<h3>' . esc_html__('Unterlage hinzufügen', 'ksv-km-meldeportal') . '</h3>';
-		self::form_open('dokument', 'enctype="multipart/form-data" class="kmm-erg-dokform"');
+		$neu = $d === null;
+		echo '<h3 id="dokform">' . esc_html($neu ? __('Unterlage hinzufügen', 'ksv-km-meldeportal') : sprintf(__('Unterlage bearbeiten: %s', 'ksv-km-meldeportal'), Dokumente::titel($d))) . '</h3>';
+		self::form_open('dokument', 'enctype="multipart/form-data" class="kmm-erg-dokform' . ($neu ? '' : ' is-bearbeiten') . '"');
 		echo '<input type="hidden" name="jahr" value="' . (int) $jahr . '"><input type="hidden" name="tab" value="dokumente">';
-		echo '<p><label>' . esc_html__('Art', 'ksv-km-meldeportal') . ' ' . self::select('typ', $typen, Dokumente::TYP_AUSSCHREIBUNG) . '</label> '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo '<label>' . esc_html__('Sparte (bei Art „Sparte“)', 'ksv-km-meldeportal') . ' ' . self::select('kategorie', $sparten, '') . '</label></p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo '<p><label>' . esc_html__('Titel (optional)', 'ksv-km-meldeportal') . ' ' . self::input('titel', '', 'text', 'class="regular-text"') . '</label></p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo '<fieldset><legend>' . esc_html__('Quelle', 'ksv-km-meldeportal') . '</legend>';
-		echo '<p><label><input type="radio" name="quelle" value="pdf" checked> ' . esc_html__('PDF hochladen', 'ksv-km-meldeportal') . '</label> <input type="file" name="pdf" accept=".pdf"></p>';
+		if (!$neu) {
+			echo '<input type="hidden" name="id" value="' . (int) $d['id'] . '">';
+			echo '<p><label>' . esc_html__('Jahr', 'ksv-km-meldeportal') . ' ' . self::select('dok_jahr', array_combine($jahre, array_map('strval', $jahre)) ?: [], (int) $d['jahr']) . '</label></p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
+		echo '<p><label>' . esc_html__('Art', 'ksv-km-meldeportal') . ' ' . self::select('typ', $typen, $neu ? Dokumente::TYP_AUSSCHREIBUNG : (string) $d['typ']) . '</label> '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<label>' . esc_html__('Sparte (bei Art „Sparte“)', 'ksv-km-meldeportal') . ' ' . self::select('kategorie', $sparten, $neu ? '' : (string) ($d['kategorie'] ?? '')) . '</label></p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<p><label>' . esc_html__('Titel (optional)', 'ksv-km-meldeportal') . ' ' . self::input('titel', $neu ? '' : (string) $d['titel'], 'text', 'class="regular-text"') . '</label>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo ' <span class="description">' . esc_html__('Leer = Name der Art, z. B. „Allgemeine Ausschreibung“.', 'ksv-km-meldeportal') . '</span></p>';
+		$q = $neu ? Dokumente::QUELLE_PDF : '';
+		echo '<fieldset><legend>' . esc_html($neu ? __('Quelle', 'ksv-km-meldeportal') : __('Datei oder Ziel', 'ksv-km-meldeportal')) . '</legend>';
+		if (!$neu) {
+			$url = Dokumente::aufloesen($d);
+			echo '<p><label><input type="radio" name="quelle" value="" checked> ' . esc_html__('unverändert lassen', 'ksv-km-meldeportal') . '</label>';
+			echo $url !== '' ? ' (<a href="' . esc_url($url) . '" target="_blank" rel="noopener">' . esc_html__('aktuelle Datei öffnen', 'ksv-km-meldeportal') . '</a>)' : '';
+			echo '</p>';
+		}
+		echo '<p><label><input type="radio" name="quelle" value="pdf"' . checked($q, Dokumente::QUELLE_PDF, false) . '> ' . esc_html($neu ? __('PDF hochladen', 'ksv-km-meldeportal') : __('neues PDF hochladen (ersetzt die Datei)', 'ksv-km-meldeportal')) . '</label> <input type="file" name="pdf" accept=".pdf"></p>';
 		echo '<p><label><input type="radio" name="quelle" value="page"> ' . esc_html__('Seite', 'ksv-km-meldeportal') . '</label> ';
-		wp_dropdown_pages(['name' => 'page_id', 'show_option_none' => '—', 'option_none_value' => '0']);
-		echo '</p><p><label><input type="radio" name="quelle" value="url"> ' . esc_html__('Adresse', 'ksv-km-meldeportal') . '</label> ' . self::input('url', '', 'url', 'class="regular-text" placeholder="https://"') . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		wp_dropdown_pages(['name' => 'page_id', 'show_option_none' => '—', 'option_none_value' => '0', 'selected' => $neu ? 0 : (int) ($d['page_id'] ?? 0)]);
+		$adresse = !$neu && $d['quelle'] === Dokumente::QUELLE_URL ? (string) $d['url'] : '';
+		echo '</p><p><label><input type="radio" name="quelle" value="url"> ' . esc_html__('Adresse', 'ksv-km-meldeportal') . '</label> ' . self::input('url', $adresse, 'url', 'class="regular-text" placeholder="https://"') . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</fieldset>';
-		submit_button(__('Hinzufügen', 'ksv-km-meldeportal'), 'primary', '', false);
+		submit_button($neu ? __('Hinzufügen', 'ksv-km-meldeportal') : __('Speichern', 'ksv-km-meldeportal'), 'primary', '', false);
+		if (!$neu) {
+			echo ' <a class="button" href="' . esc_url(self::url(['tab' => 'dokumente', 'jahr' => $jahr])) . '">' . esc_html__('Abbrechen', 'ksv-km-meldeportal') . '</a>';
+		}
 		echo '</form>';
 	}
 

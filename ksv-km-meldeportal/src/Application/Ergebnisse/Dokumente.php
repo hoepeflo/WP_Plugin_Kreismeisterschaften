@@ -140,52 +140,10 @@ final class Dokumente {
 	 * @throws \InvalidArgumentException
 	 */
 	public function anlegen(int $jahr, string $typ, ?int $kategorie, string $titel, string $quelle, string $ziel): int {
-		if ($jahr < 1990 || $jahr > 2100) {
-			throw new \InvalidArgumentException(__('Ungültiges Jahr.', 'ksv-km-meldeportal'));
-		}
-		if (!isset(self::typen()[ $typ ])) {
-			throw new \InvalidArgumentException(__('Unbekannte Dokumentart.', 'ksv-km-meldeportal'));
-		}
-		if ($typ === self::TYP_KATEGORIE && ($kategorie === null || !Kategorie::gibt_es($kategorie))) {
-			throw new \InvalidArgumentException(__('Bitte eine Sparte wählen.', 'ksv-km-meldeportal'));
-		}
-		$zeile = [
-			'jahr'          => $jahr,
-			'typ'           => $typ,
-			'kategorie'     => $typ === self::TYP_KATEGORIE ? $kategorie : null,
-			'titel'         => sanitize_text_field($titel),
-			'quelle'        => $quelle,
-			'attachment_id' => null,
-			'page_id'       => null,
-			'url'           => '',
-			'sortierung'    => count($this->repo->by_jahr($jahr)) + 1,
-			'herkunft'      => 'manuell',
+		$zeile = $this->angaben_pruefen($jahr, $typ, $kategorie, $titel) + $this->ziel_pruefen($quelle, $ziel) + [
+			'sortierung' => count($this->repo->by_jahr($jahr)) + 1,
+			'herkunft'   => 'manuell',
 		];
-		switch ($quelle) {
-			case self::QUELLE_PDF:
-				$id = (int) $ziel;
-				if ($id <= 0 || get_post_mime_type($id) !== 'application/pdf') {
-					throw new \InvalidArgumentException(__('Bitte ein PDF aus der Mediathek wählen.', 'ksv-km-meldeportal'));
-				}
-				$zeile['attachment_id'] = $id;
-				break;
-			case self::QUELLE_SEITE:
-				$id = (int) $ziel;
-				if ($id <= 0 || get_post_type($id) !== 'page') {
-					throw new \InvalidArgumentException(__('Bitte eine Seite wählen.', 'ksv-km-meldeportal'));
-				}
-				$zeile['page_id'] = $id;
-				break;
-			case self::QUELLE_URL:
-				$url = esc_url_raw(trim($ziel));
-				if ($url === '' || wp_http_validate_url($url) === false) {
-					throw new \InvalidArgumentException(__('Bitte eine gültige Adresse (https://…) angeben.', 'ksv-km-meldeportal'));
-				}
-				$zeile['url'] = $url;
-				break;
-			default:
-				throw new \InvalidArgumentException(__('Unbekannte Quelle.', 'ksv-km-meldeportal'));
-		}
 		$id = $this->repo->insert($zeile);
 		Protokoll::admin('dokument_angelegt', sprintf('%d: %s', $jahr, self::titel($zeile)), null, null, 'dokument', $id);
 		return $id;
@@ -198,6 +156,95 @@ final class Dokumente {
 	 * @throws \InvalidArgumentException
 	 */
 	public function hochladen(int $jahr, string $typ, ?int $kategorie, string $titel, array $datei): int {
+		$this->angaben_pruefen($jahr, $typ, $kategorie, $titel);
+		return $this->anlegen($jahr, $typ, $kategorie, $titel, self::QUELLE_PDF, (string) $this->pdf_in_mediathek($datei, $titel));
+	}
+
+	/**
+	 * Ändert ein Dokument. $quelle leer = Ziel bleibt wie es ist; bei QUELLE_PDF mit $datei
+	 * wird ein neues PDF hochgeladen (das alte bleibt in der Mediathek).
+	 *
+	 * @param array<string, mixed>|null $datei Eintrag aus $_FILES
+	 * @throws \InvalidArgumentException
+	 */
+	public function bearbeiten(int $id, int $jahr, string $typ, ?int $kategorie, string $titel, string $quelle = '', string $ziel = '', ?array $datei = null): void {
+		$alt = $this->repo->find($id);
+		if ($alt === null) {
+			throw new \InvalidArgumentException(__('Dokument nicht gefunden.', 'ksv-km-meldeportal'));
+		}
+		$daten = $this->angaben_pruefen($jahr, $typ, $kategorie, $titel);
+		if ($quelle === self::QUELLE_PDF && $datei !== null) {
+			$ziel = (string) $this->pdf_in_mediathek($datei, $titel);
+		}
+		if ($quelle !== '') {
+			$daten += $this->ziel_pruefen($quelle, $ziel);
+		}
+		if ((int) $alt['jahr'] !== $jahr) {
+			$daten['sortierung'] = count($this->repo->by_jahr($jahr)) + 1;
+		}
+		$this->repo->update($id, $daten);
+		Protokoll::admin('dokument_geaendert', sprintf('%d: %s', $jahr, self::titel($daten + $alt)), null, null, 'dokument', $id);
+	}
+
+	/**
+	 * @return array{jahr: int, typ: string, kategorie: ?int, titel: string}
+	 * @throws \InvalidArgumentException
+	 */
+	private function angaben_pruefen(int $jahr, string $typ, ?int $kategorie, string $titel): array {
+		if ($jahr < 1990 || $jahr > 2100) {
+			throw new \InvalidArgumentException(__('Ungültiges Jahr.', 'ksv-km-meldeportal'));
+		}
+		if (!isset(self::typen()[ $typ ])) {
+			throw new \InvalidArgumentException(__('Unbekannte Dokumentart.', 'ksv-km-meldeportal'));
+		}
+		if ($typ === self::TYP_KATEGORIE && ($kategorie === null || !Kategorie::gibt_es($kategorie))) {
+			throw new \InvalidArgumentException(__('Bitte eine Sparte wählen.', 'ksv-km-meldeportal'));
+		}
+		return [
+			'jahr'      => $jahr,
+			'typ'       => $typ,
+			'kategorie' => $typ === self::TYP_KATEGORIE ? $kategorie : null,
+			'titel'     => sanitize_text_field($titel),
+		];
+	}
+
+	/**
+	 * @return array{quelle: string, attachment_id: ?int, page_id: ?int, url: string}
+	 * @throws \InvalidArgumentException
+	 */
+	private function ziel_pruefen(string $quelle, string $ziel): array {
+		$out = ['quelle' => $quelle, 'attachment_id' => null, 'page_id' => null, 'url' => ''];
+		switch ($quelle) {
+			case self::QUELLE_PDF:
+				$id = (int) $ziel;
+				if ($id <= 0 || get_post_mime_type($id) !== 'application/pdf') {
+					throw new \InvalidArgumentException(__('Bitte ein PDF hochladen.', 'ksv-km-meldeportal'));
+				}
+				$out['attachment_id'] = $id;
+				return $out;
+			case self::QUELLE_SEITE:
+				$id = (int) $ziel;
+				if ($id <= 0 || get_post_type($id) !== 'page') {
+					throw new \InvalidArgumentException(__('Bitte eine Seite wählen.', 'ksv-km-meldeportal'));
+				}
+				$out['page_id'] = $id;
+				return $out;
+			case self::QUELLE_URL:
+				$url = esc_url_raw(trim($ziel));
+				if ($url === '' || wp_http_validate_url($url) === false) {
+					throw new \InvalidArgumentException(__('Bitte eine gültige Adresse (https://…) angeben.', 'ksv-km-meldeportal'));
+				}
+				$out['url'] = $url;
+				return $out;
+		}
+		throw new \InvalidArgumentException(__('Unbekannte Quelle.', 'ksv-km-meldeportal'));
+	}
+
+	/**
+	 * @param array<string, mixed> $datei Eintrag aus $_FILES
+	 * @throws \InvalidArgumentException
+	 */
+	private function pdf_in_mediathek(array $datei, string $titel): int {
 		if ((int) ($datei['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
 			throw new \InvalidArgumentException(__('Die Datei ist nicht angekommen.', 'ksv-km-meldeportal'));
 		}
@@ -210,7 +257,14 @@ final class Dokumente {
 		if (is_wp_error($id)) {
 			throw new \InvalidArgumentException($id->get_error_message());
 		}
-		return $this->anlegen($jahr, $typ, $kategorie, $titel, self::QUELLE_PDF, (string) $id);
+		return (int) $id;
+	}
+
+	/**
+	 * @return array<string, mixed>|null
+	 */
+	public function finde(int $id): ?array {
+		return $this->repo->find($id);
 	}
 
 	/** Entfernt nur den Verweis; das PDF bleibt in der Mediathek. */

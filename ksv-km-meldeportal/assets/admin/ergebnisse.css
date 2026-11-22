@@ -36,3 +36,5 @@
 	.kmm-erg .kmm-erg-aktion { white-space: normal; }
 	.kmm-erg .kmm-erg-filter input[type=search], .kmm-erg .kmm-erg-stand progress { width: 100%; }
 }
+.kmm-erg .kmm-erg-dokform.is-bearbeiten { background: #fff; border-left: 4px solid #2f6806; padding: 4px 12px 12px; }
+.kmm-erg .kmm-erg-dokform fieldset p { margin: 6px 0; }
