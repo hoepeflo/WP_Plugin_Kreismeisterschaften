@@ -108,6 +108,14 @@ final class Migrator {
 	}
 
 	/**
+	 * Version 6 (Ergebnisse): neue Tabellen ergebnis, ergebnis_katalog, dokument und das
+	 * Referentenrecht darf_ergebnisse. Nur additiv; der Ergebnisordner und die Tabellen des
+	 * alten Ergebnis-Plugins werden nicht angefasst – das Einlesen startet erst von Hand.
+	 */
+	private static function step_6(): void {
+	}
+
+	/**
 	 * Status aller Tabellen für die Systemseite.
 	 *
 	 * @return array<string, bool> Tabellenname => existiert.
