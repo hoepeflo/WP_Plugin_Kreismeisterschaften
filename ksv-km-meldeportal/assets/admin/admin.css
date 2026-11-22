@@ -371,3 +371,92 @@
 .kmm-admin table.kmm-vereine tr.kmm-zeile-ok td:first-child { box-shadow: inset 4px 0 0 var(--kmm-primary); }
 .kmm-admin table.kmm-vereine .kmm-badge { margin-bottom: 3px; }
 .kmm-admin .kmm-link-legende .kmm-badge { margin-right: 4px; }
+
+/* =====================================================================================
+   Einheitliches Erscheinungsbild (UX-Review B1)
+   Drei Button-Arten: grün = Hauptaktion, weiß mit grauem Rand = Nebenaktion, rot = Löschen.
+   Formulare und Tabellen als weiße Karten, Schrift wie in der Vereinsoberfläche.
+   ===================================================================================== */
+
+.kmm-admin { font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #1f2a1a; }
+.kmm-admin :is(h1, h2, h3, input, select, textarea, button, .button) { font-family: inherit; }
+.kmm-admin a { color: var(--kmm-primary); }
+.kmm-admin a:hover, .kmm-admin a:focus { color: var(--kmm-primary-hell); }
+.kmm-admin a:focus { box-shadow: 0 0 0 2px rgba(47, 104, 6, .4); outline: none; }
+
+/* Nebenaktion: weiß, grauer Rand, dunkle Schrift – statt WordPress-Blau */
+.kmm-admin .button:not(.button-primary):not(.button-link),
+.kmm-admin input[type=submit].button:not(.button-primary),
+.kmm-admin .button-secondary {
+	background: var(--kmm-surface); border-color: var(--kmm-border-stark); color: #2c3628;
+	border-radius: 6px; box-shadow: none;
+}
+.kmm-admin .button:not(.button-primary):not(.button-link):hover,
+.kmm-admin .button:not(.button-primary):not(.button-link):focus {
+	background: var(--kmm-surface-2); border-color: var(--kmm-primary); color: var(--kmm-primary);
+}
+.kmm-admin .button:not(.button-primary):not(.button-link):focus { box-shadow: 0 0 0 2px rgba(47, 104, 6, .3); }
+.kmm-admin .button-primary { border-radius: 6px; }
+.kmm-admin .button[disabled], .kmm-admin .button:disabled,
+.kmm-admin .button-primary[disabled], .kmm-admin .button-primary:disabled {
+	background: #f3f4f2 !important; border-color: #dcdfd9 !important; color: #9aa094 !important;
+}
+
+/* Gefahr: rote Schrift, beim Überfahren rot hinterlegt */
+.kmm-admin .button.kmm-danger, .kmm-admin input[type=submit].kmm-danger,
+.kmm-admin .button-link.kmm-danger { color: var(--kmm-error) !important; }
+.kmm-admin .button.kmm-danger:hover, .kmm-admin input[type=submit].kmm-danger:hover {
+	background: var(--kmm-error-bg) !important; border-color: var(--kmm-error) !important;
+}
+.kmm-admin .kmm-button-gefahr, #kmm-rueckfrage .kmm-button-gefahr {
+	background: var(--kmm-error) !important; border-color: var(--kmm-error) !important; color: #fff !important;
+}
+
+/* Formulare als Karte (Einstellungen, Neuer Wettkampftag, Verein bearbeiten …) */
+.kmm-admin table.form-table {
+	background: var(--kmm-surface); border: 1px solid var(--kmm-border); border-radius: var(--kmm-radius);
+	box-shadow: var(--kmm-schatten); border-collapse: separate; border-spacing: 0; margin: 8px 0 18px;
+}
+.kmm-admin table.form-table th { padding: 16px 10px 16px 18px; width: 220px; color: #2c3628; }
+.kmm-admin table.form-table td { padding: 12px 18px 12px 10px; }
+.kmm-admin table.form-table tr + tr > * { border-top: 1px solid #eef1ea; }
+.kmm-admin .form-table input[type=text], .kmm-admin .form-table input[type=email], .kmm-admin .form-table input[type=number],
+.kmm-admin .form-table input[type=date], .kmm-admin .form-table input[type=datetime-local], .kmm-admin .form-table input[type=time],
+.kmm-admin .form-table select, .kmm-admin .form-table textarea { border-color: var(--kmm-border-stark); border-radius: 6px; }
+.kmm-admin :is(input, select, textarea):focus { border-color: var(--kmm-primary) !important; box-shadow: 0 0 0 1px var(--kmm-primary) !important; }
+.kmm-admin input[type=checkbox]:focus { box-shadow: 0 0 0 2px rgba(47, 104, 6, .4) !important; }
+.kmm-admin .kmm-format-hinweis { color: var(--kmm-text-muted); font-size: 12px; margin-left: 6px; }
+
+/* Reiter (Stammdaten, Einstellungen): als Segment statt WordPress-Karteikarten */
+.kmm-admin .nav-tab-wrapper { border-bottom: 0; display: flex; flex-wrap: wrap; gap: 4px; padding: 0; }
+.kmm-admin .nav-tab {
+	margin: 0; border: 1px solid var(--kmm-border); border-radius: 999px; background: var(--kmm-surface);
+	color: #2c3628; font-weight: 600; font-size: 13px; padding: 6px 14px;
+}
+.kmm-admin .nav-tab:hover { border-color: var(--kmm-primary); color: var(--kmm-primary); background: var(--kmm-surface); }
+.kmm-admin .nav-tab-active, .kmm-admin .nav-tab-active:hover, .kmm-admin .nav-tab-active:focus {
+	background: var(--kmm-primary); border-color: var(--kmm-primary); color: #fff;
+}
+
+/* Hinweise mit runden Ecken und Markenfarben */
+.kmm-admin .notice { border-radius: 6px; box-shadow: var(--kmm-schatten); }
+.kmm-admin .notice-success { border-left-color: var(--kmm-primary); }
+
+/* Kacheln: nur Zahlen mit Handlungsbedarf fallen auf, Nullen treten zurück (B2) */
+.kmm-admin .kmm-kachel.null .kmm-kachel-wert { color: #a3a99e; }
+.kmm-admin .kmm-kachel.null::before { background: #d7ddd2; }
+.kmm-admin .kmm-kachel.haupt .kmm-kachel-wert { font-size: 28px; }
+
+/* Rückfrage-Dialog */
+#kmm-rueckfrage {
+	border: 0; border-radius: 12px; padding: 22px 24px 18px; max-width: 460px; width: calc(100% - 32px);
+	box-shadow: 0 12px 48px rgba(10, 25, 5, .25); font-family: Roboto, -apple-system, "Segoe UI", sans-serif;
+}
+#kmm-rueckfrage::backdrop { background: rgba(10, 20, 5, .45); }
+#kmm-rueckfrage h2 { font-size: 17px; line-height: 1.4; margin: 0 0 12px; }
+#kmm-rueckfrage input { width: 100%; margin-bottom: 4px; }
+.kmm-rueckfrage-buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+
+/* Fristen: unplausible Werte markieren (B4) */
+.kmm-admin .kmm-frist-warn { color: var(--kmm-error); font-weight: 600; }
+.kmm-admin .kmm-frist-warn small { display: block; font-weight: 400; }

@@ -124,7 +124,7 @@ final class VerarbeitungPage extends AdminPage {
 		echo '<p class="description">' . esc_html(sprintf(__('%d Meldungen in der Auswahl, davon %d ungeprüft. Nur eingereichte Vereinsmeldungen.', 'ksv-km-meldeportal'), count($zeilen), $ungeprueft)) . '</p>';
 
 		if ($darf && $ungeprueft > 0) {
-			self::form_open('sammel', 'class="kmm-inline-form" onsubmit="return confirm(\'' . esc_js(sprintf(__('%d ungeprüfte Meldungen der aktuellen Auswahl als verarbeitet markieren? Bereits als nicht startberechtigt markierte bleiben unberührt.', 'ksv-km-meldeportal'), $ungeprueft)) . '\')"');
+			self::form_open('sammel', 'class="kmm-inline-form" data-kmm-confirm="' . esc_attr(sprintf(__('%d ungeprüfte Meldungen der aktuellen Auswahl als verarbeitet markieren? Bereits als nicht startberechtigt markierte bleiben unberührt.', 'ksv-km-meldeportal'), $ungeprueft)) . '"');
 			self::filter_hidden($sid, $filter);
 			submit_button(sprintf(__('Alle %d ungeprüften als verarbeitet markieren', 'ksv-km-meldeportal'), $ungeprueft), 'primary', 'submit', false);
 			echo '</form>';

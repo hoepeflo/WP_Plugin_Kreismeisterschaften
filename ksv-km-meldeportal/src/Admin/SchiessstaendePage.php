@@ -59,7 +59,7 @@ final class SchiessstaendePage extends AdminPage {
 		foreach ($liste as $s) {
 			echo '<tr><td><strong>' . esc_html((string) $s['bezeichnung']) . '</strong></td><td>' . esc_html((string) $s['ort']) . '</td><td>' . esc_html(implode('; ', array_map(static fn(array $g): string => sprintf('%s: %d × %s (%d)', $g['bezeichnung'], (int) $g['anzahl'], $g['praefix'], (int) $g['kapazitaet']), $s['gruppen']))) . '</td><td class="r">' . (int) $s['plaetze'] . '</td>';
 			echo '<td class="kmm-nowrap"><a class="button button-small" href="' . esc_url(self::url(['stand' => (int) $s['id']])) . '">' . esc_html__('Bearbeiten', 'ksv-km-meldeportal') . '</a> ';
-			self::form_open('stand_loeschen', 'class="kmm-inline-form" onsubmit="return confirm(\'' . esc_js(__('Schießstand mit allen Standgruppen löschen?', 'ksv-km-meldeportal')) . '\')"');
+			self::form_open('stand_loeschen', 'class="kmm-inline-form" data-kmm-confirm="' . esc_attr(__('Schießstand mit allen Standgruppen löschen?', 'ksv-km-meldeportal')) . '" data-kmm-gefahr="1"');
 			echo '<input type="hidden" name="id" value="' . (int) $s['id'] . '">';
 			submit_button(__('Löschen', 'ksv-km-meldeportal'), 'secondary small', 'submit', false);
 			echo '</form></td></tr>';
@@ -115,7 +115,7 @@ final class SchiessstaendePage extends AdminPage {
 			$nummern = StandgruppeRepository::nummern($gr);
 			echo '<tr><td><strong>' . esc_html((string) $gr['bezeichnung']) . '</strong></td><td>' . esc_html(sprintf('%d × „%s“ (%s %d – %s %d)', (int) $gr['anzahl'], $gr['praefix'], $gr['praefix'], $nummern[0], $gr['praefix'], end($nummern))) . '</td><td class="r">' . (int) $gr['kapazitaet'] . '</td><td>' . esc_html((string) $gr['disziplin_kennzahlen'] !== '' ? (string) $gr['disziplin_kennzahlen'] : __('alle', 'ksv-km-meldeportal')) . '</td>';
 			echo '<td class="kmm-nowrap"><a class="button button-small" href="' . esc_url(self::url(['stand' => $sid, 'gruppe' => (int) $gr['id']])) . '">' . esc_html__('Bearbeiten', 'ksv-km-meldeportal') . '</a> ';
-			self::form_open('gruppe_loeschen', 'class="kmm-inline-form" onsubmit="return confirm(\'' . esc_js(__('Standgruppe löschen?', 'ksv-km-meldeportal')) . '\')"');
+			self::form_open('gruppe_loeschen', 'class="kmm-inline-form" data-kmm-confirm="' . esc_attr(__('Standgruppe löschen?', 'ksv-km-meldeportal')) . '" data-kmm-gefahr="1"');
 			echo '<input type="hidden" name="stand_id" value="' . $sid . '"><input type="hidden" name="id" value="' . (int) $gr['id'] . '">';
 			submit_button('✕', 'secondary small', 'submit', false);
 			echo '</form></td></tr>';

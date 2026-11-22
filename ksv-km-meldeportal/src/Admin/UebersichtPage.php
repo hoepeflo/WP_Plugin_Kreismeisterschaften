@@ -226,7 +226,7 @@ final class UebersichtPage extends AdminPage {
 		echo ' · ' . esc_html(sprintf(__('%d Vereine mit Status Offen/Entwurf und Adresse', 'ksv-km-meldeportal'), $anzahl));
 		echo '</p>';
 		if (current_user_can(\KSV\KMM\Auth\Capabilities::MANAGE)) {
-			self::form_open('erinnerung_senden', 'class="kmm-inline-form" onsubmit="return confirm(\'' . esc_js(sprintf(__('Erinnerung jetzt an %d Vereine senden?', 'ksv-km-meldeportal'), $anzahl)) . '\')"');
+			self::form_open('erinnerung_senden', 'class="kmm-inline-form" data-kmm-confirm="' . esc_attr(sprintf(__('Erinnerung jetzt an %d Vereine senden?', 'ksv-km-meldeportal'), $anzahl)) . '"');
 			echo '<input type="hidden" name="sportjahr_id" value="' . $sid . '">';
 			submit_button(__('Erinnerung jetzt senden', 'ksv-km-meldeportal'), 'secondary', 'submit', false, $anzahl === 0 ? ['disabled' => 'disabled'] : []);
 			echo '</form> ';
@@ -257,7 +257,7 @@ final class UebersichtPage extends AdminPage {
 		echo ' · ' . esc_html(sprintf(__('%1$d offene Änderungen bei %2$d Vereinen', 'ksv-km-meldeportal'), $anzahl, count($offen)));
 		echo ' · <a href="' . esc_url(Menu::url(SettingsPage::SLUG)) . '">' . esc_html__('Einstellungen', 'ksv-km-meldeportal') . '</a></p>';
 		if (current_user_can(\KSV\KMM\Auth\Capabilities::MANAGE)) {
-			self::form_open('sammelmail_senden', 'class="kmm-inline-form" onsubmit="return confirm(\'' . esc_js(sprintf(__('Sammelmail jetzt an %d Vereine senden?', 'ksv-km-meldeportal'), count($offen))) . '\')"');
+			self::form_open('sammelmail_senden', 'class="kmm-inline-form" data-kmm-confirm="' . esc_attr(sprintf(__('Sammelmail jetzt an %d Vereine senden?', 'ksv-km-meldeportal'), count($offen))) . '"');
 			echo '<input type="hidden" name="sportjahr_id" value="' . $sid . '">';
 			submit_button(__('Sammelmail jetzt senden', 'ksv-km-meldeportal'), 'secondary', 'submit', false, $anzahl === 0 ? ['disabled' => 'disabled'] : []);
 			echo '</form>';
@@ -291,6 +291,10 @@ final class UebersichtPage extends AdminPage {
 	}
 
 	private static function kachel(string $label, string $wert, string $art = ''): void {
+		// Nullen treten zurück, damit Zahlen mit Handlungsbedarf auffallen.
+		if ($art === '' && ($wert === '0' || $wert === '0,00 €')) {
+			$art = 'null';
+		}
 		echo '<div class="kmm-kachel ' . esc_attr($art) . '"><div class="kmm-kachel-wert">' . esc_html($wert) . '</div><div class="kmm-kachel-label">' . esc_html($label) . '</div></div>';
 	}
 
