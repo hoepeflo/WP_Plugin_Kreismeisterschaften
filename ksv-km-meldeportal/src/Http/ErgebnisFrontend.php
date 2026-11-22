@@ -110,7 +110,7 @@ final class ErgebnisFrontend {
 	}
 
 	public static function assets_registrieren(): void {
-		wp_register_style('kmm-ergebnisse', KMM_PLUGIN_URL . 'assets/frontend/ergebnisse.css', [], KMM_VERSION);
+		wp_register_style('kmm-ergebnisse', KMM_PLUGIN_URL . 'assets/frontend/ergebnisse.css', [], \KSV\KMM\Support\Asset::ver('assets/frontend/ergebnisse.css'));
 	}
 
 	// ----- Anfrage ---------------------------------------------------------------------------

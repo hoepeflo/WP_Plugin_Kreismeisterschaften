@@ -125,11 +125,11 @@ final class Menu {
 		if (strpos($hook, self::SLUG) === false) {
 			return;
 		}
-		wp_enqueue_style('kmm-admin', KMM_PLUGIN_URL . 'assets/admin/admin.css', [], KMM_VERSION);
+		wp_enqueue_style('kmm-admin', KMM_PLUGIN_URL . 'assets/admin/admin.css', [], \KSV\KMM\Support\Asset::ver('assets/admin/admin.css'));
 		// Dieselbe Schrift wie die Vereinsoberfläche (liegt im Plugin, kein externer Abruf).
 		$font = KMM_PLUGIN_URL . 'assets/fonts/roboto-latin.woff2?v=' . rawurlencode(KMM_VERSION);
 		wp_add_inline_style('kmm-admin', '@font-face{font-family:"Roboto";font-style:normal;font-weight:400 700;font-display:swap;src:url("' . esc_url_raw($font) . '") format("woff2")}');
-		wp_enqueue_script('kmm-admin', KMM_PLUGIN_URL . 'assets/admin/admin.js', [], KMM_VERSION, true);
+		wp_enqueue_script('kmm-admin', KMM_PLUGIN_URL . 'assets/admin/admin.js', [], \KSV\KMM\Support\Asset::ver('assets/admin/admin.js'), true);
 		wp_localize_script('kmm-admin', 'kmmAdmin', [
 			'texte' => [
 				'abbrechen' => __('Abbrechen', 'ksv-km-meldeportal'),
@@ -139,10 +139,10 @@ final class Menu {
 			],
 		]);
 		if (strpos($hook, ErgebnissePage::SLUG) !== false) {
-			wp_enqueue_style('kmm-ergebnisse-admin', KMM_PLUGIN_URL . 'assets/admin/ergebnisse.css', ['kmm-admin'], KMM_VERSION);
+			wp_enqueue_style('kmm-ergebnisse-admin', KMM_PLUGIN_URL . 'assets/admin/ergebnisse.css', ['kmm-admin'], \KSV\KMM\Support\Asset::ver('assets/admin/ergebnisse.css'));
 		}
 		if (strpos($hook, WettkampftagePage::SLUG) !== false) {
-			wp_enqueue_script('kmm-startplan-matrix', KMM_PLUGIN_URL . 'assets/admin/startplan.js', [], KMM_VERSION, true);
+			wp_enqueue_script('kmm-startplan-matrix', KMM_PLUGIN_URL . 'assets/admin/startplan.js', [], \KSV\KMM\Support\Asset::ver('assets/admin/startplan.js'), true);
 			wp_localize_script('kmm-startplan-matrix', 'kmmStartplan', [
 				'ajaxUrl' => admin_url('admin-ajax.php'),
 				'nonce'   => wp_create_nonce('kmm_' . WettkampftagePage::SLUG),
@@ -154,8 +154,8 @@ final class Menu {
 				],
 			]);
 			// Nutzt Adresse und Nonce aus kmmStartplan.
-			wp_enqueue_script('kmm-wettkampftag', KMM_PLUGIN_URL . 'assets/admin/wettkampftag.js', ['kmm-startplan-matrix'], KMM_VERSION, true);
-			wp_enqueue_script('kmm-startplan-filter', KMM_PLUGIN_URL . 'assets/admin/startplan-filter.js', [], KMM_VERSION, true);
+			wp_enqueue_script('kmm-wettkampftag', KMM_PLUGIN_URL . 'assets/admin/wettkampftag.js', ['kmm-startplan-matrix'], \KSV\KMM\Support\Asset::ver('assets/admin/wettkampftag.js'), true);
+			wp_enqueue_script('kmm-startplan-filter', KMM_PLUGIN_URL . 'assets/admin/startplan-filter.js', [], \KSV\KMM\Support\Asset::ver('assets/admin/startplan-filter.js'), true);
 		}
 	}
 

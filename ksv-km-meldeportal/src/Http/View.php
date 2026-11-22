@@ -63,10 +63,10 @@ final class View {
 			return $klassen;
 		});
 		add_action('wp_enqueue_scripts', static function (): void {
-			wp_enqueue_style('kmm-app', KMM_PLUGIN_URL . 'assets/frontend/app.css', [], KMM_VERSION);
+			wp_enqueue_style('kmm-app', KMM_PLUGIN_URL . 'assets/frontend/app.css', [], \KSV\KMM\Support\Asset::ver('assets/frontend/app.css'));
 			// Dieselbe Schriftdatei wie auf der eigenen Seite, damit das Portal in jedem Theme gleich aussieht.
 			wp_add_inline_style('kmm-app', '@font-face{font-family:"Roboto";font-style:normal;font-weight:400 700;font-display:swap;src:url("' . esc_url(KMM_PLUGIN_URL . 'assets/fonts/roboto-latin.woff2?v=' . rawurlencode(KMM_VERSION)) . '") format("woff2")}');
-			wp_enqueue_script('kmm-app', KMM_PLUGIN_URL . 'assets/frontend/app.js', [], KMM_VERSION, ['in_footer' => true, 'strategy' => 'defer']);
+			wp_enqueue_script('kmm-app', KMM_PLUGIN_URL . 'assets/frontend/app.js', [], \KSV\KMM\Support\Asset::ver('assets/frontend/app.js'), ['in_footer' => true, 'strategy' => 'defer']);
 		}, 99);
 	}
 
