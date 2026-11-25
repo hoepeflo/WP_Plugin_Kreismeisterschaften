@@ -536,10 +536,13 @@
 				const ergebnisPh = e.ergebnis_format === 'zehntel' ? 'z. B. 389,4' : 'z. B. 375';
 				const abg = !!e.abgemeldet_am;
 				const rwZ = rw && e.zustaendig !== false; // Referent: fremde Disziplin nur lesen
+				// MixTeam: keine Einzelwertung, das Vorkampfergebnis des Schützen kann aber freiwillig
+				// angegeben werden (z. B. für die Startplanung). Es zählt nicht als „fehlendes Ergebnis“.
+				const mix = e.typ === 'mixteam';
 				html += `<tr class="${e.konflikt || !e.startrecht ? 'is-konflikt' : ''} ${abg ? 'is-abgemeldet' : ''}" data-id="${e.id}" data-suche="${h(norm(e.nachname + ' ' + e.vorname + ' ' + e.vorname + ' ' + e.nachname + ' ' + e.kennzahl + ' ' + e.disziplin))}" data-ohne="${e.typ !== 'mixteam' && e.meldeergebnis === '' ? 1 : 0}">
 					<td class="kmm-z-name"><strong>${h(e.nachname)}, ${h(e.vorname)}</strong>${e.para ? `<div class="kmm-muted">${h(e.para)}</div>` : ''}${e.konflikt ? `<div class="kmm-fehler">${h(e.konflikt_text)}</div>` : ''}${(e.hinweise || []).filter((x) => !/^Höhermeldung/.test(x) || true).map((x) => `<div class="kmm-hinweis-klein">${h(x)}</div>`).join('')}</td>
 					<td class="kmm-z-klasse" data-label="Startklasse">${h(e.startklasse)}${e.hoehermeldung ? ' <span class="kmm-badge kmm-badge-hm" title="Höhermeldung">HM</span>' : ''} <span class="kmm-muted">${h(e.kennzahl_voll)}</span>${e.klasse !== e.startklasse ? `<div class="kmm-hinweis-klein">Altersklasse ${h(e.klasse)}</div>` : ''}</td>
-					<td class="kmm-z-ergebnis" data-label="Ergebnis">${e.typ === 'mixteam' ? '<span class="kmm-muted" title="MixTeams haben keine Einzelwertung; ein Meldeergebnis wird nicht benötigt.">nicht nötig (MixTeam)</span>' : `<input type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" class="kmm-ergebnis ${e.meldeergebnis === '' ? 'is-leer' : ''}" data-action="ergebnis" data-id="${e.id}" value="${h(e.meldeergebnis)}" placeholder="${ergebnisPh}" aria-label="Meldeergebnis ${h(e.nachname)}, ${h(e.vorname)}, ${h(e.kennzahl)}" ${rwZ ? '' : 'disabled'}>`}</td>
+					<td class="kmm-z-ergebnis" data-label="${mix ? 'Vorkampf (freiwillig)' : 'Ergebnis'}"><input type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" class="kmm-ergebnis ${e.meldeergebnis === '' && !mix ? 'is-leer' : ''}" data-action="ergebnis" data-id="${e.id}" ${mix ? 'data-freiwillig="1" title="MixTeam: Vorkampfergebnis des Schützen (30 Schuss), freiwillig"' : ''} value="${h(e.meldeergebnis)}" placeholder="${mix ? 'freiwillig' : ergebnisPh}" aria-label="${mix ? 'Vorkampfergebnis (freiwillig)' : 'Meldeergebnis'} ${h(e.nachname)}, ${h(e.vorname)}, ${h(e.kennzahl)}" ${rwZ ? '' : 'disabled'}>${mix ? '<div class="kmm-hinweis-klein">Vorkampf, freiwillig</div>' : ''}</td>
 					${m.einstellungen.nicht_meldung_sichtbar ? `<td class="kmm-z-nm" data-label="Nicht zur LM melden"><input type="checkbox" data-action="nicht-meldung" data-id="${e.id}" aria-label="${h(e.nachname)}, ${h(e.vorname)}, ${h(e.kennzahl)} nicht zur Landesmeisterschaft melden" ${e.nicht_meldung ? 'checked' : ''} ${rwZ ? '' : 'disabled'}></td>` : ''}
 					<td class="kmm-z-team" data-label="Mannschaft">${e.mannschaft_nummer ? 'M<span class="kmm-lang">annschaft </span>' + e.mannschaft_nummer : (e.mannschaft_moeglich ? '<span class="kmm-muted kmm-kein">–</span>' : '')}</td>
 					<td class="r kmm-z-geld" data-label="Startgeld">${e.typ === 'mixteam' ? '–' : geld(e.startgeld)}</td>
@@ -669,7 +672,7 @@
 				const em = r.einzelmeldung || state.meldung.einzelmeldungen.find((x) => x.id === id);
 				if (em && t.dataset.action === 'ergebnis') {
 					t.value = em.meldeergebnis;
-					t.classList.toggle('is-leer', em.meldeergebnis === '');
+					t.classList.toggle('is-leer', em.meldeergebnis === '' && !t.dataset.freiwillig);
 				}
 				renderKopf();
 				renderEinreichen();
