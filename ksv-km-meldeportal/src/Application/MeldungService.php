@@ -303,7 +303,7 @@ final class MeldungService {
 					$was[] = 'Meldeergebnis ' . ($ansicht['meldeergebnis'] !== '' ? $ansicht['meldeergebnis'] : 'entfernt');
 				}
 				if (array_key_exists('nicht_meldung', $update)) {
-					$was[] = 'Nicht-Meldung ' . ($update['nicht_meldung'] ? 'gesetzt' : 'entfernt');
+					$was[] = '„Nicht zur LM melden“ ' . ($update['nicht_meldung'] ? 'gesetzt' : 'entfernt');
 				}
 				if (array_key_exists('para_klasse_id', $update)) {
 					$was[] = 'Para-Klasse ' . ($ansicht['para'] ?? 'entfernt') . ', Startklasse ' . $ansicht['startklasse'];
