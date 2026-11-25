@@ -2,8 +2,8 @@
 /**
  * Verteilt Aufrufe der Vereinsoberfläche auf die Seiten.
  *
- * Routen: start | zugang/<token> | link-anfordern | pdf | abmelden |
- * admin/<verein_id>[/pdf] (Admin-Modus, WordPress-Login und Recht „Meldungen bearbeiten“).
+ * Routen: start | zugang/<token> | link-anfordern | pdf | csv | abmelden |
+ * admin/<verein_id>[/pdf|/csv] (Admin-Modus, WordPress-Login und Recht „Meldungen bearbeiten“).
  *
  * @package KSV\KMM
  */
@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace KSV\KMM\Http;
 
 use KSV\KMM\Application\LinkAnfordern;
+use KSV\KMM\Application\MeldungCsv;
 use KSV\KMM\Application\MeldungService;
 use KSV\KMM\Application\PdfMeldung;
 use KSV\KMM\Application\SchuetzeService;
@@ -35,7 +36,8 @@ final class FrontController {
 				$this->link_anfordern();
 				return;
 			case 'pdf':
-				$this->pdf();
+			case 'csv':
+				$this->datei($page);
 				return;
 			case 'admin':
 				$this->admin((int) ($segments[1] ?? 0), (string) ($segments[2] ?? ''));
@@ -128,6 +130,10 @@ final class FrontController {
 			$this->pdf_ausgeben($verein, true);
 			return;
 		}
+		if ($unterseite === 'csv') {
+			$this->csv_ausgeben($verein, true);
+			return;
+		}
 		status_header(200);
 		$this->app($verein, true);
 	}
@@ -150,6 +156,7 @@ final class FrontController {
 			'csrf'       => $admin ? '' : RestApi::csrf_token((int) $verein['sitzung_id']),
 			'api'        => esc_url_raw(rest_url(RestApi::NAMESPACE . '/')),
 			'pdf_url'    => $admin ? add_query_arg('sportjahr', $sportjahr_id, Router::url($admin_pfad . '/pdf')) : Router::url('pdf'),
+			'csv_url'    => $admin ? add_query_arg('sportjahr', $sportjahr_id, Router::url($admin_pfad . '/csv')) : Router::url('csv'),
 			'abmelden'   => Router::url('abmelden'),
 			'admin'      => $admin ? [
 				'verein_id'    => (int) $verein['id'],
@@ -161,13 +168,31 @@ final class FrontController {
 		]);
 	}
 
-	private function pdf(): void {
+	private function datei(string $art): void {
 		$verein = Zugang::aktueller_verein();
 		if ($verein === null) {
 			wp_safe_redirect(Router::url('link-anfordern'));
 			return;
 		}
+		if ($art === 'csv') {
+			$this->csv_ausgeben($verein, false);
+			return;
+		}
 		$this->pdf_ausgeben($verein, false);
+	}
+
+	/**
+	 * Meldeliste als CSV für Excel.
+	 *
+	 * @param array<string, mixed> $verein
+	 */
+	private function csv_ausgeben(array $verein, bool $admin): void {
+		$csv = MeldungCsv::erzeugen((new MeldungService($verein, (int) $verein['sportjahr_id'], $admin))->zusammenfassung());
+		nocache_headers();
+		header('Content-Type: text/csv; charset=UTF-8');
+		header('Content-Disposition: attachment; filename="KM-Meldung-' . sanitize_file_name((string) $verein['vn_nummer']) . '.csv"');
+		header('Content-Length: ' . strlen($csv));
+		echo $csv; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**

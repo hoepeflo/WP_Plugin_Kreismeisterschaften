@@ -106,3 +106,8 @@ Services laden Datensätze nur über den Verein der Sitzung; fremde IDs ergeben 
 Backend-Benutzer mit dem Recht „Meldungen bearbeiten“ öffnen dieselbe Oberfläche unter
 `/km-meldung/admin/<Verein-ID>/` (Link „Bearbeiten“ in der Übersicht) – auch nach
 Meldeschluss. Details: `docs/AENDERUNGEN-NACH-MELDESCHLUSS.md`.
+
+## Starttag und Export (seit 1.8.0)
+
+- **Starttag:** Im Angebot und bei jedem gemeldeten Starter steht „Starttag: Sa, 20.02.2027“. Quelle ist der Startplan: Ein Wettkampftag gilt, wenn einer seiner Durchgänge für die Disziplin und die Startklasse des Schützen zugelassen ist (Zulassung ohne Klasse = alle Klassen). Tage im Entwurf werden als „vorläufig“ gezeigt, ausgeblendete gar nicht. Disziplinen ohne geplante Durchgänge zeigen keinen Starttag. Der Starttag steht auch im PDF und in der CSV.
+- **Export:** Über der Liste der gemeldeten Starter und unter „Prüfen & Einreichen“ gibt es die Knöpfe „Drucken (PDF)“ und „Excel (CSV)“. Die CSV-Datei (Route `csv`, im Admin-Modus `admin/<id>/csv`) ist eine Liste für die eigenen Unterlagen mit Semikolon und UTF-8 mit BOM. Das DAVID-Format ist das nicht.

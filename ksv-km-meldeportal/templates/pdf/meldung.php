@@ -36,7 +36,7 @@ $status = match ((string) $z['status']) {
 
 <h2>Einzelmeldungen (<?php echo count($z['einzelmeldungen']); ?>)</h2>
 <table>
-	<thead><tr><th>Kennzahl</th><th>Disziplin</th><th>Name</th><th>Klasse</th><th>Startklasse</th><th class="r">Ergebnis</th><th>Mannsch.</th><th class="r">Startgeld</th></tr></thead>
+	<thead><tr><th>Kennzahl</th><th>Disziplin</th><th>Name</th><th>Klasse</th><th>Startklasse</th><th class="r">Ergebnis</th><th>Mannsch.</th><th class="r">Startgeld</th><th>Starttag</th></tr></thead>
 	<tbody>
 	<?php foreach ($z['einzelmeldungen'] as $e) : ?>
 		<tr>
@@ -48,6 +48,7 @@ $status = match ((string) $z['status']) {
 			<td class="r"><?php echo esc_html($e['meldeergebnis'] !== '' ? $e['meldeergebnis'] : '–'); ?></td>
 			<td><?php echo $e['mannschaft_nummer'] ? 'M' . (int) $e['mannschaft_nummer'] : ''; ?></td>
 			<td class="r"><?php echo esc_html($e['typ'] === 'mixteam' ? '–' : $geld((float) $e['startgeld'])); ?></td>
+			<td><?php echo esc_html(implode(' / ', array_map(static fn(array $t): string => $t['datum'] . ($t['vorlaeufig'] ? ' (vorl.)' : ''), $e['starttage'] ?? []))); ?></td>
 		</tr>
 	<?php endforeach; ?>
 	</tbody>

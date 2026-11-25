@@ -490,6 +490,7 @@
 						<div class="kmm-karte-haupt">
 							<strong>${h(a.kennzahl)} ${h(a.bezeichnung)}</strong>
 							<span class="kmm-muted">${a.startrecht ? `${h(a.klasse)}${a.startklasse !== a.klasse ? ' → ' + h(a.startklasse) : ''} (${h(a.kennzahl_voll)})${a.mannschaftspool ? ' · Mannschaft: ' + h(a.mannschaftspool) : ''}${a.typ === 'mixteam' ? '' : ' · ' + geld(a.startgeld)}` : 'nur als Para-Klasse'}</span>
+							${a.startrecht ? starttagHtml(a.starttage) : ''}
 							${(a.hinweise || []).map((x) => `<div class="kmm-hinweis-klein">${h(x)}</div>`).join('')}
 							${a.para_optionen.length ? (() => {
 								const sel = `<select class="kmm-select" id="kmm-para-${a.disziplin_id}" data-para-for="${a.disziplin_id}"><option value="">${a.startrecht ? '– keine (reguläre Klasse) –' : '– bitte wählen –'}</option>${a.para_optionen.map((p) => `<option value="${p.id}">${h(p.bezeichnung)}</option>`).join('')}</select>`;
@@ -509,7 +510,7 @@
 		}
 			angebotHtml = teil;
 		}
-		html += `<h2>Gemeldete Starter (${m.einzelmeldungen.length})</h2>`;
+		html += `<div class="kmm-toolbar"><h2>Gemeldete Starter (${m.einzelmeldungen.length})</h2>${m.einzelmeldungen.length ? exportKnoepfe() : ''}</div>`;
 		if (m.einzelmeldungen.length >= 15) {
 			html += `<div class="kmm-suchleiste" role="search"><label class="kmm-suche"><span class="kmm-sr">Gemeldete Starter durchsuchen</span><input type="search" id="kmm-suche-meldungen" placeholder="Name oder Disziplin suchen" autocomplete="off" value="${h(state.meldungenSuche || '')}"></label>
 				<label class="kmm-check-klein"><input type="checkbox" id="kmm-nur-ohne-ergebnis" ${state.nurOhneErgebnis ? 'checked' : ''}> nur ohne Ergebnis</label>
@@ -541,7 +542,7 @@
 				const mix = e.typ === 'mixteam';
 				html += `<tr class="${e.konflikt || !e.startrecht ? 'is-konflikt' : ''} ${abg ? 'is-abgemeldet' : ''}" data-id="${e.id}" data-suche="${h(norm(e.nachname + ' ' + e.vorname + ' ' + e.vorname + ' ' + e.nachname + ' ' + e.kennzahl + ' ' + e.disziplin))}" data-ohne="${e.typ !== 'mixteam' && e.meldeergebnis === '' ? 1 : 0}">
 					<td class="kmm-z-name"><strong>${h(e.nachname)}, ${h(e.vorname)}</strong>${e.para ? `<div class="kmm-muted">${h(e.para)}</div>` : ''}${e.konflikt ? `<div class="kmm-fehler">${h(e.konflikt_text)}</div>` : ''}${(e.hinweise || []).filter((x) => !/^Höhermeldung/.test(x) || true).map((x) => `<div class="kmm-hinweis-klein">${h(x)}</div>`).join('')}</td>
-					<td class="kmm-z-klasse" data-label="Startklasse">${h(e.startklasse)}${e.hoehermeldung ? ' <span class="kmm-badge kmm-badge-hm" title="Höhermeldung">HM</span>' : ''} <span class="kmm-muted">${h(e.kennzahl_voll)}</span>${e.klasse !== e.startklasse ? `<div class="kmm-hinweis-klein">Altersklasse ${h(e.klasse)}</div>` : ''}</td>
+					<td class="kmm-z-klasse" data-label="Startklasse">${h(e.startklasse)}${e.hoehermeldung ? ' <span class="kmm-badge kmm-badge-hm" title="Höhermeldung">HM</span>' : ''} <span class="kmm-muted">${h(e.kennzahl_voll)}</span>${e.klasse !== e.startklasse ? `<div class="kmm-hinweis-klein">Altersklasse ${h(e.klasse)}</div>` : ''}${starttagHtml(e.starttage)}</td>
 					<td class="kmm-z-ergebnis" data-label="${mix ? 'Vorkampf (freiwillig)' : 'Ergebnis'}"><input type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" class="kmm-ergebnis ${e.meldeergebnis === '' && !mix ? 'is-leer' : ''}" data-action="ergebnis" data-id="${e.id}" ${mix ? 'data-freiwillig="1" title="MixTeam: Vorkampfergebnis des Schützen (30 Schuss), freiwillig"' : ''} value="${h(e.meldeergebnis)}" placeholder="${mix ? 'freiwillig' : ergebnisPh}" aria-label="${mix ? 'Vorkampfergebnis (freiwillig)' : 'Meldeergebnis'} ${h(e.nachname)}, ${h(e.vorname)}, ${h(e.kennzahl)}" ${rwZ ? '' : 'disabled'}>${mix ? '<div class="kmm-hinweis-klein">Vorkampf, freiwillig</div>' : ''}</td>
 					${m.einstellungen.nicht_meldung_sichtbar ? `<td class="kmm-z-nm" data-label="Nicht zur LM melden"><input type="checkbox" data-action="nicht-meldung" data-id="${e.id}" aria-label="${h(e.nachname)}, ${h(e.vorname)}, ${h(e.kennzahl)} nicht zur Landesmeisterschaft melden" ${e.nicht_meldung ? 'checked' : ''} ${rwZ ? '' : 'disabled'}></td>` : ''}
 					<td class="kmm-z-team" data-label="Mannschaft">${e.mannschaft_nummer ? 'M<span class="kmm-lang">annschaft </span>' + e.mannschaft_nummer : (e.mannschaft_moeglich ? '<span class="kmm-muted kmm-kein">–</span>' : '')}</td>
@@ -637,6 +638,14 @@
 		}
 	});
 	let meldenSucheTimer = 0;
+
+	// Liste drucken oder in Excel weiterverarbeiten: PDF zum Drucken, CSV für Excel.
+	const exportKnoepfe = () => `<div class="kmm-export" role="group" aria-label="Meldeliste exportieren"><a class="kmm-button kmm-button-small kmm-button-secondary" href="${h(cfg.pdfUrl)}">Drucken (PDF)</a>${cfg.csvUrl ? `<a class="kmm-button kmm-button-small kmm-button-secondary" href="${h(cfg.csvUrl)}">Excel (CSV)</a>` : ''}</div>`;
+
+	// Starttag(e) aus dem Startplan. Entwurf = vorläufig; mehrere Tage nur, wenn der Plan es so vorsieht.
+	const starttagHtml = (tage) => (tage && tage.length)
+		? `<div class="kmm-starttag">Starttag: ${tage.map((t) => `<span title="${h(t.bezeichnung + (t.ort ? ' – ' + t.ort : ''))}">${h(t.datum)}${t.vorlaeufig ? ' <span class="kmm-muted">(vorläufig)</span>' : ''}</span>`).join(' oder ')}</div>`
+		: '';
 
 	const ohneErgebnisText = (n) => `${mz(n, 'Meldung', 'Meldungen')} ohne Meldeergebnis. Bitte das Ergebnis der Vereinsmeisterschaft eintragen – es wird für die Startplanung benötigt.`;
 
@@ -898,7 +907,7 @@
 			${rw ? '<p class="kmm-autosave" id="kmm-ap-status" role="status" aria-live="polite">Wird automatisch gespeichert, sobald ein Feld verlassen wird.</p><button type="submit" class="kmm-sr">Ansprechpartner speichern</button>' : ''}</form>`;
 		html += `<h3>Startgeldvorschau (vorläufig)</h3><table class="kmm-tabelle kmm-summe"><tbody><tr><td>Einzelmeldungen (${m.einzelmeldungen.length})</td><td class="r">${geld(m.startgeld.einzel)}</td></tr><tr><td>Mannschaften (${m.mannschaften.length})</td><td class="r">${geld(m.startgeld.mannschaften)}</td></tr><tr><th scope="row">Summe</th><th class="r">${geld(m.startgeld.summe)}</th></tr></tbody></table><p class="kmm-muted">Maßgeblich ist die Abrechnung des KSV nach der Startrechtsprüfung.</p>`;
 		html += `<div id="kmm-pruefung">${pruefungHtml()}</div>`;
-		html += `<p class="kmm-muted" style="margin-top:16px"><a href="${h(cfg.pdfUrl)}">Meldung als PDF herunterladen</a></p>`;
+		html += `<div class="kmm-toolbar" style="margin-top:16px"><span class="kmm-muted">Meldeliste für die eigenen Unterlagen:</span>${exportKnoepfe()}</div>`;
 		el.innerHTML = html;
 	}
 

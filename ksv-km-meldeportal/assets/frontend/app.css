@@ -806,3 +806,8 @@ button.kmm-sp-zelle:active:not(:disabled) { transform: scale(.97); }
 .kmm .kmm-link-zeile { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .kmm .kmm-link-form .kmm-link-zeile input { flex: 1 1 240px; margin-bottom: 0; }
 .kmm .kmm-link-zeile .kmm-button { flex: 0 0 auto; }
+
+/* Export-Knöpfe und Starttag (Testfeedback 11/2026) */
+.kmm .kmm-export { display: flex; flex-wrap: wrap; gap: 6px; }
+.kmm .kmm-export a.kmm-button { text-decoration: none; }
+.kmm .kmm-starttag { font-size: 13px; color: var(--kmm-text-2); margin-top: 2px; }
