@@ -762,6 +762,9 @@ button.kmm-sp-zelle:active:not(:disabled) { transform: scale(.97); }
 .kmm .kmm-suche input:focus, .kmm .kmm-melden-suche:focus { outline: none; border-color: var(--kmm-primary); box-shadow: 0 0 0 3px var(--kmm-primary-weich); }
 .kmm .kmm-melden-suche { max-width: 440px; margin: 0 0 8px; display: block; }
 .kmm .kmm-filter-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.kmm .kmm-melden-treffer { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; max-width: 640px; }
+.kmm .kmm-melden-treffer:empty { display: none; }
+.kmm .kmm-melden-oder { display: block; font-size: 13px; margin: 0 0 4px; }
 .kmm .kmm-chip {
 	font: inherit; font-size: 13px; font-weight: 600; padding: 7px 12px; min-height: 36px; border-radius: 999px; cursor: pointer;
 	border: 1px solid var(--kmm-border-stark); background: var(--kmm-surface); color: var(--kmm-text-2);

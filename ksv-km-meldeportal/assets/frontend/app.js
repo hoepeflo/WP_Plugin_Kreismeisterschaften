@@ -28,6 +28,9 @@
 	const mz = (n, eins, viele) => `${n} ${mehrzahl.select(n) === 'one' ? eins : viele}`;
 	// Suche ohne Rücksicht auf Groß-/Kleinschreibung und Umlaute/Akzente („muller“ findet „Müller“).
 	const norm = (t) => String(t || '').toLocaleLowerCase('de').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ß/g, 'ss').trim();
+	// Tolerante Suche: jedes Wort der Eingabe muss vorkommen, Reihenfolge, Komma und Leerzeichen egal
+	// („Müller, Karin“, „karin muller“ und „mül ka“ finden „Müller, Karin“).
+	const passtSuche = (text, q) => norm(q).split(/[\s,;]+/).filter(Boolean).every((w) => text.includes(w));
 	// Ab so vielen Schützen erscheinen Suche und Filter.
 	const SUCHE_AB = 8;
 	const $ = (sel, el) => (el || document).querySelector(sel);
@@ -85,6 +88,9 @@
 		const d = document.getElementById('kmm-dialog');
 		d.innerHTML = `<form method="dialog" class="kmm-form">${html}</form>`;
 		const form = $('form', d);
+		// Abbrechen ist ein normaler Button, kein Submit: Sonst wäre er der erste Submit-Button im
+		// Formular, und Enter bzw. „Fertig“/„Los“ auf der Handy-Tastatur würde abbrechen statt speichern.
+		$$('[data-dialog-abbrechen]', form).forEach((b) => b.addEventListener('click', () => d.close()));
 		form.addEventListener('submit', async (ev) => {
 			if (ev.submitter && ev.submitter.value === 'abbrechen') {
 				return;
@@ -106,7 +112,7 @@
 		if (first) { first.focus(); }
 	}
 
-	const dialogButtons = (label) => `<div class="kmm-dialog-fehler kmm-fehler" aria-live="polite"></div><div class="kmm-dialog-buttons"><button type="submit" value="abbrechen" class="kmm-button kmm-button-secondary" formnovalidate>Abbrechen</button><button type="submit" value="ok" class="kmm-button">${h(label)}</button></div>`;
+	const dialogButtons = (label) => `<div class="kmm-dialog-fehler kmm-fehler" aria-live="polite"></div><div class="kmm-dialog-buttons"><button type="button" data-dialog-abbrechen class="kmm-button kmm-button-secondary">Abbrechen</button><button type="submit" value="ok" class="kmm-button">${h(label)}</button></div>`;
 
 	// Rückfrage im Stil des Portals statt des Browser-Dialogs: Frage, Folge, zwei klare Buttons.
 	// Liefert ein Promise<boolean>.
@@ -340,7 +346,7 @@
 		const f = state.schuetzen.length >= SUCHE_AB ? (state.schuetzenFilter || 'alle') : 'alle';
 		let n = 0;
 		$$('.kmm-karte', liste).forEach((k) => {
-			const passt = (!q || k.dataset.suche.includes(q)) && (f === 'alle' || (f === 'mit') === (k.dataset.gemeldet === '1'));
+			const passt = (!q || passtSuche(k.dataset.suche, q)) && (f === 'alle' || (f === 'mit') === (k.dataset.gemeldet === '1'));
 			k.hidden = !passt;
 			if (passt) { n++; }
 		});
@@ -459,7 +465,7 @@
 				? `<optgroup label="Noch nicht gemeldet (${ohne.length})">${ohne.map(option).join('')}</optgroup><optgroup label="Schon gemeldet (${mit.length})">${mit.map(option).join('')}</optgroup>`
 				: state.schuetzen.map(option).join('');
 			teil += `<div class="kmm-form kmm-inline kmm-schuetze-wahl"><label for="kmm-melden-schuetze">Schütze wählen, um Disziplinen zu melden</label>
-				${gross ? '<input type="search" id="kmm-melden-suche" class="kmm-melden-suche" placeholder="Namen tippen, um die Liste zu kürzen" autocomplete="off" aria-controls="kmm-melden-schuetze">' : ''}
+				${gross ? '<input type="search" id="kmm-melden-suche" class="kmm-melden-suche" placeholder="Namen tippen, z. B. Müller oder Karin" autocomplete="off" aria-controls="kmm-melden-schuetze kmm-melden-treffer"><div id="kmm-melden-treffer" class="kmm-melden-treffer" aria-live="polite"></div><span class="kmm-muted kmm-melden-oder">oder aus der Liste wählen:</span>' : ''}
 				<select id="kmm-melden-schuetze"><option value="">– Schütze –</option>${optionen}</select></div>`;
 			if (state.angebotFuer && state.angebot === null) {
 				teil += '<p class="kmm-muted">Lade Disziplinen …</p>';
@@ -530,7 +536,7 @@
 				html += `<tr class="${e.konflikt || !e.startrecht ? 'is-konflikt' : ''} ${abg ? 'is-abgemeldet' : ''}" data-id="${e.id}" data-suche="${h(norm(e.nachname + ' ' + e.vorname + ' ' + e.vorname + ' ' + e.nachname + ' ' + e.kennzahl + ' ' + e.disziplin))}" data-ohne="${e.typ !== 'mixteam' && e.meldeergebnis === '' ? 1 : 0}">
 					<td class="kmm-z-name"><strong>${h(e.nachname)}, ${h(e.vorname)}</strong>${e.para ? `<div class="kmm-muted">${h(e.para)}</div>` : ''}${e.konflikt ? `<div class="kmm-fehler">${h(e.konflikt_text)}</div>` : ''}${(e.hinweise || []).filter((x) => !/^Höhermeldung/.test(x) || true).map((x) => `<div class="kmm-hinweis-klein">${h(x)}</div>`).join('')}</td>
 					<td class="kmm-z-klasse" data-label="Startklasse">${h(e.startklasse)}${e.hoehermeldung ? ' <span class="kmm-badge kmm-badge-hm" title="Höhermeldung">HM</span>' : ''} <span class="kmm-muted">${h(e.kennzahl_voll)}</span>${e.klasse !== e.startklasse ? `<div class="kmm-hinweis-klein">Altersklasse ${h(e.klasse)}</div>` : ''}</td>
-					<td class="kmm-z-ergebnis" data-label="Ergebnis">${e.typ === 'mixteam' ? '–' : `<input type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" class="kmm-ergebnis ${e.meldeergebnis === '' ? 'is-leer' : ''}" data-action="ergebnis" data-id="${e.id}" value="${h(e.meldeergebnis)}" placeholder="${ergebnisPh}" aria-label="Meldeergebnis ${h(e.nachname)}, ${h(e.vorname)}, ${h(e.kennzahl)}" ${rwZ ? '' : 'disabled'}>`}</td>
+					<td class="kmm-z-ergebnis" data-label="Ergebnis">${e.typ === 'mixteam' ? '<span class="kmm-muted" title="MixTeams haben keine Einzelwertung; ein Meldeergebnis wird nicht benötigt.">nicht nötig (MixTeam)</span>' : `<input type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" class="kmm-ergebnis ${e.meldeergebnis === '' ? 'is-leer' : ''}" data-action="ergebnis" data-id="${e.id}" value="${h(e.meldeergebnis)}" placeholder="${ergebnisPh}" aria-label="Meldeergebnis ${h(e.nachname)}, ${h(e.vorname)}, ${h(e.kennzahl)}" ${rwZ ? '' : 'disabled'}>`}</td>
 					${m.einstellungen.nicht_meldung_sichtbar ? `<td class="kmm-z-nm" data-label="Nicht-Meldung"><input type="checkbox" data-action="nicht-meldung" data-id="${e.id}" ${e.nicht_meldung ? 'checked' : ''} ${rwZ ? '' : 'disabled'}></td>` : ''}
 					<td class="kmm-z-team" data-label="Mannschaft">${e.mannschaft_nummer ? 'M<span class="kmm-lang">annschaft </span>' + e.mannschaft_nummer : (e.mannschaft_moeglich ? '<span class="kmm-muted kmm-kein">–</span>' : '')}</td>
 					<td class="r kmm-z-geld" data-label="Startgeld">${e.typ === 'mixteam' ? '–' : geld(e.startgeld)}</td>
@@ -564,7 +570,7 @@
 				kopfSichtbar = false;
 				return;
 			}
-			const passt = (!q || tr.dataset.suche.includes(q)) && (!nurOhne || tr.dataset.ohne === '1');
+			const passt = (!q || passtSuche(tr.dataset.suche, q)) && (!nurOhne || tr.dataset.ohne === '1');
 			tr.hidden = !passt;
 			if (passt) { n++; kopfSichtbar = true; }
 		});
@@ -582,12 +588,25 @@
 		$$('option', sel).forEach((o) => {
 			if (!o.value) { return; }
 			const s = state.schuetzen.find((x) => String(x.id) === o.value);
-			const passt = !q || (s && norm(s.nachname + ' ' + s.vorname + ' ' + s.vorname + ' ' + s.nachname).includes(q));
+			const passt = !q || (s && passtSuche(norm(s.nachname + ' ' + s.vorname + ' ' + (s.mitgliedsnummer || '')), q));
 			o.hidden = !passt;
 			o.disabled = !passt;
 			if (passt) { treffer.push(o.value); }
 		});
 		$$('optgroup', sel).forEach((g) => { g.hidden = !$$('option', g).some((o) => !o.hidden); });
+		// Treffer zusätzlich als Buttons zeigen: Das Kürzen der Auswahlliste sieht man auf dem
+		// Handy/iPad nicht, und ein Name soll sich mit einem Tipp wählen lassen.
+		const box = $('#kmm-melden-treffer');
+		if (box) {
+			const MAX = 8;
+			const knoepfe = treffer.slice(0, MAX).map((v) => {
+				const s = state.schuetzen.find((x) => String(x.id) === v);
+				return `<button type="button" class="kmm-chip" data-action="melden-treffer" data-id="${h(v)}" aria-pressed="${Number(v) === state.angebotFuer}">${h(s.nachname)}, ${h(s.vorname)}</button>`;
+			}).join('');
+			box.innerHTML = !q ? '' : (treffer.length === 0
+				? '<span class="kmm-muted">Kein Schütze gefunden. Ist er unter „1 Schützen“ angelegt?</span>'
+				: knoepfe + (treffer.length > MAX ? `<span class="kmm-muted">und ${treffer.length - MAX} weitere – weiter tippen</span>` : ''));
+		}
 		return treffer;
 	}
 
@@ -673,6 +692,11 @@
 		if (!b) { return; }
 		const id = Number(b.dataset.id || 0);
 		try {
+			if (b.dataset.action === 'melden-treffer') {
+				clearTimeout(meldenSucheTimer);
+				await angebotLaden(id);
+				return;
+			}
 			if (b.dataset.action === 'einzel-anlegen') {
 				const dId = Number(b.dataset.disziplin);
 				const paraSel = $(`select[data-para-for="${dId}"]`);
