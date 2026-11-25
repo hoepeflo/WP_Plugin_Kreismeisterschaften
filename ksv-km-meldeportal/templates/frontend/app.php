@@ -12,6 +12,7 @@
  * @var string $csrf
  * @var string $api
  * @var string $pdf_url
+ * @var string $csv_url
  * @var string $abmelden
  * @var array<string, mixed>|null $admin Admin-Modus (verein_id, sportjahr_id, nonce, zurueck, benutzer) oder null
  */
@@ -25,6 +26,7 @@ $config = [
 	'api'       => $api,
 	'csrf'      => $csrf,
 	'pdfUrl'    => $pdf_url,
+	'csvUrl'    => $csv_url,
 	'abmelden'  => $abmelden,
 	'meldung'   => $state,
 	'schuetzen' => $schuetzen,
@@ -74,6 +76,7 @@ $config = [
 	<div id="kmm-toast" class="kmm-toast" role="status" aria-live="polite"></div>
 	<p class="kmm-app-fuss">
 		<a href="<?php echo esc_url($pdf_url); ?>"><?php esc_html_e('Meldung als PDF', 'ksv-km-meldeportal'); ?></a> ·
+		<a href="<?php echo esc_url($csv_url); ?>"><?php esc_html_e('als Excel-Liste (CSV)', 'ksv-km-meldeportal'); ?></a> ·
 		<?php if ($admin !== null) : ?>
 		<a href="<?php echo esc_url((string) $admin['zurueck']); ?>"><?php esc_html_e('Zurück zur Übersicht', 'ksv-km-meldeportal'); ?></a>
 		<?php else : ?>

@@ -48,6 +48,8 @@ final class MeldungService {
 	/** @var array<int, array<string, mixed>|null> */
 	private array $mannschaft_cache = [];
 
+	private ?Starttage $starttage = null;
+
 	/**
 	 * @param array<string, mixed> $verein Verein der Sitzung
 	 * @param bool $admin Admin-Modus (Backend-Bearbeitung nach Meldeschluss): keine Phasen- und
@@ -213,6 +215,7 @@ final class MeldungService {
 				'hinweise'         => $b->hinweise,
 				'para_optionen'    => $para,
 				'gemeldet_id'      => $gemeldet[ $d->id ] ?? null,
+				'starttage'        => $this->starttage()->fuer($d->id, $b->startklasse?->id ?? $b->mannschaft_klasse?->id),
 			];
 		}
 		return $out;
@@ -844,7 +847,13 @@ final class MeldungService {
 			'zustaendig'         => $this->zustaendig($d),
 			'hinweise'           => $hinweise,
 			'sortierung'         => $d !== null ? ($rw->disziplin($d->id) ? $this->disziplin_sort($d->kennzahl) : 0) : 0,
+			'starttage'          => $this->starttage()->fuer((int) $em['disziplin_id'], $em['startklasse_id'] !== null ? (int) $em['startklasse_id'] : ($em['mannschaft_klasse_id'] !== null ? (int) $em['mannschaft_klasse_id'] : null)),
 		];
+	}
+
+	/** Starttage aus dem Startplan, einmal je Anfrage geladen. */
+	private function starttage(): Starttage {
+		return $this->starttage ??= new Starttage($this->sportjahr_id());
 	}
 
 	/**

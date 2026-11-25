@@ -107,6 +107,11 @@ final class StartplanService {
 		if ($dt === false || $dt->format('Y-m-d') !== $datum) {
 			throw new \InvalidArgumentException('Bitte ein gültiges Datum angeben.');
 		}
+		// Schutz vor Tippfehlern wie „0027“ statt „2027“ (Datumsfeld nimmt jede Jahreszahl an).
+		$jahr = (int) $dt->format('Y');
+		if ($jahr < 2000 || $jahr > 2100) {
+			throw new \InvalidArgumentException(sprintf('Das Jahr %d ist nicht plausibel. Bitte das Datum prüfen (z. B. 2027 statt 0027).', $jahr));
+		}
 		$satz = [
 			'datum'        => $datum,
 			'bezeichnung'  => mb_substr(trim((string) ($daten['bezeichnung'] ?? '')), 0, 150),
