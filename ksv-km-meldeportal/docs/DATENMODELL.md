@@ -133,7 +133,7 @@ je Schütze, Jahr und Bereich; gilt nur im jeweiligen Sportjahr.
 | hoehermeldung_angewendet | Kennzeichen für Anzeige und Protokoll |
 | startrecht | 0, wenn die Regeltabelle (nach Änderung) kein Startrecht mehr ergibt |
 | meldeergebnis | decimal(6,1); ganze Ringe als x,0 |
-| nicht_meldung | Checkbox „Nicht-Meldung" (Bedeutung offen, per Einstellung ausblendbar) |
+| nicht_meldung | Checkbox „Nicht zur LM melden" (1 = nicht zur Landesmeisterschaft weitermelden; DAVID-Spalte Nicht-Meldung; per Einstellung ausblendbar) |
 | mannschaft_id | Zuordnung zur Mannschaft |
 | startgeld | berechneter Betrag (Snapshot, bei Revalidierung neu) |
 | konflikt, konflikt_text | Markierung aus der Revalidierung |

@@ -21,7 +21,7 @@ kein anderer Teil des Codes kennt DAVID. Spalten wie im Muster:
 | Meldeergebnis | Zehntel mit Dezimalkomma (389,4); ganze Ringe als 375 oder 375,0 (Einstellung); leer wenn nicht angegeben |
 | Geburtsdatum | TT.MM.JJJJ |
 | Mitgliedsnummer | 9 Ziffern als Text |
-| Nicht-Meldung | 0/1 (Checkbox der Einzelmeldung) |
+| Nicht-Meldung | 0/1 (Checkbox „Nicht zur LM melden“ der Einzelmeldung; 1 = nicht zur Landesmeisterschaft weitermelden) |
 | DAS | 0 |
 | Mannschaft | Mannschaftsnummer je Verein und Disziplin oder leer |
 

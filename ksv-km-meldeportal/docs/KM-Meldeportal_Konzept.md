@@ -128,7 +128,7 @@ Löschregel: Schützen, die seit der eingestellten Zahl von Sportjahren nicht ge
 
 ### 7.3 Meldung
 
-Pro Schütze und Disziplin: berechnete Start- und eigentliche Klasse, Meldeergebnis, ggf. Mannschaft, ggf. Nicht-Meldung (siehe offene Punkte), Verarbeitungsstatus (siehe 12.1).
+Pro Schütze und Disziplin: berechnete Start- und eigentliche Klasse, Meldeergebnis, ggf. Mannschaft, ggf. „Nicht zur LM melden“ (DAVID-Spalte Nicht-Meldung), Verarbeitungsstatus (siehe 12.1).
 
 Pro Vereinsmeldung zusätzlich ein Ansprechpartner (Name, E-Mail, optional Telefon), in der Regel der Sportleiter, der die Meldung erstellt hat. Die Angabe ist Pflicht beim Einreichen.
 
@@ -188,7 +188,7 @@ Eine Zeile pro Schütze und Disziplin, Spalten in dieser Reihenfolge:
 | Meldeergebnis | im Ergebnisformat der Disziplin, Zehntel mit Dezimalkomma (z. B. 389,4); leer, wenn nicht angegeben |
 | Geburtsdatum | TT.MM.JJJJ |
 | Mitgliedsnummer | als Text |
-| Nicht-Meldung | offen |
+| Nicht-Meldung | 1 = nicht zur Landesmeisterschaft weitermelden (geklärt 25.11.2026) |
 | DAS | immer 0 |
 | Mannschaft | Mannschaftsnummer oder leer |
 
@@ -274,7 +274,7 @@ Das bestehende Ergebnis-Plugin wird nicht verknüpft, sondern langfristig in das
 | Punkt | Klärung durch |
 |---|---|
 | Kennzahl bei MixTeams in DAVID: Team- oder Geschlechterklasse | Florian |
-| Bedeutung der Spalte „Nicht-Meldung“ (vermutlich: nicht zur LM weitermelden → Checkbox pro Einzelmeldung) | Florian |
+| ~~Bedeutung der Spalte „Nicht-Meldung“~~ geklärt 25.11.2026: nicht zur LM weitermelden, Checkbox „Nicht zur LM melden“ pro Einzelmeldung | Florian |
 | FITASC: startet eine Schützin ab 56 in Damen (61) oder Senioren (62)? | FITASC-Tabelle der SpO |
 | SpO 2027: Änderungen in Teil 6, 9 und 11 auf Klassen und Startrechte prüfen | Florian |
 | Kennzahlen mit Buchstaben (1.56S, 1.58 O/G, 2.03 F) im DAVID-Format | Testimport |

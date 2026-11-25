@@ -518,12 +518,15 @@
 		if (m.ohne_ergebnis > 0) {
 			html += `<div class="kmm-alert kmm-alert-warn" id="kmm-ohne-ergebnis">${ohneErgebnisText(m.ohne_ergebnis)}</div>`;
 		}
+		if (m.einstellungen.nicht_meldung_sichtbar && m.einzelmeldungen.length > 0) {
+			html += '<p class="kmm-muted kmm-nm-hinweis">„Nicht zur LM“: Haken setzen, wenn ein Schütze in dieser Disziplin nicht zur Landesmeisterschaft weitergemeldet werden soll.</p>';
+		}
 		if (m.einzelmeldungen.length === 0) {
 			html += `<div class="kmm-leer"><strong>Noch keine Starter gemeldet.</strong>${rw ? (state.schuetzen.length ? 'Oben einen Schützen wählen und die Disziplinen melden.' : 'Zuerst unter „1 Schützen“ die Schützen anlegen.') : ''}</div>`;
 		} else {
 			let aktuell = null;
 			const zeigeStatus = statusSichtbar();
-			html += '<div class="kmm-tabelle-wrap"><table class="kmm-tabelle kmm-meldetabelle"><thead><tr><th>Name</th><th>Startklasse</th><th>Ergebnis</th>' + (m.einstellungen.nicht_meldung_sichtbar ? '<th title="Nicht-Meldung">N-M</th>' : '') + '<th>Mannsch.</th><th class="r">Startgeld</th>' + (zeigeStatus ? '<th>Status</th>' : '') + '<th></th></tr></thead><tbody>';
+			html += '<div class="kmm-tabelle-wrap"><table class="kmm-tabelle kmm-meldetabelle"><thead><tr><th>Name</th><th>Startklasse</th><th>Ergebnis</th>' + (m.einstellungen.nicht_meldung_sichtbar ? '<th title="Haken setzen, wenn dieser Start nicht zur Landesmeisterschaft weitergemeldet werden soll.">Nicht zur LM</th>' : '') + '<th>Mannsch.</th><th class="r">Startgeld</th>' + (zeigeStatus ? '<th>Status</th>' : '') + '<th></th></tr></thead><tbody>';
 			m.einzelmeldungen.forEach((e) => {
 				if (e.kennzahl !== aktuell) {
 					aktuell = e.kennzahl;
@@ -537,7 +540,7 @@
 					<td class="kmm-z-name"><strong>${h(e.nachname)}, ${h(e.vorname)}</strong>${e.para ? `<div class="kmm-muted">${h(e.para)}</div>` : ''}${e.konflikt ? `<div class="kmm-fehler">${h(e.konflikt_text)}</div>` : ''}${(e.hinweise || []).filter((x) => !/^Höhermeldung/.test(x) || true).map((x) => `<div class="kmm-hinweis-klein">${h(x)}</div>`).join('')}</td>
 					<td class="kmm-z-klasse" data-label="Startklasse">${h(e.startklasse)}${e.hoehermeldung ? ' <span class="kmm-badge kmm-badge-hm" title="Höhermeldung">HM</span>' : ''} <span class="kmm-muted">${h(e.kennzahl_voll)}</span>${e.klasse !== e.startklasse ? `<div class="kmm-hinweis-klein">Altersklasse ${h(e.klasse)}</div>` : ''}</td>
 					<td class="kmm-z-ergebnis" data-label="Ergebnis">${e.typ === 'mixteam' ? '<span class="kmm-muted" title="MixTeams haben keine Einzelwertung; ein Meldeergebnis wird nicht benötigt.">nicht nötig (MixTeam)</span>' : `<input type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" class="kmm-ergebnis ${e.meldeergebnis === '' ? 'is-leer' : ''}" data-action="ergebnis" data-id="${e.id}" value="${h(e.meldeergebnis)}" placeholder="${ergebnisPh}" aria-label="Meldeergebnis ${h(e.nachname)}, ${h(e.vorname)}, ${h(e.kennzahl)}" ${rwZ ? '' : 'disabled'}>`}</td>
-					${m.einstellungen.nicht_meldung_sichtbar ? `<td class="kmm-z-nm" data-label="Nicht-Meldung"><input type="checkbox" data-action="nicht-meldung" data-id="${e.id}" ${e.nicht_meldung ? 'checked' : ''} ${rwZ ? '' : 'disabled'}></td>` : ''}
+					${m.einstellungen.nicht_meldung_sichtbar ? `<td class="kmm-z-nm" data-label="Nicht zur LM melden"><input type="checkbox" data-action="nicht-meldung" data-id="${e.id}" aria-label="${h(e.nachname)}, ${h(e.vorname)}, ${h(e.kennzahl)} nicht zur Landesmeisterschaft melden" ${e.nicht_meldung ? 'checked' : ''} ${rwZ ? '' : 'disabled'}></td>` : ''}
 					<td class="kmm-z-team" data-label="Mannschaft">${e.mannschaft_nummer ? 'M<span class="kmm-lang">annschaft </span>' + e.mannschaft_nummer : (e.mannschaft_moeglich ? '<span class="kmm-muted kmm-kein">–</span>' : '')}</td>
 					<td class="r kmm-z-geld" data-label="Startgeld">${e.typ === 'mixteam' ? '–' : geld(e.startgeld)}</td>
 					${zeigeStatus ? `<td class="kmm-z-status" data-label="Status">${abg ? `<span class="kmm-badge kmm-badge-warn">abgemeldet</span><div class="kmm-muted">${h(e.abgemeldet_am)}${e.abmeldegrund ? ' – ' + h(e.abmeldegrund) : ''}</div>${admin && rwZ ? `<label class="kmm-startgeld-schalter"><input type="checkbox" data-action="startgeld" data-id="${e.id}" ${e.startgeld_berechnen ? 'checked' : ''}> Startgeld berechnen</label>` : `<div class="kmm-muted">Startgeld ${e.startgeld_berechnen ? 'wird berechnet' : 'entfällt'}</div>`}` : `<span class="kmm-badge kmm-status-${h(e.verarbeitungsstatus)}">${h(STATUS_LABEL[e.verarbeitungsstatus] || e.verarbeitungsstatus)}</span>${e.verarbeitungsgrund ? `<div class="kmm-fehler">${h(e.verarbeitungsgrund)}</div>` : ''}`}${e.nachgemeldet ? '<div class="kmm-muted">Nachmeldung</div>' : ''}</td>` : ''}

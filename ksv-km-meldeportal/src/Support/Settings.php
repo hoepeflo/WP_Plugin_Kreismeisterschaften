@@ -25,7 +25,7 @@ final class Settings {
 			'route_slug'                     => 'km-meldung',
 			// Vereinsoberfläche im Rahmen der Website (Kopf und Fuß des Themes) statt als eigene Seite.
 			'portal_im_theme'                => false,
-			// Checkbox „Nicht-Meldung" in der Vereinsoberfläche anzeigen (Bedeutung offen).
+			// Checkbox „Nicht zur LM melden" (DAVID-Spalte Nicht-Meldung) in der Vereinsoberfläche anzeigen.
 			'nicht_meldung_sichtbar'         => false,
 			// FITASC: Schützinnen ab 56 starten in Damen (61) oder Senioren (62).
 			'fitasc_damen_ab_56'             => 'damen',
