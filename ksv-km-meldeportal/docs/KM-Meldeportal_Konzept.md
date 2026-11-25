@@ -100,7 +100,7 @@ Die Vereine erfassen zuerst alle Einzelmeldungen und fassen danach Schützen zu 
 
 Beispiel 1.10 Luftgewehr: Herren I (M) und Herren II (b.10) bilden gemeinsam eine Mannschaft in Klasse 10; Herren III hat eine eigene Mannschaftswertung.
 
-MixTeams (1.12 LG, 2.12 LP, 3.12 Trap Mix, 3.22 Skeet Mix) sind ein eigener Typ: genau zwei Schützen, ein Mann und eine Frau, beide in derselben Teamklasse. Es gibt nur „Team Junioren“ und „Team Damen/Herren“. Bei LG, LP und Trap Mix starten Jugend und Junioren II bei Team Junioren, Herren/Damen II–V bei Team Damen/Herren. Bei Skeet Mix gibt es nur Team Damen/Herren. Schüler haben kein Startrecht. MixTeam-Disziplinen haben keine Einzelwertung.
+MixTeams (1.12 LG, 2.12 LP, 3.12 Trap Mix, 3.22 Skeet Mix) sind ein eigener Typ: genau zwei Schützen, ein Mann und eine Frau, beide in derselben Teamklasse. Es gibt nur „Team Junioren“ und „Team Damen/Herren“. Bei LG, LP und Trap Mix starten Jugend und Junioren II bei Team Junioren, Herren/Damen II–V bei Team Damen/Herren. Bei Skeet Mix gibt es nur Team Damen/Herren. Schüler haben kein Startrecht. MixTeam-Disziplinen haben keine Einzelwertung. Je Schütze kann freiwillig das Vorkampfergebnis (z. B. 30 Schuss bei LP MixTeam) als Meldeergebnis angegeben werden; ein leeres Feld gilt nicht als fehlendes Ergebnis, ein eingetragenes wird wie jedes Meldeergebnis exportiert (seit 25.11.2026).
 
 Mannschaftsnummern werden pro Verein und Disziplin fortlaufend und eindeutig vergeben, auch über verschiedene Mannschaftsklassen hinweg.
 
